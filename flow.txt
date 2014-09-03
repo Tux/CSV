@@ -1,0 +1,243 @@
+parse
+
+    get-next reaturns the next character in the stream and maintains
+    statistics like the position of that character in the stream being
+    parsed (line, position). Will return false when no characters left
+    to parse
+
+    Char $c;  # is the last character read
+    Char $c2; # is the next character
+    Char $c3; # id the one after that
+
+
+    State  $waitForField	= true;
+    Int    $fld_idx		= 0;
+    String $f			= undef;
+    String $fields[];	# what to return, now including properties:
+			# properties of what was in the CSV
+			# a,"2",3 and 1,2,3 will both return
+			# [ "1", "2", "3" ]. @flags will hold the fact
+			# that "2" was originally quoted
+			# keep_meta_info should now be default and not
+			# possible to switch off
+
+1. SEP
+	A   # ,1,"foo, 3",,bar,
+	    # ^           ^
+	B   # ,1,"foo, 3",,bar,
+	    #        ^
+	C   # ,1,"foo, 3",,bar,
+	    #   ^        ^    ^
+
+2. EOL ($eol or "\n")
+	A   # ,1,"foo, 3",,bar,
+	    #                  ^
+	B   # ,1,"foo\n 3",,bar,
+	    #        ^
+	C   # I don't know if I want to keep this option
+	    # ,1,foo\n 3,,bar,
+	D   # ,1,"foo\n 3",,bar
+	    #                  ^
+
+3. CR
+
+4. QUO
+	A   # ,1,"foo, 3",,bar,\r\n
+	    #    ^
+	B   # ,1,"foo, 3",,bar,\r\n
+	    #           ^
+
+5. ESC
+
+6. OTHER
+
+
+macro cleanup-and-push
+{
+    if ($f.isempty) {
+	$options{empty_is_undef} ||
+	   (!$f.is_quoted && $options{blank_is_undef} and
+	    $f = undef;
+	}
+    else {
+	if ($options{allow_whitespace && !$f.isquoted)
+	    $f =~ s/\s+$//;
+	if ($f.isbinary)
+	    # Chack unicodeness ....
+	}
+
+    $options{is_bound} or push @fields, $f;
+
+    $f = udef;
+    $waitingForField = 1;
+    }
+
+    while (Char $c = get-nextchar) {
+
+ANY:	SV = newfield;
+
+	###################################################################
+	# Separation                                                    SEP
+	if ($c eq $sep) {
+
+SEP:	    # ,1,"foo, 3",,bar,
+	    # ^           ^
+	    if ($waitingForField) {
+
+		$f = $option{blank_is_undef} ||
+		     $option{empty_is_undef}
+		    ? undef
+		    : "";
+
+		$csv->is_bound or # bind_columns is used
+		    push @fields, $f;
+
+		$f = undef;
+		}
+
+	    # ,1,"foo, 3",,bar,
+	    #        ^
+	    elsif ($f.isquoted) {
+		$f .= $sep;
+		}
+
+	    # ,1,"foo, 3",,bar,
+	    #   ^        ^    ^
+	    else {
+		push @fields, $f;
+		}
+	    }
+
+	###################################################################
+	# End Of Line                                                   EOL
+	# Default OK is \n, \r and \r\n are done in next section
+	elsif ($eol && $c eq $eol or $c eq "\n") {  # tricky for multi-byte
+		    # $eol = "\c{1234}" is easy, $eol = "--" is not
+
+EOL:	    # ,1,"foo, 3",,bar,
+	    #                  ^
+	    if ($waitingForField) {
+
+		$f = $option{blank_is_undef} ||
+		     $option{empty_is_undef}
+		    ? undef
+		    : "";
+
+		$csv->is_bound or # bind_columns is used
+		    push @fields, $f;
+
+		return true; ##############################################
+		}
+
+	    # ,1,"foo\n 3",,bar,
+	    #        ^
+	    if ($f.isquoted) {
+		$f .= $sep;
+		$f.set_binary;
+
+		$options{binary} or  # embedded newline without binary
+		    ERROR_INSIDE_FIELD (2021); ****************************
+
+		$f .= $eol;
+		}
+
+	    # I don't know if I want to keep this option
+	    # ,1,foo\n 3,,bar,
+	    #       ^
+	    elsif ($options{verbatim}) {
+		$f.set_binary;
+
+		$options{binary} or  # embedded newline without binary
+		    ERROR_INSIDE_FIELD (2030); ****************************
+		$f .= $eol;
+		}
+
+	    # ,1,"foo\n 3",,bar
+	    #                  ^
+	    else {
+		cleanup-and-push;
+
+		return true; ##############################################
+		}
+	    }
+
+	###################################################################
+	# CR (special)                                                  EOL
+	elsif ($c eq "\r" && !$options{verbatim}) {
+
+CR:	    # ,1,"foo, 3",,bar,\r\n
+	    #                  ^
+	    if ($waitingForField) {
+
+		$waitingForField = false;
+
+		$eol eq "\r" and
+		    goto EOL;
+
+		$c2 = nextchar;
+
+		# EOF?
+		# NL	- Do we support \r-- if eol == "--" ?
+		# inside quotes?
+		# $eol = "\r"
+		}
+	    }
+	###################################################################
+	# Quotation                                                     QUO
+	elsif ($c eq "\r" && !$options{verbatim}) {
+
+QUO:	    # ,1,"foo, 3",,bar,\r\n
+	    #    ^
+	    if ($waitinForField) {
+		$waitinForField = false;
+		$f.setquoted;
+		}
+
+	    elsif ($f.isquoted) {
+
+		$c2 = next-char;
+
+		if ($escape.undef || $c ne $esc) {
+		    # ,1,"foo, 3",,bar,\r\n
+		    #           ^
+
+		    if ($options{allow_whitespace}}) {
+			while ($c2.isblank)
+			    $c2 = next-char;
+			}
+
+		    if ($c2 eq $sep) {
+			cleanup-and-push;
+
+			continue;
+			}
+
+		    if ($c2 eq EOF) {
+			cleanup-and-push;
+
+			return true; ######################################
+			}
+
+		    if ($c2 eq "\r") {
+			....
+			}
+
+		    if ($c2 eq $eol || $c2 eq "\n") {
+			cleanup-and-push;
+
+			return true; ######################################
+			}
+
+		    if ($options{allow_loose_quotes}) {
+			$f .= $quote;
+			$c = $c2;
+			goto ANY;
+			}
+
+		    PARSEERROR (2011);
+		    return false; #########################################
+		    }
+
+		}
+	    }
+	}
