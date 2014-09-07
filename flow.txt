@@ -165,9 +165,9 @@ EOL:	    # ,1,"foo, 3",,bar,
 	# CR (special)                                                  EOL
 	elsif ($c eq "\r" && !$options{verbatim}) {
 
-CR:	    # ,1,"foo, 3",,bar,\r\n
-	    #                  ^
-	    if ($waitingForField) {
+CR:	    if ($waitingForField) {
+		# ,1,"foo, 3",,bar,\r\n
+		#                  ^
 
 		$waitingForField = false;
 
@@ -176,19 +176,92 @@ CR:	    # ,1,"foo, 3",,bar,\r\n
 
 		$c2 = nextchar;
 
-		# EOF?
-		# NL	- Do we support \r-- if eol == "--" ?
-		# inside quotes?
-		# $eol = "\r"
+		if ($c2 eq EOF) {
+		    # ,1,"foo, 3",,bar,\r
+		    #                    ^
+		    cleanup-and-push;
+
+		    return true; ######################################
+		    }
+
+		if ($c2 eq NL) {
+		    # ,1,"foo, 3",,bar,\r\n
+		    #                    ^
+		    goto EOL;
+		    }
+
+		if ($eol.undef && $c2.notspecial) { # Keep \r as default EOL
+		    # ,1,"foo, 3",,bar,\r
+		    # baz,4
+		    # ^
+		    $eol = "\r";
+
+		    cleanup-and-push;
+
+		    return true; ######################################
+		    }
+
+		# ,1,"foo, 3",,bar,\r\t
+		#                    ^
+		PARSEERROR (2031);
+		return false; #####################################
+		}
+
+	    if ($f.isquoted) {
+		# ,1,"foo,\r 3",,bar,\r\n
+		#         ^
+		$f.set_binary;
+
+		$options{binary} or  # embedded \r without binary
+		    ERROR_INSIDE_QUOTES (2022); ***************************
+
+		$f .= CR;
+		}
+	    else {
+		if ($eol eq "\r") {
+		    # ,1,"foo,\r 3",,bar\r
+		    #                   ^
+		    cleanup-and-push;
+
+		    return true; ##########################################
+		    }
+
+		$c2 = next-char;
+
+		if ($c2 eq NL) {
+		    # ,1,"foo,\r 3",,bar\r\n
+		    #                     ^
+		    cleanup-and-push;
+
+		    return true; ##########################################
+		    }
+
+		if ($eol.undef && $c2.notspecial) { # Keep \r as default EOL
+		    # ,1,"foo, 3",,bar\r
+		    # baz,4
+		    # ^
+		    $eol = "\r";
+
+		    cleanup-and-push;
+
+		    return true; ##########################################
+		    }
+
+		# ,1,"foo, 3",,bar\r\t
+		#                   ^
+		PARSEERROR (2032);
+		return false; #############################################
 		}
 	    }
+
 	###################################################################
 	# Quotation                                                     QUO
-	elsif ($c eq "\r" && !$options{verbatim}) {
+	elsif ($c eq $quote) {
 
-QUO:	    # ,1,"foo, 3",,bar,\r\n
-	    #    ^
-	    if ($waitinForField) {
+QUO:	    if ($waitinForField) {
+		# ,1,"foo, 3",,bar,\r\n
+		#    ^
+
 		$waitinForField = false;
 		$f.setquoted;
 		}
@@ -198,37 +271,70 @@ QUO:	    # ,1,"foo, 3",,bar,\r\n
 		$c2 = next-char;
 
 		if ($escape.undef || $c ne $esc) {
+
+		    # This section is for undefined ESC or when ESC != QUO
+		    # Unlikely path for default conf where QUO == ESC
+
 		    # ,1,"foo, 3",,bar,\r\n
 		    #           ^
 
 		    if ($options{allow_whitespace}}) {
+			# , 1 , "foo, 3" , , bar , \r\n
+			#               ^
 			while ($c2.isblank)
 			    $c2 = next-char;
 			}
 
 		    if ($c2 eq $sep) {
+			# ,1,"foo, 3",,bar,\r\n
+			#            ^
 			cleanup-and-push;
 
 			continue;
 			}
 
 		    if ($c2 eq EOF) {
+			# ,1,"foo, 3"
+			#            ^
 			cleanup-and-push;
 
 			return true; ######################################
 			}
 
 		    if ($c2 eq "\r") {
-			....
+
+			if ($eol eq "\r") {
+			    # ,1,"foo, 3"\r
+			    #            ^
+			    cleanup-and-push;
+
+			    return true; ##################################
+			    }
+
+			$c3 = next-char;
+			if ($c3 eq NL) {
+			    # ,1,"foo, 3"\r\n
+			    #              ^
+			    cleanup-and-push;
+
+			    return true; ##################################
+			    }
+
+			PARSEERROR (2010);
+			return false; #####################################
 			}
 
 		    if ($c2 eq $eol || $c2 eq "\n") {
+			# ,1,"foo, 3"\n
+			#            ^
 			cleanup-and-push;
 
 			return true; ######################################
 			}
 
 		    if ($options{allow_loose_quotes}) {
+			# ,1,"foo, 3"456",,bar,\r\n
+			#           ^
 			$f .= $quote;
 			$c = $c2;
 			goto ANY;
@@ -237,6 +343,8 @@ QUO:	    # ,1,"foo, 3",,bar,\r\n
 		    PARSEERROR (2011);
 		    return false; #########################################
 		    }
+
+		# We do have an " *and* an escape
 
 		}
 	    }

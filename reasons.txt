@@ -1,0 +1,9 @@
+a. A signal that perl5 people care about perl6 (instead of the two camps
+   yelling at eatchother)
+
+b. A signal the XS modules in perl5 can be performant in pure-perl6
+   
+c. As an exercise (to John and me) into how write perl6 that is so close
+   to the system (my XS uses quite a bit of internal hackery)
+
+d. Motivate tadzik to write a slang for *me*
