@@ -5,6 +5,8 @@ parse
     parsed (line, position). Will return false when no characters left
     to parse
 
+    Only $quote, $escape and \0 (optional) need escape
+
     Char $c;  # is the last character read
     Char $c2; # is the next character
     Char $c3; # id the one after that
@@ -29,7 +31,43 @@ parse
 	C   # ,1,"foo, 3",,bar,
 	    #   ^        ^    ^
 
-2. EOL ($eol or "\n")
+2. QUO
+	A   # ,1,"foo, 3",,bar,\r\n
+	    #    ^
+	B   # ,1,"foo, 3",,bar,\r\n
+	    #           ^
+	C   # , 1 , "foo, 3" , , bar , \r\n
+	    #               ^
+	D   # ,1,"foo, 3",,bar,\r\n
+	    #            ^
+	E   # ,1,"foo, 3"\n
+	    #            ^
+
+	#   if ESC eq QUO {
+
+	Fa  # ,1,"foo, 3"056",,bar,\r\n
+	    #            ^
+	Fb  # ,1,"foo, 3""56",,bar,\r\n    "ESC *and* "QUO
+	    #            ^
+	Fc  # ,1,"foo, 3"56",,bar,\r\n
+	    #            ^
+	    }
+
+	G   # ,1,"foo, 3"\r
+	    #            ^
+	H   # ,1,"foo, 3"\r\n
+	    #              ^
+	I   # ,1,"foo, 3",,bar,\r
+	    # baz,4
+	    # ^
+	J   # ,1,"foo, 3"
+	    #            ^
+	K   # ,1,"foo, 3"56",,bar,\r\n    (ESC ne QUO)
+	    #            ^
+
+3. ESC
+
+4. EOL ($eol or "\n")
 	A   # ,1,"foo, 3",,bar,
 	    #                  ^
 	B   # ,1,"foo\n 3",,bar,
@@ -39,15 +77,31 @@ parse
 	D   # ,1,"foo\n 3",,bar
 	    #                  ^
 
-3. CR
-
-4. QUO
+5. CR
 	A   # ,1,"foo, 3",,bar,\r\n
-	    #    ^
-	B   # ,1,"foo, 3",,bar,\r\n
-	    #           ^
-
-5. ESC
+	    #                  ^
+	B   # ,1,"foo, 3",,bar,\r
+	    #                    ^
+	C   # ,1,"foo, 3",,bar,\r\n
+	    #                    ^
+	D   # ,1,"foo, 3",,bar,\r
+	    # baz,4
+	    # ^
+	E   # ,1,"foo, 3",,bar,\r\t
+	    #                    ^
+	F   # ,1,"foo,\r 3",,bar,\r\n
+	    #         ^
+	G   # ,1,"foo,\r 3",,bar\r
+	    #                   ^
+	H   # ,1,"foo,\r 3",,bar\r\n
+	    #                     ^
+	I   # ,1,"foo, 3",,bar\r
+	    # baz,4
+	    # ^
+	J   # ,1,"foo, 3",,bar\r\t
+	    #                   ^
+	K   # 1,foo "bar" 12, baz\r\n
+	    #       ^
 
 6. OTHER
 
@@ -63,7 +117,7 @@ macro cleanup-and-push
 	if ($options{allow_whitespace && !$f.isquoted)
 	    $f =~ s/\s+$//;
 	if ($f.isbinary)
-	    # Chack unicodeness ....
+	    # Check unicodeness ....
 	}
 
     $options{is_bound} or push @fields, $f;
@@ -72,9 +126,11 @@ macro cleanup-and-push
     $waitingForField = 1;
     }
 
-    while (Char $c = get-nextchar) {
+    while (Char $c = next-char) {
 
-ANY:	SV = newfield;
+	SV = newfield;
+
+ANY:
 
 	###################################################################
 	# Separation                                                    SEP
@@ -174,7 +230,7 @@ CR:	    if ($waitingForField) {
 		$eol eq "\r" and
 		    goto EOL;
 
-		$c2 = nextchar;
+		$c2 = next-char;
 
 		if ($c2 eq EOF) {
 		    # ,1,"foo, 3",,bar,\r
@@ -264,41 +320,60 @@ QUO:	    if ($waitinForField) {
 
 		$waitinForField = false;
 		$f.setquoted;
+		continue;
 		}
 
-	    elsif ($f.isquoted) {
+	    if ($f.isquoted) {
+
+		# ,1,"foo, 3",,bar,\r\n
+		#           ^
 
 		$c2 = next-char;
 
-		if ($escape.undef || $c ne $esc) {
+		if ($options{allow_whitespace}) {
+		    # , 1 , "foo, 3" , , bar , \r\n
+		    #               ^
+		    while ($c2.isblank)
+			$c2 = next-char;
+		    }
 
-		    # This section is for undefined ESC or when ESC != QUO
-		    # Unlikely path for default conf where QUO == ESC
-
+		if ($c2 eq $sep) {
 		    # ,1,"foo, 3",,bar,\r\n
-		    #           ^
+		    #            ^
+		    cleanup-and-push;
 
-		    if ($options{allow_whitespace}}) {
-			# , 1 , "foo, 3" , , bar , \r\n
-			#               ^
-			while ($c2.isblank)
-			    $c2 = next-char;
-			}
+		    continue;
+		    }
 
-		    if ($c2 eq $sep) {
-			# ,1,"foo, 3",,bar,\r\n
+		if ($c2 eq $eol || $c2 eq "\n") {
+		    # ,1,"foo, 3"\n
+		    #            ^
+		    cleanup-and-push;
+
+		    return true; ##########################################
+		    }
+
+		if ($escape eq $quote) {
+
+		    if ($c2 eq "0") {
+			# ,1,"foo, 3"056",,bar,\r\n
 			#            ^
-			cleanup-and-push;
-
+			$f .= "\0";
 			continue;
 			}
 
-		    if ($c2 eq EOF) {
-			# ,1,"foo, 3"
+		    if ($c2 eq "0") {
+			# ,1,"foo, 3""56",,bar,\r\n    "QUO *and* "ESC
 			#            ^
-			cleanup-and-push;
+			$f .= "\0";
+			continue;
+			}
 
-			return true; ######################################
+		    if ($options{allow_loose_escapes}) {
+			# ,1,"foo, 3"56",,bar,\r\n
+			#            ^
+			$f .= $c;
+			goto ANY;
 			}
 
 		    if ($c2 eq "\r") {
@@ -320,16 +395,19 @@ QUO:	    if ($waitinForField) {
 			    return true; ##################################
 			    }
 
-			PARSEERROR (2010);
+			if ($eol.undef && $c2.notspecial) { # Keep \r as default EOL
+			    # ,1,"foo, 3",,"bar"\r
+			    # baz,4
+			    # ^
+			    $eol = "\r";
+
+			    cleanup-and-push;
+
+			    return true; ##################################
+			    }
+
+			PARSEERROR (2023 or 2010);
 			return false; #####################################
-			}
-
-		    if ($c2 eq $eol || $c2 eq "\n") {
-			# ,1,"foo, 3"\n
-			#            ^
-			cleanup-and-push;
-
-			return true; ######################################
 			}
 
 		    if ($options{allow_loose_quotes}) {
@@ -339,13 +417,37 @@ QUO:	    if ($waitinForField) {
 			$c = $c2;
 			goto ANY;
 			}
-
-		    PARSEERROR (2011);
-		    return false; #########################################
 		    }
 
-		# We do have an " *and* an escape
+		if ($c2 eq EOF) {
+		    # ,1,"foo, 3"
+		    #            ^
+		    cleanup-and-push;
 
+		    return true; ##########################################
+		    }
+
+		if ($options{allow_loose_quotes} && $quote ne $escape) {
+		    # ,1,"foo, 3"56",,bar,\r\n    (ESC ne QUO)
+		    #            ^
+		    $f .= $c;
+		    $c = $c2;
+		    goto ANY;
+		    }
+
+		# 1,"foo" ",3
+		#        ^
+		PARSEERROR (2023 or 2011);
+		return false; #############################################
 		}
+
+	    if ($options{allow_loose_quotes}) {
+		# ,1,"foo, 3"56",,bar,\r\n    (ESC ne QUO)
+		#            ^
+		$f .= $c;
+		continue;
+		}
+
+	    PARSEERROR (2034);
 	    }
 	}
