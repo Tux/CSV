@@ -6,21 +6,23 @@ my @rslt = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
 sub progress (*@y) {
     my Str $x;
     for (@y) {
-#	    s{^(\d+)}   = sprintf "%3d:", $1;
-	s:g{","\s+} = ",\t";
-	s:g{(\w)\(} = "$1 (";
-	$x ~= .Str;
+	s{^(\d+)$}     = sprintf "%3d -", $_;
+	#s{^ <[A] - [Z]> ** 3 $} = "$_: ";
+	s:g{"True,"} = "True, ";
+	s:g{"new("}  = "new (";
+	$x ~= .Str ~ " ";
 	}
     $x.say;
     } # progress
 
 class CSV:Field {
 
-    has Str  $.text		is rw;
     has Bool $.is_quoted	is rw = False;
 #   has Bool $.is_binary	is rw = False;
 #   has Bool $.is_utf8		is rw = False;
     has Bool $.undefined	is rw = True;
+    # text last for formatted output of .perl (for now)
+    has Str  $.text		is rw;
 
     enum Type < NA INT NUM STR BOOL >;
 
@@ -95,12 +97,19 @@ class Text::CSV {
         my @ch = grep { .Str ne "" },
 	    $buffer.split(rx{ $eol | $sep | $quo | $esc }, :all).map(~*);
 
+        my Bool $skip = False;
+
         for @ch.kv -> $i, Str $chunk {
 
-	    #progress("** $i: '$chunk'\t", $f.perl);
+	    if $skip {
+		$skip = False;
+		next;
+		}
+
+	    progress($i, "###", "'$chunk'", $f.perl);
 
             if $chunk ~~ rx{^ $eol $} {
-		progress("EOL");
+		progress($i, "EOL");
 		if $f.is_quoted {	# 1,"2\n3"
 		    $f.add($chunk);
 		    next;
@@ -110,7 +119,7 @@ class Text::CSV {
 		}
 
             if $chunk eq $sep {
-		#progress("$i SEP");
+		progress($i, "SEP");
                 if $f.is_quoted {	# "1,2"
                     $f.add($chunk);
                     next;
@@ -120,17 +129,33 @@ class Text::CSV {
                 }
 
             if $chunk eq $quo {
-		progress("$i QUO: ", $f.perl);
+		progress($i, "QUO", $f.perl);
                 if $f.undefined {
 		    $f.set_quoted;
 		    next;
 		    }
                 if $f.is_quoted {
-                    progress("$i QUO: next = @ch[$i + 1]");
-                    if @ch[$i + 1] ~~ /^$sep/ {
+                    my Str $next = @ch[$i + 1];
+                    progress($i, "QUO", "next = $next");
+
+                    if $next eq $sep { # "1",
+			progress($i, "SEP");
+			$skip = True;
 			keep;
 			next;
 			}
+
+                    if $esc eq $quo {
+			progress($i, "ESC");
+			if $next ~~ s{^"0"} = "" {
+			    $f.add("\c0");
+			    next;
+			    }
+			if $next eq $quo {
+			    $skip = True;
+			    }
+			}
+
                     $f.add($chunk);
                     next;
                     }
@@ -139,6 +164,7 @@ class Text::CSV {
                 }
 
             if $chunk eq $esc {
+		progress($i, "QUO", $f.perl);
 		}
 
             $chunk ne "" and $f.add($chunk);
@@ -160,27 +186,5 @@ sub MAIN () {
 
     say $csv_parser.perl;
     progress (.perl) for $csv_parser.parse($test);
+    Qw { Expected: Str 1 ab cd e\0f g,h nl\nz\0i""3 Str }.say;
     }
-
-=begin plan
-
-            if ($chunk eq $quo) {
-                if (!defined $field) {
-                    $field = "";
-                    $field.set_quoted;
-                    next;
-                    }
-                # moeilijke code als omschreven in flow
-                # deal with esc eq sep
-                next;
-                }
-            if ($chunk eq $esc) {
-                ...
-                next;
-                }
-            $field.add ($chunk);
-            }
-        }
-    }
-
-=end plan
