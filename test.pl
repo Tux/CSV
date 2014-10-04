@@ -1,6 +1,6 @@
 use v6;
 
-my $test = q{,1,ab,"cd","e"0f","g,h","nl\nz"0i""""3",\r\n};
+my $test = qq{,1,ab,"cd","e"0f","g,h","nl\nz"0i""""3",\r\n};
 my @rslt = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
 
 sub progress (*@y) {
@@ -106,10 +106,10 @@ class Text::CSV {
 		next;
 		}
 
-	    progress($i, "###", "'$chunk'", $f.perl);
+	    #progress($i, "###", "'$chunk'", $f.perl);
 
             if $chunk ~~ rx{^ $eol $} {
-		progress($i, "EOL");
+		#progress($i, "EOL");
 		if $f.is_quoted {	# 1,"2\n3"
 		    $f.add($chunk);
 		    next;
@@ -119,7 +119,7 @@ class Text::CSV {
 		}
 
             if $chunk eq $sep {
-		progress($i, "SEP");
+		#progress($i, "SEP");
                 if $f.is_quoted {	# "1,2"
                     $f.add($chunk);
                     next;
@@ -129,25 +129,27 @@ class Text::CSV {
                 }
 
             if $chunk eq $quo {
-		progress($i, "QUO", $f.perl);
+		#progress($i, "QUO", $f.perl);
                 if $f.undefined {
 		    $f.set_quoted;
 		    next;
 		    }
                 if $f.is_quoted {
                     my Str $next = @ch[$i + 1];
-                    progress($i, "QUO", "next = $next");
+                    #progress($i, "QUO", "next = $next");
 
                     if $next eq $sep { # "1",
-			progress($i, "SEP");
+			#progress($i, "SEP");
 			$skip = True;
 			keep;
 			next;
 			}
 
                     if $esc eq $quo {
-			progress($i, "ESC");
-			if $next ~~ s{^"0"} = "" {
+			#progress($i, "ESC", "($next)");
+			if $next ~~ /^ "0"/ {
+			    @ch[$i + 1] ~~ s{^ "0"} = "";
+			    #progress($i, "Add NIL");
 			    $f.add("\c0");
 			    next;
 			    }
@@ -164,7 +166,7 @@ class Text::CSV {
                 }
 
             if $chunk eq $esc {
-		progress($i, "QUO", $f.perl);
+		progress($i, "ESC", $f.perl);
 		}
 
             $chunk ne "" and $f.add($chunk);
