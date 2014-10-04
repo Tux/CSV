@@ -76,7 +76,7 @@ class Text::CSV {
             die "$msg\n$buffer\n" ~ ' ' x $pos ~ "^\n";
             }
 
-        say $buffer.perl;
+        #say $buffer.perl;
         # A scoping bug in perl6 inhibits the use of $!eol inside the split
         #for $buffer.split(rx{ $!eol | $!sep | $!quo | $!esc }, :all).map(~*) -> Str $chunk {
         my     $eol = $!eol // rx{ \r\n | \r | \n };
@@ -130,12 +130,26 @@ class Text::CSV {
 
             if $chunk eq $quo {
 		#progress($i, "QUO", $f.perl);
+
                 if $f.undefined {
 		    $f.set_quoted;
 		    next;
 		    }
+
                 if $f.is_quoted {
-                    my Str $next = @ch[$i + 1];
+
+                    if $i == @ch - 1 {
+			keep;
+			return @!fields;
+			}
+
+                    my Str $next = @ch[$i + 1] // Nil;
+
+                    if $next eq Nil || $next ~~ /^ $eol $/ {
+			keep;
+			return @!fields;
+			}
+
                     #progress($i, "QUO", "next = $next");
 
                     if $next eq $sep { # "1",
@@ -189,4 +203,11 @@ sub MAIN () {
     say $csv_parser.perl;
     progress (.perl) for $csv_parser.parse($test);
     Qw { Expected: Str 1 ab cd e\0f g,h nl\nz\0i""3 Str }.say;
+
+    my Int $sum = 0;
+    for lines() :eager {
+        my @r = $csv_parser.parse($_);
+        $sum += +@r;
+	}
+    $sum.say;
     }
