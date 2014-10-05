@@ -21,17 +21,18 @@ class Text::CSV {
 
     has @!fields;
 
-    method parse(Str $line){
+    method parse(Str:D $line){
             #say $!escape_char, $!quote_char;
         enum State <Start Data QuotedData Finish Escape>;
+        # say State::Start.invert.perl;
 
         my State $state = State::Start;
         my State $saved_state;
-        my Str $field;
-        my Int $index;
-        my Str $input;
+        my Str:D $field;
+        my Int:D $index;
+        my Str:D $input;
 
-        my sub append(Str $char){
+        my sub append(Str:D $char){
             $field ~= $char;
         }
 
@@ -50,15 +51,18 @@ class Text::CSV {
             $state = $saved_state;
         }
 
-        my sub parse_error(Str $reason, *@args){
+        my sub parse_error(Str:D $reason, *@args){
             my $msg = $reason.sprintf(@args);
             die "$msg\n$line\n" ~ ' ' x $index ~ "^\n";
         }
             
         @!fields = Nil;
 
-        for 0..^$line.chars -> $lindex {
-            $index = $lindex;
+        my Int $last=$line.chars;
+        $index=0;
+        while $index < $last { # 30% faster than 0..^$line.chars ...
+        #for 0..^$line.chars -> Int:D $lindex {
+        #    $index = $lindex;
             $input = $line.substr($index,1);
             given $state {
                 when State::Start {
@@ -86,9 +90,7 @@ class Text::CSV {
                 }
                 when State::Escape {
                     given $input {
-                        when $!sep_char    { append($_); pop_state; }
-                        when $!quote_char  { append($_); pop_state; }
-                        when $!escape_char { append($_); pop_state; }
+                        when $!sep_char|$!quote_char|$!escape_char    { append($_); pop_state; }
                         default           { parse_error("Illegally escaped character"); }
                     }
                 }
@@ -100,11 +102,10 @@ class Text::CSV {
                 }
                 default { say "What state?", $_ }
             }
+            ++$index;
         }
         given $state {
-            when State::Start  { store }
-            when State::Finish { store }
-            when State::Data   { store }
+            when State::Start|State::Finish|State::Data  { store }
             default            { parse_error("Inproper state to end the line (%s)", $state); }
         }
     }
@@ -133,7 +134,7 @@ sub MAIN(
             Bool :$verbatim,
             Bool :$auto_diag,
             ) {
-say $escape_char.perl;
+
     my $csv_parser = Text::CSV.new
             :$quote_char
             :$escape_char
@@ -160,7 +161,7 @@ say $escape_char.perl;
         rule quoted_field { .* }
         token separator { ',' }
     }
-    say $csv_parser.perl;
+    #say $csv_parser.perl;
     $csv_parser.parse(q/ab,cde,"q",/);
         say $csv_parser.getline().perl;
     $csv_parser.sep_char='e';
