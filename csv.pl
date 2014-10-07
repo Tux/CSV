@@ -22,9 +22,7 @@ class Text::CSV {
     has @!fields;
 
     method parse(Str:D $line){
-            #say $!escape_char, $!quote_char;
         enum State <Start Data QuotedData Finish Escape>;
-        # say State::Start.invert.perl;
 
         my State $state = State::Start;
         my State $saved_state;
@@ -34,6 +32,10 @@ class Text::CSV {
 
         my sub append(Str:D $char){
             $field ~= $char;
+        }
+
+        my sub non_nil{
+            $field ~= '';
         }
 
         my sub store(){
@@ -47,7 +49,6 @@ class Text::CSV {
         }
 
         my sub pop_state(){
-            #say $saved_state;
             $state = $saved_state;
         }
 
@@ -68,7 +69,7 @@ class Text::CSV {
                 when State::Start {
                     given $input {
                         when $!sep_char   { store; }
-                        when $!quote_char { append(''); $state = State::QuotedData; }
+                        when $!quote_char { non_nil; $state = State::QuotedData; }
                         #when $!escape_char { $state = State::Data; push_state(State::Escape); }
                         default           { append($_); $state = State::Data; }
                     }
@@ -154,13 +155,7 @@ sub MAIN(
             :$verbatim
             :$auto_diag
             ;
-    my Str $sep ='"';
-    grammar CSV {
-        rule line { field [ <separator> field ] ? }
-        rule field { <quote> quoted_field <quote> $sep | .* }
-        rule quoted_field { .* }
-        token separator { ',' }
-    }
+    #my Str $sep ='"';
     #say $csv_parser.perl;
     $csv_parser.parse(q/ab,cde,"q",/);
         say $csv_parser.getline().perl;
