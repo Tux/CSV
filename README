@@ -1,0 +1,19 @@
+sh$ for i in $(seq 1 1000000); do echo 'hello,","," ",world,"!"'; done > /tmp/hello.csv
+sh$ time perl csv.pl < /tmp/hello.csv
+
+Text::CSV_XS		  0.038
+Text::CSV_PP		  0.651
+Text::CSV::Easy_XS	  0.022
+Text::CSV::Easy_PP	  0.018
+Pegex::CSV		  1.947
+csv.pl			 12.543
+test.pl			256.985
+
+time perl  csv-easy-pp.pl < /tmp/hello.csv
+time perl  csv-easy-xs.pl < /tmp/hello.csv
+time perl  csv-test-pp.pl < /tmp/hello.csv
+time perl  csv-test-xs.pl < /tmp/hello.csv
+time perl  csv-pegex.pl   < /tmp/hello.csv
+time perl6 csv.pl         < /tmp/hello.csv
+time perl6 test.pl        < /tmp/hello.csv
+
