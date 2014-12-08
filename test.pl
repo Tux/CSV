@@ -15,7 +15,7 @@ sub progress (*@y) {
     $x.say;
     } # progress
 
-class CSV:Field {
+class CSV::Field {
 
     has Bool $.is_quoted	is rw = False;
 #   has Bool $.is_binary	is rw = False;
@@ -65,6 +65,15 @@ class Text::CSV {
     has @!fields;
     has @!types;
     has @!callbacks;
+    method compose {
+        # A scoping bug in perl6 inhibits the use of $!eol inside the split
+        my     $eol = $!eol // rx{ \r\n | \r | \n };
+        my Str $sep = $!sep;
+        my Str $quo = $!quo;
+        my Str $esc = $!esc;
+	rx{ $eol | $sep | $quo | $esc }
+    };
+    has $!regex = self.compose();
 
     method parse (Str $buffer) {
 
@@ -77,13 +86,14 @@ class Text::CSV {
             }
 
         #say $buffer.perl;
-        # A scoping bug in perl6 inhibits the use of $!eol inside the split
+        ## A scoping bug in perl6 inhibits the use of $!eol inside the split
         #for $buffer.split(rx{ $!eol | $!sep | $!quo | $!esc }, :all).map(~*) -> Str $chunk {
         my     $eol = $!eol // rx{ \r\n | \r | \n };
-        my Str $sep = $!sep;
-        my Str $quo = $!quo;
-        my Str $esc = $!esc;
-        my $f = CSV:Field.new;
+        my Str $sep := $!sep;
+        my Str $quo := $!quo;
+        my Str $esc := $!esc;
+        my     $regex := $!regex;
+        my $f = CSV::Field.new;
 
         @!fields = Nil;
 
@@ -91,11 +101,11 @@ class Text::CSV {
 	    # Set is_binary
 	    # Set is_utf8
 	    @!fields.push($f);
-	    $f = CSV:Field.new;
+	    $f = CSV::Field.new;
 	    } # add
 
         my @ch = grep { .Str ne "" },
-	    $buffer.split(rx{ $eol | $sep | $quo | $esc }, :all).map(~*);
+	    $buffer.split($regex, :all).map(~*);
 
         my Bool $skip = False;
 
