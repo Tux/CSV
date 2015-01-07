@@ -104,7 +104,14 @@ class Text::CSV {
             $f = CSV::Field.new;
             } # add
 
-        my @ch = $buffer.split($regex, :all).map: { .Str if .Bool };
+        my @ch = $buffer.split($regex,:all).map: {
+            if $_ ~~ Str {
+                $_ if .chars;
+            }
+            else {
+                .Str if .Bool;
+            };
+        }
 
         my int $skip;
         my int $i = -1;
