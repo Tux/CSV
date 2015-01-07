@@ -104,8 +104,7 @@ class Text::CSV {
             $f = CSV::Field.new;
             } # add
 
-        my @ch = grep { .Str ne "" },
-            $buffer.split($regex, :all).map(~*);
+        my @ch = $buffer.split($regex, :all).map: { .Str if .Bool };
 
         my Bool $skip = False;
 
