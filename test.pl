@@ -106,12 +106,12 @@ class Text::CSV {
 
         my @ch = $buffer.split($regex, :all).map: { .Str if .Bool };
 
-        my Bool $skip = False;
+        my int $skip;
 
         for @ch.kv -> $i, Str $chunk {
 
             if $skip {
-                $skip = False;
+                $skip = 0;
                 next;
                 }
 
@@ -163,7 +163,7 @@ class Text::CSV {
 
                     if $next eq $sep { # "1",
                         #progress($i, "SEP");
-                        $skip = True;
+                        $skip = 1;
                         keep;
                         next;
                         }
@@ -177,7 +177,7 @@ class Text::CSV {
                             next;
                             }
                         if $next eq $quo {
-                            $skip = True;
+                            $skip = 1;
                             }
                         }
 
