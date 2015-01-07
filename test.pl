@@ -107,8 +107,10 @@ class Text::CSV {
         my @ch = $buffer.split($regex, :all).map: { .Str if .Bool };
 
         my int $skip;
+        my int $i = -1;
 
-        for @ch.kv -> $i, Str $chunk {
+        for @ch -> Str $chunk {
+            $i = $i + 1;
 
             if $skip {
                 $skip = 0;
