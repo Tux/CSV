@@ -6,23 +6,23 @@ my @rslt = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
 sub progress (*@y) {
     my Str $x;
     for (@y) {
-	s{^(\d+)$}     = sprintf "%3d -", $_;
-	#s{^ <[A] - [Z]> ** 3 $} = "$_: ";
-	s:g{"True,"} = "True, ";
-	s:g{"new("}  = "new (";
-	$x ~= .Str ~ " ";
-	}
+        s{^(\d+)$}     = sprintf "%3d -", $_;
+        #s{^ <[A] - [Z]> ** 3 $} = "$_: ";
+        s:g{"True,"} = "True, ";
+        s:g{"new("}  = "new (";
+        $x ~= .Str ~ " ";
+        }
     $x.say;
     } # progress
 
 class CSV::Field {
 
-    has Bool $.is_quoted	is rw = False;
-#   has Bool $.is_binary	is rw = False;
-#   has Bool $.is_utf8		is rw = False;
-    has Bool $.undefined	is rw = True;
+    has Bool $.is_quoted        is rw = False;
+#   has Bool $.is_binary        is rw = False;
+#   has Bool $.is_utf8                is rw = False;
+    has Bool $.undefined        is rw = True;
     # text last for formatted output of .perl (for now)
-    has Str  $.text		is rw;
+    has Str  $.text                is rw;
 
     enum Type < NA INT NUM STR BOOL >;
 
@@ -32,20 +32,20 @@ class CSV::Field {
         } # add
 
     method set_quoted () {
-	$!is_quoted = True;
+        $!is_quoted = True;
         .add("");
-	}
+        }
 
     } # CSV::Field
 
 class Text::CSV {
 
-    has Str  $.eol                 is rw;		# = ($*IN.newline),
+    has Str  $.eol                 is rw;                # = ($*IN.newline),
     has Str  $.sep                 is rw = ',';
     has Str  $.quo                 is rw = '"';
     has Str  $.esc                 is rw = '"';
 
-    has Bool $.binary              is rw = True;	# default changed
+    has Bool $.binary              is rw = True;        # default changed
     has Bool $.decode_utf8         is rw = True;
     has Bool $.auto_diag           is rw = False;
     has Bool $.diag_verbose        is rw = False;
@@ -60,7 +60,7 @@ class Text::CSV {
     has Bool $.quote_null          is rw = True;
     has Bool $.quote_binary        is rw = True;
     has Bool $.keep_meta_info      is rw = False;
-    has Bool $.verbatim            is rw;		# Should die!
+    has Bool $.verbatim            is rw;                # Should die!
 
     has @!fields;
     has @!types;
@@ -71,7 +71,7 @@ class Text::CSV {
         my Str $sep = $!sep;
         my Str $quo = $!quo;
         my Str $esc = $!esc;
-	rx{ $eol | $sep | $quo | $esc }
+        rx{ $eol | $sep | $quo | $esc }
     };
     has $!regex = self.compose();
 
@@ -98,89 +98,89 @@ class Text::CSV {
         @!fields = Nil;
 
         sub keep {
-	    # Set is_binary
-	    # Set is_utf8
-	    @!fields.push($f);
-	    $f = CSV::Field.new;
-	    } # add
+            # Set is_binary
+            # Set is_utf8
+            @!fields.push($f);
+            $f = CSV::Field.new;
+            } # add
 
         my @ch = grep { .Str ne "" },
-	    $buffer.split($regex, :all).map(~*);
+            $buffer.split($regex, :all).map(~*);
 
         my Bool $skip = False;
 
         for @ch.kv -> $i, Str $chunk {
 
-	    if $skip {
-		$skip = False;
-		next;
-		}
+            if $skip {
+                $skip = False;
+                next;
+                }
 
-	    #progress($i, "###", "'$chunk'", $f.perl);
+            #progress($i, "###", "'$chunk'", $f.perl);
 
             if $chunk ~~ rx{^ $eol $} {
-		#progress($i, "EOL");
-		if $f.is_quoted {	# 1,"2\n3"
-		    $f.add($chunk);
-		    next;
-		    }
-		keep;
-		return @!fields;
-		}
-
-            if $chunk eq $sep {
-		#progress($i, "SEP");
-                if $f.is_quoted {	# "1,2"
+                #progress($i, "EOL");
+                if $f.is_quoted {        # 1,"2\n3"
                     $f.add($chunk);
                     next;
                     }
-                keep;			# 1,2
+                keep;
+                return @!fields;
+                }
+
+            if $chunk eq $sep {
+                #progress($i, "SEP");
+                if $f.is_quoted {        # "1,2"
+                    $f.add($chunk);
+                    next;
+                    }
+                keep;                        # 1,2
                 next;
                 }
 
             if $chunk eq $quo {
-		#progress($i, "QUO", $f.perl);
+                #progress($i, "QUO", $f.perl);
 
                 if $f.undefined {
-		    $f.set_quoted;
-		    next;
-		    }
+                    $f.set_quoted;
+                    next;
+                    }
 
                 if $f.is_quoted {
 
                     if $i == @ch - 1 {
-			keep;
-			return @!fields;
-			}
+                        keep;
+                        return @!fields;
+                        }
 
                     my Str $next = @ch[$i + 1] // Nil;
 
                     if $next eq Nil || $next ~~ /^ $eol $/ {
-			keep;
-			return @!fields;
-			}
+                        keep;
+                        return @!fields;
+                        }
 
                     #progress($i, "QUO", "next = $next");
 
                     if $next eq $sep { # "1",
-			#progress($i, "SEP");
-			$skip = True;
-			keep;
-			next;
-			}
+                        #progress($i, "SEP");
+                        $skip = True;
+                        keep;
+                        next;
+                        }
 
                     if $esc eq $quo {
-			#progress($i, "ESC", "($next)");
-			if $next ~~ /^ "0"/ {
-			    @ch[$i + 1] ~~ s{^ "0"} = "";
-			    #progress($i, "Add NIL");
-			    $f.add("\c0");
-			    next;
-			    }
-			if $next eq $quo {
-			    $skip = True;
-			    }
-			}
+                        #progress($i, "ESC", "($next)");
+                        if $next ~~ /^ "0"/ {
+                            @ch[$i + 1] ~~ s{^ "0"} = "";
+                            #progress($i, "Add NIL");
+                            $f.add("\c0");
+                            next;
+                            }
+                        if $next eq $quo {
+                            $skip = True;
+                            }
+                        }
 
                     $f.add($chunk);
                     next;
@@ -190,20 +190,20 @@ class Text::CSV {
                 }
 
             if $chunk eq $esc {
-		progress($i, "ESC", $f.perl);
-		}
+                progress($i, "ESC", $f.perl);
+                }
 
             $chunk ne "" and $f.add($chunk);
             $pos += .chars;
             }
 
-	keep;
-	return @!fields;
+        keep;
+        return @!fields;
         } # parse
 
     method getline () {
         return @!fields;
-	} # getline
+        } # getline
     }
 
 sub MAIN () {
@@ -218,6 +218,6 @@ sub MAIN () {
     for lines() :eager {
         my @r = $csv_parser.parse($_);
         $sum += +@r;
-	}
+        }
     $sum.say;
     }
