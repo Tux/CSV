@@ -1,6 +1,8 @@
 sh$ for i in $(seq 1 1000000); do echo 'hello,","," ",world,"!"'; done > /tmp/hello.csv
 sh$ time perl csv.pl < /tmp/hello.csv
 
+sh test.sh
+
                     i686      i686      x68_64   x68_64   x68_64   x68_64
                     20141007  20141014  20141105 20141111 20141117 20150102
 ------------------  -------- --------- --------- -------- -------- --------
@@ -14,5 +16,15 @@ csv_gram.pl            -         -         -        -        -       19.501
 test.pl              256.985   201.621    71.847   72.221   65.279   59.042
 test-t.pl              -         -         -       72.024   65.202   59.869
 
-sh test.sh
-
+After Liz' changes:
+                    20150109
+------------------  -------- --------- --------- -------- -------- --------
+Text::CSV::Easy_XS     0.015
+Text::CSV::Easy_PP     0.016
+Text::CSV_XS           0.037
+Text::CSV_PP           0.520
+Pegex::CSV             1.360
+csv.pl                 8.571
+csv_gram.pl           14.107
+test.pl               40.916
+test-t.pl             41.407
