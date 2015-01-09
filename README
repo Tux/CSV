@@ -14,16 +14,5 @@ csv_gram.pl            -         -         -        -        -       19.501
 test.pl              256.985   201.621    71.847   72.221   65.279   59.042
 test-t.pl              -         -         -       72.024   65.202   59.869
 
-sh -x <<::
-time perl  csv-easy-xs.pl < /tmp/hello.csv
-time perl  csv-easy-pp.pl < /tmp/hello.csv
-time perl  csv-test-xs.pl < /tmp/hello.csv
-time perl  csv-test-pp.pl < /tmp/hello.csv
-time perl  csv-pegex.pl   < /tmp/hello.csv
-time perl6 csv.pl         < /tmp/hello.csv
-time perl6 csv_gram.pl    < /tmp/hello.csv
-time perl6 test.pl        < /tmp/hello.csv
-time perl6 test-t.pl      < /tmp/hello.csv
-::
-
+sh test.sh
 
