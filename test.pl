@@ -72,7 +72,7 @@ class Text::CSV {
         my Str $quo = $!quo;
         my Str $esc = $!esc;
         rx{ $eol | $sep | $quo | $esc }
-    };
+        };
     has $!regex = self.compose();
 
     method parse (Str $buffer) {
@@ -107,11 +107,11 @@ class Text::CSV {
         my @ch = $buffer.split($regex,:all).map: {
             if $_ ~~ Str {
                 $_ if .chars;
-            }
+                }
             else {
                 .Str if .Bool;
-            };
-        }
+                };
+            }
 
         my int $skip;
         my int $i = -1;
