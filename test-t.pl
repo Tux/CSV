@@ -95,15 +95,25 @@ class Text::CSV {
 	    $f = CSV:Field.new;
 	    } # add
 
-	my @ch = grep { .Str ne "" },
-	    $buffer.split (rx{ $eol | $sep | $quo | $esc }, :all).map (~*);
+#	my @ch = grep { .Str ne "" },
+#	    $buffer.split (rx{ $eol | $sep | $quo | $esc }, :all).map (~*);
+	my @ch = $buffer.split (rx{ $eol | $sep | $quo | $esc }, :all).map: {
+	    if $_ ~~ Str {
+		$_   if .chars;
+		}
+	    else {
+		.Str if .Bool;
+		};
+	    };
 
-	my Bool $skip = False;
+	my int $skip;
+	my int $i = -1;
 
-	for @ch.kv -> $i, Str $chunk {
+	for @ch -> Str $chunk {
+	    $i = $i + 1;
 
 	    if ($skip) {
-		$skip = False;
+		$skip = 0;
 		next;
 		}
 
@@ -155,7 +165,7 @@ class Text::CSV {
 
 		    if ($next eq $sep) { # "1",
 			#progress ($i, "SEP");
-			$skip = True;
+			$skip = 1;
 			keep;
 			next;
 			}
@@ -169,7 +179,7 @@ class Text::CSV {
 			    next;
 			    }
 			if ($next eq $quo) {
-			    $skip = True;
+			    $skip = 1;
 			    }
 			}
 
