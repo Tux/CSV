@@ -28,7 +28,7 @@ class CSV:Field {
     enum Type < NA INT NUM STR BOOL >;
 
     method add (Str $chunk) {
-	$!text     ~= $chunk;
+	$!text	   ~= $chunk;
 	$!undefined = False;
 	} # add
 
@@ -41,27 +41,27 @@ class CSV:Field {
 
 class Text::CSV {
 
-    has Str  $.eol                 is rw;		# = ($*IN.newline),
-    has Str  $.sep                 is rw = ',';
-    has Str  $.quo                 is rw = '"';
-    has Str  $.esc                 is rw = '"';
+    has Str  $.eol		   is rw;		# = ($*IN.newline),
+    has Str  $.sep		   is rw = ',';
+    has Str  $.quo		   is rw = '"';
+    has Str  $.esc		   is rw = '"';
 
-    has Bool $.binary              is rw = True;	# default changed
-    has Bool $.decode_utf8         is rw = True;
-    has Bool $.auto_diag           is rw = False;
-    has Bool $.diag_verbose        is rw = False;
+    has Bool $.binary		   is rw = True;	# default changed
+    has Bool $.decode_utf8	   is rw = True;
+    has Bool $.auto_diag	   is rw = False;
+    has Bool $.diag_verbose	   is rw = False;
 
-    has Bool $.blank_is_undef      is rw = False;
-    has Bool $.empty_is_undef      is rw = False;
+    has Bool $.blank_is_undef	   is rw = False;
+    has Bool $.empty_is_undef	   is rw = False;
     has Bool $.allow_white_space   is rw = False;
     has Bool $.allow_loose_quotes  is rw = False;
     has Bool $.allow_loose_escapes is rw = False;
-    has Bool $.always_quote        is rw = False;
-    has Bool $.quote_space         is rw = True;
-    has Bool $.quote_null          is rw = True;
-    has Bool $.quote_binary        is rw = True;
-    has Bool $.keep_meta_info      is rw = False;
-    has Bool $.verbatim            is rw;		# Should die!
+    has Bool $.always_quote	   is rw = False;
+    has Bool $.quote_space	   is rw = True;
+    has Bool $.quote_null	   is rw = True;
+    has Bool $.quote_binary	   is rw = True;
+    has Bool $.keep_meta_info	   is rw = False;
+    has Bool $.verbatim		   is rw;		# Should die!
 
     has @!fields;
     has @!types;
