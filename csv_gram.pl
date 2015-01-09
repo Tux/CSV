@@ -39,17 +39,18 @@ class Text::CSV {
             token field       { <quote> : $<text>=<quotedvalue> <quote> | $<text>=<value> }
             token value       { [ <-separator> & <-quote> & <-lineend> ] * }
             token quotedvalue { <-quote> * }
-            token separator   { $s }
-            token quote       { $q }
-            token escape      { $e }
+            token separator   { "$s" }
+            token quote       { "$q" }
+            token escape      { "$e" }
             token lineend     { $l }
         }
     }
-	has $!gram = self.compose();
+    has $!gram = self.compose();#.new;
     has $!ast;
 
     method parse(Str:D $line){
-        $!ast = $!gram.parse($line, :rule<fields>, :actions(CSV_Actions)).ast;
+	#say nqp::objectid($!gram);
+	$!ast = $!gram.parse($line, :rule<fields>, :actions(CSV_Actions)).ast;
     }
 
     method getline(){
@@ -120,10 +121,10 @@ sub MAIN(
     for lines() :eager {
         $csv_parser.parse($_);
         my $r = $csv_parser.getline();
-        say $r.perl;
-        #say +$r;
+#       say $r.perl;
+#       say +$r;
         $sum += +$r;
-last;
+#last;
     }
     say $sum;
 }
