@@ -1,32 +1,32 @@
 use v6;
 
 class Text::CSV {
-    has Str  $.quote_char is rw = '"';
-    has Str  $.escape_char is rw = '"';
-    has Str  $.sep_char is rw    = ',';
-    has Str  $.eol is rw; #          = ($*IN.newline),
-    has Bool $.always_quote is rw;
-    has Bool $.quote_space is rw = True;
-    has Bool $.quote_null is rw  = True;
-    has Bool $.quote_binary is rw = True;
-    has Bool $.binary is rw;
-    has Bool $.keep_meta_info is rw;
-    has Bool $.allow_loose_quotes is rw;
+    has Str  $.quote_char          is rw = '"';
+    has Str  $.escape_char         is rw = '"';
+    has Str  $.sep_char            is rw    = ',';
+    has Str  $.eol                 is rw; #          = ($*IN.newline),
+    has Bool $.always_quote        is rw;
+    has Bool $.quote_space         is rw = True;
+    has Bool $.quote_null          is rw  = True;
+    has Bool $.quote_binary        is rw = True;
+    has Bool $.binary              is rw;
+    has Bool $.keep_meta_info      is rw;
+    has Bool $.allow_loose_quotes  is rw;
     has Bool $.allow_loose_escapes is rw;
-    has Bool $.allow_white_space is rw;
-    has Bool $.blank_is_undef is rw;
-    has Bool $.empty_is_undef is rw;
-    has Bool $.verbatim is rw;
-    has Bool $.auto_diag is rw;
+    has Bool $.allow_whitespace    is rw;
+    has Bool $.blank_is_undef      is rw;
+    has Bool $.empty_is_undef      is rw;
+    has Bool $.verbatim            is rw;
+    has Bool $.auto_diag           is rw;
 
-	class CSV_Actions {
-	    method fields($/){
-	        make $<field>>><text>>>.Str;
-	    }
-	    method line($/){
-	        make $<fields>.ast;
-	    }
-	}
+    class CSV_Actions {
+        method fields($/){
+            make $<field>>><text>>>.Str;
+            }
+        method line($/){
+            make $<fields>.ast;
+            }
+        }
     method compose {
         my $q = $!quote_space;
         my $s = $!sep_char;
@@ -43,20 +43,20 @@ class Text::CSV {
             token quote       { "$q" }
             token escape      { "$e" }
             token lineend     { $l }
+            }
         }
-    }
     has $!gram = self.compose();#.new;
     has $!ast;
 
     method parse(Str:D $line){
-	#say nqp::objectid($!gram);
-	$!ast = $!gram.parse($line, :rule<fields>, :actions(CSV_Actions)).ast;
-    }
+        #say nqp::objectid($!gram);
+        $!ast = $!gram.parse($line, :rule<fields>, :actions(CSV_Actions)).ast;
+        }
 
     method getline(){
         return $!ast;
+        }
     }
-}
 
 sub MAIN(
             Str  :$quote_char   = '"',
@@ -71,7 +71,7 @@ sub MAIN(
             Bool :$keep_meta_info,
             Bool :$allow_loose_quotes,
             Bool :$allow_loose_escapes,
-            Bool :$allow_white_space,
+            Bool :$allow_whitespace,
             Bool :$blank_is_undef,
             Bool :$empty_is_undef,
             Bool :$verbatim,
@@ -91,7 +91,7 @@ sub MAIN(
 ##            :$keep_meta_info
 ##            :$allow_loose_quotes
 ##            :$allow_loose_escapes
-##            :$allow_white_space
+##            :$allow_whitespace
 ##            :$blank_is_undef
 ##            :$empty_is_undef
 ##            :$verbatim
@@ -125,6 +125,6 @@ sub MAIN(
 #       say +$r;
         $sum += +$r;
 #last;
-    }
+        }
     say $sum;
-}
+    }

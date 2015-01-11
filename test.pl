@@ -52,7 +52,7 @@ class Text::CSV {
 
     has Bool $.blank_is_undef      is rw = False;
     has Bool $.empty_is_undef      is rw = False;
-    has Bool $.allow_white_space   is rw = False;
+    has Bool $.allow_whitespace    is rw = False;
     has Bool $.allow_loose_quotes  is rw = False;
     has Bool $.allow_loose_escapes is rw = False;
     has Bool $.always_quote        is rw = False;
