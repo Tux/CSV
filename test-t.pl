@@ -70,7 +70,7 @@ class Text::CSV {
     method parse (Str $buffer) {
 
 	my     $field;
-	my Int $pos   = 0;
+	my int $pos = 0;
 
 	my sub parse_error (Str $reason, *@args) {
 	    my $msg = $reason.sprintf (@args);
@@ -106,18 +106,157 @@ class Text::CSV {
 		};
 	    };
 
-	my int $skip;
-	my int $i = -1;
+	my int $skip = 0;
+	my int $i    = -1;
 
 	for @ch -> Str $chunk {
 	    $i = $i + 1;
 
 	    if ($skip) {
-		$skip = 0;
+		# $skip-- fails:
+		# Masak: there's wide agreement that that should work, but
+		#  it's difficult to implement. here's (I think) why: usually
+		#  the $value gets replaced by $value.pred and then put back
+		#  into the variable's container. but natives have no
+		#  containers, only the value itself.
+		$skip = $skip - 1;	# $i-- barfs. IMHO a bug
 		next;
 		}
 
 	    #progress ($i, "###", "'$chunk'", $f.perl);
+
+	    if ($chunk eq $sep) {
+		#progress ($i, "SEP");
+
+		# ,1,"foo, 3",,bar,
+		# ^           ^
+		if ($f.undefined) {
+		    $!blank_is_undef || $!empty_is_undef or
+			$f.add ("");
+		    keep;
+		    next;
+		    }
+
+		# ,1,"foo, 3",,bar,
+		#        ^
+		if ($f.is_quoted) {
+		    $f.add ($chunk);
+		    next;
+		    }
+
+		# ,1,"foo, 3",,bar,
+		#   ^        ^    ^
+		keep;
+		next;
+		}
+
+	    if ($chunk eq $quo) {
+		#progress ($i, "QUO", $f.perl);
+
+		# ,1,"foo, 3",,bar,\r\n
+		#    ^
+		if ($f.undefined) {
+		    $f.set_quoted;
+		    next;
+		    }
+
+		if ($f.is_quoted) {
+
+		    # ,1,"foo, 3"
+		    #           ^
+		    if ($i == @ch - 1) {
+			keep;
+			return @!fields;
+			}
+
+		    my Str $next   = @ch[$i + 1] // Nil;
+		    my int $omit   = 1;
+		    my int $quoesc = 0;
+
+		    # , 1 , "foo, 3" , , bar , "" \r\n
+		    #               ^            ^
+		    if ($!allow_whitespace && $next ~~ /^ \s+ $/) {
+			$next = @ch[$i + 2] // Nil;
+			$omit++;
+			}
+
+		    #progress ($i, "QUO", "next = $next");
+
+		    # ,1,"foo, 3",,bar,\r\n
+		    #           ^
+		    if ($next eq $sep) {
+			#progress ($i, "SEP");
+			$skip = $omit;
+			keep;
+			next;
+			}
+
+		    # ,1,"foo, 3"\r\n
+		    #           ^
+		    # Nil can also indicate EOF
+		    if ($next eq Nil || $next ~~ /^ $eol $/) {
+			keep;
+			return @!fields;
+			}
+
+		    if (defined $esc and $esc eq $quo) {
+			#progress ($i, "ESC", "($next)");
+
+			$quoesc = 1;
+
+			# ,1,"foo, 3"056",,bar,\r\n
+			#            ^
+			if (@ch[$i + 1] ~~  /^ "0"/) {	# cannot use $next
+			    @ch[$i + 1] ~~ s{^ "0"} = "";
+			    #progress ($i, "Add NIL");
+			    $f.add ("\c0");
+			    next;
+			    }
+
+			# ,1,"foo, 3""56",,bar,\r\n
+			#            ^
+			if (@ch[$i + 1] eq $quo) {
+			    $skip = $omit;
+			    $f.add ($chunk);
+			    next;
+			    }
+
+			if ($!allow_loose_escapes) {
+			    # ,1,"foo, 3"56",,bar,\r\n
+			    #            ^
+			    next;
+			    }
+			}
+
+		    # No need to special-case \r
+
+		    if ($quoesc == 1) {
+			# 1,"foo" ",3
+			#        ^
+			parse_error ("2023");
+			}
+		    elsif ($!allow_loose_quotes) {
+			# ,1,"foo, 3"456",,bar,\r\n
+			#            ^
+			$f.add ($chunk);
+			next;
+			}
+		    # Keep rest of @ch for hooks?
+		    parse_error ("2011");
+		    }
+
+		# 1,foo "boo" d'uh,1
+		#       ^
+		if ($!allow_loose_quotes) {
+		    $f.add ($chunk);
+		    next;
+		    }
+		parse_error ("2034");
+		}
+
+	    if ($chunk eq $esc) {
+		progress ($i, "ESC", $f.perl);
+		}
 
 	    if ($chunk ~~ rx{^ $eol $}) {
 		#progress ($i, "EOL");
@@ -127,71 +266,6 @@ class Text::CSV {
 		    }
 		keep;
 		return @!fields;
-		}
-
-	    if ($chunk eq $sep) {
-		#progress ($i, "SEP");
-		if ($f.is_quoted) {	# "1,2"
-		    $f.add ($chunk);
-		    next;
-		    }
-		keep;			# 1,2
-		next;
-		}
-
-	    if ($chunk eq $quo) {
-		#progress ($i, "QUO", $f.perl);
-
-		if ($f.undefined) {
-		    $f.set_quoted;
-		    next;
-		    }
-
-		if ($f.is_quoted) {
-
-		    if ($i == @ch - 1) {
-			keep;
-			return @!fields;
-			}
-
-		    my Str $next = @ch[$i + 1] // Nil;
-
-		    if ($next eq Nil || $next ~~ /^ $eol $/) {
-			keep;
-			return @!fields;
-			}
-
-		    #progress ($i, "QUO", "next = $next");
-
-		    if ($next eq $sep) { # "1",
-			#progress ($i, "SEP");
-			$skip = 1;
-			keep;
-			next;
-			}
-
-		    if ($esc eq $quo) {
-			#progress ($i, "ESC", "($next)");
-			if ($next ~~ /^ "0"/) {
-			    @ch[$i + 1] ~~ s{^ "0"} = "";
-			    #progress ($i, "Add NIL");
-			    $f.add ("\c0");
-			    next;
-			    }
-			if ($next eq $quo) {
-			    $skip = 1;
-			    }
-			}
-
-		    $f.add ($chunk);
-		    next;
-		    }
-		keep;
-		next;
-		}
-
-	    if ($chunk eq $esc) {
-		progress ($i, "ESC", $f.perl);
 		}
 
 	    $chunk ne "" and $f.add ($chunk);
