@@ -68,6 +68,7 @@ class Text::CSV {
     has Bool $.allow_whitespace    is rw = False;
     has Bool $.allow_loose_quotes  is rw = False;
     has Bool $.allow_loose_escapes is rw = False;
+
     has Bool $.always_quote        is rw = False;
     has Bool $.quote_space         is rw = True;
     has Bool $.quote_null          is rw = True;
@@ -87,17 +88,28 @@ class Text::CSV {
 
     method string () {
         @!fields or return;
-        progress (0, @!fields.perl);
+        my Str $s = $!sep;
+        my Str $q = $!quo;
+        my Str $e = $!esc;
+        #progress (0, @!fields.perl);
         my Str @f;
         for @!fields -> $f {
             if ($f.undefined) {
                 push @f, ($!quote_null ?? <""> !! Nil);
                 next;
                 }
-            push @f, $f.Str;
+            my $t = $f.text;
+            $t .= subst (/( $q | $e )/, { "$e$0" }, :g);
+            $!always_quote
+            ||                   $t ~~ / $e | $s /
+            || ($!quote_space && $t ~~ / " " /)
+                and $t = qq{"$t"};
+            push @f, $t;
             }
-        progress (0, @f.perl);
-        return join $!sep => @f;
+        #progress (0, @f.perl);
+        my Str $x = join $!sep, @f;
+        #progress (1, $x);
+        return $x;
         } # string
 
     method combine (*@f) {
