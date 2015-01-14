@@ -25,3 +25,4 @@ time perl6 csv_gram.pl    < /tmp/hello.csv
 time perl6 test.pl        < /tmp/hello.csv
 time perl6 test-x.pl      < /tmp/hello.csv
 
+rm -f test-x.pl

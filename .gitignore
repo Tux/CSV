@@ -33,3 +33,8 @@ sandbox/test.*
 t/??_*
 t/util.pl
 xt/??_*
+
+# Re-enable parts later
+sandbox/*
+examples
+files
