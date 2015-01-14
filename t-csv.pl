@@ -21,21 +21,22 @@ is ($csv.string,        "",                      "Empty string");
 
 # binary is now true by default.
 # create rejection of \n with binary off later
-ok ( $csv.combine (""),                         "Empty string - combine ()");
-is ( $csv.string, "",                           "Empty string - string ()");
-ok ( $csv.combine ("", " "),                    "Two fields, one space - combine ()");
-is ( $csv.string, '," "',                       "Two fields, one space - string ()");
-ok ( $csv.combine ("", 'I said, "Hi!"', ""),    "Hi! - combine ()");
-is ( $csv.string, ',"I said, ""Hi!""",',        "Hi! - string ()");
-ok ( $csv.combine ('"', "abc"),                 "abc - combine ()");
-is ( $csv.string, '"""",abc',                   "abc - string ()");
-ok ( $csv.combine (","),                        "comma - combine ()");
-is ( $csv.string, '","',                        "comma - string ()");
-ok ( $csv.combine ("abc", '"'),                 "abc + \" - combine ()");
-is ( $csv.string, 'abc,""""',                   "abc + \" - string ()");
-ok ( $csv.combine ("abc", "def", "ghi", "j,k"), "abc .. j,k - combine ()");
-is ( $csv.string, 'abc,def,ghi,"j,k"',          "abc .. j,k - string ()");
-ok ( $csv.combine ("abc\tdef", "ghi"),          "abc + TAB - combine ()");
+ok ($csv.combine (""),                         "Empty string - combine ()");
+is ($csv.string, "",                           "Empty string - string ()");
+ok ($csv.combine ("", " "),                    "Two fields, one space - combine ()");
+is ($csv.string, '," "',                       "Two fields, one space - string ()");
+ok ($csv.combine ("", 'I said, "Hi!"', ""),    "Hi! - combine ()");
+is ($csv.string, ',"I said, ""Hi!""",',        "Hi! - string ()");
+ok ($csv.combine ('"', "abc"),                 "abc - combine ()");
+is ($csv.string, '"""",abc',                   "abc - string ()");
+ok ($csv.combine (","),                        "comma - combine ()");
+is ($csv.string, '","',                        "comma - string ()");
+ok ($csv.combine ("abc", '"'),                 "abc + \" - combine ()");
+is ($csv.string, 'abc,""""',                   "abc + \" - string ()");
+ok ($csv.combine ("abc", "def", "ghi", "j,k"), "abc .. j,k - combine ()");
+is ($csv.string, 'abc,def,ghi,"j,k"',          "abc .. j,k - string ()");
+ok ($csv.combine ("abc\tdef", "ghi"),          "abc + TAB - combine ()");
+is ($csv.string, qq{"abc\tdef",ghi},           "abc + TAB - string ()");
 
 =finish
 

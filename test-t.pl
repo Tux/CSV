@@ -101,8 +101,8 @@ class Text::CSV {
             my $t = $f.text;
             $t .= subst (/( $q | $e )/, { "$e$0" }, :g);
             $!always_quote
-            ||                   $t ~~ / $e | $s /
-            || ($!quote_space && $t ~~ / " " /)
+            ||                   $t ~~ / $e  | $s /
+            || ($!quote_space && $t ~~ / " " | \t /)
                 and $t = qq{"$t"};
             push @f, $t;
             }
