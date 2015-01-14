@@ -8,10 +8,10 @@ my @rslt  = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
 sub progress (*@y) {
     my Str $x;
     @y[0] = @y[0].Str;  # Still a bug
+    my $line = callframe (1).annotations<line>;
     for (@y) {
-        $opt_v > 9 and .say;
-        s{^(\d+)$}     = sprintf "%3d -", $_;
-        #s{^ <[A] - [Z]> ** 3 $} = "$_: ";
+        #$opt_v > 9 and .say;
+        s{^(\d+)$}   = sprintf "@%3d %3d -", $line, $_;
         s:g{"True,"} = "True, ";
         s:g{"new("}  = "new (";
         $x ~= .Str ~ " ";
@@ -81,7 +81,8 @@ class Text::CSV {
             die "$msg\n$buffer\n" ~ ' ' x $pos ~ "^\n";
             }
 
-        $opt_v > 8 and say $buffer.perl;
+        $opt_v > 4 and progress (0, $buffer.perl);
+
         # A scoping bug in perl6 inhibits the use of $!eol inside the split
         #for $buffer.split (rx{ $!eol | $!sep | $!quo | $!esc }, :all).map (~*) -> Str $chunk {
         my     $eol = $!eol // rx{ \r\n | \r | \n };
@@ -116,6 +117,8 @@ class Text::CSV {
         for @ch -> Str $chunk {
             $i = $i + 1;
 
+            $opt_v > 2 && $i == 0 and progress ($i, @ch.perl);
+
             if ($skip) {
                 # $skip-- fails:
                 # Masak: there's wide agreement that that should work, but
@@ -127,7 +130,7 @@ class Text::CSV {
                 next;
                 }
 
-            $opt_v > 8 and progress ($i, "###", "'$chunk'", $f.perl);
+            $opt_v > 8 and progress ($i, "###", "'$chunk'\t", $f.perl);
 
             if ($chunk eq $sep) {
                 $opt_v > 5 and progress ($i, "SEP");
@@ -144,6 +147,7 @@ class Text::CSV {
                 # ,1,"foo, 3",,bar,
                 #        ^
                 if ($f.is_quoted) {
+                    $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
                     $f.add ($chunk);
                     next;
                     }
@@ -160,12 +164,14 @@ class Text::CSV {
                 # ,1,"foo, 3",,bar,\r\n
                 #    ^
                 if ($f.undefined) {
+                    $opt_v > 9 and progress ($i, "    initial quote");
                     $f.set_quoted;
                     next;
                     }
 
                 if ($f.is_quoted) {
 
+                    $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
                     # ,1,"foo, 3"
                     #           ^
                     if ($i == @ch - 1) {
