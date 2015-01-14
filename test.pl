@@ -34,6 +34,7 @@ class CSV::Field {
 
     method set_quoted () {
         $!is_quoted = True;
+        $!undefined = False;
         .add("");
         }
 
