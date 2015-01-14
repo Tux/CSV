@@ -19,7 +19,7 @@ sub progress (*@y) {
     $x.say;
     } # progress
 
-class CSV:Field {
+class CSV::Field {
 
     has Bool $.is_quoted  is rw = False;
 #   has Bool $.is_binary  is rw = False;
@@ -39,6 +39,14 @@ class CSV:Field {
         $!is_quoted = True;
         $!undefined = False;
         .add("");
+        }
+
+    method ready ($self:) {
+        $!undefined and return $self;
+
+        # $!is_binary or Set is_binary if has_binary
+        # $!is_utf8   or Set is_utf8   if is_valid_utf8
+        return $self;
         }
 
     } # CSV::Field
@@ -67,9 +75,40 @@ class Text::CSV {
     has Bool $.keep_meta_info      is rw = False;
     has Bool $.verbatim            is rw;               # Should die!
 
+    has @!error_input;
+
     has @!fields;
     has @!types;
     has @!callbacks;
+
+    method fields () {
+        return @!fields;
+        } # fields
+
+    method string () {
+        @!fields or return;
+        progress (0, @!fields.perl);
+        my Str @f;
+        for @!fields -> $f {
+            if ($f.undefined) {
+                push @f, ($!quote_null ?? <""> !! Nil);
+                next;
+                }
+            push @f, $f.Str;
+            }
+        progress (0, @f.perl);
+        return join $!sep => @f;
+        } # string
+
+    method combine (*@f) {
+        @!fields = ();
+        for @f -> $f {
+            my $cf = CSV::Field.new;
+            defined $f and $cf.add ($f.Str);
+            push @!fields, $cf.ready;
+            }
+        return True;
+        }
 
     method parse (Str $buffer) {
 
@@ -89,15 +128,13 @@ class Text::CSV {
         my Str $sep = $!sep;
         my Str $quo = $!quo;
         my Str $esc = $!esc;
-        my $f = CSV:Field.new;
+        my $f = CSV::Field.new;
 
         @!fields = Nil;
 
         sub keep {
-            # Set is_binary
-            # Set is_utf8
-            @!fields.push ($f);
-            $f = CSV:Field.new;
+            @!fields.push ($f.ready);
+            $f = CSV::Field.new;
             } # add
 
 #       my @ch = grep { .Str ne "" },
@@ -306,3 +343,5 @@ sub MAIN () {
         }
     $sum.say;
     }
+
+1;
