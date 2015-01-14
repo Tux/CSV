@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export PERL6_VERBOSE=0
+
 # make FS cache hello.csv to make a more honest test case
 cat      /tmp/hello.csv | perl  csv-easy-xs.pl >/dev/null 2>&1
 head -30 /tmp/hello.csv | perl  csv-easy-pp.pl >/dev/null 2>&1

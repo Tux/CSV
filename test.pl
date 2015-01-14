@@ -1,7 +1,8 @@
 use v6;
 
-my $test = qq{,1,ab,"cd","e"0f","g,h","nl\nz"0i""""3",\r\n};
-my @rslt = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
+my $opt_v = %*ENV<PERL6_VERBOSE> // 1;
+my $test  = qq{,1,ab,"cd","e"0f","g,h","nl\nz"0i""""3",\r\n};
+my @rslt  = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
 
 sub progress (*@y) {
     my Str $x;
@@ -85,7 +86,7 @@ class Text::CSV {
             die "$msg\n$buffer\n" ~ ' ' x $pos ~ "^\n";
             }
 
-        #say $buffer.perl;
+        $opt_v > 8 and say $buffer.perl;
         ## A scoping bug in perl6 inhibits the use of $!eol inside the split
         #for $buffer.split(rx{ $!eol | $!sep | $!quo | $!esc }, :all).map(~*) -> Str $chunk {
         my     $eol = $!eol // rx{ \r\n | \r | \n };
@@ -124,10 +125,10 @@ class Text::CSV {
                 next;
                 }
 
-            #progress($i, "###", "'$chunk'", $f.perl);
+            $opt_v > 8 and progress($i, "###", "'$chunk'", $f.perl);
 
             if $chunk ~~ rx{^ $eol $} {
-                #progress($i, "EOL");
+                $opt_v > 5 and progress($i, "EOL");
                 if $f.is_quoted {        # 1,"2\n3"
                     $f.add($chunk);
                     next;
@@ -137,7 +138,7 @@ class Text::CSV {
                 }
 
             if $chunk eq $sep {
-                #progress($i, "SEP");
+                $opt_v > 5 and progress($i, "SEP");
                 if $f.is_quoted {        # "1,2"
                     $f.add($chunk);
                     next;
@@ -147,7 +148,7 @@ class Text::CSV {
                 }
 
             if $chunk eq $quo {
-                #progress($i, "QUO", $f.perl);
+                $opt_v > 5 and progress($i, "QUO", $f.perl);
 
                 if $f.undefined {
                     $f.set_quoted;
@@ -168,20 +169,20 @@ class Text::CSV {
                         return @!fields;
                         }
 
-                    #progress($i, "QUO", "next = $next");
+                    $opt_v > 8 and progress($i, "QUO", "next = $next");
 
                     if $next eq $sep { # "1",
-                        #progress($i, "SEP");
+                        $opt_v > 7 and progress($i, "SEP");
                         $skip = 1;
                         keep;
                         next;
                         }
 
                     if $esc eq $quo {
-                        #progress($i, "ESC", "($next)");
+                        $opt_v > 7 and progress($i, "ESC", "($next)");
                         if $next ~~ /^ "0"/ {
                             @ch[$i + 1] ~~ s{^ "0"} = "";
-                            #progress($i, "Add NIL");
+                            $opt_v > 8 and progress($i, "Add NIL");
                             $f.add("\c0");
                             next;
                             }
@@ -198,7 +199,7 @@ class Text::CSV {
                 }
 
             if $chunk eq $esc {
-                progress($i, "ESC", $f.perl);
+                $opt_v > 5 and progress($i, "ESC", $f.perl);
                 }
 
             $chunk ne "" and $f.add($chunk);
@@ -218,9 +219,9 @@ sub MAIN () {
 
     my $csv_parser = Text::CSV.new;
 
-    say $csv_parser.perl;
-    progress (.perl) for $csv_parser.parse($test);
-    Qw { Expected: Str 1 ab cd e\0f g,h nl\nz\0i""3 Str }.say;
+    $opt_v > 1 and say $csv_parser.perl;
+    $opt_v and progress(.perl) for $csv_parser.parse($test);
+    $opt_v and Qw { Expected: Str 1 ab cd e\0f g,h nl\nz\0i""3 Str }.say;
 
     my Int $sum = 0;
     for lines() :eager {
