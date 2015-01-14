@@ -7,7 +7,9 @@ my @rslt  = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
 
 sub progress (*@y) {
     my Str $x;
+    @y[0] = @y[0].Str;  # Still a bug
     for (@y) {
+        $opt_v > 9 and .say;
         s{^(\d+)$}     = sprintf "%3d -", $_;
         #s{^ <[A] - [Z]> ** 3 $} = "$_: ";
         s:g{"True,"} = "True, ";
