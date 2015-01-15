@@ -15,14 +15,16 @@ head -30 /tmp/hello.csv | perl6 csv_gram.pl    >/dev/null 2>&1
 head -30 /tmp/hello.csv | perl6 test.pl        >/dev/null 2>&1
 head -30 /tmp/hello.csv | perl6 test-x.pl      >/dev/null 2>&1
 
-time perl  csv-easy-xs.pl < /tmp/hello.csv
-time perl  csv-easy-pp.pl < /tmp/hello.csv
-time perl  csv-test-xs.pl < /tmp/hello.csv
-time perl  csv-test-pp.pl < /tmp/hello.csv
-time perl  csv-pegex.pl   < /tmp/hello.csv
-time perl6 csv.pl         < /tmp/hello.csv
-time perl6 csv_gram.pl    < /tmp/hello.csv
-time perl6 test.pl        < /tmp/hello.csv
-time perl6 test-x.pl      < /tmp/hello.csv
+for t in csv-easy-xs csv-easy-pp csv-test-xs csv-test-pp csv-pegex ; do
+    echo
+    echo "******* $t"
+    time perl  $t.pl < /tmp/hello.csv
+    done
+
+for t in csv csv_gram test test-x ; do
+    echo
+    echo "******* $t"
+    time perl6 $t.pl < /tmp/hello.csv
+    done
 
 rm -f test-x.pl
