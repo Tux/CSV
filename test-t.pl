@@ -45,34 +45,67 @@ class CSV::Field {
 
 class Text::CSV {
 
-    has Str  $.eol                 is rw;               # = ($*IN.newline),
-    has Str  $.sep                 is rw = ',';
-    has Str  $.quo                 is rw = '"';
-    has Str  $.esc                 is rw = '"';
+    has Str  $.eol                   is rw;         # = ($*IN.newline),
+    has Str  $.sep                   is rw = ',';
+    has Str  $.quo                   is rw = '"';
+    has Str  $.esc                   is rw = '"';
 
-    has Bool $.binary              is rw = True;        # default changed
-    has Bool $.decode_utf8         is rw = True;
-    has Bool $.auto_diag           is rw = False;
-    has Bool $.diag_verbose        is rw = False;
+    has Bool $.binary                is rw = True;  # default changed
+    has Bool $.decode_utf8           is rw = True;
+    has Bool $.auto_diag             is rw = False;
+    has Bool $.diag_verbose          is rw = False;
 
-    has Bool $.blank_is_undef      is rw = False;
-    has Bool $.empty_is_undef      is rw = False;
-    has Bool $.allow_whitespace    is rw = False;
-    has Bool $.allow_loose_quotes  is rw = False;
-    has Bool $.allow_loose_escapes is rw = False;
+    has Bool $.blank_is_undef        is rw = False;
+    has Bool $.empty_is_undef        is rw = False;
+    has Bool $.allow_whitespace      is rw = False;
+    has Bool $.allow_loose_quotes    is rw = False;
+    has Bool $.allow_loose_escapes   is rw = False;
+    has Bool $.allow_unquoted_escape is rw = False;
 
-    has Bool $.always_quote        is rw = False;
-    has Bool $.quote_space         is rw = True;
-    has Bool $.quote_null          is rw = True;
-    has Bool $.quote_binary        is rw = True;
-    has Bool $.keep_meta_info      is rw = False;
-    has Bool $.verbatim            is rw;               # Should die!
+    has Bool $.always_quote          is rw = False;
+    has Bool $.quote_space           is rw = True;
+    has Bool $.quote_null            is rw = True;
+    has Bool $.quote_binary          is rw = True;
+    has Bool $.keep_meta_info        is rw = False;
+    has Bool $.verbatim              is rw = False; # Should die!
+
+    has Int  $.record_number         is rw = 0;
 
     has @!error_input;
 
     has @!fields;
     has @!types;
     has @!callbacks;
+
+    method sep (*@s) {
+        @s.elems == 1 and $!sep = @s[0];
+        return $!sep;
+        }
+
+    method sep_char (*@s) {
+        @s.elems == 1 and $!sep = @s[0];
+        return $!sep;
+        }
+
+    method quote (*@s) {
+        @s.elems == 1 and $!quo = @s[0];
+        return $!quo;
+        }
+
+    method quote_char (*@s) {
+        @s.elems == 1 and $!quo = @s[0];
+        return $!quo;
+        }
+
+    method escape (*@s) {
+        @s.elems == 1 and $!esc = @s[0];
+        return $!esc;
+        }
+
+    method escape_char (*@s) {
+        @s.elems == 1 and $!esc = @s[0];
+        return $!esc;
+        }
 
     method !ready (CSV::Field $f) {
         defined $f.text or $f.undefined = True;
@@ -108,11 +141,11 @@ class Text::CSV {
         my Str @f;
         for @!fields -> $f {
             if ($f.undefined) {
-                @f.push ($!quote_null ?? <""> !! "");
+                @f.push ($!quote_null   ?? <""> !! "");
                 next;
                 }
             my $t = $f.text;
-            if ($t eq Nil || $t eq "") {
+            if ($t eq "") {
                 @f.push ($!always_quote ?? <""> !! "");
                 next;
                 }
@@ -149,7 +182,8 @@ class Text::CSV {
             die "$msg\n$buffer\n" ~ ' ' x $pos ~ "^\n";
             }
 
-        $opt_v > 4 and progress (0, $buffer.perl);
+        $!record_number++;
+        $opt_v > 4 and progress ($!record_number, $buffer.perl);
 
         # A scoping bug in perl6 inhibits the use of $!eol inside the split
         #for $buffer.split (rx{ $!eol | $!sep | $!quo | $!esc }, :all).map (~*) -> Str $chunk {
