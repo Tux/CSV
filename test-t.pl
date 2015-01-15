@@ -41,14 +41,6 @@ class CSV::Field {
         .add("");
         }
 
-    method ready ($self:) {
-        $!undefined and return $self;
-
-        # $!is_binary or Set is_binary if has_binary
-        # $!is_utf8   or Set is_utf8   if is_valid_utf8
-        return $self;
-        }
-
     } # CSV::Field
 
 class Text::CSV {
@@ -82,6 +74,27 @@ class Text::CSV {
     has @!types;
     has @!callbacks;
 
+    method !ready (CSV::Field $f) {
+        defined $f.text or $f.undefined = True;
+        if ($f.undefined) {
+            $!blank_is_undef or $f.add ("");
+            push @!fields, $f;
+            return;
+            }
+        if ($f.text eq Nil || $f.text eq "") {
+            if ($!empty_is_undef) {
+                $f.undefined = True;
+                $f.text      = Nil;
+                }
+            push @!fields, $f;
+            return;
+            }
+
+        # $!is_binary or Set is_binary if has_binary
+        # $!is_utf8   or Set is_utf8   if is_valid_utf8
+        push @!fields, $f;
+        } # ready
+
     method fields () {
         return @!fields;
         } # fields
@@ -95,10 +108,14 @@ class Text::CSV {
         my Str @f;
         for @!fields -> $f {
             if ($f.undefined) {
-                push @f, ($!quote_null ?? <""> !! Nil);
+                @f.push ($!quote_null ?? <""> !! "");
                 next;
                 }
             my $t = $f.text;
+            if ($t eq Nil || $t eq "") {
+                @f.push ($!always_quote ?? <""> !! "");
+                next;
+                }
             $t .= subst (/( $q | $e )/, { "$e$0" }, :g);
             $!always_quote
             ||                   $t ~~ / $e  | $s /
@@ -117,7 +134,7 @@ class Text::CSV {
         for @f -> $f {
             my $cf = CSV::Field.new;
             defined $f and $cf.add ($f.Str);
-            push @!fields, $cf.ready;
+            self!ready ($cf);
             }
         return True;
         }
@@ -145,7 +162,7 @@ class Text::CSV {
         @!fields = Nil;
 
         sub keep {
-            @!fields.push ($f.ready);
+            self!ready ($f);
             $f = CSV::Field.new;
             } # add
 
