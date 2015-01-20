@@ -75,7 +75,6 @@ sub crnlsp (Text::CSV $csv) {
 #   ok (!$csv.status (),                                "Wrong status ()");
     ok ( $csv.parse ('","'),                            "comma - parse ()");
     is ( $csv.fields.elems, 1,                          "comma - fields () - count");
-#   is ( $csv.meta_info.elems, 0,                       "comma - meta_info () - count");
     is ( $csv.fields[0].text, ",",                      "comma - fields () - content");
     is ( $csv.fields[0].is_quoted, True,                "comma - fields () - content");
     ok ( $csv.parse (qq{,"I said,\t""Hi!""",""}),       "Hi! - parse ()");
@@ -86,33 +85,6 @@ sub crnlsp (Text::CSV $csv) {
     is ( $csv.fields[1].is_quoted, True,                "comma - fields () - content");
     is ( $csv.fields[2].text, "",                       "comma - fields () - content");
     is ( $csv.fields[2].is_quoted, True,                "comma - fields () - content");
-    }
-
-{   my $csv = Text::CSV.new;
-
-    ok (1,                                              "parse () tests - With flags");
-
-#   ok (!$csv.parse (),                                 "Missing arguments");
-    crnlsp ($csv);
-#   ok (!$csv.parse ('"abc'),                           "Missing closing \"");
-#   ok (!$csv.parse ('ab"c'),                           "\" outside of \"'s");
-#   ok (!$csv.parse ('"ab"c"'),                         "Bad character sequence");
-#   ok (!$csv.parse (qq{"abc\nc"}),                     "Bad character (NL)");
-#   ok (!$csv.status (),                                "Wrong status ()");
-    ok ( $csv.parse ('","'),                            "comma - parse ()");
-    is ( $csv.fields.elems, 1,                          "comma - fields () - count");
-#   is ( scalar $csv.meta_info (), 1,                   "comma - meta_info () - count");
-    is ( $csv.fields[0].text, ",",                      "comma - fields () - content");
-    is (($csv.meta_info ())[0], 1,                      "comma - meta_info () - content");
-    ok ( $csv.parse (qq{"","I said,\t""Hi!""",}),       "Hi! - parse ()");
-    is ( $csv.fields.elems, 3,                          "Hi! - fields () - count");
-
-    is ( $csv.fields[0].text, "",                       "Hi! - fields () - field 1");
-    is ( $csv.meta_info ())[0], 1,                      "Hi! - meta_info () - field 1");
-    is ( $csv.fields[1].text, qq{I said,\t"Hi!"},       "Hi! - fields () - field 2");
-    is ( $csv.meta_info ())[1], 1,                      "Hi! - meta_info () - field 2");
-    is ( $csv.fields[2].text, "",                       "Hi! - fields () - field 3");
-    is ( $csv.meta_info ())[2], 0,                      "Hi! - meta_info () - field 3");
     }
 
 =finish
