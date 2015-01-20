@@ -23,7 +23,6 @@ class CSV::Field {
 
     has Bool $.is_quoted  is rw = False;
     has Bool $.undefined  is rw = True;
-    # text last for formatted output of .perl (for now)
     has Str  $.text       is rw;
 
     has Bool $!is_binary  = False;
@@ -44,8 +43,8 @@ class CSV::Field {
         }
 
     method !analyse () {
-        # $!is_binary or Set is_binary if has_binary
-        # $!is_utf8   or Set is_utf8   if is_valid_utf8
+        # $!is_binary = True if has_binary
+        # $!is_utf8   = True if is_valid_utf8
         $!analysed = True;
         }
 
