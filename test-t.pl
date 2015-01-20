@@ -22,11 +22,13 @@ sub progress (*@y) {
 class CSV::Field {
 
     has Bool $.is_quoted  is rw = False;
-#   has Bool $.is_binary  is rw = False;
-#   has Bool $.is_utf8    is rw = False;
     has Bool $.undefined  is rw = True;
     # text last for formatted output of .perl (for now)
     has Str  $.text       is rw;
+
+    has Bool $!is_binary  = False;
+    has Bool $!is_utf8    = False;
+    has Bool $!analysed   = False;
 
     enum Type < NA INT NUM STR BOOL >;
 
@@ -39,6 +41,22 @@ class CSV::Field {
         $!is_quoted = True;
         $!undefined = False;
         .add("");
+        }
+
+    method !analyse () {
+        # $!is_binary or Set is_binary if has_binary
+        # $!is_utf8   or Set is_utf8   if is_valid_utf8
+        $!analysed = True;
+        }
+
+    method is_binary () {
+        $!analysed or self!analyse;
+        return $!is_binary;
+        }
+
+    method is_utf8 () {
+        $!analysed or self!analyse;
+        return $!is_utf8;
         }
 
     } # CSV::Field
@@ -123,8 +141,8 @@ class Text::CSV {
             return;
             }
 
-        # $!is_binary or Set is_binary if has_binary
-        # $!is_utf8   or Set is_utf8   if is_valid_utf8
+        # Postpone all other field attributes like is_binary and is_utf8
+        # till it is actually asked for
         push @!fields, $f;
         } # ready
 
