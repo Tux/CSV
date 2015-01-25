@@ -59,6 +59,10 @@ ok (1,                                         "Integers and Reals");
 ok ($csv.combine ("", 2, 3.25, "a", "a b"),    "Mixed - combine ()");
 is ($csv.string, ',2,3.25,a,"a b"',            "Mixed - string ()");
 
+ok (!$csv.parse ('"abc'),                      "Missing closing \"");
+ok (!$csv.parse ('ab"c'),                      "\" outside of \"'s");
+ok (!$csv.parse ('"ab"c"'),                    "Bad character sequence");
+
 =finish
 
 stuf not tested yet ...
@@ -82,9 +86,6 @@ ok (!$csv->combine ("abc", "def\n", "ghi"),		"Bad character");
 is ( $csv->error_input, "def\n",			"Error_input ()");
 
 ok (!$csv->parse (),					"Missing arguments");
-ok (!$csv->parse ('"abc'),				"Missing closing \"");
-ok (!$csv->parse ('ab"c'),				"\" outside of \"'s");
-ok (!$csv->parse ('"ab"c"'),				"Bad character sequence");
 ok (!$csv->parse (qq("abc\nc")),			"Bad character (NL)");
 ok (!$csv->status (),					"Wrong status ()");
 
