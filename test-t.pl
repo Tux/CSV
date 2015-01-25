@@ -84,7 +84,7 @@ class Text::CSV {
 
     has Bool $.binary                is rw = True;  # default changed
     has Bool $.decode_utf8           is rw = True;
-    has Bool $.auto_diag             is rw = False;
+    has Int  $.auto_diag             is rw = 0;
     has Bool $.diag_verbose          is rw = False;
 
     has Bool $.blank_is_undef        is rw = False;
@@ -104,6 +104,57 @@ class Text::CSV {
     has Int  $.record_number         is rw = 0;
 
     has @!error_input;
+    has Int  $!errno                       = 0;
+    has Str  $!error_message               = "";
+    has Str  %!errors{Int} =
+        # Generic errors
+        1000 => "INI - constructor failed",
+        1001 => "INI - sep_char is equal to quote_char or escape_char",
+        1002 => "INI - allow_whitespace with escape_char or quote_char SP or TAB",
+        1003 => "INI - \r or \n in main attr not allowed",
+        1004 => "INI - callbacks should be undef or a hashref",
+
+        # Parse errors
+        2010 => "ECR - QUO char inside quotes followed by CR not part of EOL",
+        2011 => "ECR - Characters after end of quoted field",
+        2012 => "EOF - End of data in parsing input stream",
+        2013 => "ESP - Specification error for fragments RFC7111",
+
+        #  EIQ - Error Inside Quotes
+        2021 => "EIQ - NL char inside quotes, binary off",
+        2022 => "EIQ - CR char inside quotes, binary off",
+        2023 => "EIQ - QUO character not allowed",
+        2024 => "EIQ - EOF cannot be escaped, not even inside quotes",
+        2025 => "EIQ - Loose unescaped escape",
+        2026 => "EIQ - Binary character inside quoted field, binary off",
+        2027 => "EIQ - Quoted field not terminated",
+
+        # EIF - Error Inside Field
+        2030 => "EIF - NL char inside unquoted verbatim, binary off",
+        2031 => "EIF - CR char is first char of field, not part of EOL",
+        2032 => "EIF - CR char inside unquoted, not part of EOL",
+        2034 => "EIF - Loose unescaped quote",
+        2035 => "EIF - Escaped EOF in unquoted field",
+        2036 => "EIF - ESC error",
+        2037 => "EIF - Binary character in unquoted field, binary off",
+
+        # Combine errors
+        2110 => "ECB - Binary character in Combine, binary off",
+
+        # IO errors
+        2200 => "EIO - print to IO failed. See errno",
+
+        # Hash-Ref errors
+        3001 => "EHR - Unsupported syntax for column_names ()",
+        3002 => "EHR - getline_hr () called before column_names ()",
+        3003 => "EHR - bind_columns () and column_names () fields count mismatch",
+        3004 => "EHR - bind_columns () only accepts refs to scalars",
+        3006 => "EHR - bind_columns () did not pass enough refs for parsed fields",
+        3007 => "EHR - bind_columns needs refs to writable scalars",
+        3008 => "EHR - unexpected error in bound fields",
+        3009 => "EHR - print_hr () called before column_names ()",
+        3010 => "EHR - print_hr () called with invalid arguments",
+        ;
 
     has @!fields;
     has @!types;
@@ -141,11 +192,13 @@ class Text::CSV {
 
     method !ready (CSV::Field $f) {
         defined $f.text or $f.undefined = True;
+
         if ($f.undefined) {
             $!blank_is_undef or $f.add ("");
             push @!fields, $f;
             return;
             }
+
         if ($f.text eq Nil || $f.text eq "") {
             if ($!empty_is_undef) {
                 $f.undefined = True;
@@ -209,9 +262,12 @@ class Text::CSV {
         my     $field;
         my int $pos = 0;
 
-        my sub parse_error (Str $reason, *@args) {
-            my $msg = $reason.sprintf (@args);
-            die "$msg\n$buffer\n" ~ ' ' x $pos ~ "^\n";
+        my sub parse_error (Int $errno) {
+            $!errno = $errno;
+            $!error_message = %!errors{$errno};
+            $!auto_diag and # warn has no means to prevent location
+                note $!error_message ~ " @ pos " ~ $pos ~ "\n" ~ $buffer ~ "\n" ~ ' ' x $pos ~ "^\n"; 
+            return;
             }
 
         $!record_number++;
@@ -232,8 +288,6 @@ class Text::CSV {
             $f = CSV::Field.new;
             } # add
 
-#       my @ch = grep { .Str ne "" },
-#           $buffer.split (rx{ $eol | $sep | $quo | $esc }, :all).map (~*);
         my @ch = $buffer.split (rx{ $eol | $sep | $quo | $esc }, :all).map: {
             if $_ ~~ Str {
                 $_   if .chars;
@@ -242,14 +296,13 @@ class Text::CSV {
                 .Str if .Bool;
                 };
             };
+        $opt_v > 2 and progress (0, @ch.perl);
 
         my int $skip = 0;
         my int $i    = -1;
 
         for @ch -> Str $chunk {
             $i = $i + 1;
-
-            $opt_v > 2 && $i == 0 and progress ($i, @ch.perl);
 
             if ($skip) {
                 # $skip-- fails:
@@ -375,16 +428,17 @@ class Text::CSV {
                     if ($quoesc == 1) {
                         # 1,"foo" ",3
                         #        ^
-                        parse_error ("2023");
+                        return parse_error (2023);
                         }
-                    elsif ($!allow_loose_quotes) {
+
+                    if ($!allow_loose_quotes) {
                         # ,1,"foo, 3"456",,bar,\r\n
                         #            ^
                         $f.add ($chunk);
                         next;
                         }
                     # Keep rest of @ch for hooks?
-                    parse_error ("2011");
+                    return parse_error (2011);
                     }
 
                 # 1,foo "boo" d'uh,1
@@ -393,7 +447,7 @@ class Text::CSV {
                     $f.add ($chunk);
                     next;
                     }
-                parse_error ("2034");
+                return parse_error (2034);
                 }
 
             if ($chunk eq $esc) {
@@ -403,6 +457,9 @@ class Text::CSV {
             if ($chunk ~~ rx{^ $eol $}) {
                 $opt_v > 5 and progress ($i, "EOL");
                 if ($f.is_quoted) {     # 1,"2\n3"
+                    $!binary or
+                        return parse_error (2030);
+
                     $f.add ($chunk);
                     next;
                     }
@@ -413,6 +470,12 @@ class Text::CSV {
             $chunk ne "" and $f.add ($chunk);
             $pos += .chars;
             }
+
+        $f.is_quoted and
+            return parse_error (2027);
+
+#       !$!binary && $f.is_binary and
+#           return parse_error ($f.is_quoted ?? 2026 !! 2037);
 
         keep;
         return @!fields;
