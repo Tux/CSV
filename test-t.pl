@@ -27,6 +27,7 @@ class CSV::Field {
 
     has Bool $!is_binary  = False;
     has Bool $!is_utf8    = False;
+    has Bool $!is_missing = False;
     has Bool $!analysed   = False;
 
     enum Type < NA INT NUM STR BOOL >;
@@ -43,9 +44,18 @@ class CSV::Field {
         }
 
     method !analyse () {
-        # $!is_binary = True if has_binary
-        # $!is_utf8   = True if is_valid_utf8
+        $!analysed and return;
+
         $!analysed = True;
+
+        $!undefined || $!text eq Nil || $!text eq "" and
+            return; # Default is False for both
+
+        $!text ~~ m{^ <[ \x20 .. \x7E ]>+ $} or
+            $!is_binary = True;
+
+        $!text ~~ m{^ <[ \x00 .. \x7F ]>+ $} or
+            $!is_utf8   = True;
         }
 
     method is_binary () {
@@ -56,6 +66,11 @@ class CSV::Field {
     method is_utf8 () {
         $!analysed or self!analyse;
         return $!is_utf8;
+        }
+
+    method is_missing () {
+        $!analysed or self!analyse;
+        return $!is_missing;
         }
 
     } # CSV::Field

@@ -76,18 +76,16 @@ sub crnlsp (Text::CSV $csv) {
     ok ( $csv.parse ('","'),                            "comma - parse ()");
     is ( $csv.fields.elems, 1,                          "comma - fields () - count");
     is ( $csv.fields[0].text, ",",                      "comma - fields () - content");
-    is ( $csv.fields[0].is_quoted, True,                "comma - fields () - content");
+    is ( $csv.fields[0].is_quoted, True,                "comma - fields () - quoted");
     ok ( $csv.parse (qq{,"I said,\t""Hi!""",""}),       "Hi! - parse ()");
     is ( $csv.fields.elems, 3,                          "Hi! - fields () - count");
     is ( $csv.fields[0].text, "",                       "comma - fields () - content");
-    is ( $csv.fields[0].is_quoted, False,               "comma - fields () - content");
+    is ( $csv.fields[0].is_quoted, False,               "comma - fields () - quoted");
     is ( $csv.fields[1].text, "I said,\t\"Hi!\"",       "comma - fields () - content");
-    is ( $csv.fields[1].is_quoted, True,                "comma - fields () - content");
+    is ( $csv.fields[1].is_quoted, True,                "comma - fields () - quoted");
     is ( $csv.fields[2].text, "",                       "comma - fields () - content");
-    is ( $csv.fields[2].is_quoted, True,                "comma - fields () - content");
+    is ( $csv.fields[2].is_quoted, True,                "comma - fields () - quoted");
     }
-
-=finish
 
 {   my $csv = Text::CSV.new (eol => "\r");
 
@@ -95,7 +93,6 @@ sub crnlsp (Text::CSV $csv) {
     is ($csv.fields.elems, 0,                           "meta_info () before parse ()");
 
 #   ok (!$csv.parse (),                                 "Missing arguments");
-    is ( $csv.meta_info, undef,                         "meta_info after failing parse");
     crnlsp ($csv);
 #   ok (!$csv.parse ('"abc'),                           "Missing closing \"");
 #   ok (!$csv.parse ('ab"c'),                           "\" outside of \"'s");
@@ -103,56 +100,37 @@ sub crnlsp (Text::CSV $csv) {
 #   ok (!$csv.parse (qq{"abc\nc"}),                     "Bad character (NL)");
 #   ok (!$csv.status (),                                "Wrong status ()");
     ok ( $csv.parse ('","'),                            "comma - parse ()");
-    is ( scalar $csv.fields (), 1,                      "comma - fields () - count");
-    is ( scalar $csv.meta_info (), 1,                   "comma - meta_info () - count");
-    is (($csv.fields ())[0], ",",                       "comma - fields () - content");
-    is (($csv.meta_info ())[0], 1,                      "comma - meta_info () - content");
+    is ( $csv.fields.elems, 1,                          "comma - fields () - count");
+    is ( $csv.fields[0].text, ",",                      "comma - fields () - content");
     ok ( $csv.parse (qq{"","I said,\t""Hi!""",}),       "Hi! - parse ()");
-    is ( scalar $csv.fields (), 3,                      "Hi! - fields () - count");
-    is ( scalar $csv.meta_info (), 3,                   "Hi! - meta_info () - count");
+    is ( $csv.fields.elems, 3,                          "Hi! - fields () - count");
 
-    is (($csv.fields ())[0], "",                        "Hi! - fields () - field 1");
-    is (($csv.meta_info ())[0], 1,                      "Hi! - meta_info () - field 1");
-    is (($csv.fields ())[1], qq{I said,\t"Hi!"},        "Hi! - fields () - field 2");
-    is (($csv.meta_info ())[1], 1,                      "Hi! - meta_info () - field 2");
-    is (($csv.fields ())[2], "",                        "Hi! - fields () - field 3");
-    is (($csv.meta_info ())[2], 0,                      "Hi! - meta_info () - field 3");
+    is ( $csv.fields[0].text, "",                       "Hi! - fields () - field 1");
+    is ( $csv.fields[0].is_quoted, True,                "Hi! - fields () - quoted 1");
+    is ( $csv.fields[1].text, qq{I said,\t"Hi!"},       "Hi! - fields () - field 2");
+    is ( $csv.fields[1].is_quoted, True,                "Hi! - fields () - quoted 1");
+    is ( $csv.fields[2].text, "",                       "Hi! - fields () - field 3");
+    is ( $csv.fields[2].is_quoted, False,               "Hi! - fields () - quoted 1");
     }
 
-{   my $csv = Text::CSV.new (keep_meta_info => 1, binary => 1);
+{   my $csv = Text::CSV.new ();
 
-    is ($csv.is_quoted (0),  undef,             "is_quoted () before parse");
-    is ($csv.is_binary (0),  undef,             "is_binary () before parse");
-    is ($csv.is_missing (0), undef,             "is_missing () before parse");
+    is ($csv.fields.elems, 0,                   "no fields no properties");
 
     my $bintxt = chr (0x20ac);
-    ok ( $csv.parse (qq{,"1","a\rb",0,"a\nb",1,\x8e,"a\r\n","$bintxt","",}),
+    ok ($csv.parse (qq{,"1","a\rb",0,"a\nb",1,\x8e,"a\r\n","$bintxt","",}),
                         "parse () - mixed quoted/binary");
-    is (scalar $csv.fields, 11,                 "fields () - count");
+    is ($csv.fields.elems, 11,                  "fields () - count");
     my @fflg;
-    ok (@fflg = $csv.meta_info,                 "meta_info ()");
-    is (scalar @fflg, 11,                       "meta_info () - count");
-    is_deeply ([ @fflg ], [ 0, 1, 3, 0, 3, 0, 2, 3, 3, 1, 0 ], "meta_info ()");
-
-    is ($csv.is_quoted (0), 0,                  "fflag 0 - not quoted");
-    is ($csv.is_binary (0), 0,                  "fflag 0 - not binary");
-    is ($csv.is_missing (0), 0,                 "fflag 0 - not missig");
-    is ($csv.is_quoted (2), 1,                  "fflag 2 - quoted");
-    is ($csv.is_binary (2), 1,                  "fflag 2 - binary");
-    is ($csv.is_missing (2), 0,                 "fflag 2 - not missing");
-
-    is ($csv.is_quoted (6), 0,                  "fflag 5 - not quoted");
-    is ($csv.is_binary (6), 1,                  "fflag 5 - binary");
-    is ($csv.is_missing (6), 0,                 "fflag 5 - not missing");
-
-    is ($csv.is_quoted (-1), undef,             "fflag -1 - undefined");
-    is ($csv.is_binary (-8), undef,             "fflag -8 - undefined");
-    is ($csv.is_missing (-8), undef,            "fflag -8 - undefined");
-
-    is ($csv.is_quoted (21), undef,             "fflag 21 - undefined");
-    is ($csv.is_binary (98), undef,             "fflag 98 - undefined");
-    is ($csv.is_missing (98), 1,                "fflag 98 - missing");
+    is ($csv.fields[$_].is_quoted, False, "Field $_ is not quoted") for 0, 3, 5, 6, 10;
+    is ($csv.fields[$_].is_quoted, True,  "Field $_ is quoted")     for 1, 2, 4, 7, 8, 9;
+    is ($csv.fields[$_].is_binary, False, "Field $_ is not quoted") for 0, 1, 3, 5, 9, 10;
+    is ($csv.fields[$_].is_binary, True,  "Field $_ is quoted")     for 2, 4, 6, 7, 8;
+    is ($csv.fields[$_].is_utf8,   False, "Field $_ is not utf8")   for 0 .. 5, 7, 9, 10;
+    is ($csv.fields[$_].is_utf8,   True,  "Field $_ is utf8")       for 6, 8;
     }
+
+=finish
 
 {   my $csv = Text::CSV.new (escape_char => "+");
 
