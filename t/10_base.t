@@ -13,6 +13,7 @@ my $csv = Text::CSV.new;
 ok ($csv,                                      "New parser");
 is ($csv.fields, Nil,                          "fields () before parse ()");
 is ($csv.string, Nil,                          "string () undef before combine");
+is ($csv.status, True,                         "No failures yet");
 
 ok (1, "combine () & string () tests");
 is ($csv.combine (),    True,                  "Combine empty");
@@ -36,6 +37,7 @@ ok ($csv.combine ("abc", "def", "ghi", "j,k"), "abc .. j,k - combine ()");
 is ($csv.string, 'abc,def,ghi,"j,k"',          "abc .. j,k - string ()");
 ok ($csv.combine ("abc\tdef", "ghi"),          "abc + TAB - combine ()");
 is ($csv.string, qq{"abc\tdef",ghi},           "abc + TAB - string ()");
+is ($csv.status, True,                         "No failures");
 
 ok (1,                                         "parse () tests");
 ok ($csv.parse ("\n"),                         "Single newline");
@@ -49,7 +51,7 @@ is ($csv.fields.elems, 3,                      "Hi! - fields () - count");
 is ($csv.fields[0].text, "",                   "Hi! - fields () - field 1");
 is ($csv.fields[1].text, qq{I said,\t"Hi!"},   "Hi! - fields () - field 2");
 is ($csv.fields[2].text, "",                   "Hi! - fields () - field 3");
-#k ($csv.status (),                            "status ()");
+is ($csv.status, True,                         "status");
 
 ok ($csv.parse (""),                           "Empty line");
 is ($csv.fields.elems, 1,                      "Empty - count");
@@ -62,6 +64,7 @@ is ($csv.string, ',2,3.25,a,"a b"',            "Mixed - string ()");
 ok (!$csv.parse ('"abc'),                      "Missing closing \"");
 ok (!$csv.parse ('ab"c'),                      "\" outside of \"'s");
 ok (!$csv.parse ('"ab"c"'),                    "Bad character sequence");
+is ($csv.status, False,                        "Failure");
 
 =finish
 
@@ -87,7 +90,6 @@ is ( $csv->error_input, "def\n",			"Error_input ()");
 
 ok (!$csv->parse (),					"Missing arguments");
 ok (!$csv->parse (qq("abc\nc")),			"Bad character (NL)");
-ok (!$csv->status (),					"Wrong status ()");
 
 # New from object
 ok ($csv->new (),					"\$csv->new ()");

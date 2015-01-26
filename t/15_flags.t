@@ -72,7 +72,7 @@ sub crnlsp (Text::CSV $csv) {
 #   ok (!$csv.parse ("ab${c99}c"),                      "Binary character");
 #   ok (!$csv.parse (qq{"ab${c99}c"}),                  "Binary character in quotes");
 #   ok (!$csv.parse (qq{"abc\nc"}),                     "Bad character (NL)");
-#   ok (!$csv.status (),                                "Wrong status ()");
+#   is ($csv.status, False,                             "Wrong status ()");
     ok ( $csv.parse ('","'),                            "comma - parse ()");
     is ( $csv.fields.elems, 1,                          "comma - fields () - count");
     is ( $csv.fields[0].text, ",",                      "comma - fields () - content");
@@ -98,7 +98,7 @@ sub crnlsp (Text::CSV $csv) {
     ok (!$csv.parse ('ab"c'),                           "\" outside of \"'s");
     ok (!$csv.parse ('"ab"c"'),                         "Bad character sequence");
 #   ok (!$csv.parse (qq{"abc\nc"}),                     "Bad character (NL)");
-#   ok (!$csv.status (),                                "Wrong status ()");
+#   is ($csv.status, False,                             "Wrong status ()");
     ok ( $csv.parse ('","'),                            "comma - parse ()");
     is ( $csv.fields.elems, 1,                          "comma - fields () - count");
     is ( $csv.fields[0].text, ",",                      "comma - fields () - content");

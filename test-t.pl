@@ -190,6 +190,10 @@ class Text::CSV {
         return $!esc;
         }
 
+    method status () {
+        return $!errno ?? False !! True;
+        }
+
     method !ready (CSV::Field $f) {
         defined $f.text or $f.undefined = True;
 
