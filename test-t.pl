@@ -103,8 +103,9 @@ class Text::CSV {
 
     has Int  $.record_number         is rw = 0;
 
-    has Str  $!error_input                 = Nil;
     has Int  $!errno                       = 0;
+    has Int  $!error_pos                   = 0;
+    has Str  $!error_input                 = Nil;
     has Str  $!error_message               = "";
     has Str  %!errors{Int} =
         # Generic errors
@@ -266,7 +267,7 @@ class Text::CSV {
             my $cf = CSV::Field.new;
             defined $f and $cf.add ($f.Str);
             unless (self!ready ($cf)) {
-                $!errno = 2110;
+                $!errno       = 2110;
                 $!error_input = $f.Str;
                 return False;
                 }
@@ -282,9 +283,10 @@ class Text::CSV {
         $!errno = 0;
 
         my sub parse_error (Int $errno) {
-            $!errno = $errno;
+            $!errno         = $errno;
+            $!error_pos     = 0;
             $!error_message = %!errors{$errno};
-            $!error_input = $buffer;
+            $!error_input   = $buffer;
             $!auto_diag and # warn has no means to prevent location
                 note $!error_message ~ " @ pos " ~ $pos ~ "\n" ~ $buffer ~ "\n" ~ ' ' x $pos ~ "^\n"; 
             return;
@@ -294,7 +296,7 @@ class Text::CSV {
         $opt_v > 4 and progress ($!record_number, $buffer.perl);
 
         # A scoping bug in perl6 inhibits the use of $!eol inside the split
-        #for $buffer.split (rx{ $!eol | $!sep | $!quo | $!esc }, :all).map (~*) -> Str $chunk {
+        #for $buffer.split (rx{ $!eol | $!sep | $!quo | $!esc }, :all).map (~*) -> Str $chunk
         my     $eol = $!eol // rx{ \r\n | \r | \n };
         my Str $sep = $!sep;
         my Str $quo = $!quo;

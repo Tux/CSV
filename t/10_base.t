@@ -40,8 +40,10 @@ is ($csv.string, qq{"abc\tdef",ghi},           "abc + TAB - string ()");
 is ($csv.status, True,                         "No failures");
 
 $csv.binary = False;
-is ($csv.combine ("abc", "def\n", "ghi"), False, "Bad character");
+is ($csv.error_input, Nil,                      "No error saved yet");
+is ($csv.combine ("abc", "def\n", "gh"), False, "Bad character");
 is ($csv.error_input, "def\n",                  "Error_input ()");
+is ($csv.status, False,                         "Failure");
 $csv.binary = True;
 
 ok (1,                                         "parse () tests");
@@ -69,14 +71,19 @@ is ($csv.string, ',2,3.25,a,"a b"',            "Mixed - string ()");
 ok (!$csv.parse ('"abc'),                      "Missing closing \"");
 ok (!$csv.parse ('ab"c'),                      "\" outside of \"'s");
 ok (!$csv.parse ('"ab"c"'),                    "Bad character sequence");
-is ($csv.status, False,                        "Failure");
+is ($csv.status, False,                        "FAIL");
+ok ($csv.parse (""),                           "Empty line");
+is ($csv.status, True,                         "PASS again");
+
+$csv.binary = False;
+ok (!$csv.parse (qq{"abc\nc"}),                "Bad character (NL)");
+is ($csv.status, False,                        "FAIL");
 
 =finish
 
 stuf not tested yet ...
 
 ok (!$csv->parse (),                           "Missing arguments");
-ok (!$csv->parse (qq("abc\nc")),               "Bad character (NL)");
 
 # New from object
 ok ($csv->new (),                              "\$csv->new ()");
