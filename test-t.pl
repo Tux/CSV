@@ -103,7 +103,7 @@ class Text::CSV {
 
     has Int  $.record_number         is rw = 0;
 
-    has @!error_input;
+    has Str  $!error_input                 = Nil;
     has Int  $!errno                       = 0;
     has Str  $!error_message               = "";
     has Str  %!errors{Int} =
@@ -194,6 +194,11 @@ class Text::CSV {
         return $!errno ?? False !! True;
         }
 
+    method error_input () {
+        $!errno or return Nil;
+        return $!error_input;
+        }
+
     method !ready (CSV::Field $f) {
         defined $f.text or $f.undefined = True;
 
@@ -260,7 +265,11 @@ class Text::CSV {
         for @f -> $f {
             my $cf = CSV::Field.new;
             defined $f and $cf.add ($f.Str);
-            self!ready ($cf) or return False;
+            unless (self!ready ($cf)) {
+                $!errno = 2110;
+                $!error_input = $f.Str;
+                return False;
+                }
             }
         return True;
         }
@@ -270,9 +279,12 @@ class Text::CSV {
         my     $field;
         my int $pos = 0;
 
+        $!errno = 0;
+
         my sub parse_error (Int $errno) {
             $!errno = $errno;
             $!error_message = %!errors{$errno};
+            $!error_input = $buffer;
             $!auto_diag and # warn has no means to prevent location
                 note $!error_message ~ " @ pos " ~ $pos ~ "\n" ~ $buffer ~ "\n" ~ ' ' x $pos ~ "^\n"; 
             return;

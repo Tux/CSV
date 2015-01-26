@@ -16,7 +16,7 @@ is ($csv.string, Nil,                          "string () undef before combine")
 is ($csv.status, True,                         "No failures yet");
 
 ok (1, "combine () & string () tests");
-is ($csv.combine (),    True,                  "Combine empty");
+is ($csv.combine (),    True,                  "Combine no args");
 is ($csv.string,        "",                    "Empty string");
 
 # binary is now true by default.
@@ -38,6 +38,11 @@ is ($csv.string, 'abc,def,ghi,"j,k"',          "abc .. j,k - string ()");
 ok ($csv.combine ("abc\tdef", "ghi"),          "abc + TAB - combine ()");
 is ($csv.string, qq{"abc\tdef",ghi},           "abc + TAB - string ()");
 is ($csv.status, True,                         "No failures");
+
+$csv.binary = False;
+is ($csv.combine ("abc", "def\n", "ghi"), False, "Bad character");
+is ($csv.error_input, "def\n",                  "Error_input ()");
+$csv.binary = True;
 
 ok (1,                                         "parse () tests");
 ok ($csv.parse ("\n"),                         "Single newline");
@@ -70,29 +75,11 @@ is ($csv.status, False,                        "Failure");
 
 stuf not tested yet ...
 
-package Empty_Subclass;
-
-@Empty_Subclass::ISA = qw( Text::CSV_XS );
-
-package main;
-
-my $empty = Empty_Subclass->new ();
-is (ref $empty, "Empty_Subclass",			"Empty Subclass");
-is ($empty->version (), Text::CSV_XS->version (),	"Version");
-ok ($empty->parse (""),					"Subclass parse ()");
-ok ($empty->combine (""),				"Subclass combine ()");
-
-ok ($empty->new,					"new () based on object");
-
-ok (!$csv->combine (),					"Missing arguments");
-ok (!$csv->combine ("abc", "def\n", "ghi"),		"Bad character");
-is ( $csv->error_input, "def\n",			"Error_input ()");
-
-ok (!$csv->parse (),					"Missing arguments");
-ok (!$csv->parse (qq("abc\nc")),			"Bad character (NL)");
+ok (!$csv->parse (),                           "Missing arguments");
+ok (!$csv->parse (qq("abc\nc")),               "Bad character (NL)");
 
 # New from object
-ok ($csv->new (),					"\$csv->new ()");
+ok ($csv->new (),                              "\$csv->new ()");
 
 my $state;
 for ( [ 0, 0 ],
