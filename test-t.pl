@@ -161,35 +161,28 @@ class Text::CSV {
     has @!types;
     has @!callbacks;
 
-    method sep (*@s) {
-        @s.elems == 1 and $!sep = @s[0];
-        return $!sep;
-        }
+    # String attributes
+    method sep          (*@s) { @s.elems == 1 and $!sep          = @s[0]; return $!sep; }
+    method sep_char     (*@s) { @s.elems == 1 and $!sep          = @s[0]; return $!sep; }
+    method quote        (*@s) { @s.elems == 1 and $!quo          = @s[0]; return $!quo; }
+    method quote_char   (*@s) { @s.elems == 1 and $!quo          = @s[0]; return $!quo; }
+    method escape       (*@s) { @s.elems == 1 and $!esc          = @s[0]; return $!esc; }
+    method escape_char  (*@s) { @s.elems == 1 and $!esc          = @s[0]; return $!esc; }
+    method eol          (*@s) { @s.elems == 1 and $!eol          = @s[0]; return $!eol; }
 
-    method sep_char (*@s) {
-        @s.elems == 1 and $!sep = @s[0];
-        return $!sep;
-        }
-
-    method quote (*@s) {
-        @s.elems == 1 and $!quo = @s[0];
-        return $!quo;
-        }
-
-    method quote_char (*@s) {
-        @s.elems == 1 and $!quo = @s[0];
-        return $!quo;
-        }
-
-    method escape (*@s) {
-        @s.elems == 1 and $!esc = @s[0];
-        return $!esc;
-        }
-
-    method escape_char (*@s) {
-        @s.elems == 1 and $!esc = @s[0];
-        return $!esc;
-        }
+    # Boolean attributes
+    method binary                (*@s) { @s.elems == 1 and $!binary                = @s[0] ?? True !! False; return $!binary;                }
+    method always_quote          (*@s) { @s.elems == 1 and $!always_quote          = @s[0] ?? True !! False; return $!always_quote;          }
+    method quote_always          (*@s) { @s.elems == 1 and $!always_quote          = @s[0] ?? True !! False; return $!always_quote;          }
+    method quote_space           (*@s) { @s.elems == 1 and $!quote_space           = @s[0] ?? True !! False; return $!quote_space;           }
+    method quote_null            (*@s) { @s.elems == 1 and $!quote_null            = @s[0] ?? True !! False; return $!quote_null;            }
+    method quote_binary          (*@s) { @s.elems == 1 and $!quote_binary          = @s[0] ?? True !! False; return $!quote_binary;          }
+    method allow_loose_quotes    (*@s) { @s.elems == 1 and $!allow_loose_quotes    = @s[0] ?? True !! False; return $!allow_loose_quotes;    }
+    method allow_loose_escapes   (*@s) { @s.elems == 1 and $!allow_loose_escapes   = @s[0] ?? True !! False; return $!allow_loose_escapes;   }
+    method allow_unquoted_escape (*@s) { @s.elems == 1 and $!allow_unquoted_escape = @s[0] ?? True !! False; return $!allow_unquoted_escape; }
+    method allow_whitespace      (*@s) { @s.elems == 1 and $!allow_whitespace      = @s[0] ?? True !! False; return $!allow_whitespace;      }
+    method blank_is_undef        (*@s) { @s.elems == 1 and $!blank_is_undef        = @s[0] ?? True !! False; return $!blank_is_undef  ;      }
+    method empty_is_undef        (*@s) { @s.elems == 1 and $!empty_is_undef        = @s[0] ?? True !! False; return $!empty_is_undef  ;      }
 
     method status () {
         return $!errno ?? False !! True;
@@ -250,13 +243,14 @@ class Text::CSV {
                 }
             $t .= subst (/( $q | $e )/, { "$e$0" }, :g);
             $!always_quote
-            ||                   $t ~~ / $e  | $s /
+            ||                   $t ~~ / $e  | $s | \r | \n /
             || ($!quote_space && $t ~~ / " " | \t /)
                 and $t = qq{"$t"};
             push @f, $t;
             }
         #progress (0, @f.perl);
         my Str $x = join $!sep, @f;
+        defined $!eol and $x ~= $!eol;
         #progress (1, $x);
         return $x;
         } # string

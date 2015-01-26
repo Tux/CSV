@@ -104,3 +104,9 @@
   Cannot assign to an immutable value
     in sub postfix:<++> at src/gen/m-CORE.setting:5082
     in block <unit> at t.pl:7
+
+5 Nil in list is silently dropped
+
+  $ perl6 -e 'my@x=("foo",Nil,1,"a","",3);@x.perl.say'
+  Array.new("foo", 1, "a", "", 3)
+

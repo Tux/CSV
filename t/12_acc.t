@@ -36,22 +36,30 @@ is ($csv.quote_binary,          True,  "quote_binary");
 is ($csv.record_number,         0,     "record_number");
 is ($csv.decode_utf8,           True,  "decode_utf8");
 
-=finish
+is ($csv.binary (),             True,  "binary ()");
+is ($csv.binary (False),        False, "binary (False)");
+is ($csv.binary (0),            False, "binary (0)");
+is ($csv.binary (True),         True,  "binary (True)");
+is ($csv.binary (1),            True,  "binary (1)");
+is ($csv.binary (42),           True,  "binary (42)");
 
-is ($csv.binary (1),                    1,      "binary (1)");
-my @fld = ( 'txt =, "Hi!"', "Yes", "", 2, undef, "1.09", "\r", undef );
-ok ($csv.combine (@fld),                        "combine");
-is ($csv.string,
-    qq{"txt =, ""Hi!""",Yes,,2,,1.09,"\r",},    "string");
+# Bug 6: Nil is silently dropped :(
+#y @fld = ( 'txt =, "Hi!"', "Yes", "", 2, Nil, "1.09", "\r", Nil );
+my @fld = ( 'txt =, "Hi!"', "Yes", "", 2, "1.09", "\r");
+ok ($csv.combine (@fld),                                "combine");
+is ($csv.string, qq{"txt =, ""Hi!""",Yes,,2,1.09,"\r"}, "string");
 
 is ($csv.sep_char (";"),            ';',    "sep_char (;)");
 is ($csv.sep (";"),                 ';',    "sep (;)");
 is ($csv.sep_char (),               ';',    "sep_char ()");
 is ($csv.quote_char ("="),          '=',    "quote_char (=)");
 is ($csv.quote ("="),               '=',    "quote (=)");
-is ($csv.eol (undef),               "",     "eol (undef)");
+#s ($csv.eol (Nil),                 "",     "eol (Nil)");
 is ($csv.eol (""),                  "",     "eol ('')");
 is ($csv.eol ("\r"),                "\r",   "eol (\\r)");
+
+=finish
+
 is ($csv.keep_meta_info (1),        1,      "keep_meta_info (1)");
 is ($csv.always_quote (undef),      0,      "always_quote (undef)");
 is ($csv.always_quote (1),          1,      "always_quote (1)");

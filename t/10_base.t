@@ -39,12 +39,12 @@ ok ($csv.combine ("abc\tdef", "ghi"),          "abc + TAB - combine ()");
 is ($csv.string, qq{"abc\tdef",ghi},           "abc + TAB - string ()");
 is ($csv.status, True,                         "No failures");
 
-$csv.binary = False;
+$csv.binary (False);
 is ($csv.error_input, Nil,                      "No error saved yet");
 is ($csv.combine ("abc", "def\n", "gh"), False, "Bad character");
 is ($csv.error_input, "def\n",                  "Error_input ()");
 is ($csv.status, False,                         "Failure");
-$csv.binary = True;
+$csv.binary (True);
 
 ok (1,                                         "parse () tests");
 ok ($csv.parse ("\n"),                         "Single newline");
@@ -75,7 +75,7 @@ is ($csv.status, False,                        "FAIL");
 ok ($csv.parse (""),                           "Empty line");
 is ($csv.status, True,                         "PASS again");
 
-$csv.binary = False;
+$csv.binary (False);
 ok (!$csv.parse (qq{"abc\nc"}),                "Bad character (NL)");
 is ($csv.status, False,                        "FAIL");
 
