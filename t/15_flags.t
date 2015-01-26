@@ -13,14 +13,17 @@ use Text::CSV;
 
 sub crnlsp (Text::CSV $csv) {
 #   ok (!$csv.parse (),                                 "Missing arguments");
-    ok ( $csv.parse ("\n"),                             "NL");
     if (defined $csv.eol and $csv.eol eq "\r") {
+        ok (!$csv.parse ("\n"),                         "NL");
+        ok (!$csv.parse ("\n "),                        "NL + Space");
         ok ( $csv.parse ("\r"),                         "CR");
         ok ( $csv.parse ("\r\r"),                       "CR CR");
         ok ( $csv.parse ("\r "),                        "CR + Space");
         ok ( $csv.parse (" \r"),                        "Space + CR");
         }
     else {
+        ok ( $csv.parse ("\n"),                         "NL");
+        ok ( $csv.parse ("\n "),                        "NL + Space");
 #       ok (!$csv.parse ("\r"),                         "CR");
 #       ok (!$csv.parse ("\r\r"),                       "CR CR");
         if ($csv.binary) {
@@ -33,7 +36,6 @@ sub crnlsp (Text::CSV $csv) {
             }
         }
     ok ( $csv.parse ("\r\n"),                           "CR NL");
-    ok ( $csv.parse ("\n "),                            "NL + Space");
     ok ( $csv.parse ("\r\n "),                          "CR NL + Space");
     if ($csv.binary) {
         ok ( $csv.parse (qq{"\n"}),                     "Quoted NL");
