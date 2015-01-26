@@ -213,7 +213,10 @@ class Text::CSV {
             }
 
         # Postpone all other field attributes like is_binary and is_utf8
-        # till it is actually asked for
+        # till it is actually asked for unless it is required right now
+        # to fail
+        !$!binary && $f.is_binary and return False;
+
         push @!fields, $f;
         return True;
         } # ready
