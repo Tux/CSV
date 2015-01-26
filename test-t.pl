@@ -200,7 +200,7 @@ class Text::CSV {
         if ($f.undefined) {
             $!blank_is_undef or $f.add ("");
             push @!fields, $f;
-            return;
+            return True;
             }
 
         if ($f.text eq Nil || $f.text eq "") {
@@ -209,12 +209,13 @@ class Text::CSV {
                 $f.text      = Nil;
                 }
             push @!fields, $f;
-            return;
+            return True;
             }
 
         # Postpone all other field attributes like is_binary and is_utf8
         # till it is actually asked for
         push @!fields, $f;
+        return True;
         } # ready
 
     method fields () {
@@ -256,7 +257,7 @@ class Text::CSV {
         for @f -> $f {
             my $cf = CSV::Field.new;
             defined $f and $cf.add ($f.Str);
-            self!ready ($cf);
+            self!ready ($cf) or return False;
             }
         return True;
         }
@@ -288,8 +289,9 @@ class Text::CSV {
         @!fields = Nil;
 
         sub keep {
-            self!ready ($f);
+            self!ready ($f) or return False;
             $f = CSV::Field.new;
+            return True;
             } # add
 
         my @ch = $buffer.split (rx{ $eol | $sep | $quo | $esc }, :all).map: {
