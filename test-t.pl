@@ -162,13 +162,13 @@ class Text::CSV {
     has @!callbacks;
 
     # String attributes
-    method sep          (*@s) { @s.elems == 1 and $!sep          = @s[0]; return $!sep; }
-    method sep_char     (*@s) { @s.elems == 1 and $!sep          = @s[0]; return $!sep; }
-    method quote        (*@s) { @s.elems == 1 and $!quo          = @s[0]; return $!quo; }
-    method quote_char   (*@s) { @s.elems == 1 and $!quo          = @s[0]; return $!quo; }
-    method escape       (*@s) { @s.elems == 1 and $!esc          = @s[0]; return $!esc; }
-    method escape_char  (*@s) { @s.elems == 1 and $!esc          = @s[0]; return $!esc; }
-    method eol          (*@s) { @s.elems == 1 and $!eol          = @s[0]; return $!eol; }
+    method sep          (*@s) { @s.elems == 1 and $!sep = @s[0]; return $!sep; }
+    method sep_char     (*@s) { @s.elems == 1 and $!sep = @s[0]; return $!sep; }
+    method quote        (*@s) { @s.elems == 1 and $!quo = @s[0]; return $!quo; }
+    method quote_char   (*@s) { @s.elems == 1 and $!quo = @s[0]; return $!quo; }
+    method escape       (*@s) { @s.elems == 1 and $!esc = @s[0]; return $!esc; }
+    method escape_char  (*@s) { @s.elems == 1 and $!esc = @s[0]; return $!esc; }
+    method eol          (*@s) { @s.elems == 1 and $!eol = @s[0]; return $!eol; }
 
     # Boolean attributes
     method binary                (*@s) { @s.elems == 1 and $!binary                = @s[0] ?? True !! False; return $!binary;                }

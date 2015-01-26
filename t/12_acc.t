@@ -60,7 +60,6 @@ is ($csv.eol ("\r"),                "\r",   "eol (\\r)");
 
 =finish
 
-is ($csv.keep_meta_info (1),        1,      "keep_meta_info (1)");
 is ($csv.always_quote (undef),      0,      "always_quote (undef)");
 is ($csv.always_quote (1),          1,      "always_quote (1)");
 is ($csv.allow_loose_quotes (1),    1,      "allow_loose_quotes (1)");
