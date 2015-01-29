@@ -48,7 +48,10 @@ class CSV::Field {
 
         $!analysed = True;
 
-        $!undefined || $!text eq Nil || $!text eq "" and
+        $!text eq Nil || !$!text.defined and
+            $!undefined = True;
+
+        $!undefined || $!text eq "" and
             return; # Default is False for both
 
         $!text ~~ m{^ <[ \x09, \x20 .. \x7E ]>+ $} or
@@ -159,6 +162,8 @@ class Text::CSV {
     has @!types;
     has @!callbacks;
 
+    # submethod BUILD (*%init) { for %init { self."{.key}"(.value) } }
+
     # String attributes
     method sep          (*@s) { @s.elems == 1 and $!sep = @s[0]; return $!sep; }
     method sep_char     (*@s) { @s.elems == 1 and $!sep = @s[0]; return $!sep; }
@@ -189,9 +194,8 @@ class Text::CSV {
     method !bool_int ($d is rw, *@s) {
         if (@s.elems == 1) {
             my $v = @s[0];
-            $d = $v ~~ Bool ?? $v ?? 1 !! 0 !! $v + 0;
+            $d = $v ~~ Bool ?? $v ?? 1 !! 0 !! $v.defined ?? $v + 0 !! 0;
             }
-        #$!auto_diag.perl.say;
         return $d;
         }
     method auto_diag    (*@s) { return self!bool_int ($!auto_diag,    @s); }
@@ -215,7 +219,7 @@ class Text::CSV {
             return True;
             }
 
-        if ($f.text eq Nil || $f.text eq "") {
+        if ($f.text eq Nil || !$f.text.defined || $f.text eq "") {
             if ($!empty_is_undef) {
                 $f.undefined = True;
                 $f.text      = Nil;
@@ -250,7 +254,7 @@ class Text::CSV {
                 next;
                 }
             my $t = $f.text;
-            if ($t eq "") {
+            if (!$t.defined || $t eq "") {
                 @f.push ($!always_quote ?? "$!quo$!quo" !! "");
                 next;
                 }
@@ -312,7 +316,7 @@ class Text::CSV {
 
         @!fields = Nil;
 
-        sub keep {
+        sub keep () {
             self!ready ($f) or return False;
             $f = CSV::Field.new;
             return True;
@@ -345,7 +349,7 @@ class Text::CSV {
                 next;
                 }
 
-            $opt_v > 8 and progress ($i, "###", "'$chunk'\t", $f.perl);
+            $opt_v > 8 and progress ($i, "###", $chunk.perl~"\t", $f.perl);
 
             if ($chunk eq $sep) {
                 $opt_v > 5 and progress ($i, "SEP");
@@ -355,7 +359,7 @@ class Text::CSV {
                 if ($f.undefined) {
                     $!blank_is_undef || $!empty_is_undef or
                         $f.add ("");
-                    keep;
+                    keep () or return;
                     next;
                     }
 
@@ -369,11 +373,11 @@ class Text::CSV {
 
                 # ,1,"foo, 3",,bar,
                 #   ^        ^    ^
-                keep;
+                keep () or return;
                 next;
                 }
 
-            if ($chunk eq $quo) {
+            if ($quo.defined and $chunk eq $quo) {
                 $opt_v > 5 and progress ($i, "QUO", $f.perl);
 
                 # ,1,"foo, 3",,bar,\r\n
@@ -390,7 +394,7 @@ class Text::CSV {
                     # ,1,"foo, 3"
                     #           ^
                     if ($i == @ch - 1) {
-                        keep;
+                        keep () or return;
                         return @!fields;
                         }
 
@@ -412,15 +416,15 @@ class Text::CSV {
                     if ($next eq $sep) {
                         $opt_v > 7 and progress ($i, "SEP");
                         $skip = $omit;
-                        keep;
+                        keep () or return;
                         next;
                         }
 
                     # ,1,"foo, 3"\r\n
                     #           ^
                     # Nil can also indicate EOF
-                    if ($next eq Nil || $next ~~ /^ $eol $/) {
-                        keep;
+                    if ($next eq Nil || !$next.defined || $next ~~ /^ $eol $/) {
+                        keep () or return;
                         return @!fields;
                         }
 
@@ -480,7 +484,7 @@ class Text::CSV {
                 return parse_error (2034);
                 }
 
-            if ($chunk eq $esc) {
+            if ($esc.defined and $chunk eq $esc) {
                 $opt_v > 5 and progress ($i, "ESC", $f.perl);
                 }
 
@@ -493,7 +497,7 @@ class Text::CSV {
                     $f.add ($chunk);
                     next;
                     }
-                keep;
+                keep () or return;
                 return @!fields;
                 }
 
@@ -507,7 +511,7 @@ class Text::CSV {
 #       !$!binary && $f.is_binary and
 #           return parse_error ($f.is_quoted ?? 2026 !! 2037);
 
-        keep;
+        keep () or return;
         return @!fields;
         } # parse
 

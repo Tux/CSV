@@ -15,8 +15,8 @@ ok ($csv,                              "new ()");
 is ($csv.quote_char,            '"',   "quote_char");
 is ($csv.quote,                 '"',   "quote");
 is ($csv.escape_char,           '"',   "escape_char");
-is ($csv.sep_char,              ',',   "sep_char");
-is ($csv.sep,                   ',',   "sep");
+is ($csv.sep_char,              ",",   "sep_char");
+is ($csv.sep,                   ",",   "sep");
 #s (defined $csv.eol,           False, "eol");
 is ($csv.always_quote,          False, "always_quote");
 is ($csv.binary,                True,  "binary");
@@ -40,95 +40,93 @@ is ($csv.binary (True),         True,  "binary (True)");
 is ($csv.binary (1),            True,  "binary (1)");
 is ($csv.binary (42),           True,  "binary (42)");
 
-# Bug 6: Nil is silently dropped :(
-#y @fld = ( 'txt =, "Hi!"', "Yes", "", 2, Nil, "1.09", "\r", Nil );
-my @fld = ( 'txt =, "Hi!"', "Yes", "", 2, "1.09", "\r");
+my @fld = ('txt =, "Hi!"', "Yes", "", 2, Str, "1.09", "\r", Str);
 ok ($csv.combine (@fld),                                "combine");
-is ($csv.string, qq{"txt =, ""Hi!""",Yes,,2,1.09,"\r"}, "string");
+is ($csv.string, qq{"txt =, ""Hi!""",Yes,,2,,1.09,"\r",}, "string");
 
-is ($csv.sep_char (";"),            ';',    "sep_char (;)");
-is ($csv.sep (";"),                 ';',    "sep (;)");
-is ($csv.sep_char (),               ';',    "sep_char ()");
-is ($csv.quote_char ("="),          '=',    "quote_char (=)");
-is ($csv.quote ("="),               '=',    "quote (=)");
-#s ($csv.eol (Nil),                 "",     "eol (Nil)");
-is ($csv.eol (""),                  "",     "eol ('')");
-is ($csv.eol ("\r"),                "\r",   "eol (\\r)");
+is ($csv.sep_char (";"),    ";",    "sep_char (;)");
+is ($csv.sep (";"),         ";",    "sep (;)");
+is ($csv.sep_char (),       ";",    "sep_char ()");
+is ($csv.quote_char ("="),  "=",    "quote_char (=)");
+is ($csv.quote ("="),       "=",    "quote (=)");
+is ($csv.eol (Str).defined, False,  "eol (Str)");
+is ($csv.eol (""),          "",     "eol ('')");
+is ($csv.eol ("\r"),        "\r",   "eol (\\r)");
 
-is ($csv.always_quote (False),         False,  "always_quote (False)");
-is ($csv.always_quote (True),          True,   "always_quote (True)");
-is ($csv.always_quote (1),             True,   "always_quote (1)");
-is ($csv.allow_loose_quotes (True),    True,   "allow_loose_quotes (True)");
-is ($csv.allow_loose_quotes (1),       True,   "allow_loose_quotes (1)");
-is ($csv.allow_loose_escapes (True),   True,   "allow_loose_escapes (True)");
-is ($csv.allow_loose_escapes (1),      True,   "allow_loose_escapes (1)");
-is ($csv.allow_unquoted_escape (True), True,   "allow_unquoted_escape (True)");
-is ($csv.allow_unquoted_escape (1),    True,   "allow_unquoted_escape (1)");
-is ($csv.allow_whitespace (True),      True,   "allow_whitespace (True)");
-is ($csv.allow_whitespace (1),         True,   "allow_whitespace (1)");
-is ($csv.blank_is_undef (True),        True,   "blank_is_undef (True)");
-is ($csv.blank_is_undef (1),           True,   "blank_is_undef (1)");
-is ($csv.empty_is_undef (True),        True,   "empty_is_undef (True)");
-is ($csv.empty_is_undef (1),           True,   "empty_is_undef (1)");
-is ($csv.auto_diag (1),                1,      "auto_diag (1)");
-is ($csv.auto_diag (2),                2,      "auto_diag (2)");
-is ($csv.auto_diag (9),                9,      "auto_diag (9)");
-is ($csv.auto_diag (True),             1,      "auto_diag (True)");
-is ($csv.auto_diag (False),            0,      "auto_diag (False)");
-is ($csv.auto_diag (Nil),              0,      "auto_diag (Nil)");
-is ($csv.auto_diag (""),               0,      "auto_diag (\"\")");
-is ($csv.diag_verbose (1),             1,      "diag_verbose (1)");
-is ($csv.diag_verbose (2),             2,      "diag_verbose (2)");
-is ($csv.diag_verbose (9),             9,      "diag_verbose (9)");
-is ($csv.diag_verbose (True),          1,      "diag_verbose (True)");
-is ($csv.diag_verbose (False),         0,      "diag_verbose (False)");
-is ($csv.diag_verbose (Nil),           0,      "diag_verbose (Nil)");
-is ($csv.diag_verbose (""),            0,      "diag_verbose (\"\")");
-is ($csv.quote_space (True),           True,   "quote_space (True)");
-is ($csv.quote_space (1),              True,   "quote_space (1)");
-is ($csv.quote_null (True),            True,   "quote_null (True)");
-is ($csv.quote_null (1),               True,   "quote_null (1)");
-is ($csv.quote_binary (True),          True,   "quote_binary (True)");
-is ($csv.quote_binary (1),             True,   "quote_binary (1)");
-is ($csv.escape_char ("\\"),           "\\",   "escape_char (\\)");
-ok ($csv.combine (@fld),                       "combine");
+is ($csv.always_quote (False),         False, "always_quote (False)");
+is ($csv.always_quote (True),          True,  "always_quote (True)");
+is ($csv.always_quote (1),             True,  "always_quote (1)");
+is ($csv.allow_loose_quotes (True),    True,  "allow_loose_quotes (True)");
+is ($csv.allow_loose_quotes (1),       True,  "allow_loose_quotes (1)");
+is ($csv.allow_loose_escapes (True),   True,  "allow_loose_escapes (True)");
+is ($csv.allow_loose_escapes (1),      True,  "allow_loose_escapes (1)");
+is ($csv.allow_unquoted_escape (True), True,  "allow_unquoted_escape (True)");
+is ($csv.allow_unquoted_escape (1),    True,  "allow_unquoted_escape (1)");
+is ($csv.allow_whitespace (True),      True,  "allow_whitespace (True)");
+is ($csv.allow_whitespace (1),         True,  "allow_whitespace (1)");
+is ($csv.blank_is_undef (True),        True,  "blank_is_undef (True)");
+is ($csv.blank_is_undef (1),           True,  "blank_is_undef (1)");
+is ($csv.empty_is_undef (True),        True,  "empty_is_undef (True)");
+is ($csv.empty_is_undef (1),           True,  "empty_is_undef (1)");
+is ($csv.auto_diag (1),                1,     "auto_diag (1)");
+is ($csv.auto_diag (2),                2,     "auto_diag (2)");
+is ($csv.auto_diag (9),                9,     "auto_diag (9)");
+is ($csv.auto_diag (True),             1,     "auto_diag (True)");
+is ($csv.auto_diag (False),            0,     "auto_diag (False)");
+is ($csv.auto_diag (Str),              0,     "auto_diag (Str)");
+is ($csv.auto_diag (""),               0,     "auto_diag (\"\")");
+is ($csv.diag_verbose (1),             1,     "diag_verbose (1)");
+is ($csv.diag_verbose (2),             2,     "diag_verbose (2)");
+is ($csv.diag_verbose (9),             9,     "diag_verbose (9)");
+is ($csv.diag_verbose (True),          1,     "diag_verbose (True)");
+is ($csv.diag_verbose (False),         0,     "diag_verbose (False)");
+is ($csv.diag_verbose (Str),           0,     "diag_verbose (Str)");
+is ($csv.diag_verbose (""),            0,     "diag_verbose (\"\")");
+is ($csv.quote_space (True),           True,  "quote_space (True)");
+is ($csv.quote_space (1),              True,  "quote_space (1)");
+is ($csv.quote_null (True),            True,  "quote_null (True)");
+is ($csv.quote_null (1),               True,  "quote_null (1)");
+is ($csv.quote_binary (True),          True,  "quote_binary (True)");
+is ($csv.quote_binary (1),             True,  "quote_binary (1)");
+is ($csv.escape_char ("\\"),           "\\",  "escape_char (\\)");
+ok ($csv.combine (@fld),                      "combine");
 is ($csv.string,
-# While Nil in list is lost
-    qq{=txt \\=, "Hi!"=;=Yes=;==;=2=;=1.09=;=\r=\r},  "string");
-#   qq{=txt \\=, "Hi!"=;=Yes=;==;=2=;;=1.09=;=\r=;\r},  "string");
+    qq{=txt \\=, "Hi!"=;=Yes=;==;=2=;==;=1.09=;=\r=;==\r},  "string");
 
-=finish
-
-is ($csv.allow_whitespace (0),          False,          "allow_whitespace (0)");
-is ($csv.quote_space (0),               False,          "quote_space (0)");
-is ($csv.quote_null (0),                False,          "quote_null (0)");
-is ($csv.quote_binary (0),              False,          "quote_binary (0)");
-is ($csv.sep ("--"),                    "--",           "sep (\"--\")");
-is ($csv.sep_char (),                   "\0",           "sep_char");
-is ($csv.quote ("++"),                  "++",           "quote (\"++\")");
-is ($csv.quote_char (),                 "\0",           "quote_char");
+is ($csv.allow_whitespace (0), False, "allow_whitespace (0)");
+is ($csv.quote_space (0),      False, "quote_space (0)");
+is ($csv.quote_null (0),       False, "quote_null (0)");
+is ($csv.quote_binary (0),     False, "quote_binary (0)");
+is ($csv.sep ("--"),           "--",  "sep (\"--\")");
+is ($csv.sep_char (),          "--",  "sep_char");
+is ($csv.quote ("++"),         "++",  "quote (\"++\")");
+is ($csv.quote_char (),        "++",  "quote_char");
 
 # Funny settings, all three translate to \0 internally
-ok ($csv = Text::CSV_XS.new ({
-    sep_char    => undef,
-    quote_char  => undef,
-    escape_char => undef,
-    }),                                         "new (undef ...)");
-is ($csv.sep_char,              undef,          "sep_char undef");
-is ($csv.sep,                   undef,          "sep undef");
-is ($csv.quote_char,            undef,          "quote_char undef");
-is ($csv.quote,         undef,          "quote undef");
-is ($csv.escape_char,           undef,          "escape_char undef");
+ok ($csv = Text::CSV.new (
+    # No aliasses allowed yet in new. Must look at BUILD
+    # sep_char    => Str, -- sep cannot be undefined!
+    # quote_char  => Str,
+    # escape_char => Str,
+    quo => Str,
+    esc => Str,
+    ),                                  "new (Str ...)");
+is ($csv.quote_char.defined,     False, "quote_char  Str");
+is ($csv.quote.defined,          False, "quote       Str");
+is ($csv.escape_char.defined,    False, "escape_char Str");
 ok ($csv.parse ("foo"),                 "parse (foo)");
-$csv.sep_char (",");
-is ($csv.record_number, 1,              "record_number");
-ok ($csv.parse ("foo"),                 "parse (foo)");
-is ($csv.record_number, 2,              "record_number");
-ok (!$csv.parse ("foo,foo\0bar"),               "parse (foo)");
-$csv.escape_char ("\\");
-ok (!$csv.parse ("foo,foo\0bar"),               "parse (foo)");
-$csv.binary (1);
-ok ( $csv.parse ("foo,foo\0bar"),               "parse (foo)");
+is ($csv.sep_char (","),         ",",   "sep = ,");
+is ($csv.record_number,          1,     "record_number 1");
+ok ($csv.parse ("bar"),                 "parse (bar)");
+is ($csv.record_number,          2,     "record_number 2");
+is ($csv.binary (False),         False, "no binary");
+ok (!$csv.parse ("foo,foo\0bar"),       "parse (foo,foo)");
+ok ($csv.escape_char ("\\"),            "set escape");
+ok (!$csv.parse ("foo,foo\0bar"),       "parse (foo)");
+is ($csv.binary (1),             True,  "binary (1)");
+ok ($csv.parse ("foo,foo\0bar"),        "parse (foo)");
+
+=finish
 
 # Attribute aliasses
 ok ($csv = Text::CSV_XS. new ({ quote_always => 1, verbose_diag => 1}));
