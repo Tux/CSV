@@ -82,30 +82,30 @@ class Text::CSV {
     has Str  $.quo                   is rw = '"';
     has Str  $.esc                   is rw = '"';
 
-    has Bool $.binary                is rw = True;  # default changed
-    has Bool $.decode_utf8           is rw = True;
-    has Int  $.auto_diag             is rw = 0;
-    has Bool $.diag_verbose          is rw = False;
+    has Bool $!binary                = True;  # default changed
+    has Bool $!decode_utf8           = True;
+    has Int  $!auto_diag             = 0;
+    has Int  $!diag_verbose          = 0;
 
-    has Bool $.blank_is_undef        is rw = False;
-    has Bool $.empty_is_undef        is rw = False;
-    has Bool $.allow_whitespace      is rw = False;
-    has Bool $.allow_loose_quotes    is rw = False;
-    has Bool $.allow_loose_escapes   is rw = False;
-    has Bool $.allow_unquoted_escape is rw = False;
+    has Bool $!blank_is_undef        = False;
+    has Bool $!empty_is_undef        = False;
+    has Bool $!allow_whitespace      = False;
+    has Bool $!allow_loose_quotes    = False;
+    has Bool $!allow_loose_escapes   = False;
+    has Bool $!allow_unquoted_escape = False;
 
-    has Bool $.always_quote          is rw = False;
-    has Bool $.quote_space           is rw = True;
-    has Bool $.quote_null            is rw = True;
-    has Bool $.quote_binary          is rw = True;
-    has Bool $.keep_meta_info        is rw = False;
+    has Bool $!always_quote          = False;
+    has Bool $!quote_space           = True;
+    has Bool $!quote_null            = True;
+    has Bool $!quote_binary          = True;
+    has Bool $!keep_meta_info        = False;
 
-    has Int  $.record_number         is rw = 0;
+    has Int  $!record_number         = 0;
 
-    has Int  $!errno                       = 0;
-    has Int  $!error_pos                   = 0;
-    has Str  $!error_input                 = Nil;
-    has Str  $!error_message               = "";
+    has Int  $!errno                 = 0;
+    has Int  $!error_pos             = 0;
+    has Str  $!error_input           = Nil;
+    has Str  $!error_message         = "";
     has Str  %!errors{Int} =
         # Generic errors
         1000 => "INI - constructor failed",
@@ -179,8 +179,23 @@ class Text::CSV {
     method allow_loose_escapes   (*@s) { @s.elems == 1 and $!allow_loose_escapes   = @s[0] ?? True !! False; return $!allow_loose_escapes;   }
     method allow_unquoted_escape (*@s) { @s.elems == 1 and $!allow_unquoted_escape = @s[0] ?? True !! False; return $!allow_unquoted_escape; }
     method allow_whitespace      (*@s) { @s.elems == 1 and $!allow_whitespace      = @s[0] ?? True !! False; return $!allow_whitespace;      }
-    method blank_is_undef        (*@s) { @s.elems == 1 and $!blank_is_undef        = @s[0] ?? True !! False; return $!blank_is_undef  ;      }
-    method empty_is_undef        (*@s) { @s.elems == 1 and $!empty_is_undef        = @s[0] ?? True !! False; return $!empty_is_undef  ;      }
+    method blank_is_undef        (*@s) { @s.elems == 1 and $!blank_is_undef        = @s[0] ?? True !! False; return $!blank_is_undef;        }
+    method empty_is_undef        (*@s) { @s.elems == 1 and $!empty_is_undef        = @s[0] ?? True !! False; return $!empty_is_undef;        }
+
+    # Numeric attributes
+    method record_number (*@s) { @s.elems == 1 and $!record_number = @s[0] + 0; return $!record_number  ; }
+
+    # Numeric attributes, boolean allowed
+    method !bool_int ($d is rw, *@s) {
+        if (@s.elems == 1) {
+            my $v = @s[0];
+            $d = $v ~~ Bool ?? $v ?? 1 !! 0 !! $v + 0;
+            }
+        #$!auto_diag.perl.say;
+        return $d;
+        }
+    method auto_diag    (*@s) { return self!bool_int ($!auto_diag,    @s); }
+    method diag_verbose (*@s) { return self!bool_int ($!diag_verbose, @s); }
 
     method status () {
         return $!errno ?? False !! True;
@@ -231,19 +246,19 @@ class Text::CSV {
         my Str @f;
         for @!fields -> $f {
             if ($f.undefined) {
-                @f.push ($!quote_null   ?? <""> !! "");
+                @f.push ($!quote_null   ?? "$!quo$!quo" !! "");
                 next;
                 }
             my $t = $f.text;
             if ($t eq "") {
-                @f.push ($!always_quote ?? <""> !! "");
+                @f.push ($!always_quote ?? "$!quo$!quo" !! "");
                 next;
                 }
             $t .= subst (/( $q | $e )/, { "$e$0" }, :g);
             $!always_quote
             ||                   $t ~~ / $e  | $s | \r | \n /
             || ($!quote_space && $t ~~ / " " | \t /)
-                and $t = qq{"$t"};
+                and $t = "$!quo$t$!quo";
             push @f, $t;
             }
         #progress (0, @f.perl);
