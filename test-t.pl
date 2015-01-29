@@ -99,7 +99,6 @@ class Text::CSV {
     has Bool $.quote_null            is rw = True;
     has Bool $.quote_binary          is rw = True;
     has Bool $.keep_meta_info        is rw = False;
-    has Bool $.verbatim              is rw = False; # Should die!
 
     has Int  $.record_number         is rw = 0;
 
@@ -131,7 +130,6 @@ class Text::CSV {
         2027 => "EIQ - Quoted field not terminated",
 
         # EIF - Error Inside Field
-        2030 => "EIF - NL char inside unquoted verbatim, binary off",
         2031 => "EIF - CR char is first char of field, not part of EOL",
         2032 => "EIF - CR char inside unquoted, not part of EOL",
         2034 => "EIF - Loose unescaped quote",
@@ -475,7 +473,7 @@ class Text::CSV {
                 $opt_v > 5 and progress ($i, "EOL");
                 if ($f.is_quoted) {     # 1,"2\n3"
                     $!binary or
-                        return parse_error (2030);
+                        return parse_error (2021);
 
                     $f.add ($chunk);
                     next;
