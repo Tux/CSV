@@ -1,3 +1,5 @@
+#!perl6
+
 use v6;
 use Slang::Tuxic;
 
@@ -106,6 +108,7 @@ class Text::CSV {
     has Int  $!record_number         = 0;
 
     has CSV::Field @!fields;
+    has Str        $!ahead;
     has Int        @!types;
     has            @!callbacks;
 
@@ -114,6 +117,9 @@ class Text::CSV {
     has Str  $!error_input           = Nil;
     has Str  $!error_message         = "";
     has Str  %!errors{Int} =
+        # Success
+           0 => "",
+
         # Generic errors
         1000 => "INI - constructor failed",
         1001 => "INI - sep_char is equal to quote_char or escape_char",
@@ -230,6 +236,36 @@ class Text::CSV {
         $!errno or return Nil;
         return $!error_input;
         }
+
+    class err_diag is Iterable {
+        has Int $.err;
+        has Str $.msg;
+        has Int $.pos;
+        has Int $.rec;
+        has Str $.buf;
+
+        method sink {
+            note $!msg ~ " @ pos " ~ $!pos ~ "\n" ~ $!buf ~ "\n"  ~ ' ' x $!pos ~ "^\n"; 
+            }
+        method Numeric { return   $!err; }
+        method Str     { return   $!msg; }
+#       method list    { return [ $!err, $!msg, $!pos, $!rec, $!buf ].iterator; }
+        method hash    { return { errno  => $!err,
+                                  error  => $!msg,
+                                  pos    => $!pos,
+                                  recno  => $!rec,
+                                  input  => $!buf,
+                                  }; }
+        }
+    method error_diag () {
+        return err_diag.new (
+            err => $!errno,
+            msg => $!error_message,
+            pos => $!error_pos,
+            rec => $!record_number,
+            buf => $!error_input,
+            );
+       }
 
     method !ready (CSV::Field $f) {
         defined $f.text or $f.undefined = True;

@@ -69,6 +69,9 @@ ok ($csv.combine ("", 2, 3.25, "a", "a b"),    "Mixed - combine ()");
 is ($csv.string, ',2,3.25,a,"a b"',            "Mixed - string ()");
 
 ok (!$csv.parse ('"abc'),                      "Missing closing \"");
+say "" ~ $csv.error_diag;
+say 0  + $csv.error_diag;
+#.say for $csv.error_diag;
 ok (!$csv.parse ('ab"c'),                      "\" outside of \"'s");
 ok (!$csv.parse ('"ab"c"'),                    "Bad character sequence");
 is ($csv.status, False,                        "FAIL");
