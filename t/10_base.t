@@ -68,19 +68,29 @@ ok (1,                                         "Integers and Reals");
 ok ($csv.combine ("", 2, 3.25, "a", "a b"),    "Mixed - combine ()");
 is ($csv.string, ',2,3.25,a,"a b"',            "Mixed - string ()");
 
-ok (!$csv.parse ('"abc'),                      "Missing closing \"");
-say "" ~ $csv.error_diag;
-say 0  + $csv.error_diag;
-#.say for $csv.error_diag;
-ok (!$csv.parse ('ab"c'),                      "\" outside of \"'s");
-ok (!$csv.parse ('"ab"c"'),                    "Bad character sequence");
-is ($csv.status, False,                        "FAIL");
-ok ($csv.parse (""),                           "Empty line");
-is ($csv.status, True,                         "PASS again");
+# Basic error test
+ok (!$csv.parse ('"abc'),            "Missing closing \"");
+# Test all error_diag contexts
+is (0  + $csv.error_diag,   2027,    "diag numeric");
+is ("" ~ $csv.error_diag,   "EIQ - Quoted field not terminated", "diag string");
+my @ed = $csv.error_diag;
+is (@ed[2],                 0,       "diag pos");
+is (@ed[3],                 5,       "diag record");
+is (@ed[4],                 '"abc',  "diag buffer");
+is ($csv.error_diag[0],     2027,    "diag error  positional");
+is ($csv.error_diag[3],     5,       "diag record positional");
+is ($csv.error_diag.error,  2027,    "diag OO error");
+is ($csv.error_diag.record, 5,       "diag OO record");
+# More fail tests
+ok (!$csv.parse ('ab"c'),            "\" outside of \"'s");
+ok (!$csv.parse ('"ab"c"'),          "Bad character sequence");
+is ($csv.status, False,              "FAIL");
+ok ($csv.parse (""),                 "Empty line");
+is ($csv.status, True,               "PASS again");
 
 $csv.binary (False);
-ok (!$csv.parse (qq{"abc\nc"}),                "Bad character (NL)");
-is ($csv.status, False,                        "FAIL");
+ok (!$csv.parse (qq{"abc\nc"}),      "Bad character (NL)");
+is ($csv.status, False,              "FAIL");
 
 =finish
 

@@ -237,33 +237,43 @@ class Text::CSV {
         return $!error_input;
         }
 
-    class err_diag is Iterable {
-        has Int $.err;
-        has Str $.msg;
-        has Int $.pos;
-        has Int $.rec;
-        has Str $.buf;
+    class err_diag is Iterable does Positional {
+        has Int $.error   is readonly;
+        has Str $.message is readonly;
+        has Int $.pos     is readonly;
+        has Int $.record  is readonly;
+        has Str $.buffer  is readonly;
 
         method sink {
-            note $!msg ~ " @ pos " ~ $!pos ~ "\n" ~ $!buf ~ "\n"  ~ ' ' x $!pos ~ "^\n"; 
+            warn $!message ~ " @ rec/pos " ~ $!record ~ "/" ~ $!pos ~ "\n"
+               ~ $!buffer ~ "\n"
+               ~ ' ' x $!pos ~ "^\n";
             }
-        method Numeric { return   $!err; }
-        method Str     { return   $!msg; }
-#       method list    { return [ $!err, $!msg, $!pos, $!rec, $!buf ].iterator; }
-        method hash    { return { errno  => $!err,
-                                  error  => $!msg,
-                                  pos    => $!pos,
-                                  recno  => $!rec,
-                                  input  => $!buf,
-                                  }; }
+        method Numeric  { return   $!error; }
+        method Str      { return   $!message; }
+        method iterator { return [ $!error, $!message, $!pos, $!record, $!buffer ].iterator; }
+        method hash     { return { errno  => $!error,
+                                   error  => $!message,
+                                   pos    => $!pos,
+                                   recno  => $!record,
+                                   buffer => $!buffer,
+                                   }; }
+        method at_pos (int $i) {
+            return $i == 0 ?? $!error
+                !! $i == 1 ?? $!message
+                !! $i == 2 ?? $!pos
+                !! $i == 3 ?? $!record
+                !! $i == 4 ?? $!buffer
+                !! Nil;
+            }
         }
     method error_diag () {
         return err_diag.new (
-            err => $!errno,
-            msg => $!error_message,
-            pos => $!error_pos,
-            rec => $!record_number,
-            buf => $!error_input,
+            error   => $!errno,
+            message => $!error_message,
+            pos     => $!error_pos,
+            record  => $!record_number,
+            buffer  => $!error_input,
             );
        }
 
@@ -355,8 +365,7 @@ class Text::CSV {
             $!error_pos     = 0;
             $!error_message = %!errors{$errno};
             $!error_input   = $buffer;
-            $!auto_diag and # warn has no means to prevent location
-                note $!error_message ~ " @ pos " ~ $pos ~ "\n" ~ $buffer ~ "\n" ~ ' ' x $pos ~ "^\n"; 
+            $!auto_diag and .error_diag;
             return;
             }
 
