@@ -165,12 +165,8 @@ class Text::CSV {
     # We need this to support aliasses and to catch unsupported attributes
     submethod BUILD (*%init) {
         for keys %init -> $attr {
-            my $m = lc $attr;
-            if (self.can ($m)) {
-                self."$m"(%init{$attr}); # space before ( not (yet) allowed under Tuxic
-                next;
-                }
-            die "attribute $attr is not supported\n";
+            my @can = self.can (lc $attr) or die "attr $attr is not supported\n";
+            .(self, %init{$attr}) for @can;
             }
         }
 
