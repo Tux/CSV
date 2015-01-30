@@ -8,8 +8,6 @@ use Text::CSV;
 
 my $csv = Text::CSV.new;
 
-# For now only port the PASSing tests, no checks for FAIL (die vs return False)
-
 ok ($csv,                              "new ()");
 
 is ($csv.quote_char,            '"',   "quote_char");
@@ -17,7 +15,7 @@ is ($csv.quote,                 '"',   "quote");
 is ($csv.escape_char,           '"',   "escape_char");
 is ($csv.sep_char,              ",",   "sep_char");
 is ($csv.sep,                   ",",   "sep");
-#s (defined $csv.eol,           False, "eol");
+is ($csv.eol.defined,           False, "eol");
 is ($csv.always_quote,          False, "always_quote");
 is ($csv.binary,                True,  "binary");
 is ($csv.allow_loose_quotes,    False, "allow_loose_quotes");
@@ -102,14 +100,16 @@ is ($csv.sep_char (),          "--",  "sep_char");
 is ($csv.quote ("++"),         "++",  "quote (\"++\")");
 is ($csv.quote_char (),        "++",  "quote_char");
 
+# Attribute aliasses
+ok ($csv = Text::CSV.new (quote_always => 1, verbose_diag => 1), "New with aliasses");
+is ($csv.always_quote, True, "always_quote = quote_always");
+is ($csv.diag_verbose, 1,    "diag_verbose = verbose_diag");
+
 # Funny settings, all three translate to \0 internally
 ok ($csv = Text::CSV.new (
-    # No aliasses allowed yet in new. Must look at BUILD
     # sep_char    => Str, -- sep cannot be undefined!
-    # quote_char  => Str,
-    # escape_char => Str,
-    quo => Str,
-    esc => Str,
+    quote  => Str,
+    Escape => Str,
     ),                                  "new (Str ...)");
 is ($csv.quote_char.defined,     False, "quote_char  Str");
 is ($csv.quote.defined,          False, "quote       Str");
@@ -127,11 +127,6 @@ is ($csv.binary (1),             True,  "binary (1)");
 ok ($csv.parse ("foo,foo\0bar"),        "parse (foo)");
 
 =finish
-
-# Attribute aliasses
-ok ($csv = Text::CSV_XS. new ({ quote_always => 1, verbose_diag => 1}));
-is ($csv.always_quote, 1,       "always_quote = quote_always");
-is ($csv.diag_verbose, 1,       "diag_verbose = verbose_diag");
 
 # Some forbidden combinations
 foreach my $ws (" ", "\t") {

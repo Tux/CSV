@@ -80,10 +80,10 @@ class CSV::Field {
 
 class Text::CSV {
 
-    has Str  $.eol                   is rw;         # = ($*IN.newline),
-    has Str  $.sep                   is rw = ',';
-    has Str  $.quo                   is rw = '"';
-    has Str  $.esc                   is rw = '"';
+    has Str  $!eol;         # = ($*IN.newline),
+    has Str  $!sep                   = ',';
+    has Str  $!quo                   = '"';
+    has Str  $!esc                   = '"';
 
     has Bool $!binary                = True;  # default changed
     has Bool $!decode_utf8           = True;
@@ -104,6 +104,10 @@ class Text::CSV {
     has Bool $!keep_meta_info        = False;
 
     has Int  $!record_number         = 0;
+
+    has CSV::Field @!fields;
+    has Int        @!types;
+    has            @!callbacks;
 
     has Int  $!errno                 = 0;
     has Int  $!error_pos             = 0;
@@ -158,17 +162,25 @@ class Text::CSV {
         3010 => "EHR - print_hr () called with invalid arguments",
         ;
 
-    has @!fields;
-    has @!types;
-    has @!callbacks;
-
-    # submethod BUILD (*%init) { for %init { self."{.key}"(.value) } }
+    # We need this to support aliasses and to catch unsupported attributes
+    submethod BUILD (*%init) {
+        for keys %init -> $attr {
+            my $m = lc $attr;
+            if (self.can ($m)) {
+                self."$m"(%init{$attr}); # space before ( not (yet) allowed under Tuxic
+                next;
+                }
+            die "attribute $attr is not supported\n";
+            }
+        }
 
     # String attributes
     method sep          (*@s) { @s.elems == 1 and $!sep = @s[0]; return $!sep; }
     method sep_char     (*@s) { @s.elems == 1 and $!sep = @s[0]; return $!sep; }
+    method quo          (*@s) { @s.elems == 1 and $!quo = @s[0]; return $!quo; }
     method quote        (*@s) { @s.elems == 1 and $!quo = @s[0]; return $!quo; }
     method quote_char   (*@s) { @s.elems == 1 and $!quo = @s[0]; return $!quo; }
+    method esc          (*@s) { @s.elems == 1 and $!esc = @s[0]; return $!esc; }
     method escape       (*@s) { @s.elems == 1 and $!esc = @s[0]; return $!esc; }
     method escape_char  (*@s) { @s.elems == 1 and $!esc = @s[0]; return $!esc; }
     method eol          (*@s) { @s.elems == 1 and $!eol = @s[0]; return $!eol; }
@@ -200,6 +212,7 @@ class Text::CSV {
         }
     method auto_diag    (*@s) { return self!bool_int ($!auto_diag,    @s); }
     method diag_verbose (*@s) { return self!bool_int ($!diag_verbose, @s); }
+    method verbose_diag (*@s) { return self!bool_int ($!diag_verbose, @s); }
 
     method status () {
         return $!errno ?? False !! True;
