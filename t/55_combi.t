@@ -26,19 +26,20 @@ sub combi (*%attr)
     ok (1, $combi);
 
     # use legal non-special characters
-    is ($csv.allow_whitespace (0), False,  "Reset allow WS");
     is ($csv.sep_char    ("\x03"), "\x03", "Reset sep");
     is ($csv.quote_char  ("\x04"), "\x04", "Reset quo");
     is ($csv.escape_char ("\x05"), "\x05", "Reset esc");
+    is ($csv.allow_whitespace (0), False,  "Reset allow WS");
 
     # Set the attributes and check failure
     my %state;
     for sort keys %attr -> $attr {
         my $v = %attr{$attr};
-        try {
-            $csv."$attr"(%attr{$attr});
+        {   $csv."$attr"(%attr{$attr});
 
-            CATCH { %state{$csv.error_diag.error} ||= $csv.error_diag.message; }
+            CATCH { default {
+                %state{$csv.error_diag.error} ||= $csv.error_diag.message;
+                }}
             };
         }
     if (%attr{"sep_char"} eq %attr{"quote_char"} ||
@@ -82,8 +83,9 @@ sub combi (*%attr)
             skip "parse () failed",  3;
             }
 
-        ok (my @ret = $csv.fields, "fields");
-        unless (@ret) {
+        my @ret = $csv.fields;
+        ok (@ret.elems, "fields");
+        unless (@ret.elems) {
             %fail{"fields"}{$combi} = $csv.error_input;
             skip "fields () failed", 2;
             }
@@ -94,16 +96,16 @@ sub combi (*%attr)
             skip "# fields failed",  1;
             }
 
-        my $ret = join "=", "", @ret, "";
+        my $ret = join "=", "", @ret.map ({$_.text.Str}), "";
         is ($ret, $string,          "content");
         }
     } # combi
 
-for ( False, True    ) { my $aw = $_;
-for ( False, True    ) { my $aq = $_;
-for ( @special       ) { my $qc = $_;
-for ( @special, "+"  ) { my $ec = $_;
-for ( @special, "\0" ) { my $sc = $_;
+for ( False, True    ) -> $aw {
+for ( False, True    ) -> $aq {
+for ( @special       ) -> $qc {
+for ( @special, "+"  ) -> $ec {
+for ( @special, "\0" ) -> $sc {
     combi (
         sep_char         => $sc,
         quote_char       => $qc,

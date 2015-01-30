@@ -104,6 +104,7 @@ class Text::CSV {
     has Bool $!quote_null            = True;
     has Bool $!quote_binary          = True;
     has Bool $!keep_meta_info        = False;
+    has Bool $!build                 = False;
 
     has Int  $!record_number         = 0;
 
@@ -170,15 +171,45 @@ class Text::CSV {
 
     # We need this to support aliasses and to catch unsupported attributes
     submethod BUILD (*%init) {
+        $!build = True;
         for keys %init -> $attr {
-            my @can = self.can (lc $attr) or die "attr $attr is not supported\n";
+            my @can = self.can (lc $attr) or self!fail (1000);
             .(self, %init{$attr}) for @can;
             }
+        $!build = False;
+        #self!check_sanity;
+        }
+
+    method !fail (Int $errno) {
+        $!errno         = $errno;
+        $!error_pos     = 0;
+        $!error_message = %!errors{$errno};
+        $!error_input   = Str;
+        $!auto_diag and .error_diag;
+        die $errno;
+        }
+
+    method !check_sanity () {
+        $!build and return;
+
+        $!sep.defined                        or  self!fail (1001);
+        $!quo.defined and $!quo eq $!sep     and self!fail (1001);
+        $!esc.defined and $!esc eq $!sep     and self!fail (1001);
+
+                          $!sep ~~ m{[\r\n]} and self!fail (1003);
+        $!quo.defined and $!quo ~~ m{[\r\n]} and self!fail (1003);
+        $!esc.defined and $!esc ~~ m{[\r\n]} and self!fail (1003);
+
+        $!allow_whitespace or return;
+
+        $!quo.defined and $!quo ~~ m{[ \t]}  and self!fail (1002);
+        $!esc.defined and $!esc ~~ m{[ \t]}  and self!fail (1002);
         }
 
     # String attributes
     method !a_str ($attr is rw, *@s) {
         @s.elems == 1 and $attr = @s[0];
+        self!check_sanity;
         return $attr;
         }
     method sep          (*@s) { return self!a_str ($!sep, @s); }
@@ -194,6 +225,7 @@ class Text::CSV {
     # Boolean attributes
     method !a_bool ($attr is rw, *@s) {
         @s.elems == 1 and $attr = @s[0] ?? True !! False;
+        self!check_sanity;
         return $attr;
         }
     method binary                (*@s) { return self!a_bool ($!binary,                @s); }
