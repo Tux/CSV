@@ -130,20 +130,20 @@ ok ($csv.parse ("foo,foo\0bar"),        "parse (foo)");
 
 # Some forbidden combinations
 foreach my $ws (" ", "\t") {
-    ok ($csv = Text::CSV_XS.new ({ escape_char => $ws }), "New blank escape");
+    ok ($csv = Text::CSV.new ({ escape_char => $ws }), "New blank escape");
     eval { ok ($csv.allow_whitespace (1), "Allow ws") };
     is (($csv.error_diag)[0], 1002, "Wrong combo");
-    ok ($csv = Text::CSV_XS.new ({ quote_char  => $ws }), "New blank quote");
+    ok ($csv = Text::CSV.new ({ quote_char  => $ws }), "New blank quote");
     eval { ok ($csv.allow_whitespace (1), "Allow ws") };
     is (($csv.error_diag)[0], 1002, "Wrong combo");
-    ok ($csv = Text::CSV_XS.new ({ allow_whitespace => 1 }), "New ws 1");
+    ok ($csv = Text::CSV.new ({ allow_whitespace => 1 }), "New ws 1");
     eval { ok ($csv.escape_char ($ws),     "esc") };
     is (($csv.error_diag)[0], 1002, "Wrong combo");
-    ok ($csv = Text::CSV_XS.new ({ allow_whitespace => 1 }), "New ws 1");
+    ok ($csv = Text::CSV.new ({ allow_whitespace => 1 }), "New ws 1");
     eval { ok ($csv.quote_char  ($ws),     "esc") };
     is (($csv.error_diag)[0], 1002, "Wrong combo");
     }
-eval { $csv = Text::CSV_XS.new ({
+eval { $csv = Text::CSV.new ({
     escape_char      => "\t",
     quote_char       => " ",
     allow_whitespace => 1,
@@ -154,28 +154,28 @@ is   ((Text::CSV_XS::error_diag)[0], 1002, "Wrong combo - numeric error");
 # Test 1003 in constructor
 foreach my $x ("\r", "\n", "\r\n", "x\n", "\rx") {
     foreach my $attr (qw( sep_char quote_char escape_char )) {
-        eval { $csv = Text::CSV_XS.new ({ $attr => $x }) };
+        eval { $csv = Text::CSV.new ({ $attr => $x }) };
         is ((Text::CSV_XS::error_diag)[0], 1003, "eol in $attr");
         }
     }
 # Test 1003 in methods
 foreach my $attr (qw( sep_char quote_char escape_char )) {
-    ok ($csv = Text::CSV_XS.new, "New");
+    ok ($csv = Text::CSV.new, "New");
     eval { ok ($csv.$attr ("\n"), "$attr => \\n") };
     is (($csv.error_diag)[0], 1003, "not allowed");
     }
 
 # And test erroneous calls
 is (Text::CSV_XS::new (0),                 undef,       "new () as function");
-is (Text::CSV_XS::error_diag (), "usage: my \$csv = Text::CSV_XS.new ([{ option => value, ... }]);",
+is (Text::CSV_XS::error_diag (), "usage: my \$csv = Text::CSV.new ([{ option => value, ... }]);",
                                                         "Generic usage () message");
-is (Text::CSV_XS.new ({ oel     => "" }), undef,        "typo in attr");
+is (Text::CSV.new ({ oel     => "" }), undef,        "typo in attr");
 is (Text::CSV_XS::error_diag (), "INI - Unknown attribute 'oel'",       "Unsupported attr");
-is (Text::CSV_XS.new ({ _STATUS => "" }), undef,        "private attr");
+is (Text::CSV.new ({ _STATUS => "" }), undef,        "private attr");
 is (Text::CSV_XS::error_diag (), "INI - Unknown attribute '_STATUS'",   "Unsupported private attr");
 
 foreach my $arg (undef, 0, "", " ", 1, [], [ 0 ], *STDOUT) {
-    is  (Text::CSV_XS.new ($arg),         undef,        "Illegal type for first arg");
+    is  (Text::CSV.new ($arg),         undef,        "Illegal type for first arg");
     is ((Text::CSV_XS::error_diag)[0], 1000, "Should be a hashref - numeric error");
     }
 

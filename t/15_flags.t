@@ -46,12 +46,12 @@ sub crnlsp (Text::CSV $csv) {
         ok ( $csv.parse (qq{"\r\n "}),                  "Quoted CR NL + Space");
         }
     else {
-#       ok (!$csv.parse (qq{"\n"}),                     "Quoted NL");
-#       ok (!$csv.parse (qq{"\r"}),                     "Quoted CR");
-#       ok (!$csv.parse (qq{"\r\n"}),                   "Quoted CR NL");
-#       ok (!$csv.parse (qq{"\n "}),                    "Quoted NL + Space");
-#       ok (!$csv.parse (qq{"\r "}),                    "Quoted CR + Space");
-#       ok (!$csv.parse (qq{"\r\n "}),                  "Quoted CR NL + Space");
+        ok (!$csv.parse (qq{"\n"}),                     "Quoted NL");
+        ok (!$csv.parse (qq{"\r"}),                     "Quoted CR");
+        ok (!$csv.parse (qq{"\r\n"}),                   "Quoted CR NL");
+        ok (!$csv.parse (qq{"\n "}),                    "Quoted NL + Space");
+        ok (!$csv.parse (qq{"\r "}),                    "Quoted CR + Space");
+        ok (!$csv.parse (qq{"\r\n "}),                  "Quoted CR NL + Space");
         }
 #   ok (!$csv.parse (qq{"\r\r\n"\r}),                   "Quoted CR CR NL >CR");
 #   ok (!$csv.parse (qq{"\r\r\n"\r\r}),                 "Quoted CR CR NL >CR CR");
@@ -71,10 +71,10 @@ sub crnlsp (Text::CSV $csv) {
     ok (!$csv.parse ('"abc'),                           "Missing closing \"");
     ok (!$csv.parse ('ab"c'),                           "\" outside of \"'s");
     ok (!$csv.parse ('"ab"c"'),                         "Bad character sequence");
-#   ok (!$csv.parse ("ab${c99}c"),                      "Binary character");
-#   ok (!$csv.parse (qq{"ab${c99}c"}),                  "Binary character in quotes");
-#   ok (!$csv.parse (qq{"abc\nc"}),                     "Bad character (NL)");
-#   is ($csv.status, False,                             "Wrong status ()");
+    ok (!$csv.parse ("ab{$c99}c"),                      "Binary character");
+    ok (!$csv.parse (qq{"ab{$c99}c"}),                  "Binary character in quotes");
+    ok (!$csv.parse (qq{"abc\nc"}),                     "Bad character (NL)");
+    is ($csv.status, False,                             "Wrong status ()");
     ok ( $csv.parse ('","'),                            "comma - parse ()");
     is ( $csv.fields.elems, 1,                          "comma - fields () - count");
     is ( $csv.fields[0].text, ",",                      "comma - fields () - content");
