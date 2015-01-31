@@ -42,7 +42,7 @@ class CSV::Field {
     method set_quoted () {
         $!is_quoted = True;
         $!undefined = False;
-        .add("");
+        .add ("");
         }
 
     method !analyse () {
@@ -63,17 +63,17 @@ class CSV::Field {
             $!is_utf8   = True;
         }
 
-    method is_binary () {
+    method is_binary () returns Bool {
         $!analysed or self!analyse;
         return $!is_binary;
         }
 
-    method is_utf8 () {
+    method is_utf8 () returns Bool {
         $!analysed or self!analyse;
         return $!is_utf8;
         }
 
-    method is_missing () {
+    method is_missing () returns Bool {
         $!analysed or self!analyse;
         return $!is_missing;
         }
@@ -207,7 +207,7 @@ class Text::CSV {
         }
 
     # String attributes
-    method !a_str ($attr is rw, *@s) {
+    method !a_str ($attr is rw, *@s) returns Str {
         @s.elems == 1 and $attr = @s[0];
         self!check_sanity;
         return $attr;
@@ -242,14 +242,14 @@ class Text::CSV {
     method empty_is_undef        (*@s) { return self!a_bool ($!empty_is_undef,        @s); }
 
     # Numeric attributes
-    method !a_num ($attr is rw, *@s) {
+    method !a_num ($attr is rw, *@s) returns Int {
         @s.elems == 1 and $attr = @s[0] + 0;
         return $attr;
         }
     method record_number (*@s) { return self!a_num ($!record_number, @s); }
 
     # Numeric attributes, boolean allowed
-    method !a_bool_int ($attr is rw, *@s) {
+    method !a_bool_int ($attr is rw, *@s) returns Int {
         if (@s.elems == 1) {
             my $v = @s[0];
             $attr = $v ~~ Bool ?? $v ?? 1 !! 0 !! $v.defined ?? $v + 0 !! 0;
@@ -260,7 +260,7 @@ class Text::CSV {
     method diag_verbose (*@s) { return self!a_bool_int ($!diag_verbose, @s); }
     method verbose_diag (*@s) { return self!a_bool_int ($!diag_verbose, @s); }
 
-    method status () {
+    method status () returns Bool {
         return $!errno ?? False !! True;
         }
 
@@ -309,7 +309,7 @@ class Text::CSV {
             );
        }
 
-    method !ready (CSV::Field $f) {
+    method !ready (CSV::Field $f) returns Bool {
         defined $f.text or $f.undefined = True;
 
         if ($f.undefined) {
@@ -371,7 +371,7 @@ class Text::CSV {
         return $x;
         } # string
 
-    method combine (*@f) {
+    method combine (*@f) returns Bool {
         @!fields = ();
         for @f -> $f {
             my $cf = CSV::Field.new;
