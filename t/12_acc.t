@@ -77,6 +77,9 @@ is ($csv.eol ("\r"),        "\r",   "eol (\\r)");
 
 is ($csv.always_quote (False),         False, "always_quote (False)");
 is ($csv.always_quote (True),          True,  "always_quote (True)");
+is ($csv.always-quote (True),          True,  "always-quote (True)");
+is ($csv.quote_always (True),          True,  "quote_always (True)");
+is ($csv.quote-always (True),          True,  "quote-always (True)");
 is ($csv.always_quote (1),             True,  "always_quote (1)");
 is ($csv.allow_loose_quotes (True),    True,  "allow_loose_quotes (True)");
 is ($csv.allow_loose_quotes (1),       True,  "allow_loose_quotes (1)");

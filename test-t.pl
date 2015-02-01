@@ -212,7 +212,7 @@ class Text::CSV {
         self!check_sanity;
         return $attr;
         }
-    method sep          (*@s) aka < sep_char >
+    method sep          (*@s) aka < sep_char sep-char >
         { return self!a_str ($!sep, @s); }
     method quo          (*@s) aka < quote quote_char quote-char >
         { return self!a_str ($!quo, @s); }
@@ -239,7 +239,7 @@ class Text::CSV {
         { return self!a_bool ($!quote_binary,          @s); }
     method allow_loose_quotes    (*@s) aka < allow-loose-quotes allow_loose_quote allow-loose-quote >
         { return self!a_bool ($!allow_loose_quotes,    @s); }
-    method allow_loose_escapes   (*@s) aka < allow-loose-escapes allow_looese_escape allow-loose-escape >
+    method allow_loose_escapes   (*@s) aka < allow-loose-escapes allow_loose_escape allow-loose-escape >
         { return self!a_bool ($!allow_loose_escapes,   @s); }
     method allow_unquoted_escape (*@s) aka < allow-unquoted-escape allow_unquoted_escapes allow-unquoted-escapes >
         { return self!a_bool ($!allow_unquoted_escape, @s); }
