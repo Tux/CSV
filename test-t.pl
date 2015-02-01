@@ -3,7 +3,7 @@
 use v6;
 use Slang::Tuxic;
 
-my $opt_v = %*ENV<PERL6_VERBOSE> // 1;
+my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
 my $test  = qq{,1,ab,"cd","e"0f","g,h","nl\nz"0i""""3",\r\n};
 my @rslt  = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
 
@@ -212,6 +212,7 @@ class Text::CSV {
         self!check_sanity;
         return $attr;
         }
+    #ethod sep          (*@s) handles "sep_char" { return self!a_str ($!sep, @s); }
     method sep          (*@s) { return self!a_str ($!sep, @s); }
     method sep_char     (*@s) { return self!a_str ($!sep, @s); }
     method quo          (*@s) { return self!a_str ($!quo, @s); }
@@ -224,7 +225,7 @@ class Text::CSV {
 
     # Boolean attributes
     method !a_bool ($attr is rw, *@s) {
-        @s.elems == 1 and $attr = @s[0] ?? True !! False;
+        @s.elems == 1 and $attr = ?@s[0];
         self!check_sanity;
         return $attr;
         }
@@ -243,7 +244,7 @@ class Text::CSV {
 
     # Numeric attributes
     method !a_num ($attr is rw, *@s) returns Int {
-        @s.elems == 1 and $attr = @s[0] + 0;
+        @s.elems == 1 and $attr = +@s[0];
         return $attr;
         }
     method record_number (*@s) { return self!a_num ($!record_number, @s); }
