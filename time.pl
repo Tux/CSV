@@ -30,6 +30,7 @@ my @test = (
     [ 5, "csv-test-pp" ],
     [ 5, "csv-pegex"   ],
     [ 6, "csv"         ],
+    [ 6, "csv-ip5xs"   ],
     [ 6, "csv_gram"    ],
     [ 6, "test"        ],
     [ 6, "test-x"      ],
