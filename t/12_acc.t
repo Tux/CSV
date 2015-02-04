@@ -57,6 +57,9 @@ is ($csv.record-number,         0,     "record-number");
 
 is ($csv.binary (),             True,  "binary ()");
 is ($csv.binary (False),        False, "binary (False)");
+is ($csv.binary (Bool),         False, "binary (False)");
+is ($csv.binary (Str),          False, "binary (False)");
+is ($csv.binary (""),           False, "binary (False)");
 is ($csv.binary (0),            False, "binary (0)");
 is ($csv.binary (True),         True,  "binary (True)");
 is ($csv.binary (1),            True,  "binary (1)");

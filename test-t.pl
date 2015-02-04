@@ -262,7 +262,7 @@ class Text::CSV {
     method !a_bool_int ($attr is rw, *@s) returns Int {
         if (@s.elems == 1) {
             my $v = @s[0];
-            $attr = $v ~~ Bool ?? $v ?? 1 !! 0 !! $v.defined ?? $v + 0 !! 0;
+            $attr = $v ~~ Bool ?? $v ?? 1 !! 0 !! $v.defined ?? +$v !! 0;
             }
         return $attr;
         }
@@ -508,12 +508,13 @@ class Text::CSV {
                         }
 
                     my Str $next   = @ch[$i + 1] // Nil;
+                    my int $lastf  = ($next eq Nil ?? 1 !! 0);
                     my int $omit   = 1;
                     my int $quoesc = 0;
 
                     # , 1 , "foo, 3" , , bar , "" \r\n
                     #               ^            ^
-                    if ($!allow_whitespace && $next ~~ /^ \s+ $/) {
+                    if ($!allow_whitespace && !$lastf && $next ~~ /^ \s+ $/) {
                         $next = @ch[$i + 2] // Nil;
                         $omit++;
                         }
@@ -522,7 +523,7 @@ class Text::CSV {
 
                     # ,1,"foo, 3",,bar,\r\n
                     #           ^
-                    if ($next eq $sep) {
+                    if (!$lastf and $next eq $sep) {
                         $opt_v > 7 and progress ($i, "SEP");
                         $skip = $omit;
                         keep () or return;
@@ -531,8 +532,7 @@ class Text::CSV {
 
                     # ,1,"foo, 3"\r\n
                     #           ^
-                    # Nil can also indicate EOF
-                    if ($next eq Nil || !$next.defined || $next ~~ /^ $eol $/) {
+                    if ($lastf || !$next.defined || $next ~~ /^ $eol $/) {
                         keep () or return;
                         return @!fields;
                         }
