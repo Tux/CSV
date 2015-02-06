@@ -212,14 +212,10 @@ class Text::CSV {
         self!check_sanity;
         return $attr;
         }
-    method sep          (*@s) aka < sep_char sep-char >
-        { return self!a_str ($!sep, @s); }
-    method quo          (*@s) aka < quote quote_char quote-char >
-        { return self!a_str ($!quo, @s); }
-    method esc          (*@s) aka < escape escape_char escape-char >
-        { return self!a_str ($!esc, @s); }
-    method eol          (*@s)
-        { return self!a_str ($!eol, @s); }
+    method sep (*@s) { return self!a_str ($!sep, @s); }
+    method quo (*@s) { return self!a_str ($!quo, @s); }
+    method esc (*@s) { return self!a_str ($!esc, @s); }
+    method eol (*@s) { return self!a_str ($!eol, @s); }
 
     # Boolean attributes
     method !a_bool ($attr is rw, *@s) {
@@ -227,36 +223,24 @@ class Text::CSV {
         self!check_sanity;
         return $attr;
         }
-    method binary                (*@s)
-        { return self!a_bool ($!binary,                @s); }
-    method always_quote          (*@s) aka < always-quote quote_always quote-always >
-        { return self!a_bool ($!always_quote,          @s); }
-    method quote_space           (*@s) aka < quote-space >
-        { return self!a_bool ($!quote_space,           @s); }
-    method quote_null            (*@s) aka < quote-null>
-        { return self!a_bool ($!quote_null,            @s); }
-    method quote_binary          (*@s) aka < quote-binary >
-        { return self!a_bool ($!quote_binary,          @s); }
-    method allow_loose_quotes    (*@s) aka < allow-loose-quotes allow_loose_quote allow-loose-quote >
-        { return self!a_bool ($!allow_loose_quotes,    @s); }
-    method allow_loose_escapes   (*@s) aka < allow-loose-escapes allow_loose_escape allow-loose-escape >
-        { return self!a_bool ($!allow_loose_escapes,   @s); }
-    method allow_unquoted_escape (*@s) aka < allow-unquoted-escape allow_unquoted_escapes allow-unquoted-escapes >
-        { return self!a_bool ($!allow_unquoted_escape, @s); }
-    method allow_whitespace      (*@s) aka < allow-whitespace >
-        { return self!a_bool ($!allow_whitespace,      @s); }
-    method blank_is_undef        (*@s) aka < blank-is-undef >
-        { return self!a_bool ($!blank_is_undef,        @s); }
-    method empty_is_undef        (*@s) aka < empty-is-undef >
-        { return self!a_bool ($!empty_is_undef,        @s); }
+    method binary                (*@s) { return self!a_bool ($!binary,                @s); }
+    method always_quote          (*@s) { return self!a_bool ($!always_quote,          @s); }
+    method quote_space           (*@s) { return self!a_bool ($!quote_space,           @s); }
+    method quote_null            (*@s) { return self!a_bool ($!quote_null,            @s); }
+    method quote_binary          (*@s) { return self!a_bool ($!quote_binary,          @s); }
+    method allow_loose_quotes    (*@s) { return self!a_bool ($!allow_loose_quotes,    @s); }
+    method allow_loose_escapes   (*@s) { return self!a_bool ($!allow_loose_escapes,   @s); }
+    method allow_unquoted_escape (*@s) { return self!a_bool ($!allow_unquoted_escape, @s); }
+    method allow_whitespace      (*@s) { return self!a_bool ($!allow_whitespace,      @s); }
+    method blank_is_undef        (*@s) { return self!a_bool ($!blank_is_undef,        @s); }
+    method empty_is_undef        (*@s) { return self!a_bool ($!empty_is_undef,        @s); }
 
     # Numeric attributes
     method !a_num ($attr is rw, *@s) returns Int {
         @s.elems == 1 and $attr = +@s[0];
         return $attr;
         }
-    method record_number (*@s) aka < record-number >
-        { return self!a_num ($!record_number, @s); }
+    method record_number (*@s) { return self!a_num ($!record_number, @s); }
 
     # Numeric attributes, boolean allowed
     method !a_bool_int ($attr is rw, *@s) returns Int {
@@ -266,10 +250,33 @@ class Text::CSV {
             }
         return $attr;
         }
-    method auto_diag    (*@s) aka < auto-diag >
-        { return self!a_bool_int ($!auto_diag,    @s); }
-    method diag_verbose (*@s) aka < diag-verbose verbose_diag verbose-diag >
-        { return self!a_bool_int ($!diag_verbose, @s); }
+    method auto_diag    (*@s) { return self!a_bool_int ($!auto_diag,    @s); }
+    method diag_verbose (*@s) { return self!a_bool_int ($!diag_verbose, @s); }
+
+    CHECK {
+        sub alias (Str:D $m, *@aka) {
+            my $r := Text::CSV.^find_method ($m);
+            my $p := $r.package;
+            $p.^add_method ($_, $r) for @aka;
+            }
+
+        alias ("sep",                   < sep_char sep-char >);
+        alias ("quo",                   < quote quote_char quote-char >);
+        alias ("esc",                   < escape escape_char escape-char >);
+        alias ("always_quote",          < always-quote quote_always quote-always >);
+        alias ("quote_space",           < quote-space >);
+        alias ("quote_null",            < quote-null>);
+        alias ("quote_binary",          < quote-binary >);
+        alias ("allow_loose_quotes",    < allow-loose-quotes allow_loose_quote allow-loose-quote >);
+        alias ("allow_loose_escapes",   < allow-loose-escapes allow_loose_escape allow-loose-escape >);
+        alias ("allow_unquoted_escape", < allow-unquoted-escape allow_unquoted_escapes allow-unquoted-escapes >);
+        alias ("allow_whitespace",      < allow-whitespace >);
+        alias ("blank_is_undef",        < blank-is-undef >);
+        alias ("empty_is_undef",        < empty-is-undef >);
+        alias ("record_number",         < record-number >);
+        alias ("auto_diag",             < auto-diag >);
+        alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
+        }
 
     method status () returns Bool {
         return $!errno ?? False !! True;
