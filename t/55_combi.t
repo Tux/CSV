@@ -6,8 +6,6 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-my $csv = Text::CSV.new (binary => 1);
-
 my @attrib  = ("quote_char", "escape_char", "sep_char");
 my @special = ('"', "'", ",", ";", "\t", "\\", "~");
 # Add undef, once we can return undef
@@ -17,19 +15,20 @@ my $ninput  = @input.elems;
 my $string  = join "=", "", @input, "";
 my %fail;
 
-ok (1, "--     qc     ec     sc     ac");
+ok (1, "--     qc     ec     sc     ac     aw");
 
 sub combi (*%attr)
 {
     my $combi = join " ", "--", map { sprintf "%6s", %attr{$_}.perl; },
-        @attrib, "always_quote";
+        @attrib, "always_quote", "allow_whitespace";
     ok (1, $combi);
 
-    # use legal non-special characters
-    is ($csv.sep_char    ("\x03"), "\x03", "Reset sep");
-    is ($csv.quote_char  ("\x04"), "\x04", "Reset quo");
-    is ($csv.escape_char ("\x05"), "\x05", "Reset esc");
-    is ($csv.allow_whitespace (0), False,  "Reset allow WS");
+    my $csv = Text::CSV.new (
+        binary => 1,
+        sep    => "\x03",
+        quo    => "\x04",
+        esc    => "\x05",
+        );
 
     # Set the attributes and check failure
     my %state;
@@ -75,14 +74,17 @@ sub combi (*%attr)
 
     ok ($ret, "combine");
     ok (my $str = $csv.string, "string");
+    "# @$?LINE ‹$str›".say;
     SKIP: {
         ok (my $ok = $csv.parse ($str), "parse");
 
+        $?LINE.say;
         unless ($ok) {
             %fail{"parse"}{$combi} = $csv.error_input;
             skip "parse () failed",  3;
             }
 
+        $?LINE.say;
         my @ret = $csv.fields;
         ok (@ret.elems, "fields");
         unless (@ret.elems) {
@@ -90,16 +92,26 @@ sub combi (*%attr)
             skip "fields () failed", 2;
             }
 
+        $?LINE.say;
         is (@ret.elems, $ninput,   "$ninput fields");
         unless (@ret.elems == $ninput) {
             %fail{'$#fields'}{$combi} = $str;
             skip "# fields failed",  1;
             }
 
+        $?LINE.say;
         my $ret = join "=", "", @ret.map ({$_.text.Str}), "";
         is ($ret, $string,          "content");
         }
     } # combi
+
+#combi (
+#    sep_char         => ";",
+#    quote_char       => "'",
+#    escape_char      => "\t",
+#    always_quote     => False,
+#    allow_whitespace => False,
+#    );
 
 for ( False, True    ) -> $aw {
 for ( False, True    ) -> $aq {
