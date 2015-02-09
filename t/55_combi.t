@@ -37,14 +37,14 @@ sub combi (*%attr)
         {   $csv."$attr"(%attr{$attr});
 
             CATCH { default {
-                %state{$csv.error_diag.error} ||= $csv.error_diag.message;
+                %state{$csv.error_diag.error || .payload} ||= $csv.error_diag.message;
                 }}
             };
         }
     if (%attr{"sep_char"} eq %attr{"quote_char"} ||
         %attr{"sep_char"} eq %attr{"escape_char"}) {
         ok (%state{1001}.defined, "Illegal combo");
-        is (%state{1001}, rx{sep_char is equal to}, "Illegal combo");
+        ok (%state{1001} ~~ m{"sep_char is equal to"}, "Illegal combo");
         }
     else {
         ok (!%state{1001}.defined, "No char conflict");
@@ -55,7 +55,7 @@ sub combi (*%attr)
             %attr{"escape_char"} ~~ m/[\r\n]/
             ) {
         ok (%state{1003}.defined, "Special contains eol");
-        is (%state{1003}, rx{in main attr not}, "Illegal combo");
+        ok (%state{1003} ~~ rx{"in main attr not"}, "Illegal combo");
         }
     if (%attr{"allow_whitespace"} and
             %attr{"quote_char"}  ~~ m/^[ \t]/ ||
@@ -63,7 +63,7 @@ sub combi (*%attr)
             ) {
         #diag (join " -> ** " => $combi, join ", " => sort %state);
         ok (%state{1002}.defined, "Illegal combo under allow_whitespace");
-        is (%state{1002}, rx{allow_whitespace with}, "Illegal combo");
+        ok (%state{1002} ~~ rx{"allow_whitespace with"}, "Illegal combo");
         }
     %state and return;
 
