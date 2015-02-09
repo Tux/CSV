@@ -37,7 +37,8 @@ sub combi (*%attr)
         {   $csv."$attr"(%attr{$attr});
 
             CATCH { default {
-                %state{$csv.error_diag.error || .payload} ||= $csv.error_diag.message;
+                my $e = .payload;
+                %state{$e.error} ||= $e.message;
                 }}
             };
         }

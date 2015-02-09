@@ -169,6 +169,37 @@ class Text::CSV {
         3010 => "EHR - print_hr () called with invalid arguments",
         ;
 
+    class err_diag is Iterable does Positional {
+        has Int $.error   is readonly;
+        has Str $.message is readonly;
+        has Int $.pos     is readonly;
+        has Int $.record  is readonly;
+        has Str $.buffer  is readonly;
+
+        method sink {
+            warn $!message ~ " @ rec/pos " ~ $!record ~ "/" ~ $!pos ~ "\n"
+               ~ $!buffer ~ "\n"
+               ~ ' ' x $!pos ~ "^\n";
+            }
+        method Numeric  { return   $!error; }
+        method Str      { return   $!message; }
+        method iterator { return [ $!error, $!message, $!pos, $!record, $!buffer ].iterator; }
+        method hash     { return { errno  => $!error,
+                                   error  => $!message,
+                                   pos    => $!pos,
+                                   recno  => $!record,
+                                   buffer => $!buffer,
+                                   }; }
+        method at_pos (int $i) {
+            return $i == 0 ?? $!error
+                !! $i == 1 ?? $!message
+                !! $i == 2 ?? $!pos
+                !! $i == 3 ?? $!record
+                !! $i == 4 ?? $!buffer
+                !! Nil;
+            }
+        }
+
     # We need this to support aliasses and to catch unsupported attributes
     submethod BUILD (*%init) {
         $!build = True;
@@ -186,7 +217,13 @@ class Text::CSV {
         $!error_message = %!errors{$errno};
         $!error_input   = Str;
         $!auto_diag and .error_diag;
-        die $errno;
+        die err_diag.new (
+            error   => $!errno,
+            message => $!error_message,
+            pos     => $!error_pos,
+            record  => $!record_number,
+            buffer  => $!error_input,
+            );
         }
 
     method !check_sanity () {
@@ -287,36 +324,6 @@ class Text::CSV {
         return $!error_input;
         }
 
-    class err_diag is Iterable does Positional {
-        has Int $.error   is readonly;
-        has Str $.message is readonly;
-        has Int $.pos     is readonly;
-        has Int $.record  is readonly;
-        has Str $.buffer  is readonly;
-
-        method sink {
-            warn $!message ~ " @ rec/pos " ~ $!record ~ "/" ~ $!pos ~ "\n"
-               ~ $!buffer ~ "\n"
-               ~ ' ' x $!pos ~ "^\n";
-            }
-        method Numeric  { return   $!error; }
-        method Str      { return   $!message; }
-        method iterator { return [ $!error, $!message, $!pos, $!record, $!buffer ].iterator; }
-        method hash     { return { errno  => $!error,
-                                   error  => $!message,
-                                   pos    => $!pos,
-                                   recno  => $!record,
-                                   buffer => $!buffer,
-                                   }; }
-        method at_pos (int $i) {
-            return $i == 0 ?? $!error
-                !! $i == 1 ?? $!message
-                !! $i == 2 ?? $!pos
-                !! $i == 3 ?? $!record
-                !! $i == 4 ?? $!buffer
-                !! Nil;
-            }
-        }
     method error_diag () {
         return err_diag.new (
             error   => $!errno,
