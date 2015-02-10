@@ -375,7 +375,7 @@ class Text::CSV {
         my Str @f;
         for @!fields -> $f {
             if ($f.undefined) {
-                @f.push ($!quote_null   ?? "$!quo$!quo" !! "");
+                @f.push ($!always_quote ?? "$!quo$!quo" !! "");
                 next;
                 }
             my $t = $f.text;
@@ -384,6 +384,7 @@ class Text::CSV {
                 next;
                 }
             $t .= subst (/( $q | $e )/, { "$e$0" }, :g);
+            $t .= subst (/ \x[0] /,     { $e ~ 0 }, :g) if $!quote_null;
             $!always_quote
             ||                   $t ~~ / $e  | $s | \r | \n /
             || ($!quote_space && $t ~~ / " " | \t /)
