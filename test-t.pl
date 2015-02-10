@@ -412,13 +412,16 @@ class Text::CSV {
     method parse (Str $buffer) returns Bool {
 
         my     $field;
-        my int $pos = 0;
+        my int $skip = 0;
+        my int $i    = -1;
+        my int $pos  = 0;
+        my int $ppos = 0;
 
         $!errno = 0;
 
         my sub parse_error (Int $errno) {
             $!errno         = $errno;
-            $!error_pos     = 0;
+            $!error_pos     = $pos;
             $!error_message = %!errors{$errno};
             $!error_input   = $buffer;
             $!auto_diag and self.error_diag;
@@ -454,11 +457,10 @@ class Text::CSV {
             };
         $opt_v > 2 and progress (0, @ch.perl);
 
-        my int $skip = 0;
-        my int $i    = -1;
-
         for @ch -> Str $chunk {
             $i = $i + 1;
+            $pos   = $ppos;
+            $ppos += $chunk.chars;
 
             if ($skip) {
                 # $skip-- fails:
@@ -618,7 +620,6 @@ class Text::CSV {
                 }
 
             $chunk ne "" and $f.add ($chunk);
-            $pos += .chars;
             }
 
         $f.is_quoted and
