@@ -169,7 +169,7 @@ class Text::CSV {
         3010 => "EHR - print_hr () called with invalid arguments",
         ;
 
-    class CSV::Diag is Iterable does Positional {
+    class CSV::Diag is Iterable does Positional is Exception {
         has Int $.error   is readonly;
         has Str $.message is readonly;
         has Int $.pos     is readonly;
