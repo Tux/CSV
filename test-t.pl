@@ -179,12 +179,13 @@ class Text::CSV {
         method sink {
             # See also src/core/Exception.pm - role X::Comp  method gist
             # I do not want the "in method sink at ..." here, but there
-            # is no way yet to suppress that
-            warn $!message ~ " @ rec/pos " ~ $!record ~ "/" ~ $!pos ~ "\n"
+            # is no way yet to suppress that, so say instead of warn for now
+            say  "\e[34m" ~ $!message
+               ~ "\e[0m"  ~ " @ rec/pos " ~ $!record ~ "/" ~ $!pos ~ "\n"
                ~ "\e[32m" ~ substr ($!buffer, 0, $!pos)
                ~ "\e[33m" ~ "\x[23CF]"
                ~ "\e[31m" ~ substr ($!buffer,    $!pos)
-               ~ "\e[0m"  ~ "\n";
+               ~ "\e[0m";
             }
         method Numeric  { return   $!error; }
         method Str      { return   $!message; }
