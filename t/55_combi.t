@@ -8,7 +8,7 @@ use Text::CSV;
 
 my @attrib  = ("quote_char", "escape_char", "sep_char");
 my @special = ('"', "'", ",", ";", "\t", "\\", "~");
-# Add undef, once we can return undef
+# Add undef (Nil or Str), once we can return undef (or Nil or Str)
 my @input   = ( "", 1, "1", 1.4, "1.4", " - 1,4", "1+2=3", "' ain't it great '",
     '"foo"! said the `bär', q{the ~ in "0 \0 this l'ne is \r ; or "'"} );
 my $ninput  = @input.elems;
@@ -76,16 +76,15 @@ sub combi (*%attr)
     ok (my $str = $csv.string, "string");
     "# @$?LINE ‹$str›".say;
 
+    $csv.auto-diag (True);
     ok (my $ok = $csv.parse ($str), "parse");
 
-    "# $?LINE $ok".say;
     unless ($ok) {
         $csv.error_diag.perl.say;
         %fail{"parse"}{$combi} = $csv.error_input;
         return;
         }
 
-    "# $?LINE".say;
     my @ret = $csv.fields;
     ok (@ret.elems, "fields");
     unless (@ret.elems) {
@@ -93,14 +92,12 @@ sub combi (*%attr)
         return;
         }
 
-    "# $?LINE".say;
     is (@ret.elems, $ninput,   "$ninput fields");
     unless (@ret.elems == $ninput) {
         %fail{'$#fields'}{$combi} = $str;
         skip "# fields failed",  1;
         }
 
-    "# $?LINE".say;
     $ret = join "=", "", @ret.map ({$_.text.Str}), "";
     is ($ret, $string,          "content");
     } # combi
