@@ -74,7 +74,7 @@ sub combi (*%attr)
 
     ok ($ret, "combine");
     ok (my $str = $csv.string, "string");
-    "# @$?LINE ‹$str›".say;
+    #"# @$?LINE ‹$str›".say;
 
     $csv.auto-diag (True);
     ok (my $ok = $csv.parse ($str), "parse");

@@ -239,6 +239,7 @@ class Text::CSV {
 
         $!allow_whitespace or return;
 
+                          $!sep ~~ m{[ \t]}  and self!fail (1002);
         $!quo.defined and $!quo ~~ m{[ \t]}  and self!fail (1002);
         $!esc.defined and $!esc ~~ m{[ \t]}  and self!fail (1002);
         }
