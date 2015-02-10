@@ -3,6 +3,8 @@
 use v6;
 use Slang::Tuxic;
 
+my $VERSION = "1.00";
+
 my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
 my $test  = qq{,1,ab,"cd","e"0f","g,h","nl\nz"0i""""3",\r\n};
 my @rslt  = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
@@ -314,6 +316,10 @@ class Text::CSV {
         alias ("record_number",         < record-number >);
         alias ("auto_diag",             < auto-diag >);
         alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
+        }
+
+    method version () {
+        return $VERSION;
         }
 
     method status () returns Bool {
