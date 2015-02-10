@@ -177,9 +177,14 @@ class Text::CSV {
         has Str $.buffer  is readonly;
 
         method sink {
+            # See also src/core/Exception.pm - role X::Comp  method gist
+            # I do not want the "in method sink at ..." here, but there
+            # is no way yet to suppress that
             warn $!message ~ " @ rec/pos " ~ $!record ~ "/" ~ $!pos ~ "\n"
-               ~ $!buffer ~ "\n"
-               ~ ' ' x $!pos ~ "^\n";
+               ~ "\e[32m" ~ substr ($!buffer, 0, $!pos)
+               ~ "\e[33m" ~ "\x[23CF]"
+               ~ "\e[31m" ~ substr ($!buffer,    $!pos)
+               ~ "\e[0m"  ~ "\n";
             }
         method Numeric  { return   $!error; }
         method Str      { return   $!message; }
@@ -216,8 +221,8 @@ class Text::CSV {
         $!error_pos     = 0;
         $!error_message = %!errors{$errno};
         $!error_input   = Str;
-        $!auto_diag and .error_diag;    # Void context
-        die self.error_diag;            # Exception object
+        $!auto_diag and self.error_diag;    # Void context
+        die self.error_diag;                # Exception object
         }
 
     method !check_sanity () {
@@ -416,7 +421,7 @@ class Text::CSV {
             $!error_pos     = 0;
             $!error_message = %!errors{$errno};
             $!error_input   = $buffer;
-            $!auto_diag and .error_diag;
+            $!auto_diag and self.error_diag;
             return False;
             }
 
