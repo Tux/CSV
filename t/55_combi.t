@@ -76,34 +76,34 @@ sub combi (*%attr)
     ok ($ret, "combine");
     ok (my $str = $csv.string, "string");
     "# @$?LINE ‹$str›".say;
-    SKIP: {
-        ok (my $ok = $csv.parse ($str), "parse");
 
-        $?LINE.say;
-        unless ($ok) {
-            %fail{"parse"}{$combi} = $csv.error_input;
-            skip "parse () failed",  3;
-            }
+    ok (my $ok = $csv.parse ($str), "parse");
 
-        $?LINE.say;
-        my @ret = $csv.fields;
-        ok (@ret.elems, "fields");
-        unless (@ret.elems) {
-            %fail{"fields"}{$combi} = $csv.error_input;
-            skip "fields () failed", 2;
-            }
-
-        $?LINE.say;
-        is (@ret.elems, $ninput,   "$ninput fields");
-        unless (@ret.elems == $ninput) {
-            %fail{'$#fields'}{$combi} = $str;
-            skip "# fields failed",  1;
-            }
-
-        $?LINE.say;
-        my $ret = join "=", "", @ret.map ({$_.text.Str}), "";
-        is ($ret, $string,          "content");
+    "# $?LINE $ok".say;
+    unless ($ok) {
+        $csv.error_diag.perl.say;
+        %fail{"parse"}{$combi} = $csv.error_input;
+        return;
         }
+
+    "# $?LINE".say;
+    my @ret = $csv.fields;
+    ok (@ret.elems, "fields");
+    unless (@ret.elems) {
+        %fail{"fields"}{$combi} = $csv.error_input;
+        return;
+        }
+
+    "# $?LINE".say;
+    is (@ret.elems, $ninput,   "$ninput fields");
+    unless (@ret.elems == $ninput) {
+        %fail{'$#fields'}{$combi} = $str;
+        skip "# fields failed",  1;
+        }
+
+    "# $?LINE".say;
+    $ret = join "=", "", @ret.map ({$_.text.Str}), "";
+    is ($ret, $string,          "content");
     } # combi
 
 #combi (
