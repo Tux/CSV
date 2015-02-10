@@ -74,7 +74,7 @@ ok (!$csv.parse ('"abc'),            "Missing closing \"");
 is (0  + $csv.error_diag,   2027,    "diag numeric");
 is ("" ~ $csv.error_diag,   "EIQ - Quoted field not terminated", "diag string");
 my @ed = $csv.error_diag;
-is (@ed[2],                 1,       "diag pos");
+is (@ed[2],                 4,       "diag pos");
 is (@ed[3],                 5,       "diag record");
 is (@ed[4],                 '"abc',  "diag buffer");
 is ($csv.error_diag[0],     2027,    "diag error  positional");

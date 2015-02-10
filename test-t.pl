@@ -460,7 +460,6 @@ class Text::CSV {
 
         for @ch -> Str $chunk {
             $i = $i + 1;
-            $pos   = $ppos;
             $ppos += $chunk.chars;
 
             if ($skip) {
@@ -473,6 +472,8 @@ class Text::CSV {
                 $skip = $skip - 1;      # $i-- barfs. IMHO a bug
                 next;
                 }
+
+            $pos = $ppos;
 
             $opt_v > 8 and progress ($i, "###", $chunk.perl~"\t", $f.perl);
 
