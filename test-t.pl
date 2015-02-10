@@ -169,7 +169,7 @@ class Text::CSV {
         3010 => "EHR - print_hr () called with invalid arguments",
         ;
 
-    class err_diag is Iterable does Positional {
+    class CSV::Diag is Iterable does Positional {
         has Int $.error   is readonly;
         has Str $.message is readonly;
         has Int $.pos     is readonly;
@@ -216,14 +216,8 @@ class Text::CSV {
         $!error_pos     = 0;
         $!error_message = %!errors{$errno};
         $!error_input   = Str;
-        $!auto_diag and .error_diag;
-        die err_diag.new (
-            error   => $!errno,
-            message => $!error_message,
-            pos     => $!error_pos,
-            record  => $!record_number,
-            buffer  => $!error_input,
-            );
+        $!auto_diag and .error_diag;    # Void context
+        die self.error_diag;            # Exception object
         }
 
     method !check_sanity () {
@@ -325,7 +319,7 @@ class Text::CSV {
         }
 
     method error_diag () {
-        return err_diag.new (
+        return CSV::Diag.new (
             error   => $!errno,
             message => $!error_message,
             pos     => $!error_pos,
