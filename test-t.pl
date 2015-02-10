@@ -181,7 +181,7 @@ class Text::CSV {
             # I do not want the "in method sink at ..." here, but there
             # is no way yet to suppress that, so say instead of warn for now
             say  "\e[34m" ~ $!message
-               ~ "\e[0m"  ~ " @ rec/pos " ~ $!record ~ "/" ~ $!pos ~ "\n"
+               ~ "\e[0m"  ~ " : error $!error @ rec $!record, pos $!pos\n"
                ~ "\e[32m" ~ substr ($!buffer, 0, $!pos)
                ~ "\e[33m" ~ "\x[23CF]"
                ~ "\e[31m" ~ substr ($!buffer,    $!pos)
@@ -459,7 +459,7 @@ class Text::CSV {
         $opt_v > 2 and progress (0, @ch.perl);
 
         for @ch -> Str $chunk {
-            $i = $i + 1;
+            $i = $i + 1;        #++
             $ppos += $chunk.chars;
 
             if ($skip) {
@@ -530,7 +530,7 @@ class Text::CSV {
                     #               ^            ^
                     if ($!allow_whitespace && !$lastf && $next ~~ /^ \s+ $/) {
                         $next = @ch[$i + 2] // Nil;
-                        $omit++;
+                        $omit = $omit + 1; #++
                         }
 
                     $opt_v > 8 and progress ($i, "QUO", "next = $next");
@@ -592,6 +592,10 @@ class Text::CSV {
                         $f.add ($chunk);
                         next;
                         }
+
+                    .perl.say for @!fields;
+                    $f.perl.say;
+                    $chunk.perl.say;
                     # Keep rest of @ch for hooks?
                     return parse_error (2011);
                     }
@@ -607,6 +611,39 @@ class Text::CSV {
 
             if ($esc.defined and $chunk eq $esc) {
                 $opt_v > 5 and progress ($i, "ESC", $f.perl);
+
+                # ,1,"foo, 3\056",,bar,\r\n
+                #            ^
+                if (@ch[$i + 1] ~~  /^ "0"/) {  # cannot use $next
+                    @ch[$i + 1] ~~ s{^ "0"} = "";
+                    $opt_v > 8 and progress ($i, "Add NIL");
+                    $f.add ("\c0");
+                    next;
+                    }
+
+                # ,1,"foo, 3\"56",,bar,\r\n
+                #            ^
+                if (@ch[$i + 1] eq $quo) {
+                    $skip = 1;
+                    $f.add ($quo);
+                    next;
+                    }
+
+                # ,1,"foo, 3\\56",,bar,\r\n
+                #            ^
+                if (@ch[$i + 1] eq $esc) {
+                    $skip = 1;
+                    $f.add ($esc);
+                    next;
+                    }
+
+                if ($!allow_loose_escapes) {
+                    # ,1,"foo, 3\56",,bar,\r\n
+                    #            ^
+                    next;
+                    }
+
+                return parse_error (2025);
                 }
 
             if ($chunk ~~ rx{^ $eol $}) {
