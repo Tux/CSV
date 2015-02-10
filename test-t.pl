@@ -404,7 +404,7 @@ class Text::CSV {
         return True;
         }
 
-    method parse (Str $buffer) {
+    method parse (Str $buffer) returns Bool {
 
         my     $field;
         my int $pos = 0;
@@ -417,7 +417,7 @@ class Text::CSV {
             $!error_message = %!errors{$errno};
             $!error_input   = $buffer;
             $!auto_diag and .error_diag;
-            return;
+            return False;
             }
 
         $!record_number++;
@@ -476,7 +476,7 @@ class Text::CSV {
                 if ($f.undefined) {
                     $!blank_is_undef || $!empty_is_undef or
                         $f.add ("");
-                    keep () or return;
+                    keep () or return False;
                     next;
                     }
 
@@ -490,7 +490,7 @@ class Text::CSV {
 
                 # ,1,"foo, 3",,bar,
                 #   ^        ^    ^
-                keep () or return;
+                keep () or return False;
                 next;
                 }
 
@@ -510,10 +510,7 @@ class Text::CSV {
                     $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
                     # ,1,"foo, 3"
                     #           ^
-                    if ($i == @ch - 1) {
-                        keep () or return;
-                        return @!fields;
-                        }
+                    $i == @ch - 1 and return keep ();
 
                     my Str $next   = @ch[$i + 1] // Nil;
                     my int $lastf  = ($next eq Nil ?? 1 !! 0);
@@ -534,16 +531,14 @@ class Text::CSV {
                     if (!$lastf and $next eq $sep) {
                         $opt_v > 7 and progress ($i, "SEP");
                         $skip = $omit;
-                        keep () or return;
+                        keep () or return False;
                         next;
                         }
 
                     # ,1,"foo, 3"\r\n
                     #           ^
-                    if ($lastf || !$next.defined || $next ~~ /^ $eol $/) {
-                        keep () or return;
-                        return @!fields;
-                        }
+                    $lastf || !$next.defined || $next ~~ /^ $eol $/ and
+                        return keep ();
 
                     if (defined $esc and $esc eq $quo) {
                         $opt_v > 7 and progress ($i, "ESC", "($next)");
@@ -614,8 +609,7 @@ class Text::CSV {
                     $f.add ($chunk);
                     next;
                     }
-                keep () or return;
-                return @!fields;
+                return keep ();
                 }
 
             $chunk ne "" and $f.add ($chunk);
@@ -628,8 +622,7 @@ class Text::CSV {
 #       !$!binary && $f.is_binary and
 #           return parse_error ($f.is_quoted ?? 2026 !! 2037);
 
-        keep () or return;
-        return @!fields;
+        return keep ();
         } # parse
 
     method getline () {
