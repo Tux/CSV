@@ -632,16 +632,19 @@ class Text::CSV {
 
 sub MAIN () {
 
-    my $csv_parser = Text::CSV.new;
+    my $csv = Text::CSV.new;
 
-    $opt_v > 1 and say $csv_parser.perl;
-    $opt_v and progress (.perl) for $csv_parser.parse ($test);
-    $opt_v and < Expected: Str 1 ab cd e\0f g,h nl\nz\0i""3 Str >.say;
+    if ($opt_v) {
+        $opt_v > 1 and say $csv.perl;
+        $csv.parse ($test) or die $csv.error_diag;
+        progress (.perl) for $csv.fields;
+        < Expected: Str 1 ab cd e\0f g,h nl\nz\0i""3 Str >.say;
+        }
 
     my Int $sum = 0;
     for lines () :eager {
-        my @r = $csv_parser.parse ($_);
-        $sum += +@r;
+        $csv.parse ($_);
+        $sum += $csv.fields.elems;
         }
     $sum.say;
     }
