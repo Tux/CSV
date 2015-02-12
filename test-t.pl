@@ -678,7 +678,8 @@ class Text::CSV {
         return keep ();
         } # parse
 
-    method getline () {
+    method getline (IO $io) {
+        self.parse ($io.get);   # Continue with next line on 2027
         return @!fields;
         } # getline
 
