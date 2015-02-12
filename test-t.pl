@@ -681,6 +681,12 @@ class Text::CSV {
     method getline () {
         return @!fields;
         } # getline
+
+    method print (IO $io, *@fld) returns Bool {
+        self.combine (@fld) or return False;
+        $io.print (self.string);
+        return True;
+        }
     }
 
 sub MAIN () {
