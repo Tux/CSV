@@ -94,14 +94,15 @@ $csv.binary (False);
 ok (!$csv.parse (qq{"abc\nc"}),      "Bad character (NL)");
 is ($csv.status, False,              "FAIL");
 
+my $csv2 = $csv.new;
+ok ($csv2,                           "New from obj");
+is ($csv2.^name, "Text::CSV",        "Same object type");
+
 =finish
 
 stuf not tested yet ...
 
 ok (!$csv->parse (),                           "Missing arguments");
-
-# New from object
-ok ($csv->new (),                              "\$csv->new ()");
 
 my $state;
 for ( [ 0, 0 ],
