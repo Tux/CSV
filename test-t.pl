@@ -36,15 +36,18 @@ class CSV::Field {
 
     enum Type < NA INT NUM STR BOOL >;
 
+    method Str {
+        return $!undefined ?? Str !! $!text;
+        }
+
     method add (Str $chunk) {
         $!text     ~= $chunk;
         $!undefined = False;
-        } # add
+        }
 
     method set_quoted () {
         $!is_quoted = True;
-        $!undefined = False;
-        .add ("");
+        self.add ("");
         }
 
     method !analyse () {
