@@ -39,7 +39,7 @@ for @pat -> $pat {
     $x ~~ s:g/\n/\\n/;
     %exp{$pat} = $x;
     }
-my @line = ("", Str, "0\n", "", "\0\0\n0");
+my Str @line = ("", Str, "0\n", "", "\0\0\n0");
 
 my $csv = Text::CSV.new (
     eol                 => "\n",
@@ -76,13 +76,14 @@ for @pat -> $pat {
     is (@row[0].text, $pat, "data %exp{$pat}");
     }
 
-=finish
-is_deeply ($csv.getline ($fh), $line, "read [ ... ]");
+my Str @got = $csv.getline ($fh).map (~*);
+is (@got.perl, @line.perl, "read [ ... ]");
 
 close $fh;
 
 unlink "__41test.csv";
 
+=finish
 $csv = Text::CSV.new (
     eol            => "\n",
     binary         => 1,

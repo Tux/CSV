@@ -43,9 +43,9 @@ class CSV::Field {
     method gist {
         $.undefined and return "<undef>";
         my $s  = $.is_quoted  ?? "Q" !! "q";
-           $s ~= $.is_binary  ?? "B" !! "b";
-           $s ~= $.is_utf8    ?? "8" !! "7";
-           $s ~= $.is_missing ?? "M" !! "m";
+           $s ~= $!is_binary  ?? "B" !! "b";
+           $s ~= $!is_utf8    ?? "8" !! "7";
+           $s ~= $!is_missing ?? "M" !! "m";
         return $s ~ ":" ~ $.text.perl;
         }
 
@@ -355,6 +355,7 @@ class Text::CSV {
        }
 
     method !ready (CSV::Field $f) returns Bool {
+
         defined $f.text or $f.undefined = True;
 
         if ($f.undefined) {
@@ -394,11 +395,11 @@ class Text::CSV {
         my Str @f;
         for @!fields -> $f {
             if ($f.undefined) {
-                @f.push ($!always_quote ?? "$!quo$!quo" !! "");
+                @f.push ("");
                 next;
                 }
-            my $t = $f.text;
-            if (!$t.defined || $t eq "") {
+            my Str $t = $f.text ~ "";
+            if ($t eq "") {
                 @f.push ($!always_quote ?? "$!quo$!quo" !! "");
                 next;
                 }
@@ -622,9 +623,6 @@ class Text::CSV {
                             next;
                             }
 
-                        .perl.say for @!fields;
-                        $f.perl.say;
-                        $chunk.perl.say;
                         # Keep rest of @ch for hooks?
                         return parse_error (2011);
                         }
