@@ -111,7 +111,7 @@ class Text::CSV {
     has Int  $!record_number         = 0;
 
     has CSV::Field @!fields;
-    has Str        $!ahead;
+    has Str        @!ahead;
     has Int        @!types;
     has            @!callbacks;
 
@@ -422,7 +422,6 @@ class Text::CSV {
 
         my     $field;
         my int $skip = 0;
-        my int $i    = -1;
         my int $pos  = 0;
         my int $ppos = 0;
 
@@ -435,6 +434,17 @@ class Text::CSV {
             $!error_input   = $buffer;
             $!auto_diag and self.error_diag;
             return False;
+            }
+
+        my sub chunks (Str $str, Regex $re) {
+            return $str.split ($re, :all).map: {
+                if $_ ~~ Str {
+                    $_   if .chars;
+                    }
+                else {
+                    .Str if .Bool;
+                    };
+                };
             }
 
         $!record_number++;
@@ -456,18 +466,14 @@ class Text::CSV {
             return True;
             } # add
 
-        my @ch = $buffer.split (rx{ $eol | $sep | $quo | $esc }, :all).map: {
-            if $_ ~~ Str {
-                $_   if .chars;
-                }
-            else {
-                .Str if .Bool;
-                };
-            };
+        my @ch = @!ahead;
+        @ch.push (chunks ($buffer, rx{ $eol | $sep | $quo | $esc }));
         $opt_v > 2 and progress (0, @ch.perl);
 
-        for @ch -> Str $chunk {
-            $i = $i + 1;        #++
+        @ch.elems or return keep ();       # An empty line
+
+        loop (my int $i = 0; $i < @ch.elems; $i = $i + 1) {
+            my Str $chunk = @ch[$i];
             $ppos += $chunk.chars;
 
             if ($skip) {
