@@ -25,8 +25,8 @@ sub progress (*@y) {
 
 class CSV::Field {
 
-    has Bool $.is_quoted  is rw = False;
     has Bool $.undefined  is rw = True;
+    has Bool $.is_quoted  is rw = False;
     has Str  $.text       is rw;
 
     has Bool $!is_binary  = False;
@@ -38,6 +38,15 @@ class CSV::Field {
 
     method Str {
         return $!undefined ?? Str !! $!text;
+        }
+
+    method gist {
+        $.undefined and return "<undef>";
+        my $s  = $.is_quoted  ?? "Q" !! "q";
+           $s ~= $.is_binary  ?? "B" !! "b";
+           $s ~= $.is_utf8    ?? "8" !! "7";
+           $s ~= $.is_missing ?? "M" !! "m";
+        return $s ~ ":" ~ $.text.perl;
         }
 
     method add (Str $chunk) {
