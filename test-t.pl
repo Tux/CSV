@@ -703,12 +703,12 @@ class Text::CSV {
         } # parse
 
     method getline (IO $io) {
-        # my Bool $chomped = $io.chomp;
-        # $io.chomp = False;
+        my Bool $chomped = $io.chomp;
+        $io.chomp = False;
         $!io = $io;
-        self.parse ($io.get);   # Continue with next line on 2027
+        self.parse ($io.get);
         $!io =  IO;
-        # $io.chomp = $chomped;
+        $io.chomp = $chomped;
         return @!fields;
         } # getline
 
