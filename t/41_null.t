@@ -63,7 +63,7 @@ ok ($csv.print ($fh, @line), "print [ ... ]");
 
 close $fh;
 
-$fh = open "__41test.csv", :r or die $!;
+$fh = open "__41test.csv", :r, :!chomp or die $!;
 
 for @pat -> $pat {
     my @row = $csv.getline ($fh);

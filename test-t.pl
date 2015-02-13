@@ -112,6 +112,7 @@ class Text::CSV {
 
     has CSV::Field @!fields;
     has Str        @!ahead;
+    has IO         $!io              = IO;
     has Int        @!types;
     has            @!callbacks;
 
@@ -452,231 +453,245 @@ class Text::CSV {
 
         # A scoping bug in perl6 inhibits the use of $!eol inside the split
         #for $buffer.split (rx{ $!eol | $!sep | $!quo | $!esc }, :all).map (~*) -> Str $chunk
-        my     $eol = $!eol // rx{ \r\n | \r | \n };
-        my Str $sep = $!sep;
-        my Str $quo = $!quo;
-        my Str $esc = $!esc;
-        my $f = CSV::Field.new;
+        my            $eol = $!eol // rx{ \r\n | \r | \n };
+        my Str        $sep = $!sep;
+        my Str        $quo = $!quo;
+        my Str        $esc = $!esc;
+        my Regex      $chx = rx{ $eol | $sep | $quo | $esc };
+        my CSV::Field $f   = CSV::Field.new;
 
         @!fields = Nil;
 
-        sub keep () {
+        my sub keep () {
             self!ready ($f) or return False;
             $f = CSV::Field.new;
             return True;
             } # add
 
-        my @ch = @!ahead;
-        @ch.push (chunks ($buffer, rx{ $eol | $sep | $quo | $esc }));
+        my @ch = @!ahead; @!ahead = ();
+        @ch.push (chunks ($buffer, $chx));
         $opt_v > 2 and progress (0, @ch.perl);
 
         @ch.elems or return keep ();       # An empty line
 
-        loop (my int $i = 0; $i < @ch.elems; $i = $i + 1) {
-            my Str $chunk = @ch[$i];
-            $ppos += $chunk.chars;
+        loop {
+            loop (my int $i = 0; $i < @ch.elems; $i = $i + 1) {
+                my Str $chunk = @ch[$i];
+                $ppos += $chunk.chars;
 
-            if ($skip) {
-                # $skip-- fails:
-                # Masak: there's wide agreement that that should work, but
-                #  it's difficult to implement. here's (I think) why: usually
-                #  the $value gets replaced by $value.pred and then put back
-                #  into the variable's container. but natives have no
-                #  containers, only the value itself.
-                $skip = $skip - 1;      # $i-- barfs. IMHO a bug
-                next;
-                }
-
-            $pos = $ppos;
-
-            $opt_v > 8 and progress ($i, "###", $chunk.perl~"\t", $f.perl);
-
-            if ($chunk eq $sep) {
-                $opt_v > 5 and progress ($i, "SEP");
-
-                # ,1,"foo, 3",,bar,
-                # ^           ^
-                if ($f.undefined) {
-                    $!blank_is_undef || $!empty_is_undef or
-                        $f.add ("");
-                    keep () or return False;
+                if ($skip) {
+                    # $skip-- fails:
+                    # Masak: there's wide agreement that that should work, but
+                    #  it's difficult to implement. here's (I think) why: usually
+                    #  the $value gets replaced by $value.pred and then put back
+                    #  into the variable's container. but natives have no
+                    #  containers, only the value itself.
+                    $skip = $skip - 1;      # $i-- barfs. IMHO a bug
                     next;
                     }
 
-                # ,1,"foo, 3",,bar,
-                #        ^
-                if ($f.is_quoted) {
-                    $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
-                    $f.add ($chunk);
-                    next;
-                    }
+                $pos = $ppos;
 
-                # ,1,"foo, 3",,bar,
-                #   ^        ^    ^
-                keep () or return False;
-                next;
-                }
+                $opt_v > 8 and progress ($i, "###", $chunk.perl~"\t", $f.perl);
 
-            if ($quo.defined and $chunk eq $quo) {
-                $opt_v > 5 and progress ($i, "QUO", $f.perl);
+                if ($chunk eq $sep) {
+                    $opt_v > 5 and progress ($i, "SEP");
 
-                # ,1,"foo, 3",,bar,\r\n
-                #    ^
-                if ($f.undefined) {
-                    $opt_v > 9 and progress ($i, "    initial quote");
-                    $f.set_quoted;
-                    next;
-                    }
-
-                if ($f.is_quoted) {
-
-                    $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
-                    # ,1,"foo, 3"
-                    #           ^
-                    $i == @ch - 1 and return keep ();
-
-                    my Str $next   = @ch[$i + 1] // Nil;
-                    my int $lastf  = ($next eq Nil ?? 1 !! 0);
-                    my int $omit   = 1;
-                    my int $quoesc = 0;
-
-                    # , 1 , "foo, 3" , , bar , "" \r\n
-                    #               ^            ^
-                    if ($!allow_whitespace && !$lastf && $next ~~ /^ \s+ $/) {
-                        $next = @ch[$i + 2] // Nil;
-                        $omit = $omit + 1; #++
-                        }
-
-                    $opt_v > 8 and progress ($i, "QUO", "next = $next");
-
-                    # ,1,"foo, 3",,bar,\r\n
-                    #           ^
-                    if (!$lastf and $next eq $sep) {
-                        $opt_v > 7 and progress ($i, "SEP");
-                        $skip = $omit;
+                    # ,1,"foo, 3",,bar,
+                    # ^           ^
+                    if ($f.undefined) {
+                        $!blank_is_undef || $!empty_is_undef or
+                            $f.add ("");
                         keep () or return False;
                         next;
                         }
 
-                    # ,1,"foo, 3"\r\n
-                    #           ^
-                    $lastf || !$next.defined || $next ~~ /^ $eol $/ and
-                        return keep ();
-
-                    if (defined $esc and $esc eq $quo) {
-                        $opt_v > 7 and progress ($i, "ESC", "($next)");
-
-                        $quoesc = 1;
-
-                        # ,1,"foo, 3"056",,bar,\r\n
-                        #            ^
-                        if (@ch[$i + 1] ~~  /^ "0"/) {  # cannot use $next
-                            @ch[$i + 1] ~~ s{^ "0"} = "";
-                            $opt_v > 8 and progress ($i, "Add NIL");
-                            $f.add ("\c0");
-                            next;
-                            }
-
-                        # ,1,"foo, 3""56",,bar,\r\n
-                        #            ^
-                        if (@ch[$i + 1] eq $quo) {
-                            $skip = $omit;
-                            $f.add ($chunk);
-                            next;
-                            }
-
-                        if ($!allow_loose_escapes) {
-                            # ,1,"foo, 3"56",,bar,\r\n
-                            #            ^
-                            next;
-                            }
-                        }
-
-                    # No need to special-case \r
-
-                    if ($quoesc == 1) {
-                        # 1,"foo" ",3
-                        #        ^
-                        return parse_error (2023);
-                        }
-
-                    if ($!allow_loose_quotes) {
-                        # ,1,"foo, 3"456",,bar,\r\n
-                        #            ^
+                    # ,1,"foo, 3",,bar,
+                    #        ^
+                    if ($f.is_quoted) {
+                        $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
                         $f.add ($chunk);
                         next;
                         }
 
-                    .perl.say for @!fields;
-                    $f.perl.say;
-                    $chunk.perl.say;
-                    # Keep rest of @ch for hooks?
-                    return parse_error (2011);
-                    }
-
-                # 1,foo "boo" d'uh,1
-                #       ^
-                if ($!allow_loose_quotes) {
-                    $f.add ($chunk);
-                    next;
-                    }
-                return parse_error (2034);
-                }
-
-            if ($esc.defined and $chunk eq $esc) {
-                $opt_v > 5 and progress ($i, "ESC", $f.perl);
-
-                # ,1,"foo, 3\056",,bar,\r\n
-                #            ^
-                if (@ch[$i + 1] ~~  /^ "0"/) {  # cannot use $next
-                    @ch[$i + 1] ~~ s{^ "0"} = "";
-                    $opt_v > 8 and progress ($i, "Add NIL");
-                    $f.add ("\c0");
+                    # ,1,"foo, 3",,bar,
+                    #   ^        ^    ^
+                    keep () or return False;
                     next;
                     }
 
-                # ,1,"foo, 3\"56",,bar,\r\n
-                #            ^
-                if (@ch[$i + 1] eq $quo) {
-                    $skip = 1;
-                    $f.add ($quo);
-                    next;
+                if ($quo.defined and $chunk eq $quo) {
+                    $opt_v > 5 and progress ($i, "QUO", $f.perl);
+
+                    # ,1,"foo, 3",,bar,\r\n
+                    #    ^
+                    if ($f.undefined) {
+                        $opt_v > 9 and progress ($i, "    initial quote");
+                        $f.set_quoted;
+                        next;
+                        }
+
+                    if ($f.is_quoted) {
+
+                        $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
+                        # ,1,"foo, 3"
+                        #           ^
+                        $i == @ch - 1 and return keep ();
+
+                        my Str $next   = @ch[$i + 1] // Nil;
+                        my int $lastf  = ($next eq Nil ?? 1 !! 0);
+                        my int $omit   = 1;
+                        my int $quoesc = 0;
+
+                        # , 1 , "foo, 3" , , bar , "" \r\n
+                        #               ^            ^
+                        if ($!allow_whitespace && !$lastf && $next ~~ /^ \s+ $/) {
+                            $next = @ch[$i + 2] // Nil;
+                            $omit = $omit + 1; #++
+                            }
+
+                        $opt_v > 8 and progress ($i, "QUO", "next = $next");
+
+                        # ,1,"foo, 3",,bar,\r\n
+                        #           ^
+                        if (!$lastf and $next eq $sep) {
+                            $opt_v > 7 and progress ($i, "SEP");
+                            $skip = $omit;
+                            keep () or return False;
+                            next;
+                            }
+
+                        # ,1,"foo, 3"\r\n
+                        #           ^
+                        $lastf || !$next.defined || $next ~~ /^ $eol $/ and
+                            return keep ();
+
+                        if (defined $esc and $esc eq $quo) {
+                            $opt_v > 7 and progress ($i, "ESC", "($next)");
+
+                            $quoesc = 1;
+
+                            # ,1,"foo, 3"056",,bar,\r\n
+                            #            ^
+                            if (@ch[$i + 1] ~~  /^ "0"/) {  # cannot use $next
+                                @ch[$i + 1] ~~ s{^ "0"} = "";
+                                $opt_v > 8 and progress ($i, "Add NIL");
+                                $f.add ("\c0");
+                                next;
+                                }
+
+                            # ,1,"foo, 3""56",,bar,\r\n
+                            #            ^
+                            if (@ch[$i + 1] eq $quo) {
+                                $skip = $omit;
+                                $f.add ($chunk);
+                                next;
+                                }
+
+                            if ($!allow_loose_escapes) {
+                                # ,1,"foo, 3"56",,bar,\r\n
+                                #            ^
+                                next;
+                                }
+                            }
+
+                        # No need to special-case \r
+
+                        if ($quoesc == 1) {
+                            # 1,"foo" ",3
+                            #        ^
+                            return parse_error (2023);
+                            }
+
+                        if ($!allow_loose_quotes) {
+                            # ,1,"foo, 3"456",,bar,\r\n
+                            #            ^
+                            $f.add ($chunk);
+                            next;
+                            }
+
+                        .perl.say for @!fields;
+                        $f.perl.say;
+                        $chunk.perl.say;
+                        # Keep rest of @ch for hooks?
+                        return parse_error (2011);
+                        }
+
+                    # 1,foo "boo" d'uh,1
+                    #       ^
+                    if ($!allow_loose_quotes) {
+                        $f.add ($chunk);
+                        next;
+                        }
+                    return parse_error (2034);
                     }
 
-                # ,1,"foo, 3\\56",,bar,\r\n
-                #            ^
-                if (@ch[$i + 1] eq $esc) {
-                    $skip = 1;
-                    $f.add ($esc);
-                    next;
-                    }
+                if ($esc.defined and $chunk eq $esc) {
+                    $opt_v > 5 and progress ($i, "ESC", $f.perl);
 
-                if ($!allow_loose_escapes) {
-                    # ,1,"foo, 3\56",,bar,\r\n
+                    # ,1,"foo, 3\056",,bar,\r\n
                     #            ^
-                    next;
+                    if (@ch[$i + 1] ~~  /^ "0"/) {  # cannot use $next
+                        @ch[$i + 1] ~~ s{^ "0"} = "";
+                        $opt_v > 8 and progress ($i, "Add NIL");
+                        $f.add ("\c0");
+                        next;
+                        }
+
+                    # ,1,"foo, 3\"56",,bar,\r\n
+                    #            ^
+                    if (@ch[$i + 1] eq $quo) {
+                        $skip = 1;
+                        $f.add ($quo);
+                        next;
+                        }
+
+                    # ,1,"foo, 3\\56",,bar,\r\n
+                    #            ^
+                    if (@ch[$i + 1] eq $esc) {
+                        $skip = 1;
+                        $f.add ($esc);
+                        next;
+                        }
+
+                    if ($!allow_loose_escapes) {
+                        # ,1,"foo, 3\56",,bar,\r\n
+                        #            ^
+                        next;
+                        }
+
+                    return parse_error (2025);
                     }
 
-                return parse_error (2025);
-                }
+                if ($chunk ~~ rx{^ $eol $}) {
+                    $opt_v > 5 and progress ($i, "EOL");
+                    if ($f.is_quoted) {     # 1,"2\n3"
+                        $!binary or
+                            return parse_error (2021);
 
-            if ($chunk ~~ rx{^ $eol $}) {
-                $opt_v > 5 and progress ($i, "EOL");
-                if ($f.is_quoted) {     # 1,"2\n3"
-                    $!binary or
-                        return parse_error (2021);
+                        $f.add ($chunk);
 
-                    $f.add ($chunk);
-                    next;
+                        $i == @ch.elems - 1 && $!io.defined and
+                            @ch.push (chunks ($!io.get, $chx));
+
+                        next;
+                        }
+
+                    $!io.defined and @!ahead = @ch[($i + 1) .. *];
+
+                    return keep ();
                     }
-                return keep ();
+
+                $chunk ne "" and $f.add ($chunk);
                 }
 
-            $chunk ne "" and $f.add ($chunk);
-            }
+            $f.is_quoted or last;
 
-        $f.is_quoted and
-            return parse_error (2027);
+            $!io.defined or return parse_error (2027);
+
+            @ch = chunks ($!io.get, $chx);
+            $i = 0;
+            };
 
 #       !$!binary && $f.is_binary and
 #           return parse_error ($f.is_quoted ?? 2026 !! 2037);
@@ -685,7 +700,12 @@ class Text::CSV {
         } # parse
 
     method getline (IO $io) {
+        # my Bool $chomped = $io.chomp;
+        # $io.chomp = False;
+        $!io = $io;
         self.parse ($io.get);   # Continue with next line on 2027
+        $!io =  IO;
+        # $io.chomp = $chomped;
         return @!fields;
         } # getline
 
