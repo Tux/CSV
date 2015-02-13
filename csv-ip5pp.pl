@@ -6,11 +6,11 @@ use Inline::Perl5;
 
 my $p5 = Inline::Perl5.new;
 
-$p5.use ("Text::CSV_XS");
+$p5.use ("Text::CSV_PP");
 
 my @rows;
-my $csv = $p5.invoke ("Text::CSV_XS", "new")
-    or die "Cannot use CSV: ", $p5.invoke ("Text::CSV_XS", "error_diag");
+my $csv = $p5.invoke ("Text::CSV_PP", "new")
+    or die "Cannot use CSV: ", $p5.invoke ("Text::CSV_PP", "error_diag");
 $csv.binary (1);
 $csv.auto_diag (1);
 
