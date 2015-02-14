@@ -24,15 +24,15 @@ sub crnlsp (Text::CSV $csv) {
     else {
         ok ( $csv.parse ("\n"),                         "NL");
         ok ( $csv.parse ("\n "),                        "NL + Space");
-#       ok (!$csv.parse ("\r"),                         "CR");
-#       ok (!$csv.parse ("\r\r"),                       "CR CR");
-        if ($csv.binary) {
+        ok ( $csv.parse ("\r"),                         "CR");
+        ok ( $csv.parse ("\r\r"),                       "CR CR");
+        if ($csv.binary || not defined $csv.eol) {
             ok ( $csv.parse ("\r "),                    "CR + Space");
             ok ( $csv.parse (" \r"),                    "Space + CR");
             }
         else {
-#           ok (!$csv.parse ("\r "),                    "CR + Space");
-#           ok (!$csv.parse (" \r"),                    "Space + CR");
+            ok (!$csv.parse ("\r "),                    "CR + Space");
+            ok (!$csv.parse (" \r"),                    "Space + CR");
             }
         }
     ok ( $csv.parse ("\r\n"),                           "CR NL");
