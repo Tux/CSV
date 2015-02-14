@@ -130,7 +130,7 @@ class Text::CSV {
 
     has Int  $!errno                 = 0;
     has Int  $!error_pos             = 0;
-    has Str  $!error_input           = Nil;
+    has Str  $!error_input           = "";
     has Str  $!error_message         = "";
     has Str  %!errors{Int} =
         # Success
@@ -346,11 +346,11 @@ class Text::CSV {
 
     method error_diag () {
         return CSV::Diag.new (
-            error   => $!errno          // 0,
-            message => $!error_message  // "",
-            pos     => $!error_pos      // 0,
-            record  => $!record_number  // 0,
-            buffer  => $!error_input    // "",
+            error   => $!errno,
+            message => $!error_message,
+            pos     => $!error_pos,
+            record  => $!record_number,
+            buffer  => $!error_input,
             );
        }
 
