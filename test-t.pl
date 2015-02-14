@@ -346,11 +346,11 @@ class Text::CSV {
 
     method error_diag () {
         return CSV::Diag.new (
-            error   => $!errno,
-            message => $!error_message,
-            pos     => $!error_pos,
-            record  => $!record_number,
-            buffer  => $!error_input,
+            error   => $!errno          // 0,
+            message => $!error_message  // "",
+            pos     => $!error_pos      // 0,
+            record  => $!record_number  // 0,
+            buffer  => $!error_input    // "",
             );
        }
 
