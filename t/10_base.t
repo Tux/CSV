@@ -97,21 +97,3 @@ is ($csv.status, False,              "FAIL");
 my $csv2 = $csv.new;
 ok ($csv2,                           "New from obj");
 is ($csv2.^name, "Text::CSV",        "Same object type");
-
-=finish
-
-stuf not tested yet ...
-
-ok (!$csv->parse (),                           "Missing arguments");
-
-my $state;
-for ( [ 0, 0 ],
-      [ 0, "foo" ],
-      [ 0, {} ],
-      [ 0, \0 ],
-      [ 0, *STDOUT ],
-      ) {
-    eval { $state = $csv->print (@$_) };
-    ok (!$state, "print needs (IO, ARRAY_REF)");
-    ok ($@ =~ m/^Expected fields to be an array ref/, "Error msg");
-    }
