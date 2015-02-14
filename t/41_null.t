@@ -83,40 +83,38 @@ close $fh;
 
 unlink "__41test.csv";
 
-=finish
 $csv = Text::CSV.new (
     eol            => "\n",
-    binary         => 1,
-    auto_diag      => 1,
-    blank_is_undef => 1,
-    quote_null     => 0,
+    auto_diag      => True,
+    blank_is_undef => True,
+    quote_null     => False,
     );
 
-ok ($csv.combine (@$line), "combine [ ... ]");
+ok ($csv.combine (@line), "combine [ ... ]");
 is ($csv.string, qq{,,"0\n",,"\0\0\n0"\n}, "string");
 
-open $fh, ">", "__41test.csv" or die $!;
-binmode $fh;
+$fh = open "__41test.csv", :w or die $!;
 
 for @pat -> $pat {
-    ok ($csv.print ($fh, [ $pat ]), "print %exp{$pat}");
+    ok ($csv.print ($fh, $pat), "print %exp{$pat}");
     }
 
-$csv.always_quote (1);
+$csv.always_quote (True);
 
-ok ($csv.print ($fh, $line), "print [ ... ]");
+ok ($csv.print ($fh, @line), "print [ ... ]");
 
 close $fh;
 
-open $fh, "<", "__41test.csv" or die $!;
-binmode $fh;
+$fh = open "__41test.csv", :r or die $!;
 
-foreach my $pat (@pat) {
-    ok (my $row = $csv.getline ($fh), "getline $exp{$pat}");
-    is ($row.[0], $pat, "data $exp{$pat}");
+for @pat -> $pat {
+    my @row = $csv.getline ($fh);
+    ok (@row.elems, "getline %exp{$pat}");
+    is (@row[0].text, $pat, "data %exp{$pat}");
     }
 
-is_deeply ($csv.getline ($fh), $line, "read [ ... ]");
+@got = $csv.getline ($fh).map (~*);
+is (@got.perl, @line.perl, "read [ ... ]");
 
 close $fh;
 
