@@ -499,7 +499,7 @@ class Text::CSV {
                     #  the $value gets replaced by $value.pred and then put back
                     #  into the variable's container. but natives have no
                     #  containers, only the value itself.
-                    $skip = $skip - 1;      # $i-- barfs. IMHO a bug
+                    $skip = $skip - 1;      # $i-- barfs. IMHO a bug #++
                     next;
                     }
 
