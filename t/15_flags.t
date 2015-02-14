@@ -132,26 +132,26 @@ sub crnlsp (Text::CSV $csv) {
     is ($csv.fields[$_].is_utf8,   True,  "Field $_ is utf8")       for 6, 8;
     }
 
-=finish
-
 {   my $csv = Text::CSV.new (escape_char => "+");
 
-    ok ( $csv.parse ("+"),              "ESC");
-#   ok (!$csv.parse ("++"),             "ESC ESC");
-    ok ( $csv.parse ("+ "),             "ESC Space");
+    ok (!$csv.parse ("+"),              "ESC");
+    ok ( $csv.parse ("++"),             "ESC ESC");
+    ok (!$csv.parse ("+ "),             "ESC Space");
     ok ( $csv.parse ("+0"),             "ESC NUL");
-    ok ( $csv.parse ("+\n"),            "ESC NL");
-#   ok (!$csv.parse ("+\r"),            "ESC CR");
-    ok ( $csv.parse ("+\r\n"),          "ESC CR NL");
-#   ok (!$csv.parse (qq{"+"}),          "Quo ESC");
-#   ok (!$csv.parse (qq{""+}),          "Quo ESC >");
+    ok (!$csv.parse ("+\n"),            "ESC NL");
+    ok (!$csv.parse ("+\r"),            "ESC CR");
+    ok (!$csv.parse ("+\r\n"),          "ESC CR NL");
+    ok (!$csv.parse (qq{"+"}),          "Quo ESC");
+    ok (!$csv.parse (qq{""+}),          "Quo ESC >");
     ok ( $csv.parse (qq{"++"}), "Quo ESC ESC");
-#   ok (!$csv.parse (qq{"+ "}), "Quo ESC Space");
+    ok (!$csv.parse (qq{"+ "}), "Quo ESC Space");
     ok ( $csv.parse (qq{"+0"}), "Quo ESC NUL");
-#   ok (!$csv.parse (qq{"+\n"}),        "Quo ESC NL");
-#   ok (!$csv.parse (qq{"+\r"}),        "Quo ESC CR");
-#   ok (!$csv.parse (qq{"+\r\n"}),      "Quo ESC CR NL");
+    ok (!$csv.parse (qq{"+\n"}),        "Quo ESC NL");
+    ok (!$csv.parse (qq{"+\r"}),        "Quo ESC CR");
+    ok (!$csv.parse (qq{"+\r\n"}),      "Quo ESC CR NL");
     }
+
+=finish
 
 {   my $csv = Text::CSV.new (escape_char => "+", binary => 1);
 

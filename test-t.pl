@@ -639,6 +639,14 @@ class Text::CSV {
                 if ($esc.defined and $chunk eq $esc) {
                     $opt_v > 5 and progress ($i, "ESC", $f.perl);
 
+                    if ($i >= $@ch.elems - 1) {
+                        if ($!allow_loose_escapes) {
+                            $f.add ($chunk);
+                            next;
+                            }
+                        return parse_error (2024);
+                        }
+
                     # ,1,"foo, 3\056",,bar,\r\n
                     #            ^
                     if (@ch[$i + 1] ~~  /^ "0"/) {  # cannot use $next
