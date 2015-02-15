@@ -488,7 +488,9 @@ class Text::CSV {
             return True;
             } # add
 
-        my @ch = @!ahead; @!ahead = ();
+        my @ch;
+        $!io and @ch = @!ahead;
+        @!ahead = ();
         @ch.push (chunks ($buffer, $chx));
         $opt_v > 2 and progress (0, @ch.perl);
 
