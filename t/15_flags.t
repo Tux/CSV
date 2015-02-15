@@ -12,7 +12,6 @@ use Text::CSV;
 #define CSV_FLAGS_MIS		0x0010
 
 sub crnlsp (Text::CSV $csv) {
-#   ok (!$csv.parse (),                                 "Missing arguments");
     if (defined $csv.eol and $csv.eol eq "\r") {
         ok (!$csv.parse ("\n"),                         "NL");
         ok (!$csv.parse ("\n "),                        "NL + Space");
@@ -53,12 +52,13 @@ sub crnlsp (Text::CSV $csv) {
         ok (!$csv.parse (qq{"\r "}),                    "Quoted CR + Space");
         ok (!$csv.parse (qq{"\r\n "}),                  "Quoted CR NL + Space");
         }
-#   ok (!$csv.parse (qq{"\r\r\n"\r}),                   "Quoted CR CR NL >CR");
-#   ok (!$csv.parse (qq{"\r\r\n"\r\r}),                 "Quoted CR CR NL >CR CR");
-#   ok (!$csv.parse (qq{"\r\r\n"\r\r\n}),               "Quoted CR CR NL >CR CR NL");
-#   ok (!$csv.parse (qq{"\r\r\n"\t \r}),                "Quoted CR CR NL >TAB Space CR");
-#   ok (!$csv.parse (qq{"\r\r\n"\t \r\r}),              "Quoted CR CR NL >TAB Space CR CR");
-#   ok (!$csv.parse (qq{"\r\r\n"\t \r\r\n}),            "Quoted CR CR NL >TAB Space CR CR NL");
+
+    ok (!$csv.parse (qq{"\r\r\n"\r}),                   "Quoted CR CR NL >CR");
+    ok (!$csv.parse (qq{"\r\r\n"\r\r}),                 "Quoted CR CR NL >CR CR");
+    ok (!$csv.parse (qq{"\r\r\n"\r\r\n}),               "Quoted CR CR NL >CR CR NL");
+    ok (!$csv.parse (qq{"\r\r\n"\t \r}),                "Quoted CR CR NL >TAB Space CR");
+    ok (!$csv.parse (qq{"\r\r\n"\t \r\r}),              "Quoted CR CR NL >TAB Space CR CR");
+    ok (!$csv.parse (qq{"\r\r\n"\t \r\r\n}),            "Quoted CR CR NL >TAB Space CR CR NL");
     } # crnlsp
 
 {   my $csv = Text::CSV.new (binary => False);
@@ -94,13 +94,12 @@ sub crnlsp (Text::CSV $csv) {
     ok (1,                                              "parse () tests - With flags");
     is ($csv.fields.elems, 0,                           "meta_info () before parse ()");
 
-#   ok (!$csv.parse (),                                 "Missing arguments");
     crnlsp ($csv);
     ok (!$csv.parse ('"abc'),                           "Missing closing \"");
     ok (!$csv.parse ('ab"c'),                           "\" outside of \"'s");
     ok (!$csv.parse ('"ab"c"'),                         "Bad character sequence");
-#   ok (!$csv.parse (qq{"abc\nc"}),                     "Bad character (NL)");
-#   is ($csv.status, False,                             "Wrong status ()");
+    ok (!$csv.parse (qq{"abc\nc"}),                     "Bad character (NL)");
+    is ($csv.status, False,                             "Wrong status ()");
     ok ( $csv.parse ('","'),                            "comma - parse ()");
     is ( $csv.fields.elems, 1,                          "comma - fields () - count");
     is ( $csv.fields[0].text, ",",                      "comma - fields () - content");
@@ -153,7 +152,7 @@ sub crnlsp (Text::CSV $csv) {
 
 =finish
 
-{   my $csv = Text::CSV.new (escape_char => "+", binary => 1);
+{   my $csv = Text::CSV.new (escape_char => "+", binary => True);
 
     ok ( $csv.parse ("+"),              "ESC");
 #   ok (!$csv.parse ("++"),             "ESC ESC");
@@ -163,16 +162,16 @@ sub crnlsp (Text::CSV $csv) {
 #   ok (!$csv.parse ("+\r"),            "ESC CR");
     ok ( $csv.parse ("+\r\n"),          "ESC CR NL");
 #   ok (!$csv.parse (qq{"+"}),          "Quo ESC");
-    ok ( $csv.parse (qq{"++"}), "Quo ESC ESC");
-#   ok (!$csv.parse (qq{"+ "}), "Quo ESC Space");
-    ok ( $csv.parse (qq{"+0"}), "Quo ESC NUL");
+    ok ( $csv.parse (qq{"++"}),         "Quo ESC ESC");
+#   ok (!$csv.parse (qq{"+ "}),         "Quo ESC Space");
+    ok ( $csv.parse (qq{"+0"}),         "Quo ESC NUL");
 #   ok (!$csv.parse (qq{"+\n"}),        "Quo ESC NL");
 #   ok (!$csv.parse (qq{"+\r"}),        "Quo ESC CR");
 #   ok (!$csv.parse (qq{"+\r\n"}),      "Quo ESC CR NL");
     }
 
 ok (1, "Testing always_quote");
-{   my $csv = Text::CSV.new (always_quote => 0);
+{   my $csv = Text::CSV.new (always_quote => False);
     ok ($csv.combine (1..3),            "Combine");
     is ($csv.string, q{1,2,3},          "String");
     is ($csv.always_quote, 0,           "Attr 0");
@@ -187,7 +186,7 @@ ok (1, "Testing always_quote");
     }
 
 ok (1, "Testing quote_space");
-{   my $csv = Text::CSV.new (quote_space => 1);
+{   my $csv = Text::CSV.new (quote_space => True);
     ok ($csv.combine (1, " ", 3),       "Combine");
     is ($csv.string, q{1," ",3},        "String");
     is ($csv.quote_space, 1,            "Attr 1");

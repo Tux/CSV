@@ -336,7 +336,7 @@ class Text::CSV {
         }
 
     method status () returns Bool {
-        return $!errno ?? False !! True;
+        return !?$!errno;
         }
 
     method error_input () {
@@ -376,7 +376,14 @@ class Text::CSV {
         # Postpone all other field attributes like is_binary and is_utf8
         # till it is actually asked for unless it is required right now
         # to fail
-        !$!binary && $f.is_binary and return False;
+        if (!$!binary and $f.is_binary) {
+            $!errno         = $f.is_quoted ?? 2026 !! 2037;
+            $!error_pos     = 0;
+            $!error_message = %!errors{$!errno};
+            $!error_input   = $f.text;
+            $!auto_diag and self.error_diag;
+            return False;
+            }
 
         push @!fields, $f;
         return True;
