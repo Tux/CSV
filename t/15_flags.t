@@ -150,52 +150,50 @@ sub crnlsp (Text::CSV $csv) {
     ok (!$csv.parse (qq{"+\r\n"}),      "Quo ESC CR NL");
     }
 
-=finish
-
 {   my $csv = Text::CSV.new (escape_char => "+", binary => True);
 
-    ok ( $csv.parse ("+"),              "ESC");
-#   ok (!$csv.parse ("++"),             "ESC ESC");
-    ok ( $csv.parse ("+ "),             "ESC Space");
+#   ok ( $csv.parse ("+"),              "ESC");
+    ok ( $csv.parse ("++"),             "ESC ESC");
+    ok (!$csv.parse ("+ "),             "ESC Space");
     ok ( $csv.parse ("+0"),             "ESC NUL");
-    ok ( $csv.parse ("+\n"),            "ESC NL");
-#   ok (!$csv.parse ("+\r"),            "ESC CR");
-    ok ( $csv.parse ("+\r\n"),          "ESC CR NL");
+    ok (!$csv.parse ("+\n"),            "ESC NL");
+    ok (!$csv.parse ("+\r"),            "ESC CR");
+    ok (!$csv.parse ("+\r\n"),          "ESC CR NL");
 #   ok (!$csv.parse (qq{"+"}),          "Quo ESC");
     ok ( $csv.parse (qq{"++"}),         "Quo ESC ESC");
-#   ok (!$csv.parse (qq{"+ "}),         "Quo ESC Space");
+    ok (!$csv.parse (qq{"+ "}),         "Quo ESC Space");
     ok ( $csv.parse (qq{"+0"}),         "Quo ESC NUL");
-#   ok (!$csv.parse (qq{"+\n"}),        "Quo ESC NL");
-#   ok (!$csv.parse (qq{"+\r"}),        "Quo ESC CR");
-#   ok (!$csv.parse (qq{"+\r\n"}),      "Quo ESC CR NL");
+    ok (!$csv.parse (qq{"+\n"}),        "Quo ESC NL");
+    ok (!$csv.parse (qq{"+\r"}),        "Quo ESC CR");
+    ok (!$csv.parse (qq{"+\r\n"}),      "Quo ESC CR NL");
     }
 
 ok (1, "Testing always_quote");
 {   my $csv = Text::CSV.new (always_quote => False);
-    ok ($csv.combine (1..3),            "Combine");
-    is ($csv.string, q{1,2,3},          "String");
-    is ($csv.always_quote, 0,           "Attr 0");
-    ok ($csv.always_quote (1),          "Attr 1");
-    ok ($csv.combine (1..3),            "Combine");
-    is ($csv.string, q{"1","2","3"},    "String");
-    is ($csv.always_quote, 1,           "Attr 1");
-    is ($csv.always_quote (0), 0,       "Attr 0");
-    ok ($csv.combine (1..3),            "Combine");
-    is ($csv.string, q{1,2,3},          "String");
-    is ($csv.always_quote, 0,           "Attr 0");
+    ok ($csv.combine (1..3),                   "Combine");
+    is ($csv.string,           q{1,2,3},       "String");
+    is ($csv.always_quote,     False,          "Attr 0");
+    ok ($csv.always_quote (1),                 "Attr 1");
+    ok ($csv.combine (1..3),                   "Combine");
+    is ($csv.string,           q{"1","2","3"}, "String");
+    is ($csv.always_quote,     True,           "Attr 1");
+    is ($csv.always_quote (0), False,          "Attr 0");
+    ok ($csv.combine (1..3),                   "Combine");
+    is ($csv.string,           q{1,2,3},       "String");
+    is ($csv.always_quote,     False,          "Attr 0");
     }
 
 ok (1, "Testing quote_space");
 {   my $csv = Text::CSV.new (quote_space => True);
-    ok ($csv.combine (1, " ", 3),       "Combine");
-    is ($csv.string, q{1," ",3},        "String");
-    is ($csv.quote_space, 1,            "Attr 1");
-    is ($csv.quote_space (0), 0,        "Attr 0");
-    ok ($csv.combine (1, " ", 3),       "Combine");
-    is ($csv.string, q{1, ,3},          "String");
-    is ($csv.quote_space, 0,            "Attr 0");
-    is ($csv.quote_space (1), 1,        "Attr 1");
-    ok ($csv.combine (1, " ", 3),       "Combine");
-    is ($csv.string, q{1," ",3},        "String");
-    is ($csv.quote_space, 1,            "Attr 1");
+    ok ($csv.combine (1, " ", 3),          "Combine");
+    is ($csv.string,           q{1," ",3}, "String");
+    is ($csv.quote_space,      True,       "Attr 1");
+    is ($csv.quote_space (0),  False,      "Attr 0");
+    ok ($csv.combine (1, " ", 3),          "Combine");
+    is ($csv.string,           q{1, ,3},   "String");
+    is ($csv.quote_space,      False,      "Attr 0");
+    is ($csv.quote_space (1),  True,       "Attr 1");
+    ok ($csv.combine (1, " ", 3),          "Combine");
+    is ($csv.string,           q{1," ",3}, "String");
+    is ($csv.quote_space,      True,       "Attr 1");
     }
