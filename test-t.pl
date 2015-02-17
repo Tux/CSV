@@ -712,11 +712,11 @@ class Text::CSV {
                 $chunk ne "" and $f.add ($chunk);
                 }
 
-            $f.is_quoted or last;
+            $f.is_quoted       or last;
+            $!io.defined       or return parse_error (2027);
+            my $str = $!io.get or return parse_error (2012);
 
-            $!io.defined or return parse_error (2027);
-
-            @ch = chunks ($!io.get, $chx);
+            @ch = chunks ($str, $chx);
             $i = 0;
             };
 
