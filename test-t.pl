@@ -125,6 +125,7 @@ class Text::CSV {
     has CSV::Field @!fields;
     has Str        @!ahead;
     has IO         $!io              = IO;
+    has Bool       $!eof             = False;
     has Int        @!types;
     has            @!callbacks;
 
@@ -287,6 +288,7 @@ class Text::CSV {
     method allow_whitespace      (*@s) { return self!a_bool ($!allow_whitespace,      @s); }
     method blank_is_undef        (*@s) { return self!a_bool ($!blank_is_undef,        @s); }
     method empty_is_undef        (*@s) { return self!a_bool ($!empty_is_undef,        @s); }
+    method eof                   ()    { return $!eof; }
 
     # Numeric attributes
     method !a_num ($attr is rw, *@s) returns Int {
@@ -350,7 +352,7 @@ class Text::CSV {
             message => $!error_message,
             pos     => $!error_pos,
             record  => $!record_number,
-            buffer  => $!error_input,
+            buffer  => $!error_input // "", # // for 2012
             );
        }
 
@@ -454,6 +456,7 @@ class Text::CSV {
             $!error_message = %!errors{$errno};
             $!error_input   = $buffer;
             $!auto_diag and self.error_diag;
+            $!eof           = $errno == 2012;
             return False;
             }
 
@@ -491,6 +494,8 @@ class Text::CSV {
         my @ch;
         $!io and @ch = @!ahead;
         @!ahead = ();
+        $buffer.defined or return parse_error (2012);
+
         @ch.push (chunks ($buffer, $chx));
         $opt_v > 2 and progress (0, @ch.perl);
 
@@ -698,8 +703,10 @@ class Text::CSV {
 
                         $f.add ($chunk);
 
-                        $i == @ch.elems - 1 && $!io.defined and
-                            @ch.push (chunks ($!io.get, $chx));
+                        if ($i == @ch.elems - 1 && $!io.defined) {
+                            my $str = $!io.get or return parse_error (2012);
+                            @ch.push (chunks ($str, $chx));
+                            }
 
                         next;
                         }
@@ -714,6 +721,7 @@ class Text::CSV {
 
             $f.is_quoted       or last;
             $!io.defined       or return parse_error (2027);
+
             my $str = $!io.get or return parse_error (2012);
 
             @ch = chunks ($str, $chx);

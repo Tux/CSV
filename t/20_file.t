@@ -8,28 +8,30 @@ use Text::CSV;
 
 my $csv = Text::CSV.new (binary => False);
 
+my $tf20 = "_20test.csv";
+
 #$|  = 1;
 #$/  = "\n";
 #$\  = undef;
 
 #my $UTF8 = ($ENV{LANG} || "C").($ENV{LC_ALL} || "C") =~ m/utf-?8/i ? 1 : 0;
 
-my $fh = open "_20test.csv", :w or die "_20test.csv: $!";
+my $fh = open $tf20, :w or die "$tf20: $!";
 ok (!$csv.print ($fh, "abc", "def\007", "ghi"), "print bad character");
 $fh.close;
 
 # All these tests are without EOL, thus testing EOF
 sub io_test (int $tst, Bool $print-valid, int $error, *@arg) {
 
-    $fh = open "_20test.csv", :w or die "_20test.csv: $!";
+    $fh = open $tf20, :w or die "$tf20: $!";
     is ($csv.print ($fh, @arg), $print-valid, "$tst - print ()");
     $fh.close;
 
-    $fh = open "_20test.csv", :w or die "_20test.csv: $!";
+    $fh = open $tf20, :w or die "$tf20: $!";
     $fh.print (join ",", @arg);
     $fh.close;
 
-    $fh = open "_20test.csv", :r or die "_20test.csv: $!";
+    $fh = open $tf20, :r or die "$tf20: $!";
     my @row = $csv.getline ($fh);
     is ($csv.status,         !?$error, "$tst - getline status");
     is ($csv.error_diag.error, $error, "$tst - getline error code");
@@ -57,51 +59,45 @@ io_test (11, False, 2021, qq{"abc\nc"}           );
 io_test (12, True,     0, qq{","}, ','           );
 io_test (13, True,  2034, qq{"","I said,\t""Hi!""",""}, '', qq{I said,\t"Hi!"}, '' );
 
-unlink "_20test.csv";
-
-=finish
+unlink $tf20;
 
 # This test because of a problem with DBD::CSV
 
 ok (1, "Tests for DBD::CSV");
-open  FH, ">", "_20test.csv" or die "_20test.csv: $!";
-$csv.binary (1);
+$fh = open  $tf20, :w or die "$tf20: $!";
+$csv.binary (True);
 $csv.eol    ("\r\n");
-ok ($csv.print (*FH, [ "id", "name"			]), "Bad character");
-ok ($csv.print (*FH, [   1,  "Alligator Descartes"	]), "Name 1");
-ok ($csv.print (*FH, [  "3", "Jochen Wiedmann"		]), "Name 2");
-ok ($csv.print (*FH, [   2,  "Tim Bunce"		]), "Name 3");
-ok ($csv.print (*FH, [ " 4", "Andreas König"		]), "Name 4");
-ok ($csv.print (*FH, [   5				]), "Name 5");
-close FH;
+ok ($csv.print ($fh, "id", "name"                ), "Bad character");
+ok ($csv.print ($fh,   1,  "Alligator Descartes" ), "Name 1");
+ok ($csv.print ($fh,  "3", "Jochen Wiedmann"     ), "Name 2");
+ok ($csv.print ($fh,   2,  "Tim Bunce"           ), "Name 3");
+ok ($csv.print ($fh, " 4", "Andreas König"      ), "Name 4");
+ok ($csv.print ($fh,   5                         ), "Name 5");
+$fh.close;
 
-my $expected = <<"CONTENTS";
-id,name\015
-1,"Alligator Descartes"\015
-3,"Jochen Wiedmann"\015
-2,"Tim Bunce"\015
-" 4","Andreas König"\015
-5\015
+my $expected = qq :to "CONTENTS";
+id,name\r
+1,"Alligator Descartes"\r
+3,"Jochen Wiedmann"\r
+2,"Tim Bunce"\r
+" 4","Andreas König"\r
+5\r
 CONTENTS
 
-open  FH, "<", "_20test.csv" or die "_20test.csv: $!";
-my $content = do { local $/; <FH> };
-close FH;
+my $content = slurp $tf20;
 is ($content, $expected, "Content");
-open  FH, ">", "_20test.csv" or die "_20test.csv: $!";
-print FH $content;
-close FH;
-open  FH, "<", "_20test.csv" or die "_20test.csv: $!";
 
-my $fields;
-print "# Retrieving data\n";
-for (0 .. 5) {
-    ok ($fields = $csv.getline (*FH),			"Fetch field $_");
-    is ($csv.eof, "",					"EOF");
-    print "# Row $_: $fields (@$fields)\n";
+$fh = open  $tf20, :r or die "$tf20: $!";
+my @fields;
+ok (True, "# Retrieving data");
+for ^6 -> $tst {
+    ok ((@fields = $csv.getline ($fh)), "Fetch record $tst");
+    is ($csv.eof, False,                "EOF");
     }
-is ($csv.getline (*FH), undef,				"Fetch field 6");
-is ($csv.eof, 1,					"EOF");
+ok (!$csv.getline ($fh),                "Fetch record 6");
+is ($csv.eof, True,                     "EOF");
+
+=finish
 
 # Edge cases
 $csv = Text::CSV_XS.new ({ escape_char => "+" });
@@ -129,11 +125,11 @@ for ([  1, 1,    0, "\n"		],
      [ 22, 0, 2025, qq{"+\r\r+"\r}	],
      ) {
     my ($tst, $valid, $err, $str) = @$_;
-    open  FH, ">", "_20test.csv" or die "_20test.csv: $!";
+    open  FH, ">", $tf20 or die "$tf20: $!";
     print FH $str;
     close FH;
-    open  FH, "<", "_20test.csv" or die "_20test.csv: $!";
-    my $row = $csv.getline (*FH);
+    open  FH, "<", $tf20 or die "$tf20: $!";
+    my $row = $csv.getline ($fh);
     close FH;
     my @err  = $csv.error_diag;
     my $sstr = _readable ($str);
@@ -145,4 +141,4 @@ for ([  1, 1,    0, "\n"		],
 	}
     }
 
-unlink "_20test.csv";
+unlink $tf20;
