@@ -151,7 +151,7 @@ class Text::CSV {
         2013 => "ESP - Specification error for fragments RFC7111",
 
         #  EIQ - Error Inside Quotes
-        2021 => "EIQ - NL char inside quotes, binary off",
+        2021 => "EIQ - NL or EOL inside quotes, binary off",
         2022 => "EIQ - CR char inside quotes, binary off",
         2023 => "EIQ - QUO character not allowed",
         2024 => "EIQ - EOF cannot be escaped, not even inside quotes",
@@ -699,7 +699,7 @@ class Text::CSV {
                     $opt_v > 5 and progress ($i, "EOL");
                     if ($f.is_quoted) {     # 1,"2\n3"
                         $!binary or
-                            return parse_error (2021);
+                            return parse_error ($!eol.defined ?? 2021 !! 2026);
 
                         $f.add ($chunk);
 
@@ -716,13 +716,28 @@ class Text::CSV {
                     return keep ();
                     }
 
+                unless ($!binary) {
+                    if ($f.is_quoted) {
+                        $chunk ~~ m/  \n / and return parse_error (2021);
+                        $chunk ~~ m/  \r / and return parse_error (2022);
+                        }
+                    else {
+                        $chunk ~~ m/^ \r / and return parse_error (2031);
+                        $chunk ~~ m/  \r / and return parse_error (2032);
+                        }
+                    }
                 $chunk ne "" and $f.add ($chunk);
                 }
 
             $f.is_quoted       or last;
             $!io.defined       or return parse_error (2027);
 
-            my $str = $!io.get or return parse_error (2012);
+            my $str = $!io.get;
+            unless ($str.defined) {
+                parse_error (2027);
+                $!eof = True;
+                return False;
+                }
 
             @ch = chunks ($str, $chx);
             $i = 0;

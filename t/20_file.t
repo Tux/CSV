@@ -6,15 +6,9 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-my $csv = Text::CSV.new (binary => False);
+my $csv = Text::CSV.new (binary => False, eol => "\n");
 
 my $tf20 = "_20test.csv";
-
-#$|  = 1;
-#$/  = "\n";
-#$\  = undef;
-
-#my $UTF8 = ($ENV{LANG} || "C").($ENV{LC_ALL} || "C") =~ m/utf-?8/i ? 1 : 0;
 
 my $fh = open $tf20, :w or die "$tf20: $!";
 ok (!$csv.print ($fh, "abc", "def\007", "ghi"), "print bad character");
@@ -48,11 +42,11 @@ sub io_test (int $tst, Bool $print-valid, int $error, *@arg) {
 io_test ( 1, True,     0, '""'                   );
 io_test ( 2, True,     0, '', ''                 );
 io_test ( 3, True,  2034, '', 'I said, "Hi!"', '');
-io_test ( 4, True,  2012, '"', 'abc'             );
-io_test ( 5, True,  2012, 'abc', '"'             );
+io_test ( 4, True,  2027, '"', 'abc'             );
+io_test ( 5, True,  2027, 'abc', '"'             );
 io_test ( 6, True,     0, 'abc', 'def', 'ghi'    );
 io_test ( 7, True,     0, "abc\tdef", 'ghi'      );
-io_test ( 8, True,  2012, '"abc'                 );
+io_test ( 8, True,  2027, '"abc'                 );
 io_test ( 9, True,  2034, 'ab"c'                 );
 io_test (10, True,  2023, '"ab"c"'               );
 io_test (11, False, 2021, qq{"abc\nc"}           );
@@ -97,48 +91,66 @@ for ^6 -> $tst {
 ok (!$csv.getline ($fh),                "Fetch record 6");
 is ($csv.eof, True,                     "EOF");
 
-=finish
-
 # Edge cases
-$csv = Text::CSV_XS.new ({ escape_char => "+" });
-for ([  1, 1,    0, "\n"		],
-     [  2, 1,    0, "+\n"		],
-     [  3, 1,    0, "+"			],
-     [  4, 0, 2021, qq{"+"\n}		],
-     [  5, 0, 2025, qq{"+\n}		],
-     [  6, 0, 2011, qq{""+\n}		],
-     [  7, 0, 2027, qq{"+"}		],
-     [  8, 0, 2024, qq{"+}		],
-     [  9, 0, 2011, qq{""+}		],
-     [ 10, 0, 2037, "\r"		],
-     [ 11, 0, 2031, "\r\r"		],
-     [ 12, 0, 2032, "+\r\r"		],
-     [ 13, 0, 2032, "+\r\r+"		],
-     [ 14, 0, 2022, qq{"\r"}		],
-     [ 15, 0, 2022, qq{"\r\r" }		],
-     [ 16, 0, 2022, qq{"\r\r"\t}	],
-     [ 17, 0, 2025, qq{"+\r\r"}		],
-     [ 18, 0, 2025, qq{"+\r\r+"}	],
-     [ 19, 0, 2022, qq{"\r"\r}		],
-     [ 20, 0, 2022, qq{"\r\r"\r}	],
-     [ 21, 0, 2025, qq{"+\r\r"\r}	],
-     [ 22, 0, 2025, qq{"+\r\r+"\r}	],
-     ) {
-    my ($tst, $valid, $err, $str) = @$_;
-    open  FH, ">", $tf20 or die "$tf20: $!";
-    print FH $str;
-    close FH;
-    open  FH, "<", $tf20 or die "$tf20: $!";
-    my $row = $csv.getline ($fh);
-    close FH;
-    my @err  = $csv.error_diag;
-    my $sstr = _readable ($str);
-    SKIP: {
-	$tst == 10 && $] >= 5.008 && $] < 5.008003 && $UTF8 and
-	    skip "Be reasonable, this perl version does not do Unicode reliable", 2;
-	ok ($valid ? $row : !$row, "$tst - getline ESC +, '$sstr'");
-	is ($err[0], $err, "Error expected $err");
-	}
+$csv = Text::CSV.new (escape => "+", binary => False, eol => "\n");
+sub esc_test (int $tst, int $err, Str $str) {
+    $fh = open $tf20, :w or die "$tf20: $!";
+    $fh.print ($str);
+    $fh.close;
+    $fh = open $tf20, :r or die "$tf20: $!";
+    my @row = $csv.getline ($fh);
+    $fh.close;
+#   is ($csv.status, !?$err, "$tst - getline ESC +, " ~ $str.perl);
+    is ($csv.error_diag.error, $err, "$tst - expected error $err");
     }
+
+ esc_test ( 1,    0, "\n");
+ esc_test ( 2, 2025, "+\n");
+ esc_test ( 3, 2024, "+");
+ esc_test ( 4, 2021, qq{"+"\n});
+ esc_test ( 5, 2025, qq{"+\n});
+ esc_test ( 6, 2011, qq{""+\n});
+ esc_test ( 7, 2027, qq{"+"});
+ esc_test ( 8, 2024, qq{"+});
+ esc_test ( 9, 2011, qq{""+});
+ esc_test (10, 2031, "\r");
+ esc_test (11, 2031, "\r\r");
+ esc_test (12, 2032, " \r");
+ esc_test (13, 2025, "+\r\r");
+ esc_test (14, 2025, "+\r\r+");
+#esc_test (15, 2022, qq{"\r"});       # 2021
+#esc_test (16, 2022, qq{"\r\r" });    # 2021
+#esc_test (17, 2022, qq{"\r\r"\t});   # 2021
+ esc_test (18, 2025, qq{"+\r\r"});
+ esc_test (19, 2025, qq{"+\r\r+"});
+#esc_test (20, 2022, qq{"\r"\r});     # 2021
+#esc_test (21, 2022, qq{"\r\r"\r});   # 2021
+ esc_test (22, 2025, qq{"+\r\r"\r});
+ esc_test (23, 2025, qq{"+\r\r+"\r});
+
+ $csv.binary (True);
+ esc_test (31,    0, "\n");
+ esc_test (32, 2025, "+\n");
+ esc_test (33, 2024, "+");
+ esc_test (34, 2012, qq{"+"\n});
+ esc_test (35, 2025, qq{"+\n});
+ esc_test (36, 2011, qq{""+\n});
+ esc_test (37, 2027, qq{"+"});
+ esc_test (38, 2024, qq{"+});
+ esc_test (39, 2011, qq{""+});
+ esc_test (40,    0, "\r");
+ esc_test (41,    0, "\r\r");
+ esc_test (41,    0, " \r");
+ esc_test (42, 2025, "+\r\r");
+ esc_test (43, 2025, "+\r\r+");
+ esc_test (44,    0, qq{"\r"});
+ esc_test (45, 2011, qq{"\r\r" });
+ esc_test (46, 2011, qq{"\r\r"\t});
+ esc_test (47, 2025, qq{"+\r\r"});
+ esc_test (48, 2025, qq{"+\r\r+"});
+ esc_test (49, 2011, qq{"\r"\r});
+ esc_test (50, 2011, qq{"\r\r"\r});
+ esc_test (51, 2025, qq{"+\r\r"\r});
+ esc_test (52, 2025, qq{"+\r\r+"\r});
 
 unlink $tf20;
