@@ -19,7 +19,7 @@ ok (!$csv.print ($fh, "abc", "def\007", "ghi"), "print bad character");
 $fh.close;
 
 # All these tests are without EOL, thus testing EOF
-sub io_test (int $tst, Bool $print-valid, Bool $getline-valid, *@arg) {
+sub io_test (int $tst, Bool $print-valid, int $error, *@arg) {
 
     $fh = open "_20test.csv", :w or die "_20test.csv: $!";
     is ($csv.print ($fh, @arg), $print-valid, "$tst - print ()");
@@ -31,8 +31,9 @@ sub io_test (int $tst, Bool $print-valid, Bool $getline-valid, *@arg) {
 
     $fh = open "_20test.csv", :r or die "_20test.csv: $!";
     my @row = $csv.getline ($fh);
-    is ($csv.status, $getline-valid, "$tst - getline status");
-    $getline-valid or return;
+    is ($csv.status,         !?$error, "$tst - getline status");
+    is ($csv.error_diag.error, $error, "$tst - getline error code");
+    $error and return;
     ok (@row.elems, "$tst - good getline ()");
     $tst == 12 and @arg = (",", "", "");
     loop (my $a = 0; $a < @arg.elems; $a++) {
@@ -42,19 +43,19 @@ sub io_test (int $tst, Bool $print-valid, Bool $getline-valid, *@arg) {
 	}
     ok ($csv.parse (""), "$tst - reset parser");
     }
-io_test ( 1, True,  True,  '""'				);
-io_test ( 2, True,  True,  '', ''			);
-io_test ( 3, True,  False, '', 'I said, "Hi!"', ''	);
-io_test ( 4, True,  False, '"', 'abc'			);
-io_test ( 5, True,  False, 'abc', '"'			);
-io_test ( 6, True,  True,  'abc', 'def', 'ghi'		);
-io_test ( 7, True,  True,  "abc\tdef", 'ghi'		);
-io_test ( 8, True,  False, '"abc'			);
-io_test ( 9, True,  False, 'ab"c'			);
-io_test (10, True,  False, '"ab"c"'			);
-io_test (11, False, False, qq{"abc\nc"}			);
-io_test (12, True,  True,  qq{","}, ','			);
-io_test (13, True,  False, qq{"","I said,\t""Hi!""",""}, '', qq{I said,\t"Hi!"}, '' );
+io_test ( 1, True,     0, '""'                   );
+io_test ( 2, True,     0, '', ''                 );
+io_test ( 3, True,  2034, '', 'I said, "Hi!"', '');
+io_test ( 4, True,  2012, '"', 'abc'             );
+io_test ( 5, True,  2012, 'abc', '"'             );
+io_test ( 6, True,     0, 'abc', 'def', 'ghi'    );
+io_test ( 7, True,     0, "abc\tdef", 'ghi'      );
+io_test ( 8, True,  2012, '"abc'                 );
+io_test ( 9, True,  2034, 'ab"c'                 );
+io_test (10, True,  2023, '"ab"c"'               );
+io_test (11, False, 2021, qq{"abc\nc"}           );
+io_test (12, True,     0, qq{","}, ','           );
+io_test (13, True,  2034, qq{"","I said,\t""Hi!""",""}, '', qq{I said,\t"Hi!"}, '' );
 
 unlink "_20test.csv";
 
