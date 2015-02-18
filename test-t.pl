@@ -96,30 +96,31 @@ class CSV::Field {
 
 class Text::CSV {
 
-    has Str  $!eol;         # = ($*IN.newline),
-    has Str  $!sep                   = ',';
-    has Str  $!quo                   = '"';
-    has Str  $!esc                   = '"';
+    # Defaults are set in BUILD!
+    has Str  $!eol;
+    has Str  $!sep;
+    has Str  $!quo;
+    has Str  $!esc;
 
-    has Bool $!binary                = True;  # default changed
-    has Bool $!decode_utf8           = True;
-    has Int  $!auto_diag             = 0;
-    has Int  $!diag_verbose          = 0;
+    has Bool $!binary;
+    has Bool $!decode_utf8;
+    has Int  $!auto_diag;
+    has Int  $!diag_verbose;
 
-    has Bool $!blank_is_undef        = False;
-    has Bool $!empty_is_undef        = False;
-    has Bool $!allow_whitespace      = False;
-    has Bool $!allow_loose_quotes    = False;
-    has Bool $!allow_loose_escapes   = False;
-    has Bool $!allow_unquoted_escape = False;
+    has Bool $!blank_is_undef;
+    has Bool $!empty_is_undef;
+    has Bool $!allow_whitespace;
+    has Bool $!allow_loose_quotes;
+    has Bool $!allow_loose_escapes;
+    has Bool $!allow_unquoted_escape;
 
-    has Bool $!always_quote          = False;
-    has Bool $!quote_space           = True;
-    has Bool $!quote_null            = True;
-    has Bool $!quote_binary          = True;
-    has Bool $!keep_meta_info        = False;
+    has Bool $!always_quote;
+    has Bool $!quote_space;
+    has Bool $!quote_null;
+    has Bool $!quote_binary;
+    has Bool $!keep_meta_info;
+
     has Bool $!build                 = False;
-
     has Int  $!record_number         = 0;
 
     has CSV::Field @!fields;
@@ -224,13 +225,37 @@ class Text::CSV {
 
     # We need this to support aliasses and to catch unsupported attributes
     submethod BUILD (*%init) {
+        # Defaults are disabled when BUILD is defined!
+
+        $!sep                   = ',';
+        $!quo                   = '"';
+        $!esc                   = '"';
+
+        $!binary                = True;
+        $!decode_utf8           = True;
+        $!auto_diag             = 0;
+        $!diag_verbose          = 0;
+
+        $!blank_is_undef        = False;
+        $!empty_is_undef        = False;
+        $!allow_whitespace      = False;
+        $!allow_loose_quotes    = False;
+        $!allow_loose_escapes   = False;
+        $!allow_unquoted_escape = False;
+
+        $!always_quote          = False;
+        $!quote_space           = True;
+        $!quote_null            = True;
+        $!quote_binary          = True;
+        $!keep_meta_info        = False;
         $!build = True;
         for keys %init -> $attr {
             my @can = self.can (lc $attr) or self!fail (1000);
             .(self, %init{$attr}) for @can;
             }
         $!build = False;
-        #self!check_sanity;
+
+        self!check_sanity;
         }
 
     method !fail (Int $errno) {
@@ -245,6 +270,7 @@ class Text::CSV {
     method !check_sanity () {
         $!build and return;
 
+        #say "Sanity check: S:"~$!sep~" Q:"~($!quo//"<undef>")~" E:"~($!esc//"<undef>")~" WS:"~$!allow_whitespace;
         $!sep.defined                          or  self!fail (1001);
         $!quo.defined and $!quo eq $!sep       and self!fail (1001);
         $!esc.defined and $!esc eq $!sep       and self!fail (1001);
@@ -262,8 +288,10 @@ class Text::CSV {
 
     # String attributes
     method !a_str ($attr is rw, *@s) returns Str {
-        @s.elems == 1 and $attr = @s[0];
-        self!check_sanity;
+        if (@s.elems == 1) {
+            $attr = @s[0];
+            self!check_sanity;
+            }
         return $attr;
         }
     method sep (*@s) { return self!a_str ($!sep, @s); }
@@ -273,8 +301,10 @@ class Text::CSV {
 
     # Boolean attributes
     method !a_bool ($attr is rw, *@s) {
-        @s.elems == 1 and $attr = ?@s[0];
-        self!check_sanity;
+        if (@s.elems == 1) {
+            $attr = ?@s[0];
+            self!check_sanity;
+            }
         return $attr;
         }
     method binary                (*@s) { return self!a_bool ($!binary,                @s); }

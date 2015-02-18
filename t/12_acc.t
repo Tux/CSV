@@ -177,16 +177,14 @@ for (" ", "\t") -> $ws {
         }
     }
 
+{   $csv = Text::CSV.new (esc => "\t", quo => " ", allow-whitespace => True);
+    my Int $e = 0;
+    CATCH { default { $e = .error; }}
+    is ($e, 1002, "no whitespace in descriptor");
+    }
+
 done;
 =finish
-
-eval { $csv = Text::CSV.new ({
-    escape_char      => "\t",
-    quote_char       => " ",
-    allow_whitespace => 1,
-    }) };
-like ((Text::CSV_XS::error_diag)[1], qr{^INI - allow_whitespace}, "Wrong combo - error message");
-is   ((Text::CSV_XS::error_diag)[0], 1002, "Wrong combo - numeric error");
 
 # Test 1003 in constructor
 foreach my $x ("\r", "\n", "\r\n", "x\n", "\rx") {
