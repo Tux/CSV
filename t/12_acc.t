@@ -157,24 +157,29 @@ ok (!$csv.parse ("foo,foo\0bar"),       "parse (foo)");
 is ($csv.binary (1),             True,  "binary (1)");
 ok ($csv.parse ("foo,foo\0bar"),        "parse (foo)");
 
+# Some forbidden combinations
+for (" ", "\t") -> $ws {
+    ok ($csv = Text::CSV.new (escape_char => $ws), "New blank escape");
+    {   ok ($csv.allow_whitespace (True), "Allow ws");
+        CATCH { default { is (.error, 1002, "Sanity check"); }}
+        }
+    ok ($csv = Text::CSV.new (quote_char  => $ws), "New blank quote");
+    {   ok ($csv.allow_whitespace (True), "Allow ws");
+        CATCH { default { is (.error, 1002, "Sanity check"); }}
+        }
+    ok ($csv = Text::CSV.new (allow_whitespace => True), "New ws True");
+    {   ok ($csv.escape_char ($ws),     "esc");
+        CATCH { default { is (.error, 1002, "Sanity check"); }}
+        }
+    ok ($csv = Text::CSV.new (allow_whitespace => True), "New ws True");
+    {   ok ($csv.quote_char  ($ws),     "esc");
+        CATCH { default { is (.error, 1002, "Sanity check"); }}
+        }
+    }
+
 done;
 =finish
 
-# Some forbidden combinations
-foreach my $ws (" ", "\t") {
-    ok ($csv = Text::CSV.new ({ escape_char => $ws }), "New blank escape");
-    eval { ok ($csv.allow_whitespace (1), "Allow ws") };
-    is (($csv.error_diag)[0], 1002, "Wrong combo");
-    ok ($csv = Text::CSV.new ({ quote_char  => $ws }), "New blank quote");
-    eval { ok ($csv.allow_whitespace (1), "Allow ws") };
-    is (($csv.error_diag)[0], 1002, "Wrong combo");
-    ok ($csv = Text::CSV.new ({ allow_whitespace => 1 }), "New ws 1");
-    eval { ok ($csv.escape_char ($ws),     "esc") };
-    is (($csv.error_diag)[0], 1002, "Wrong combo");
-    ok ($csv = Text::CSV.new ({ allow_whitespace => 1 }), "New ws 1");
-    eval { ok ($csv.quote_char  ($ws),     "esc") };
-    is (($csv.error_diag)[0], 1002, "Wrong combo");
-    }
 eval { $csv = Text::CSV.new ({
     escape_char      => "\t",
     quote_char       => " ",

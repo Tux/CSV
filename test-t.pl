@@ -245,19 +245,19 @@ class Text::CSV {
     method !check_sanity () {
         $!build and return;
 
-        $!sep.defined                        or  self!fail (1001);
-        $!quo.defined and $!quo eq $!sep     and self!fail (1001);
-        $!esc.defined and $!esc eq $!sep     and self!fail (1001);
+        $!sep.defined                          or  self!fail (1001);
+        $!quo.defined and $!quo eq $!sep       and self!fail (1001);
+        $!esc.defined and $!esc eq $!sep       and self!fail (1001);
 
-                          $!sep ~~ m{[\r\n]} and self!fail (1003);
-        $!quo.defined and $!quo ~~ m{[\r\n]} and self!fail (1003);
-        $!esc.defined and $!esc ~~ m{[\r\n]} and self!fail (1003);
+                          $!sep ~~ m{<[\r\n]>} and self!fail (1003);
+        $!quo.defined and $!quo ~~ m{<[\r\n]>} and self!fail (1003);
+        $!esc.defined and $!esc ~~ m{<[\r\n]>} and self!fail (1003);
 
         $!allow_whitespace or return;
 
-                          $!sep ~~ m{[ \t]}  and self!fail (1002);
-        $!quo.defined and $!quo ~~ m{[ \t]}  and self!fail (1002);
-        $!esc.defined and $!esc ~~ m{[ \t]}  and self!fail (1002);
+                          $!sep ~~ m{ \s }     and self!fail (1002);
+        $!quo.defined and $!quo ~~ m{ \s }     and self!fail (1002);
+        $!esc.defined and $!esc ~~ m{ \s }     and self!fail (1002);
         }
 
     # String attributes
