@@ -96,6 +96,8 @@ is ($csv.blank_is_undef (True),        True,  "blank_is_undef (True)");
 is ($csv.blank_is_undef (1),           True,  "blank_is_undef (1)");
 is ($csv.empty_is_undef (True),        True,  "empty_is_undef (True)");
 is ($csv.empty_is_undef (1),           True,  "empty_is_undef (1)");
+is ($csv.empty_is_undef (False),       False,  "empty_is_undef (True)");
+is ($csv.empty_is_undef (0),           False,  "empty_is_undef (1)");
 is ($csv.auto_diag (1),                1,     "auto_diag (1)");
 is ($csv.auto_diag (2),                2,     "auto_diag (2)");
 is ($csv.auto_diag (9),                9,     "auto_diag (9)");
@@ -118,8 +120,7 @@ is ($csv.quote_binary (True),          True,  "quote_binary (True)");
 is ($csv.quote_binary (1),             True,  "quote_binary (1)");
 is ($csv.escape_char ("\\"),           "\\",  "escape_char (\\)");
 ok ($csv.combine (@fld),                      "combine");
-is ($csv.string,
-    qq{=txt \\=, "Hi!"=;=Yes=;==;=2=;==;=1.09=;=\r=;==\r},  "string");
+is ($csv.string, qq{=txt \\=, "Hi!"=;=Yes=;==;=2=;;=1.09=;=\r=;\r}, "string");
 
 is ($csv.allow_whitespace (0), False, "allow_whitespace (0)");
 is ($csv.quote_space (0),      False, "quote_space (0)");
