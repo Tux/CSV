@@ -197,3 +197,5 @@ ok (1, "Testing quote_space");
     is ($csv.string,           q{1," ",3}, "String");
     is ($csv.quote_space,      True,       "Attr 1");
     }
+
+done;

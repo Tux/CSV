@@ -21,3 +21,5 @@ is ($csv.binary (),   True,          "Basic attribute");
 is ($csv.sep-char (), ",",           "Aliassed attribute");
 
 ok ($csv.new,                        "new () based on object");
+
+done;

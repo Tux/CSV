@@ -128,6 +128,8 @@ for ( @special, "\0" ) -> $sc {
   }
  }
 
+done;
+
 =finish
 
 foreach my $fail (sort keys %fail) {

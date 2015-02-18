@@ -97,3 +97,5 @@ is ($csv.status, False,              "FAIL");
 my $csv2 = $csv.new;
 ok ($csv2,                           "New from obj");
 is ($csv2.^name, "Text::CSV",        "Same object type");
+
+done;

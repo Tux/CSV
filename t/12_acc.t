@@ -156,6 +156,7 @@ ok (!$csv.parse ("foo,foo\0bar"),       "parse (foo)");
 is ($csv.binary (1),             True,  "binary (1)");
 ok ($csv.parse ("foo,foo\0bar"),        "parse (foo)");
 
+done;
 =finish
 
 # Some forbidden combinations

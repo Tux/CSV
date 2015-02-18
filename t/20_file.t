@@ -154,3 +154,5 @@ sub esc_test (int $tst, int $err, Str $str) {
  esc_test (52, 2025, qq{"+\r\r+"\r});
 
 unlink $tf20;
+
+done;

@@ -119,3 +119,5 @@ is (@got.perl, @line.perl, "read [ ... ]");
 close $fh;
 
 unlink "__41test.csv";
+
+done;
