@@ -159,59 +159,63 @@ ok ($csv.parse ("foo,foo\0bar"),        "parse (foo)");
 
 # Some forbidden combinations
 for (" ", "\t") -> $ws {
+    my Int $e = 0;
     ok ($csv = Text::CSV.new (escape_char => $ws), "New blank escape");
     {   ok ($csv.allow_whitespace (True), "Allow ws");
-        CATCH { default { is (.error, 1002, "Sanity check"); }}
+        CATCH { default { $e = .error; }}
         }
+    is ($e, 1002, "Sanity check");
     ok ($csv = Text::CSV.new (quote_char  => $ws), "New blank quote");
     {   ok ($csv.allow_whitespace (True), "Allow ws");
-        CATCH { default { is (.error, 1002, "Sanity check"); }}
+        CATCH { default { $e = .error; }}
         }
+    is ($e, 1002, "Sanity check");
     ok ($csv = Text::CSV.new (allow_whitespace => True), "New ws True");
     {   ok ($csv.escape_char ($ws),     "esc");
-        CATCH { default { is (.error, 1002, "Sanity check"); }}
+        CATCH { default { $e = .error; }}
         }
+    is ($e, 1002, "Sanity check");
     ok ($csv = Text::CSV.new (allow_whitespace => True), "New ws True");
     {   ok ($csv.quote_char  ($ws),     "esc");
-        CATCH { default { is (.error, 1002, "Sanity check"); }}
+        CATCH { default { $e = .error; }}
         }
+    is ($e, 1002, "Sanity check");
     }
 
-{   $csv = Text::CSV.new (esc => "\t", quo => " ", allow-whitespace => True);
-    my Int $e = 0;
-    CATCH { default { $e = .error; }}
+# Test 1002 in constructor
+{   my Int $e = 0;
+    {   $csv = Text::CSV.new (esc => "\t", quo => " ", allow-whitespace => True);
+        CATCH { default { $e = .error; }}
+        }
     is ($e, 1002, "no whitespace in descriptor");
     }
 
-done;
-=finish
-
 # Test 1003 in constructor
-foreach my $x ("\r", "\n", "\r\n", "x\n", "\rx") {
-    foreach my $attr (qw( sep_char quote_char escape_char )) {
-        eval { $csv = Text::CSV.new ({ $attr => $x }) };
-        is ((Text::CSV_XS::error_diag)[0], 1003, "eol in $attr");
+for ("\r", "\n", "\r\n", "x\n", "\rx") -> $x {
+    for <sep_char quote_char escape_char> -> $attr {
+        my Int $e = 0;
+        {   $csv = Text::CSV.new (|($attr => $x));
+            CATCH { default { $e = .error; }}
+            }
+        is ($e, 1003, $x.perl ~ " in $attr");
         }
     }
+
 # Test 1003 in methods
-foreach my $attr (qw( sep_char quote_char escape_char )) {
+for <sep_char quote_char escape_char> -> $attr {
+    my Int $e = 0;
     ok ($csv = Text::CSV.new, "New");
-    eval { ok ($csv.$attr ("\n"), "$attr => \\n") };
-    is (($csv.error_diag)[0], 1003, "not allowed");
+    {   $csv."$attr"("\n");
+        CATCH { default { $e = .error; }}
+        }
+    is ($e, 1003, "$attr => \\n is not allowed");
     }
 
-# And test erroneous calls
-is (Text::CSV_XS::new (0),                 undef,       "new () as function");
-is (Text::CSV_XS::error_diag (), "usage: my \$csv = Text::CSV.new ([{ option => value, ... }]);",
-                                                        "Generic usage () message");
-is (Text::CSV.new ({ oel     => "" }), undef,        "typo in attr");
-is (Text::CSV_XS::error_diag (), "INI - Unknown attribute 'oel'",       "Unsupported attr");
-is (Text::CSV.new ({ _STATUS => "" }), undef,        "private attr");
-is (Text::CSV_XS::error_diag (), "INI - Unknown attribute '_STATUS'",   "Unsupported private attr");
-
-foreach my $arg (undef, 0, "", " ", 1, [], [ 0 ], *STDOUT) {
-    is  (Text::CSV.new ($arg),         undef,        "Illegal type for first arg");
-    is ((Text::CSV_XS::error_diag)[0], 1000, "Should be a hashref - numeric error");
+{   my Int $e = 0;
+    {   $csv = Text::CSV.new (oel => "\n"); # TYPO
+        CATCH { default { $e = .error; }}
+        }
+    is ($e, 1000, "Typo in attribute name");
     }
 
-1;
+done;

@@ -120,71 +120,21 @@ class Text::CSV {
     has Bool $!quote_binary;
     has Bool $!keep_meta_info;
 
-    has Bool $!build                 = False;
-    has Int  $!record_number         = 0;
+    has Bool $!build;
+    has Int  $!record_number;
 
     has CSV::Field @!fields;
     has Str        @!ahead;
-    has IO         $!io              = IO;
-    has Bool       $!eof             = False;
+    has IO         $!io;
+    has Bool       $!eof;
     has Int        @!types;
     has            @!callbacks;
 
-    has Int  $!errno                 = 0;
-    has Int  $!error_pos             = 0;
-    has Str  $!error_input           = "";
-    has Str  $!error_message         = "";
-    has Str  %!errors{Int} =
-        # Success
-           0 => "",
-
-        # Generic errors
-        1000 => "INI - constructor failed",
-        1001 => "INI - sep_char is equal to quote_char or escape_char",
-        1002 => "INI - allow_whitespace with escape_char or quote_char SP or TAB",
-        1003 => "INI - \r or \n in main attr not allowed",
-        1004 => "INI - callbacks should be undef or a hashref",
-
-        # Parse errors
-        2010 => "ECR - QUO char inside quotes followed by CR not part of EOL",
-        2011 => "ECR - Characters after end of quoted field",
-        2012 => "EOF - End of data in parsing input stream",
-        2013 => "ESP - Specification error for fragments RFC7111",
-
-        #  EIQ - Error Inside Quotes
-        2021 => "EIQ - NL or EOL inside quotes, binary off",
-        2022 => "EIQ - CR char inside quotes, binary off",
-        2023 => "EIQ - QUO character not allowed",
-        2024 => "EIQ - EOF cannot be escaped, not even inside quotes",
-        2025 => "EIQ - Loose unescaped escape",
-        2026 => "EIQ - Binary character inside quoted field, binary off",
-        2027 => "EIQ - Quoted field not terminated",
-
-        # EIF - Error Inside Field
-        2031 => "EIF - CR char is first char of field, not part of EOL",
-        2032 => "EIF - CR char inside unquoted, not part of EOL",
-        2034 => "EIF - Loose unescaped quote",
-        2035 => "EIF - Escaped EOF in unquoted field",
-        2036 => "EIF - ESC error",
-        2037 => "EIF - Binary character in unquoted field, binary off",
-
-        # Combine errors
-        2110 => "ECB - Binary character in Combine, binary off",
-
-        # IO errors
-        2200 => "EIO - print to IO failed. See errno",
-
-        # Hash-Ref errors
-        3001 => "EHR - Unsupported syntax for column_names ()",
-        3002 => "EHR - getline_hr () called before column_names ()",
-        3003 => "EHR - bind_columns () and column_names () fields count mismatch",
-        3004 => "EHR - bind_columns () only accepts refs to scalars",
-        3006 => "EHR - bind_columns () did not pass enough refs for parsed fields",
-        3007 => "EHR - bind_columns needs refs to writable scalars",
-        3008 => "EHR - unexpected error in bound fields",
-        3009 => "EHR - print_hr () called before column_names ()",
-        3010 => "EHR - print_hr () called with invalid arguments",
-        ;
+    has Int  $!errno;
+    has Int  $!error_pos;
+    has Str  $!error_input;
+    has Str  $!error_message;
+    has Str  %!errors{Int};
 
     class CSV::Diag is Iterable does Positional is Exception {
         has Int $.error   is readonly;
@@ -248,6 +198,68 @@ class Text::CSV {
         $!quote_null            = True;
         $!quote_binary          = True;
         $!keep_meta_info        = False;
+
+        $!errno                 = 0;
+        $!error_pos             = 0;
+        $!error_input           = "";
+        $!error_message         = "";
+        $!record_number         = 0;
+
+        $!io                    = IO;
+        $!eof                   = False;
+
+        %!errors =
+            # Success
+               0 => "",
+
+            # Generic errors
+            1000 => "INI - constructor failed",
+            1001 => "INI - sep_char is equal to quote_char or escape_char",
+            1002 => "INI - allow_whitespace with escape_char or quote_char SP or TAB",
+            1003 => "INI - \r or \n in main attr not allowed",
+            1004 => "INI - callbacks should be undef or a hashref",
+
+            # Parse errors
+            2010 => "ECR - QUO char inside quotes followed by CR not part of EOL",
+            2011 => "ECR - Characters after end of quoted field",
+            2012 => "EOF - End of data in parsing input stream",
+            2013 => "ESP - Specification error for fragments RFC7111",
+
+            #  EIQ - Error Inside Quotes
+            2021 => "EIQ - NL or EOL inside quotes, binary off",
+            2022 => "EIQ - CR char inside quotes, binary off",
+            2023 => "EIQ - QUO character not allowed",
+            2024 => "EIQ - EOF cannot be escaped, not even inside quotes",
+            2025 => "EIQ - Loose unescaped escape",
+            2026 => "EIQ - Binary character inside quoted field, binary off",
+            2027 => "EIQ - Quoted field not terminated",
+
+            # EIF - Error Inside Field
+            2031 => "EIF - CR char is first char of field, not part of EOL",
+            2032 => "EIF - CR char inside unquoted, not part of EOL",
+            2034 => "EIF - Loose unescaped quote",
+            2035 => "EIF - Escaped EOF in unquoted field",
+            2036 => "EIF - ESC error",
+            2037 => "EIF - Binary character in unquoted field, binary off",
+
+            # Combine errors
+            2110 => "ECB - Binary character in Combine, binary off",
+
+            # IO errors
+            2200 => "EIO - print to IO failed. See errno",
+
+            # Hash-Ref errors
+            3001 => "EHR - Unsupported syntax for column_names ()",
+            3002 => "EHR - getline_hr () called before column_names ()",
+            3003 => "EHR - bind_columns () and column_names () fields count mismatch",
+            3004 => "EHR - bind_columns () only accepts refs to scalars",
+            3006 => "EHR - bind_columns () did not pass enough refs for parsed fields",
+            3007 => "EHR - bind_columns needs refs to writable scalars",
+            3008 => "EHR - unexpected error in bound fields",
+            3009 => "EHR - print_hr () called before column_names ()",
+            3010 => "EHR - print_hr () called with invalid arguments",
+            ;
+
         $!build = True;
         for keys %init -> $attr {
             my @can = self.can (lc $attr) or self!fail (1000);
