@@ -40,10 +40,10 @@ is ($csv.string, qq{"abc\tdef",ghi},           "abc + TAB - string ()");
 is ($csv.status, True,                         "No failures");
 
 $csv.binary (False);
-is ($csv.error_input, Nil,                      "No error saved yet");
-is ($csv.combine ("abc", "def\n", "gh"), False, "Bad character");
-is ($csv.error_input, "def\n",                  "Error_input ()");
-is ($csv.status, False,                         "Failure");
+is ($csv.error_input.defined, False,           "No error saved yet");
+is ($csv.combine ("abc", "def\n", "g"), False, "Bad character");
+is ($csv.error_input, "def\n",                 "Error_input ()");
+is ($csv.status, False,                        "Failure");
 $csv.binary (True);
 
 ok (1,                                         "parse () tests");

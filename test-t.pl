@@ -64,7 +64,7 @@ class CSV::Field {
 
         $!analysed = True;
 
-        $!text eq Nil || !$!text.defined and
+        $!text.defined or
             $!undefined = True;
 
         $!undefined || $!text eq "" and
@@ -342,7 +342,7 @@ class Text::CSV {
         }
 
     method error_input () {
-        $!errno or return Nil;
+        $!errno or return Str;
         return $!error_input;
         }
 
@@ -358,7 +358,7 @@ class Text::CSV {
 
     method !ready (CSV::Field $f) returns Bool {
 
-        defined $f.text or $f.undefined = True;
+        $f.text.defined or $f.undefined = True;
 
         if ($f.undefined) {
             $!blank_is_undef or $f.add ("");
@@ -366,10 +366,10 @@ class Text::CSV {
             return True;
             }
 
-        if ($f.text eq Nil || !$f.text.defined || $f.text eq "") {
+        if (!$f.text.defined || $f.text eq "") {
             if ($!empty_is_undef) {
                 $f.undefined = True;
-                $f.text      = Nil;
+                $f.text      = Str;
                 }
             push @!fields, $f;
             return True;
