@@ -759,9 +759,10 @@ class Text::CSV {
                     }
 
                 unless ($!binary) {
+                    $opt_v > 5 and progress ($i, "data - check binary");
                     if ($f.is_quoted) {
-                        $chunk ~~ m/  \n / and return parse_error (2021);
                         $chunk ~~ m/  \r / and return parse_error (2022);
+                        $chunk ~~ m/  \n / and return parse_error (2021);
                         }
                     else {
                         $chunk ~~ m/^ \r / and return parse_error (2031);

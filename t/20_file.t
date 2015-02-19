@@ -118,13 +118,13 @@ sub esc_test (int $tst, int $err, Str $str) {
  esc_test (12, 2032, " \r");
  esc_test (13, 2025, "+\r\r");
  esc_test (14, 2025, "+\r\r+");
-#esc_test (15, 2022, qq{"\r"});       # 2021
-#esc_test (16, 2022, qq{"\r\r" });    # 2021
-#esc_test (17, 2022, qq{"\r\r"\t});   # 2021
+ esc_test (15, 2022, qq{"\r"});
+ esc_test (16, 2022, qq{"\r\r" });
+ esc_test (17, 2022, qq{"\r\r"\t});
  esc_test (18, 2025, qq{"+\r\r"});
  esc_test (19, 2025, qq{"+\r\r+"});
-#esc_test (20, 2022, qq{"\r"\r});     # 2021
-#esc_test (21, 2022, qq{"\r\r"\r});   # 2021
+ esc_test (20, 2022, qq{"\r"\r});
+ esc_test (21, 2022, qq{"\r\r"\r});
  esc_test (22, 2025, qq{"+\r\r"\r});
  esc_test (23, 2025, qq{"+\r\r+"\r});
 
