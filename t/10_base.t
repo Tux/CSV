@@ -81,7 +81,7 @@ is ($csv.error_diag[0],     2027,    "diag error  positional");
 is ($csv.error_diag[3],     5,       "diag record positional");
 is ($csv.error_diag.error,  2027,    "diag OO error");
 is ($csv.error_diag.record, 5,       "diag OO record");
-note ("The next two lines should show an error");
+ok (True, "The next two lines should show an error");
 $csv.error_diag;        # Call in void context
 # More fail tests
 ok (!$csv.parse ('ab"c'),            "\" outside of \"'s");
