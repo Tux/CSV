@@ -281,19 +281,19 @@ class Text::CSV {
         $!build and return;
 
         #say "Sanity check: S:"~$!sep~" Q:"~($!quo//"<undef>")~" E:"~($!esc//"<undef>")~" WS:"~$!allow_whitespace;
-        $!sep.defined                          or  self!fail (1001);
-        $!quo.defined and $!quo eq $!sep       and self!fail (1001);
-        $!esc.defined and $!esc eq $!sep       and self!fail (1001);
+        $!sep.defined                            or  self!fail (1001);
+        $!quo.defined and $!quo eq $!sep         and self!fail (1001);
+        $!esc.defined and $!esc eq $!sep         and self!fail (1001);
 
-                          $!sep ~~ m{<[\r\n]>} and self!fail (1003);
-        $!quo.defined and $!quo ~~ m{<[\r\n]>} and self!fail (1003);
-        $!esc.defined and $!esc ~~ m{<[\r\n]>} and self!fail (1003);
+                          $!sep ~~ m{<[\r\n]>}   and self!fail (1003);
+        $!quo.defined and $!quo ~~ m{<[\r\n]>}   and self!fail (1003);
+        $!esc.defined and $!esc ~~ m{<[\r\n]>}   and self!fail (1003);
 
         $!allow_whitespace or return;
 
-                          $!sep ~~ m{ \s }     and self!fail (1002);
-        $!quo.defined and $!quo ~~ m{ \s }     and self!fail (1002);
-        $!esc.defined and $!esc ~~ m{ \s }     and self!fail (1002);
+                          $!sep ~~ m{ <[\ \t]> } and self!fail (1002);
+        $!quo.defined and $!quo ~~ m{ <[\ \t]> } and self!fail (1002);
+        $!esc.defined and $!esc ~~ m{ <[\ \t]> } and self!fail (1002);
         }
 
     # String attributes
@@ -612,7 +612,7 @@ class Text::CSV {
 
                         # , 1 , "foo, 3" , , bar , "" \r\n
                         #               ^            ^
-                        if ($!allow_whitespace && !$lastf && $next ~~ /^ \s+ $/) {
+                        if ($!allow_whitespace && !$lastf && $next ~~ /^ <[\ \t]>+ $/) {
                             $next = @ch[$i + 2] // Nil;
                             $omit = $omit + 1; #++
                             }
