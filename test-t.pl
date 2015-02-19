@@ -34,8 +34,6 @@ class CSV::Field {
     has Bool $!is_missing = False;
     has Bool $!analysed   = False;
 
-    enum Type < NA INT NUM STR BOOL >;
-
     method Str {
         return $!undefined ?? Str !! $!text;
         }
