@@ -6,11 +6,6 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-#define CSV_FLAGS_QUO		0x0001
-#define CSV_FLAGS_BIN		0x0002
-#define CSV_FLAGS_EIF		0x0004
-#define CSV_FLAGS_MIS		0x0010
-
 sub crnlsp (Text::CSV $csv) {
     if (defined $csv.eol and $csv.eol eq "\r") {
         ok (!$csv.parse ("\n"),                         "NL");
