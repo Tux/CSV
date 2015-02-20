@@ -34,8 +34,18 @@ class CSV::Field {
     has Bool $!is_missing = False;
     has Bool $!analysed   = False;
 
+    method Bool {
+        return $!undefined ?? False !! ?$!text;
+        }
+
     method Str {
-        return $!undefined ?? Str !! $!text;
+        return $!undefined ?? Str   !!  $!text;
+        }
+
+    method Numeric {
+        return $!undefined              ??  Num
+            !! $!text ~~ m{^ <[0..9]> } ?? +$!text
+            !!                              $!text.unival.Int;
         }
 
     method gist {
