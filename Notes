@@ -1,0 +1,26 @@
+Str.^methods¬ª.name.grep: /uni/
+
+$ p6 -e'Str.^methodsª.name.say'
+ BUILD Int Num chomp chop pred succ match ords samecase samespace
+ trim-leading trim-trailing trim encode wordcase trans indent codes
+ path unival univals WHY WHICH Bool Str Stringy DUMP ACCEPTS Numeric
+ gist perl comb subst-mutate subst lines split words
+
+$ p6 -e'Num.^methodsª.name.say'
+ Num Bridge Int Rat FatRat succ pred isNaN abs log sqrt rand ceiling
+ floor sin asin cos acos tan atan sec asec cosec acosec cotan acotan
+ sinh asinh cosh acosh tanh atanh sech asech cosech acosech cotanh
+ acotanh narrow sign conj atan2 round unpolar cis Complex exp
+ truncate polymod base Real sleep log10 roots WHICH new perl Str
+ Numeric ACCEPTS Bool gist DUMP
+
+$ p6 -e'Bool.^methodsª.name.say'
+ Int pred succ key value pick roll enums Bool Numeric Str gist DUMP
+ ACCEPTS perl
+
+$ p6 -e'"\x[00d0]\x[0110]\x[0189]".perl.say'
+"√êƒê∆â"
+$ p6 -e'say to-json "\x[00d0]\x[0110]\x[0189]"'
+"\u00d0\u0110\u0189"
+
+‚Ä¢ attribute defaults are ignored when the class has submethod BUILD
