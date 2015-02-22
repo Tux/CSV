@@ -429,7 +429,9 @@ class Text::CSV {
         # till it is actually asked for unless it is required right now
         # to fail
         if (!$!binary and $f.text ~~ m{ <[ \x00..\x08 \x0A..\x1F ]> }) {
-            $!errno         = $f.is_quoted ?? 2026 !! 2037;
+            $!errno         = $f.is_quoted ??
+                 $f.text ~~ m{<[ \r ]>} ?? 2022 !!
+                 $f.text ~~ m{<[ \n ]>} ?? 2021 !!  2026 !! 2037;
             $!error_pos     = 0;
             $!error_message = %!errors{$!errno};
             $!error_input   = $f.text;
@@ -749,7 +751,10 @@ class Text::CSV {
                     $opt_v > 5 and progress ($i, "EOL");
                     if ($f.is_quoted) {     # 1,"2\n3"
                         $!binary or
-                            return parse_error ($!eol.defined ?? 2021 !! 2026);
+                            return parse_error (
+                                $!eol.defined       ?? 2021 !!
+                                $chunk ~~ m{<[\r]>} ?? 2022 !!
+                                $chunk ~~ m{<[\n]>} ?? 2021 !!  2026);
 
                         $f.add ($chunk);
 

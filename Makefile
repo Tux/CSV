@@ -7,6 +7,7 @@ test:		Text/CSV.pm
 	    t/20_file.t		\
 	    t/40_misc.t		\
 	    t/41_null.t		\
+	    t/50_utf8.t         \
 	    t/55_combi.t
 
 test-verbose:	Text/CSV.pm
@@ -17,6 +18,7 @@ test-verbose:	Text/CSV.pm
 	perl6 -I. t/20_file.t
 	perl6 -I. t/40_misc.t
 	perl6 -I. t/41_null.t
+	perl6 -I. t/50_utf8.t
 	perl6 -I. t/55_combi.t
 
 Text/CSV.pm:
