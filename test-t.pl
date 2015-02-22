@@ -428,7 +428,7 @@ class Text::CSV {
         # Postpone all other field attributes like is_binary and is_utf8
         # till it is actually asked for unless it is required right now
         # to fail
-        if (!$!binary and $f.is_binary) {
+        if (!$!binary and $f.text ~~ m{ <[ \x00..\x08 \x0A..\x1F ]> }) {
             $!errno         = $f.is_quoted ?? 2026 !! 2037;
             $!error_pos     = 0;
             $!error_message = %!errors{$!errno};
