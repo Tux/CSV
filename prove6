@@ -1,0 +1,2 @@
+#!/bin/sh
+exec prove -e 'perl6 -I.' $@
