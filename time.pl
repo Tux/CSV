@@ -22,6 +22,7 @@ close    $fh;
 my @test = (
     [ 5, "csv-easy-xs" ],
     [ 5, "csv-easy-pp" ],
+    [ 5, "csv-xsbc"    ],
     [ 5, "csv-test-xs" ],
     [ 5, "csv-test-pp" ],
     [ 5, "csv-pegex"   ],
