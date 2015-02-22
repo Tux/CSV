@@ -482,8 +482,9 @@ class Text::CSV {
             $t .= subst (/( $q | $e )/, { "$e$0" }, :g);
             $t .= subst (/ \x[0] /,     { $e ~ 0 }, :g) if $!quote_null;
             $!always_quote
-            ||                   $t ~~ / $e  | $s | \r | \n /
-            || ($!quote_space && $t ~~ / " " | \t /)
+            ||                    $t ~~ / $e  | $s | \r | \n /
+            || ($!quote_space  && $t ~~ / " " | \t /)
+            || ($!quote_binary && $t ~~ / <[ \x00..\x08 \x0a..\x1f \x7f..\xa0 ]> /)
                 and $t = "$!quo$t$!quo";
             push @f, $t;
             }

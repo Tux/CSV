@@ -71,53 +71,44 @@ SKIP: {
     ok ($csv.string,               "Combined string is valid utf8");
     }
 
-done;
-
-=finish
-
 # Test quote_binary
 $csv.always_quote (0);
 $csv.quote_space  (0);
 $csv.quote_binary (0);
-ok ($csv.combine (" ", 1, "\x{20ac} "), "Combine");
-is ($csv.string, qq{ ,1,\x{20ac} },             "String 0-0");
+ok ($csv.combine (" ", 1, "\x[20ac] "), "Combine");
+is ($csv.string,    qq{ ,1,\x[20ac] },  "String 0-0");
 $csv.quote_binary (1);
-ok ($csv.combine (" ", 1, "\x{20ac} "), "Combine");
-is ($csv.string, qq{ ,1,"\x{20ac} "},           "String 0-1");
+ok ($csv.combine (" ", 1, "\x[20ac] "), "Combine");
+is ($csv.string,    qq{ ,1,\x[20ac] },  "String 0-1");
 
 $csv.quote_space  (1);
 $csv.quote_binary (0);
-ok ($csv.combine (" ", 1, "\x{20ac} "), "Combine");
-is ($csv.string, qq{" ",1,"\x{20ac} "}, "String 1-0");
-ok ($csv.quote_binary (1),                      "quote binary on");
-ok ($csv.combine (" ", 1, "\x{20ac} "), "Combine");
-is ($csv.string, qq{" ",1,"\x{20ac} "}, "String 1-1");
+ok ($csv.combine (" ", 1, "\x[20ac] "), "Combine");
+is ($csv.string, qq{" ",1,"\x[20ac] "}, "String 1-0");
+ok ($csv.quote_binary (1),              "quote binary on");
+ok ($csv.combine (" ", 1, "\x[20ac] "), "Combine");
+is ($csv.string, qq{" ",1,"\x[20ac] "}, "String 1-1");
 
-open  my $fh, ">:encoding(utf-8)", "_50test.csv";
-print $fh "euro\n\x{20ac}\neuro\n";
-close $fh;
-open     $fh, "<:encoding(utf-8)", "_50test.csv";
+my $fh = open "_50test.csv", :w;
+$fh.print ("euro\n\x[20ac]\neuro\n");
+$fh.close;
+$fh = open "_50test.csv", :r;
 
-SKIP: {
-    my $out = "";
-    my $isutf8 = $] < 5.008001 ?
-        sub { !$_[0]; } :       # utf8::is_utf8 () not available in 5.8.0
-        sub { utf8::is_utf8 ($out); };
-    ok ($csv.auto_diag (1),                     "auto diag");
-    ok ($csv.binary (1),                        "set binary");
-    ok ($csv.bind_columns (\$out),              "bind");
-    ok ($csv.getline ($fh),                     "parse");
-    is ($csv.is_binary (0),     0,              "not binary");
-    is ($out,                   "euro",         "euro");
-    ok (!$isutf8.(1),                           "not utf8");
-    ok ($csv.getline ($fh),                     "parse");
-    is ($csv.is_binary (0),     1,              "is binary");
-    is ($out,                   "\x{20ac}",     "euro");
-    ok ($isutf8.(0),                            "is utf8");
-    ok ($csv.getline ($fh),                     "parse");
-    is ($csv.is_binary (0),     0,              "not binary");
-    is ($out,                   "euro",         "euro");
-    ok (!$isutf8.(1),                           "not utf8");
-    close $fh;
-    unlink "_50test.csv";
-    }
+ok ($csv.auto_diag (1),                     "auto diag");
+ok ($csv.binary (1),                        "set binary");
+ok (my @row = $csv.getline ($fh),           "parse");
+is ($csv.is_binary (0),     False,          "not binary");
+is (@row[0].text,           "euro",         "euro");
+is ($csv.is_utf8 (1),       False,          "not utf8");
+ok (@row = $csv.getline ($fh),              "parse");
+is ($csv.is_binary (0),     True,           "is binary");
+is (@row[0].text,           "\x[20ac]",     "euro");
+is (@row[0].is_utf8,        True,           "is utf8");
+ok (@row = $csv.getline ($fh),              "parse");
+is ($csv.is_binary (0),     False,          "not binary");
+is (@row[0].text,           "euro",         "euro");
+is (@row[0].is_utf8,        False,          "not utf8");
+$fh.close;
+unlink "_50test.csv";
+
+done;
