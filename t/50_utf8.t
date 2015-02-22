@@ -30,16 +30,11 @@ my @special = (
 my $q = $csv.quo;
 for @special -> @test {
     (my $u, my $msg) = @test;
-    #($u = "$u\x[0123]") ~~ s/.$//;
-    #$u.perl.say;
-    #$msg.perl.say;
     my Str @in  = ("", " ", $u, "");
     my $exp = join ",", @in.map ($q~*~$q);
-    #$exp.perl.say;
     ok ($csv.combine (@in),             "combine $msg");
 
     my $str = $csv.string;
-    #$str.perl.say;
     is ($str.perl, $exp.perl,           "string  $msg");
 
     ok ($csv.parse ($str),              "parse   $msg");
@@ -53,28 +48,32 @@ is ($csv.parse (qq{"\x[0123]\n\x[20ac]"}), False, "\\n still needs binary");
 is ($csv.binary, False, "bin flag still unset");
 is ($csv.error_diag + 0, 2021, "Error 2021");
 
+my $file = "files/utf8.csv";
+SKIP: {
+    my $fh = open $file, :r;
+
+    my @row;
+    ok (@row = $csv.getline ($fh), "read/parse");
+
+    is (@row[0].is_quoted,  True,  "First  field is quoted");
+    is (@row[1].is_quoted,  False, "Second field is not quoted");
+    is (@row[0].is_binary,  True,  "First  field is binary");
+    is (@row[1].is_binary,  False, "Second field is not binary");
+
+    is ($csv.is_quoted (0), True,  "First  field is quoted");
+    is ($csv.is_quoted (1), False, "Second field is not quoted");
+    is ($csv.is_binary (0), True,  "First  field is binary");
+    is ($csv.is_binary (1), False, "Second field is not binary");
+
+    ok (@row[0].is_utf8,           "First field is valid utf8");
+
+    $csv.combine (@row);
+    ok ($csv.string,               "Combined string is valid utf8");
+    }
+
 done;
 
 =finish
-
-my $file = "files/utf8.csv";
-SKIP: {
-    open my $fh, "<:encoding(utf8)", $file or
-        skip "Cannot open UTF-8 test file", 6;
-
-    my $row;
-    ok ($row = $csv.getline ($fh), "read/parse");
-
-    is ($csv.is_quoted (0),     1,      "First  field is quoted");
-    is ($csv.is_quoted (1),     0,      "Second field is not quoted");
-    is ($csv.is_binary (0),     1,      "First  field is binary");
-    is ($csv.is_binary (1),     0,      "Second field is not binary");
-
-    ok (utf8::valid ($row.[0]), "First field is valid utf8");
-
-    $csv.combine (@$row);
-    ok (utf8::valid ($csv.string),      "Combined string is valid utf8");
-    }
 
 # Test quote_binary
 $csv.always_quote (0);

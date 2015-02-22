@@ -404,7 +404,22 @@ class Text::CSV {
             record  => $!record_number,
             buffer  => $!error_input // "", # // for 2012
             );
-       }
+        }
+
+    method is_quoted (Int $i) returns Bool {
+        $i >= @!fields.elems and return False;
+        return @!fields[$i].is_quoted;
+        }
+
+    method is_binary (Int $i) returns Bool {
+        $i >= @!fields.elems and return False;
+        return @!fields[$i].is_binary;
+        }
+
+    method is_utf8   (Int $i) returns Bool {
+        $i >= @!fields.elems and return False;
+        return @!fields[$i].is_utf8;
+        }
 
     method !ready (CSV::Field $f) returns Bool {
 
