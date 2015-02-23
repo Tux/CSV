@@ -1,0 +1,19 @@
+• PASS more tests
+
+• Decide if types should be dealt with beyond current overloading
+
+• Buf vs Str - binary data (+ tests)
+
+• csv () function
+
+• Fragments
+
+• Hooks
+
+• Documentation
+
+• Speed
+
+• bind_columns
+
+• Decide if/how to support EOL = "" or Str
