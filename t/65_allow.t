@@ -51,77 +51,75 @@ test_alqiq (3, 2023, qq{"some "spaced" quote data",2,3,4}             );
 test_alqiq (4,    0, qq{and an,entirely,quoted,"field"}               );
 test_alqiq (5,    0, qq{and then,"one with ""quoted"" quotes",okay,?} );
 
-done;
-
-=finish
-
 # Allow escapes to escape characters that should not be escaped
 ok (1, "Allow loose escapes");
 sub test_ale (int $tst, int $err, Str $bad) {
-    $csv = Text::CSV.new (escape => "\\");
+    $csv = Text::CSV.new (escape => "+");
     ok ($csv,                       "$tst - new (ale => 0)");
     is ($csv.parse ($bad),  !$err,  "$tst - parse () fail");
     is (0 + $csv.error_diag, $err,  "$tst - error $err");
 
     $csv.allow_loose_escapes (1);
-    if ($tst >= 8) {
-        # Should always fail
-        ok (!$csv.parse ($bad),     "$tst - parse () fail");
-        is (0 + $csv.error_diag, $err,              "$tst - error $err");
-        }
-    else {
-        ok ($csv.parse ($bad),      "$tst - parse () pass");
-        ok (my @f = $csv.fields,    "$tst - fields");
-        }
+    ok ($csv.parse ($bad),      "$tst - parse () pass");
+    ok (my @f = $csv.fields,    "$tst - fields");
     }
 test_ale (1,    0, qq{1,foo,bar,"baz",quux}                         );
-test_ale (2,    0, qq{2,escaped,"quote\\"s",in,"here"}              );
-test_ale (3,    0, qq{3,escaped,quote\\"s,in,"here"}                );
-test_ale (4,    0, qq{4,escap\\'d chars,allowed,in,unquoted,fields} );
-test_ale (5, 2025, qq{5,42,"and it\\'s dog",}                       );
+test_ale (2,    0, qq{2,escaped,"quote+"s",in,"here"}              );
+test_ale (3,    0, qq{3,escaped,quote+"s,in,"here"}                );
+test_ale (4,    0, qq{4,escap+"d chars,allowed,in,unquoted,fields} );
+test_ale (5, 2025, qq{5,42,"and it+'s dog",}                       );
 
-test_ale (6,    0, qq{\\,}                                          );
-test_ale (7,    0, qq{\\}                                           );
-test_ale (8, 2035, qq{foo\\}                                        );
+test_ale (6, 2025, qq{+,}                                          );
+test_ale (7, 2035, qq{+}                                           );
+test_ale (8, 2035, qq{foo+}                                        );
 
 ok (1, "Allow whitespace");
 # Allow whitespace to surround sep char
-{   my @bad = (
-        # valid, line
-        [  1, 1,    0, qq{1,foo,bar,baz,quux}                           ],
-        [  2, 1,    0, qq{1,foo,bar,"baz",quux}                         ],
-        [  3, 1,    0, qq{1, foo,bar,"baz",quux}                        ],
-        [  4, 1,    0, qq{ 1,foo,bar,"baz",quux}                        ],
-        [  5, 0, 2034, qq{1,foo,bar, "baz",quux}                        ],
-        [  6, 1,    0, qq{1,foo ,bar,"baz",quux}                        ],
-        [  7, 1,    0, qq{1,foo,bar,"baz",quux }                        ],
-        [  8, 1,    0, qq{1,foo,bar,"baz","quux"}                       ],
-        [  9, 0, 2023, qq{1,foo,bar,"baz" ,quux}                        ],
-        [ 10, 0, 2023, qq{1,foo,bar,"baz","quux" }                      ],
-        [ 11, 0, 2034, qq{ 1 , foo , bar , "baz" , quux }               ],
-        [ 12, 0, 2034, qq{  1  ,  foo  ,  bar  ,  "baz"  ,  quux  }     ],
-        [ 13, 0, 2034, qq{  1  ,  foo  ,  bar  ,  "baz"\t ,  quux  }    ],
-        );
+my $awec_bad = qq{1,foo,bar,baz,quux};
+sub test_awec (int $tst, int $err, Str $eol, Str $bad) {
+    my $s_eol = $eol.perl;
+    $csv = Text::CSV.new (eol => $eol);
+    ok ($csv,                      "$s_eol / $tst - new - '$bad')");
+    is ($csv.parse ($bad),  !$err, "$s_eol / $tst - parse () fail");
+    is (0 + $csv.error_diag, $err, "$s_eol / $tst - error $err");
 
-    foreach my $eol ("", "\n", "\r", "\r\n") {
-        my $s_eol = _readable ($eol);
-        for (@bad) {
-            my ($tst, $ok, $err, $bad) = @$_;
-            $csv = Text::CSV_XS.new ({ eol => $eol, binary => 1 });
-            ok ($csv,                           "$s_eol / $tst - new - '$bad')");
-            is ($csv.parse ($bad), $ok, "$s_eol / $tst - parse () fail");
-            is (0 + $csv.error_diag, $err,                      "$tst - error $err");
+    $csv.allow_whitespace (True);
+    #"$bad$eol".perl.say;
+    ok ($csv.parse ("$bad$eol"),   "$s_eol / $tst - parse () pass");
 
-            $csv.allow_whitespace (1);
-            ok ($csv.parse ("$bad$eol"),        "$s_eol / $tst - parse () pass");
+    my @f = $csv.fields;
+    is (@f.elems, 5,               "$s_eol / $tst - fields");
 
-            ok (my @f = $csv.fields,            "$s_eol / $tst - fields");
-
-            local $" = ",";
-            is ("@f", $bad[0][-1],              "$s_eol / $tst - content");
-            }
-        }
+    #"--".say;
+    #.gist.say for @f;
+    #"--".say;
+    my $got = join ",", @f.map (~*);
+    #$got.say;
+    #"==".say;
+    is ($got, $awec_bad,           "$s_eol / $tst - content");
+    #exit;
     }
+
+#for ("", "\n", "\r", "\r\n") -> $eol {
+for ("\n", "\r", "\r\n") -> $eol {
+    test_awec ( 1,    0, $eol, qq{1,foo,bar,baz,quux}                        );
+    test_awec ( 2,    0, $eol, qq{1,foo,bar,"baz",quux}                      );
+    test_awec ( 3,    0, $eol, qq{1, foo,bar,"baz",quux}                     );
+    test_awec ( 4,    0, $eol, qq{ 1,foo,bar,"baz",quux}                     );
+    test_awec ( 5, 2034, $eol, qq{1,foo,bar, "baz",quux}                     );
+    test_awec ( 6,    0, $eol, qq{1,foo ,bar,"baz",quux}                     );
+    test_awec ( 7,    0, $eol, qq{1,foo,bar,"baz",quux }                     );
+    test_awec ( 8,    0, $eol, qq{1,foo,bar,"baz","quux"}                    );
+    test_awec ( 9, 2023, $eol, qq{1,foo,bar,"baz" ,quux}                     );
+    test_awec (10, 2023, $eol, qq{1,foo,bar,"baz","quux" }                   );
+    test_awec (11, 2034, $eol, qq{ 1 , foo , bar , "baz" , quux }            );
+    test_awec (12, 2034, $eol, qq{  1  ,  foo  ,  bar  ,  "baz"  ,  quux  }  );
+    test_awec (13, 2034, $eol, qq{  1  ,  foo  ,  bar  ,  "baz"\t ,  quux  } );
+    }
+
+done;
+
+=finish
 
 ok (1, "Allow whitespace");
 # Allow whitespace to surround sep char

@@ -590,7 +590,7 @@ class Text::CSV {
                 $opt_v > 8 and progress ($i, "###", $chunk.perl~"\t", $f.gist);
 
                 if ($chunk eq $sep) {
-                    $opt_v > 5 and progress ($i, "SEP");
+                    $opt_v > 5 and progress ($i, "SEP "~$f.gist);
 
                     # ,1,"foo, 3",,bar,
                     # ^           ^
@@ -608,6 +608,10 @@ class Text::CSV {
                         $f.add ($chunk);
                         next;
                         }
+
+                    # ,1 ,"foo, 3"  ,,bar ,
+                    #    ^          ^     ^
+                    $!allow_whitespace && !$f.undefined and $f.text ~~ s{ <[\ \t]>+ $} = "";
 
                     # ,1,"foo, 3",,bar,
                     #   ^        ^    ^
@@ -782,10 +786,18 @@ class Text::CSV {
                         next;
                         }
 
+                    # ,1,"foo, 3",,bar
+                    #                    ^
+                    $!allow_whitespace && !$f.undefined and $f.text ~~ s{ <[\ \t]>+ $} = "";
+
                     $!io.defined and @!ahead = @ch[($i + 1) .. *];
 
                     return keep ();
                     }
+
+                # 1,foo,  bar,4
+                #       ^
+                $f.undefined && $!allow_whitespace and $chunk ~~ s{^ <[\ \t]>+ } = "";
 
                 unless ($!binary) {
                     $opt_v > 5 and progress ($i, "data - check binary");
