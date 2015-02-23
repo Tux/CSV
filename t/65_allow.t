@@ -73,8 +73,8 @@ test_ale (6, 2025, qq{+,}                                          );
 test_ale (7, 2035, qq{+}                                           );
 test_ale (8, 2035, qq{foo+}                                        );
 
-ok (1, "Allow whitespace");
 # Allow whitespace to surround sep char
+ok (1, "Allow whitespace");
 my $awec_bad = qq{1,foo,bar,baz,quux};
 sub test_awec (int $tst, int $err, Str $eol, Str $bad) {
     my $s_eol = $eol.perl;
@@ -120,49 +120,6 @@ for ("\n", "\r", "\r\n") -> $eol {
 done;
 
 =finish
-
-ok (1, "Allow whitespace");
-# Allow whitespace to surround sep char
-{   my @bad = (
-        # test, ok, line
-        [  1, 1,    0, qq{1,foo,bar,baz,quux}                           ],
-        [  2, 1,    0, qq{1,foo,bar,"baz",quux}                         ],
-        [  3, 1,    0, qq{1, foo,bar,"baz",quux}                        ],
-        [  4, 1,    0, qq{ 1,foo,bar,"baz",quux}                        ],
-        [  5, 0, 2034, qq{1,foo,bar, "baz",quux}                        ],
-        [  6, 1,    0, qq{1,foo ,bar,"baz",quux}                        ],
-        [  7, 1,    0, qq{1,foo,bar,"baz",quux }                        ],
-        [  8, 1,    0, qq{1,foo,bar,"baz","quux"}                       ],
-        [  9, 0, 2023, qq{1,foo,bar,"baz" ,quux}                        ],
-        [ 10, 0, 2023, qq{1,foo,bar,"baz","quux" }                      ],
-        [ 11, 0, 2023, qq{1,foo,bar,"baz","quux" }                      ],
-        [ 12, 0, 2034, qq{ 1 , foo , bar , "baz" , quux }               ],
-        [ 13, 0, 2034, qq{  1  ,  foo  ,  bar  ,  "baz"  ,  quux  }     ],
-        [ 14, 0, 2034, qq{  1  ,  foo  ,  bar  ,  "baz"\t ,  quux  }    ],
-        );
-
-    foreach my $eol ("", "\n", "\r", "\r\n") {
-        my $s_eol = _readable ($eol);
-        for (@bad) {
-            my ($tst, $ok, $err, $bad) = @$_;
-            $csv = Text::CSV_XS.new ({
-                eol              => $eol,
-                binary           => 1,
-                });
-            ok ($csv,                           "$s_eol / $tst - new - '$bad')");
-            is ($csv.parse ($bad), $ok, "$s_eol / $tst - parse () fail");
-            is (0 + $csv.error_diag, $err,                      "$tst - error $err");
-
-            $csv.allow_whitespace (1);
-            ok ($csv.parse ("$bad$eol"),        "$s_eol / $tst - parse () pass");
-
-            ok (my @f = $csv.fields,            "$s_eol / $tst - fields");
-
-            local $" = ",";
-            is ("@f", $bad[0][-1],              "$s_eol / $tst - content");
-            }
-        }
-    }
 
 ok (1, "blank_is_undef");
 foreach my $conf (
