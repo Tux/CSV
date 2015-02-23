@@ -467,7 +467,7 @@ class Text::CSV {
         my Str $s = $!sep;
         my Str $q = $!quo;
         my Str $e = $!esc;
-        #progress (0, @!fields.perl);
+        #progress (0, @!fields);
         my Str @f;
         for @!fields -> $f {
             if ($f.undefined) {
@@ -488,7 +488,7 @@ class Text::CSV {
                 and $t = "$!quo$t$!quo";
             push @f, $t;
             }
-        #progress (0, @f.perl);
+        #progress (0, @f);
         my Str $x = join $!sep, @f;
         defined $!eol and $x ~= $!eol;
         #progress (1, $x);
@@ -587,7 +587,7 @@ class Text::CSV {
 
                 $pos = $ppos;
 
-                $opt_v > 8 and progress ($i, "###", $chunk.perl~"\t", $f.perl);
+                $opt_v > 8 and progress ($i, "###", $chunk.perl~"\t", $f.gist);
 
                 if ($chunk eq $sep) {
                     $opt_v > 5 and progress ($i, "SEP");
@@ -616,7 +616,7 @@ class Text::CSV {
                     }
 
                 if ($quo.defined and $chunk eq $quo) {
-                    $opt_v > 5 and progress ($i, "QUO", $f.perl);
+                    $opt_v > 5 and progress ($i, "QUO", $f.gist);
 
                     # ,1,"foo, 3",,bar,\r\n
                     #    ^
@@ -719,7 +719,7 @@ class Text::CSV {
                     }
 
                 if ($esc.defined and $chunk eq $esc) {
-                    $opt_v > 5 and progress ($i, "ESC", $f.perl);
+                    $opt_v > 5 and progress ($i, "ESC", $f.gist);
 
                     if ($i >= $@ch.elems - 1) {
                         if ($!allow_loose_escapes) {
@@ -845,7 +845,7 @@ sub MAIN () {
     if ($opt_v) {
         $opt_v > 1 and say $csv.perl;
         $csv.parse ($test) or die $csv.error_diag;
-        progress (.perl) for $csv.fields;
+        progress (.gist) for $csv.fields;
         < Expected: Str 1 ab cd e\0f g,h nl\nz\0i""3 Str >.say;
         }
 
