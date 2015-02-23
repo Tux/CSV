@@ -426,12 +426,12 @@ class Text::CSV {
         $f.text.defined or $f.undefined = True;
 
         if ($f.undefined) {
-            $!blank_is_undef or $f.add ("");
+            $!blank_is_undef || $!empty_is_undef or $f.add ("");
             push @!fields, $f;
             return True;
             }
 
-        if (!$f.text.defined || $f.text eq "") {
+        if ($f.text eq "") {
             if ($!empty_is_undef) {
                 $f.undefined = True;
                 $f.text      = Str;
