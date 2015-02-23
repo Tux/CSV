@@ -726,7 +726,7 @@ class Text::CSV {
                             $f.add ($chunk);
                             next;
                             }
-                        return parse_error (2024);
+                        return parse_error ($f.is_quoted ?? 2024 !! 2035);
                         }
 
                     # ,1,"foo, 3\056",,bar,\r\n

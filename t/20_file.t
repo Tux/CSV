@@ -106,7 +106,7 @@ sub esc_test (int $tst, int $err, Str $str) {
 
  esc_test ( 1,    0, "\n");
  esc_test ( 2, 2025, "+\n");
- esc_test ( 3, 2024, "+");
+ esc_test ( 3, 2035, "+");
  esc_test ( 4, 2021, qq{"+"\n});
  esc_test ( 5, 2025, qq{"+\n});
  esc_test ( 6, 2011, qq{""+\n});
@@ -131,7 +131,7 @@ sub esc_test (int $tst, int $err, Str $str) {
  $csv.binary (True);
  esc_test (31,    0, "\n");
  esc_test (32, 2025, "+\n");
- esc_test (33, 2024, "+");
+ esc_test (33, 2035, "+");
  esc_test (34, 2012, qq{"+"\n});
  esc_test (35, 2025, qq{"+\n});
  esc_test (36, 2011, qq{""+\n});
