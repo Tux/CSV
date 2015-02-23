@@ -84,20 +84,13 @@ sub test_awec (int $tst, int $err, Str $eol, Str $bad) {
     is (0 + $csv.error_diag, $err, "$s_eol / $tst - error $err");
 
     $csv.allow_whitespace (True);
-    #"$bad$eol".perl.say;
     ok ($csv.parse ("$bad$eol"),   "$s_eol / $tst - parse () pass");
 
     my @f = $csv.fields;
     is (@f.elems, 5,               "$s_eol / $tst - fields");
 
-    #"--".say;
-    #.gist.say for @f;
-    #"--".say;
     my $got = join ",", @f.map (~*);
-    #$got.say;
-    #"==".say;
     is ($got, $awec_bad,           "$s_eol / $tst - content");
-    #exit;
     }
 
 #for ("", "\n", "\r", "\r\n") -> $eol {
@@ -117,33 +110,33 @@ for ("\n", "\r", "\r\n") -> $eol {
     test_awec (13, 2034, $eol, qq{  1  ,  foo  ,  bar  ,  "baz"\t ,  quux  } );
     }
 
+ok (1, "blank_is_undef");
+sub test_biu (int $aq, int $aw, int $bu, *@expect) {
+    $csv = Text::CSV.new (always_quote => $aq, allow_whitespace => $aw, blank_is_undef => $bu);
+    ok ($csv,   "new (aq $aq aw $aw bu $bu)");
+    ok ($csv.combine (1, "", " ", '""', 2, Str, "", Str), "combine ()");
+    ok (my $str = $csv.string,      "string ()");
+#   for ("", "\n", "\r\n") -> $eol {
+    for ("\n", "\r\n") -> $eol {
+        my $s_eol = $eol.perl;
+        ok ($csv.parse ($str~$eol), "parse (*$str$s_eol*)");
+        my @f = $csv.fields;
+        is (@f.elems, 8,            "parse ()");
+        is (~@f[$_]//"-", @expect[$_]//"-",   "content $_") for ^8;
+        }
+    }
+test_biu (0, 0, 0,   1, "",  " ", '""', 2, "",  "",  "" );
+test_biu (0, 0, 1,   1, Str, " ", '""', 2, Str, Str, Str);
+test_biu (0, 1, 0,   1, "",  " ", '""', 2, "",  "",  "" );
+test_biu (0, 1, 1,   1, Str, " ", '""', 2, Str, Str, Str);
+test_biu (1, 0, 0,   1, "",  " ", '""', 2, "",  "",  "" );
+test_biu (1, 0, 1,   1, "",  " ", '""', 2, Str, "",  Str);
+test_biu (1, 1, 0,   1, "",  " ", '""', 2, "",  "",  "" );
+test_biu (1, 1, 1,   1, "",  " ", '""', 2, Str, "",  Str);
+
 done;
 
 =finish
-
-ok (1, "blank_is_undef");
-foreach my $conf (
-        [ 0, 0, 0,      1, "",    " ", '""', 2, "",    "",    ""        ],
-        [ 0, 0, 1,      1, undef, " ", '""', 2, undef, undef, undef     ],
-        [ 0, 1, 0,      1, "",    " ", '""', 2, "",    "",    ""        ],
-        [ 0, 1, 1,      1, undef, " ", '""', 2, undef, undef, undef     ],
-        [ 1, 0, 0,      1, "",    " ", '""', 2, "",    "",    ""        ],
-        [ 1, 0, 1,      1, "",    " ", '""', 2, undef, "",    undef     ],
-        [ 1, 1, 0,      1, "",    " ", '""', 2, "",    "",    ""        ],
-        [ 1, 1, 1,      1, "",    " ", '""', 2, undef, "",    undef     ],
-        ) {
-    my ($aq, $aw, $bu, @expect, $str) = @$conf;
-    $csv = Text::CSV_XS.new ({ always_quote => $aq, allow_whitespace => $aw, blank_is_undef => $bu });
-    ok ($csv,   "new ({ aq $aq aw $aw bu $bu })");
-    ok ($csv.combine (1, "", " ", '""', 2, undef, "", undef), "combine ()");
-    ok ($str = $csv.string,                     "string ()");
-    foreach my $eol ("", "\n", "\r\n") {
-        my $s_eol = _readable ($eol);
-        ok ($csv.parse ($str.$eol),     "parse (*$str$s_eol*)");
-        ok (my @f = $csv.fields,        "fields ()");
-        is_deeply (\@f, \@expect,       "result");
-        }
-    }
 
 ok (1, "empty_is_undef");
 foreach my $conf (
