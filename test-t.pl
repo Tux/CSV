@@ -590,7 +590,7 @@ class Text::CSV {
                 $opt_v > 8 and progress ($i, "###", $chunk.perl~"\t", $f.gist);
 
                 if ($chunk eq $sep) {
-                    $opt_v > 5 and progress ($i, "SEP "~$f.gist);
+                    $opt_v > 5 and progress ($i, "SEP - " ~ $f.gist);
 
                     # ,1,"foo, 3",,bar,
                     # ^           ^
@@ -620,7 +620,7 @@ class Text::CSV {
                     }
 
                 if ($quo.defined and $chunk eq $quo) {
-                    $opt_v > 5 and progress ($i, "QUO", $f.gist);
+                    $opt_v > 5 and progress ($i, "QUO -" ~ $f.gist);
 
                     # ,1,"foo, 3",,bar,\r\n
                     #    ^
@@ -723,7 +723,7 @@ class Text::CSV {
                     }
 
                 if ($esc.defined and $chunk eq $esc) {
-                    $opt_v > 5 and progress ($i, "ESC", $f.gist);
+                    $opt_v > 5 and progress ($i, "ESC - " ~ $f.gist);
 
                     if ($i >= $@ch.elems - 1) {
                         if ($!allow_loose_escapes) {
@@ -768,7 +768,7 @@ class Text::CSV {
                     }
 
                 if ($chunk ~~ rx{^ $eol $}) {
-                    $opt_v > 5 and progress ($i, "EOL");
+                    $opt_v > 5 and progress ($i, "EOL - " ~ $f.gist);
                     if ($f.is_quoted) {     # 1,"2\n3"
                         $!binary or
                             return parse_error (

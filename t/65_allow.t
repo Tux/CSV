@@ -158,41 +158,39 @@ test_eiu (1, 0, 1,   1, Str, " ", '""', 2, Str, Str, Str);
 test_eiu (1, 1, 0,   1, "",  " ", '""', 2, "",  "",  "" );
 test_eiu (1, 1, 1,   1, Str, " ", '""', 2, Str, Str, Str);
 
+
+ok (1, "Trailing junk");
+sub test_tj (int $tst, int $bin, Str $eol, Str $bad) {
+    my @fail = (2022, 2021, 2023, 0);
+
+    my $ok  = ($bin +< 1) + ($eol ?? 1 !! 0);
+    my $err = @fail[$ok];
+
+    is ($csv.parse ($bad),  !$err, "$tst $ok - parse () default");
+    is (0 + $csv.error_diag, $err, "$tst $ok - error $err");
+
+    $csv.allow_whitespace (1);
+    is ($csv.parse ($bad),  !$err, "$tst $ok - parse () allow");
+    is (0 + $csv.error_diag, $err, "$tst $ok - error $err");
+    }
+for (0, 1) -> $bin {
+#   for (Str, "\r") -> $eol {
+    for ("\r") -> $eol {
+        my $s_eol = $eol.perl;
+        $csv = Text::CSV.new (binary => $bin, eol => $eol);
+        ok ($csv, "$s_eol - new ()");
+        test_tj (1, $bin, $eol, qq{"\r\r\n"\r}       );
+        test_tj (2, $bin, $eol, qq{"\r\r\n"\r\r}     );
+        test_tj (3, $bin, $eol, qq{"\r\r\n"\r\r\n}   );
+        test_tj (4, $bin, $eol, qq{"\r\r\n"\t \r}    );
+        test_tj (5, $bin, $eol, qq{"\r\r\n"\t \r\r}  );
+        test_tj (6, $bin, $eol, qq{"\r\r\n"\t \r\r\n});
+        }
+    }
+
 done;
 
 =finish
-
-
-ok (1, "Trailing junk");
-foreach my $bin (0, 1) {
-    foreach my $eol (undef, "\r") {
-        my $s_eol = _readable ($eol);
-        my $csv = Text::CSV_XS.new ({ binary => $bin, eol => $eol });
-        ok ($csv, "$s_eol - new ()");
-        my @bad = (
-            # test, line
-            [ 1, qq{"\r\r\n"\r}         ],
-            [ 2, qq{"\r\r\n"\r\r}       ],
-            [ 3, qq{"\r\r\n"\r\r\n}     ],
-            [ 4, qq{"\r\r\n"\t \r}      ],
-            [ 5, qq{"\r\r\n"\t \r\r}    ],
-            [ 6, qq{"\r\r\n"\t \r\r\n}  ],
-            );
-        my @pass = (    0,    0,    0, 1 );
-        my @fail = ( 2022, 2022, 2023, 0 );
-
-        foreach my $arg (@bad) {
-            my ($tst, $bad) = @$arg;
-            my $ok = ($bin << 1) | ($eol ? 1 : 0);
-            is ($csv.parse ($bad), $pass[$ok],  "$tst $ok - parse () default");
-            is (0 + $csv.error_diag, $fail[$ok],                "$tst $ok - error $fail[$ok]");
-
-            $csv.allow_whitespace (1);
-            is ($csv.parse ($bad), $pass[$ok],  "$tst $ok - parse () allow");
-            is (0 + $csv.error_diag, $fail[$ok],                "$tst $ok - error $fail[$ok]");
-            }
-        }
-    }
 
 {   ok (1, "verbatim");
     my $csv = Text::CSV_XS.new ({
