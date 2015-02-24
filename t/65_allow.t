@@ -116,8 +116,7 @@ sub test_biu (int $aq, int $aw, int $bu, *@expect) {
     ok ($csv,   "new (aq $aq aw $aw bu $bu)");
     ok ($csv.combine (1, "", " ", '""', 2, Str, "", Str), "combine ()");
     ok (my $str = $csv.string,      "string ()");
-#   for ("", "\n", "\r\n") -> $eol {
-    for ("\n", "\r\n") -> $eol {
+    for ("", "\n", "\r\n") -> $eol {
         my $s_eol = $eol.perl;
         ok ($csv.parse ($str~$eol), "parse (*$str$s_eol*)");
         my @f = $csv.fields;
@@ -139,11 +138,10 @@ sub test_eiu (int $aq, int $aw, int $eu, *@expect) {
     $csv = Text::CSV.new (always_quote => $aq, allow_whitespace => $aw, empty_is_undef => $eu);
     ok ($csv,   "new (aq $aq aw $aw eu $eu)");
     ok ($csv.combine (1, "", " ", '""', 2, Str, "", Str), "combine ()");
-    ok (my $str = $csv.string,          "string ()");
-#   for ("", "\n", "\r\n") -> $eol {
-    for ("\n", "\r\n") -> $eol {
+    ok (my $str = $csv.string,      "string ()");
+    for ("", "\n", "\r\n") -> $eol {
         my $s_eol = $eol.perl;
-        ok ($csv.parse ($str~$eol),     "parse (*$str$s_eol*)");
+        ok ($csv.parse ($str~$eol), "parse (*$str$s_eol*)");
         my @f = $csv.fields;
         is (@f.elems, 8,            "parse ()");
         is (~@f[$_]//"-", @expect[$_]//"-",   "content $_") for ^8;
@@ -174,7 +172,7 @@ sub test_tj (int $tst, int $bin, Str $eol, Str $bad) {
     is (0 + $csv.error_diag, $err, "$tst $ok - error $err");
     }
 for (0, 1) -> $bin {
-#   for (Str, "\r") -> $eol {
+#   for ("", "\r") -> $eol {
     for ("\r") -> $eol {
         my $s_eol = $eol.perl;
         $csv = Text::CSV.new (binary => $bin, eol => $eol);

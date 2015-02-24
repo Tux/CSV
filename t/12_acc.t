@@ -75,7 +75,7 @@ is ($csv.sep_char (),       ";",    "sep_char ()");
 is ($csv.quote_char ("="),  "=",    "quote_char (=)");
 is ($csv.quote ("="),       "=",    "quote (=)");
 is ($csv.eol (Str).defined, False,  "eol (Str)");
-is ($csv.eol (""),          "",     "eol ('')");
+is ($csv.eol ("").defined,  False,  "eol ('') => Str");
 is ($csv.eol ("\r"),        "\r",   "eol (\\r)");
 
 is ($csv.always_quote (False),         False, "always_quote (False)");

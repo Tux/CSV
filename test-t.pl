@@ -309,7 +309,9 @@ class Text::CSV {
     # String attributes
     method !a_str ($attr is rw, *@s) returns Str {
         if (@s.elems == 1) {
-            $attr = @s[0];
+            my $x = @s[0];
+            $x.defined && $x.^name eq "Str" && $x eq "" and $x = Str;
+            $attr = $x;
             self!check_sanity;
             }
         return $attr;
