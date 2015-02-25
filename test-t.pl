@@ -464,8 +464,8 @@ class Text::CSV {
         return @!fields;
         } # fields
 
-    method string () {
-        @!fields or return;
+    method string () returns Str {
+        @!fields or return Str;
         my Str $s = $!sep;
         my Str $q = $!quo;
         my Str $e = $!esc;
@@ -553,7 +553,7 @@ class Text::CSV {
         my Regex      $chx = rx{ $eol | $sep | $quo | $esc };
         my CSV::Field $f   = CSV::Field.new;
 
-        @!fields = Nil;
+        @!fields = ();
 
         my sub keep () {
             self!ready ($f) or return False;
@@ -647,7 +647,6 @@ class Text::CSV {
                         #               ^            ^
                         if ($!allow_whitespace && $next ~~ /^ <[\ \t]>+ $/) {
                             $i == @ch - 2 and return keep ();
-                            $ppos += $next.chars;
                             $next = @ch[$i + 2];
                             $omit = $omit + 1; #++
                             }
@@ -676,6 +675,7 @@ class Text::CSV {
                             #            ^
                             if ($next ~~ /^ "0"/) {
                                 @ch[$i + 1] ~~ s{^ "0"} = "";
+                                $ppos = $ppos + 1; #++
                                 $opt_v > 8 and progress ($i, "Add NIL");
                                 $f.add ("\c0");
                                 next;
@@ -739,8 +739,9 @@ class Text::CSV {
 
                     # ,1,"foo, 3\056",,bar,\r\n
                     #            ^
-                    if ($next ~~ /^ "0"/) {  # cannot use $next
+                    if ($next ~~ /^ "0"/) {
                         @ch[$i + 1] ~~ s{^ "0"} = "";
+                        $ppos = $ppos + 1; #++
                         $opt_v > 8 and progress ($i, "Add NIL");
                         $f.add ("\c0");
                         next;

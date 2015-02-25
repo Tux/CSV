@@ -11,13 +11,13 @@ my $csv = Text::CSV.new;
 # For now only port the PASSing tests, no checks for FAIL (die vs return False)
 
 ok ($csv,                                      "New parser");
-is ($csv.fields, Nil,                          "fields () before parse ()");
-is ($csv.string, Nil,                          "string () undef before combine");
+is ($csv.fields.elems, 0,                      "fields () before parse ()");
+is ($csv.string, Str,                          "string () undef before combine");
 is ($csv.status, True,                         "No failures yet");
 
 ok (1, "combine () & string () tests");
 is ($csv.combine (),    True,                  "Combine no args");
-is ($csv.string,        "",                    "Empty string");
+is ($csv.string,        Str,                   "String of no fields");
 
 # binary is now true by default.
 # create rejection of \n with binary off later
