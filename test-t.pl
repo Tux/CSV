@@ -639,7 +639,7 @@ class Text::CSV {
                         #           ^
                         $i == @ch - 1 and return keep ();
 
-                        my Str $next   = @ch[$i + 1] // Nil;
+                        my Str $next   = @ch[$i + 1];
                         my int $omit   = 1;
                         my int $quoesc = 0;
 
@@ -673,7 +673,7 @@ class Text::CSV {
 
                             # ,1,"foo, 3"056",,bar,\r\n
                             #            ^
-                            if (@ch[$i + 1] ~~  /^ "0"/) {  # cannot use $next
+                            if ($next ~~ /^ "0"/) {
                                 @ch[$i + 1] ~~ s{^ "0"} = "";
                                 $opt_v > 8 and progress ($i, "Add NIL");
                                 $f.add ("\c0");
@@ -682,7 +682,7 @@ class Text::CSV {
 
                             # ,1,"foo, 3""56",,bar,\r\n
                             #            ^
-                            if (@ch[$i + 1] eq $quo) {
+                            if ($next eq $quo) {
                                 $skip = $omit;
                                 $f.add ($chunk);
                                 next;
@@ -734,9 +734,11 @@ class Text::CSV {
                         return parse_error ($f.is_quoted ?? 2024 !! 2035);
                         }
 
+                    my $next = @ch[$i + 1];
+
                     # ,1,"foo, 3\056",,bar,\r\n
                     #            ^
-                    if (@ch[$i + 1] ~~  /^ "0"/) {  # cannot use $next
+                    if ($next ~~ /^ "0"/) {  # cannot use $next
                         @ch[$i + 1] ~~ s{^ "0"} = "";
                         $opt_v > 8 and progress ($i, "Add NIL");
                         $f.add ("\c0");
@@ -745,7 +747,7 @@ class Text::CSV {
 
                     # ,1,"foo, 3\"56",,bar,\r\n
                     #            ^
-                    if (@ch[$i + 1] eq $quo) {
+                    if ($next eq $quo) {
                         $skip = 1;
                         $f.add ($quo);
                         next;
@@ -753,7 +755,7 @@ class Text::CSV {
 
                     # ,1,"foo, 3\\56",,bar,\r\n
                     #            ^
-                    if (@ch[$i + 1] eq $esc) {
+                    if ($next eq $esc) {
                         $skip = 1;
                         $f.add ($esc);
                         next;
