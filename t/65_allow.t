@@ -6,7 +6,8 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-my $csv = Text::CSV.new;
+my $csv  = Text::CSV.new;
+my $csvf = "_65test.csv";
 
 # Allow unescaped quotes inside an unquoted field
 ok (1, "Allow unescaped quotes");
@@ -185,63 +186,61 @@ for ("", "\r") -> $eol {
         }
     }
 
-done;
-
-=finish
-
 {   ok (1, "keep_meta_info on getline ()");
 
     my $csv = Text::CSV.new (eol => "\n");
 
-    my $fh = open "_65test.csv", :w;
+    my $fh = open $csvf, :w;
     $fh.print (qq{1,"",,"Q",2\n});
     close $fh;
 
-    is ($csv.keep_meta_info (0), 0,             "No meta info");
-    open  $fh, "<", "_65test.csv";
-    my $row = $csv.getline ($fh);
-    ok ($row,                                   "Get 1st line");
-    $csv.error_diag ();
-    is ($csv.is_quoted (2), undef,              "Is field 2 quoted?");
-    is ($csv.is_quoted (3), undef,              "Is field 3 quoted?");
-    close $fh;
-
-    open  $fh, ">", "_65test.csv";
-    print $fh qq{1,"",,"Q",2\n};
-    close $fh;
-
-    is ($csv.keep_meta_info (1), 1,             "Keep meta info");
-    open  $fh, "<", "_65test.csv";
-    $row = $csv.getline ($fh);
-    ok ($row,                                   "Get 2nd line");
-    $csv.error_diag ();
-    is ($csv.is_quoted (2), 0,                  "Is field 2 quoted?");
-    is ($csv.is_quoted (3), 1,                  "Is field 3 quoted?");
-    close $fh;
-    unlink "_65test.csv";
+    $fh = open $csvf, :r;
+    my @row = $csv.getline ($fh);
+    is (@row.elems,  5,                         "Get line");
+    is ($csv.is_quoted (2), False,              "Is field 2 quoted?");
+    is ($csv.is_quoted (3), True,               "Is field 3 quoted?");
+    $fh.close;
+    unlink $csvf;
     }
 
-{   my $csv = Text::CSV_XS.new ({});
+{   my $csv = Text::CSV.new ();
 
     my $s2023 = qq{2023,",2008-04-05,"  \tFoo, Bar",\n}; # "
     #                                ^
 
-    is ( $csv.parse ($s2023), 0,                "Parse 2023");
-    is (($csv.error_diag)[0], 2023,             "Fail code 2023");
-    is (($csv.error_diag)[2], 19,               "Fail position");
+    is ( $csv.parse ($s2023),       False, "Parse 2023");
+    is (($csv.error_diag)[0],       2023,  "Fail code 2023");
+    is (($csv.error_diag)[2],       19,    "Fail position");
 
-    is ( $csv.allow_whitespace (1), 1,          "Allow whitespace");
-    is ( $csv.parse ($s2023), 0,                "Parse 2023");
-    is (($csv.error_diag)[0], 2023,             "Fail code 2023");
-    is (($csv.error_diag)[2], 22,               "Space is eaten now");
+    is ( $csv.allow_whitespace (1), True,  "Allow whitespace");
+    is ( $csv.parse ($s2023),       False, "Parse 2023");
+    is (($csv.error_diag)[0],       2023,  "Fail code 2023");
+    is (($csv.error_diag)[2],       19,    "Space not skipped");
     }
 
-{   my $csv = Text::CSV_XS.new ({ allow_unquoted_escape => 1, escape_char => "=" });
+{   my $csv = Text::CSV.new (esc => Str);
+
+    my $s2011 = qq{2011,",2008-04-05,"  "Foo, Bar",\n};
+    #                                ^
+
+    is ( $csv.parse ($s2011),       False, "Parse 2011");
+    is (($csv.error_diag)[0],       2011,  "Fail code 2011");
+    is (($csv.error_diag)[2],       19,    "Fail position");
+
+    is ( $csv.allow_whitespace (1), True,  "Allow whitespace");
+    is ( $csv.parse ($s2011),       False, "Parse 2021");
+    is (($csv.error_diag)[0],       2011,  "Fail code 2021");
+    is (($csv.error_diag)[2],       19,    "Space not skipped");
+    }
+
+{   my $csv = Text::CSV.new (allow_unquoted_escape => 1, escape_char => "=");
     my $str = q{1,3,=};
-    is ( $csv.parse ($str),   0,                "Parse trailing ESC");
-    is (($csv.error_diag)[0], 2035,             "Fail code 2035");
+    is ( $csv.parse ($str),   False, "Parse trailing ESC");
+    is (($csv.error_diag)[0], 2035,  "Fail code 2035");
 
-    $str .= "0";
-    is ( $csv.parse ($str),   1,                "Parse trailing ESC");
-    is_deeply ([ $csv.fields ], [ 1,3,"\0" ],   "Parse passed");
+    $str ~= "0";
+    is ( $csv.parse ($str),   True,  "Parse trailing ESC");
+    #is_deeply ([ $csv.fields ], [ 1,3,"\0" ],   "Parse passed");
     }
+
+done;

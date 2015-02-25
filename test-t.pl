@@ -647,6 +647,7 @@ class Text::CSV {
                         #               ^            ^
                         if ($!allow_whitespace && $next ~~ /^ <[\ \t]>+ $/) {
                             $i == @ch - 2 and return keep ();
+                            $ppos += $next.chars;
                             $next = @ch[$i + 2];
                             $omit = $omit + 1; #++
                             }
