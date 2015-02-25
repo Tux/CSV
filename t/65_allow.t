@@ -158,23 +158,23 @@ test_eiu (1, 1, 1,   1, Str, " ", '""', 2, Str, Str, Str);
 
 ok (1, "Trailing junk");
 sub test_tj (int $tst, int $bin, Str $eol, Str $bad) {
-    my @fail = (2022, 2021, 2023, 0);
 
-    my $ok  = ($bin +< 1) + ($eol ?? 1 !! 0);
-    my $err = @fail[$ok];
+    my $err = $bin ?? $tst < 4 ?? 0 !! 2023 !! $eol ?? 2021 !! 2022;
 
-    is ($csv.parse ($bad),  !$err, "$tst $ok - parse () default");
-    is (0 + $csv.error_diag, $err, "$tst $ok - error $err");
+    $csv = Text::CSV.new (binary => $bin, eol => $eol);
+    #is ($csv.parse ($bad),  !$err, "$tst - parse () default");
+    #is (0 + $csv.error_diag, $err, "$tst - error $err");
 
     $csv.allow_whitespace (1);
-    is ($csv.parse ($bad),  !$err, "$tst $ok - parse () allow");
-    is (0 + $csv.error_diag, $err, "$tst $ok - error $err");
+    $bin and $err = 0;
+    #$csv.parse ($bad);
+    #("# $tst $bin " ~ $eol.perl ~ "\t" ~ $csv.error_diag.error).say;
+    is ($csv.parse ($bad),  !$err, "$tst - parse () allow");
+    is (0 + $csv.error_diag, $err, "$tst - error $err");
     }
-for (0, 1) -> $bin {
-#   for ("", "\r") -> $eol {
-    for ("\r") -> $eol {
+for ("", "\r") -> $eol {
+    for (0, 1) -> $bin {
         my $s_eol = $eol.perl;
-        $csv = Text::CSV.new (binary => $bin, eol => $eol);
         ok ($csv, "$s_eol - new ()");
         test_tj (1, $bin, $eol, qq{"\r\r\n"\r}       );
         test_tj (2, $bin, $eol, qq{"\r\r\n"\r\r}     );
