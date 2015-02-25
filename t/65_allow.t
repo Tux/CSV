@@ -93,8 +93,7 @@ sub test_awec (int $tst, int $err, Str $eol, Str $bad) {
     is ($got, $awec_bad,           "$s_eol / $tst - content");
     }
 
-#for ("", "\n", "\r", "\r\n") -> $eol {
-for ("\n", "\r", "\r\n") -> $eol {
+for ("", "\n", "\r", "\r\n") -> $eol {
     test_awec ( 1,    0, $eol, qq{1,foo,bar,baz,quux}                        );
     test_awec ( 2,    0, $eol, qq{1,foo,bar,"baz",quux}                      );
     test_awec ( 3,    0, $eol, qq{1, foo,bar,"baz",quux}                     );
@@ -192,10 +191,10 @@ done;
 
 {   ok (1, "keep_meta_info on getline ()");
 
-    my $csv = Text::CSV_XS.new ({ eol => "\n" });
+    my $csv = Text::CSV.new (eol => "\n");
 
-    open my $fh, ">", "_65test.csv";
-    print $fh qq{1,"",,"Q",2\n};
+    my $fh = open "_65test.csv", :w;
+    $fh.print (qq{1,"",,"Q",2\n});
     close $fh;
 
     is ($csv.keep_meta_info (0), 0,             "No meta info");

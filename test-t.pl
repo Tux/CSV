@@ -640,7 +640,7 @@ class Text::CSV {
                         $i == @ch - 1 and return keep ();
 
                         my Str $next   = @ch[$i + 1] // Nil;
-                        my int $lastf  = ($next eq Nil ?? 1 !! 0);
+                        my int $lastf  = $i + 1 == @ch.elems ?? 1 !! 0;
                         my int $omit   = 1;
                         my int $quoesc = 0;
 
@@ -655,7 +655,7 @@ class Text::CSV {
 
                         # ,1,"foo, 3",,bar,\r\n
                         #           ^
-                        if (!$lastf and $next eq $sep) {
+                        if (!$lastf and $next.defined && $next eq $sep) {
                             $opt_v > 7 and progress ($i, "SEP");
                             $skip = $omit;
                             keep () or return False;
@@ -799,7 +799,10 @@ class Text::CSV {
 
                 # 1,foo,  bar,4
                 #       ^
-                $f.undefined && $!allow_whitespace and $chunk ~~ s{^ <[\ \t]>+ } = "";
+                if ($!allow_whitespace) {
+                    $f.undefined        and $chunk ~~ s{^ <[\ \t]>+  } = "";
+                    $i + 1 == @ch.elems and $chunk ~~ s{  <[\ \t]>+ $} = "";
+                    }
 
                 unless ($!binary) {
                     $opt_v > 5 and progress ($i, "data - check binary");
