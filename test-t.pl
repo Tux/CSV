@@ -640,14 +640,14 @@ class Text::CSV {
                         $i == @ch - 1 and return keep ();
 
                         my Str $next   = @ch[$i + 1] // Nil;
-                        my int $lastf  = $i + 1 == @ch.elems ?? 1 !! 0;
                         my int $omit   = 1;
                         my int $quoesc = 0;
 
                         # , 1 , "foo, 3" , , bar , "" \r\n
                         #               ^            ^
-                        if ($!allow_whitespace && !$lastf && $next ~~ /^ <[\ \t]>+ $/) {
-                            $next = @ch[$i + 2] // Nil;
+                        if ($!allow_whitespace && $next ~~ /^ <[\ \t]>+ $/) {
+                            $i == @ch - 2 and return keep ();
+                            $next = @ch[$i + 2];
                             $omit = $omit + 1; #++
                             }
 
@@ -655,7 +655,7 @@ class Text::CSV {
 
                         # ,1,"foo, 3",,bar,\r\n
                         #           ^
-                        if (!$lastf and $next.defined && $next eq $sep) {
+                        if ($next eq $sep) {
                             $opt_v > 7 and progress ($i, "SEP");
                             $skip = $omit;
                             keep () or return False;
@@ -664,8 +664,7 @@ class Text::CSV {
 
                         # ,1,"foo, 3"\r\n
                         #           ^
-                        $lastf || !$next.defined || $next ~~ /^ $eol $/ and
-                            return keep ();
+                        $next ~~ /^ $eol $/ and return keep ();
 
                         if (defined $esc and $esc eq $quo) {
                             $opt_v > 7 and progress ($i, "ESC", "($next)");
