@@ -372,7 +372,7 @@ class Text::CSV {
         alias ("esc",                   < escape escape_char escape-char >);
         alias ("always_quote",          < always-quote quote_always quote-always >);
         alias ("quote_space",           < quote-space >);
-        alias ("quote_null",            < quote-null>);
+        alias ("quote_null",            < quote-null escape_null escape-null >);
         alias ("quote_binary",          < quote-binary >);
         alias ("allow_loose_quotes",    < allow-loose-quotes allow_loose_quote allow-loose-quote >);
         alias ("allow_loose_escapes",   < allow-loose-escapes allow_loose_escape allow-loose-escape >);

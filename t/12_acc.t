@@ -50,6 +50,8 @@ is ($csv.quote_space,           True,  "quote_space");
 is ($csv.quote-space,           True,  "quote-space");
 is ($csv.quote_null,            True,  "quote_null");
 is ($csv.quote-null,            True,  "quote-null");
+is ($csv.escape_null,           True,  "escape_null");
+is ($csv.escape-null,           True,  "escape-null");
 is ($csv.quote_binary,          True,  "quote_binary");
 is ($csv.quote-binary,          True,  "quote-binary");
 is ($csv.record_number,         0,     "record_number");
