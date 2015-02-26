@@ -408,19 +408,24 @@ class Text::CSV {
             );
         }
 
-    method is_quoted (Int $i) returns Bool {
+    method is_quoted  (Int $i) returns Bool {
         $i >= @!fields.elems and return False;
         return @!fields[$i].is_quoted;
         }
 
-    method is_binary (Int $i) returns Bool {
+    method is_binary  (Int $i) returns Bool {
         $i >= @!fields.elems and return False;
         return @!fields[$i].is_binary;
         }
 
-    method is_utf8   (Int $i) returns Bool {
+    method is_utf8    (Int $i) returns Bool {
         $i >= @!fields.elems and return False;
         return @!fields[$i].is_utf8;
+        }
+
+    method is_missing (Int $i) returns Bool {
+        $i >= @!fields.elems and return False;
+        return @!fields[$i].is_missing;
         }
 
     method !ready (CSV::Field $f) returns Bool {
