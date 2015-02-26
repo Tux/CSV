@@ -85,6 +85,8 @@ is ($csv.parse (""),            True,    "parse");
 # sub fragment
 # sub csv
 
+done;
+
 =finish
 
 # Not ported - deprecated
