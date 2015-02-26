@@ -8,8 +8,6 @@ use Text::CSV;
 
 my $csv = Text::CSV.new;
 
-# For now only port the PASSing tests, no checks for FAIL (die vs return False)
-
 ok ($csv,                                      "New parser");
 is ($csv.fields.elems, 0,                      "fields () before parse ()");
 is ($csv.string, Str,                          "string () undef before combine");
