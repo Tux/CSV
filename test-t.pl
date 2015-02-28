@@ -856,6 +856,21 @@ class Text::CSV {
         return @!fields;
         } # getline
 
+    method getline_all (IO $io) {
+        my Bool $chomped = $io.chomp;
+        $io.chomp = False;
+        $!io = $io;
+
+        my @lines;
+        while (self.parse ($io.get)) {
+            push @lines, [ @!fields ];
+            }
+
+        $!io =  IO;
+        $io.chomp = $chomped;
+        return @lines;
+        }
+
     method print (IO $io, *@fld) returns Bool {
         self.combine (@fld) or return False;
         $io.print (self.string);
