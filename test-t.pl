@@ -602,13 +602,7 @@ class Text::CSV {
                 $ppos += $chunk.chars;
 
                 if ($skip) {
-                    # $skip-- fails:
-                    # Masak: there's wide agreement that that should work, but
-                    #  it's difficult to implement. here's (I think) why: usually
-                    #  the $value gets replaced by $value.pred and then put back
-                    #  into the variable's container. but natives have no
-                    #  containers, only the value itself.
-                    $skip = $skip - 1;      # $i-- barfs. IMHO a bug #++
+                    $skip--;
                     next;
                     }
 
@@ -673,7 +667,7 @@ class Text::CSV {
                         if ($!allow_whitespace && $next ~~ /^ <[\ \t]>+ $/) {
                             $i == @ch - 2 and return keep ();
                             $next = @ch[$i + 2];
-                            $omit = $omit + 1; #++
+                            $omit++;
                             }
 
                         $opt_v > 8 and progress ($i, "QUO", "next = $next");
@@ -700,7 +694,7 @@ class Text::CSV {
                             #            ^
                             if ($next ~~ /^ "0"/) {
                                 @ch[$i + 1] ~~ s{^ "0"} = "";
-                                $ppos = $ppos + 1; #++
+                                $ppos++;
                                 $opt_v > 8 and progress ($i, "Add NIL");
                                 $f.add ("\c0");
                                 next;
@@ -766,7 +760,7 @@ class Text::CSV {
                     #            ^
                     if ($next ~~ /^ "0"/) {
                         @ch[$i + 1] ~~ s{^ "0"} = "";
-                        $ppos = $ppos + 1; #++
+                        $ppos++;
                         $opt_v > 8 and progress ($i, "Add NIL");
                         $f.add ("\c0");
                         next;
