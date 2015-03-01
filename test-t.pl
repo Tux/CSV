@@ -509,8 +509,14 @@ class Text::CSV {
     multi method combine (@f) returns Bool {
         @!fields = ();
         for @f -> $f {
-            my $cf = CSV::Field.new;
-            defined $f and $cf.add ($f.Str);
+            my CSV::Field $cf;
+            if ($f.isa (CSV::Field)) {
+                $cf = $f;
+                }
+            else {
+                $cf = CSV::Field.new;
+                defined $f and $cf.add ($f.Str);
+                }
             unless (self!ready ($cf)) {
                 $!errno       = 2110;
                 $!error_input = $f.Str;
