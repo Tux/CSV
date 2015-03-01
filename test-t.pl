@@ -858,10 +858,13 @@ class Text::CSV {
 
     method getline (IO $io) {
         my Bool $chomped = $io.chomp;
+        my Str  $nl      = $io.nl;
+        $!eol.defined  and $io.nl = $!eol;
         $io.chomp = False;
         $!io = $io;
         self.parse ($io.get);
         $!io =  IO;
+        $io.nl    = $nl;
         $io.chomp = $chomped;
         return @!fields;
         } # getline
@@ -871,6 +874,8 @@ class Text::CSV {
     # @a = $csv.getline_all ($io, $offset, $length);
     method getline_all (IO $io, Int $offset is copy = 0, Int $length is copy = 0) {
         my Bool $chomped = $io.chomp;
+        my Str  $nl      = $io.nl;
+        $!eol.defined  and $io.nl = $!eol;
         $io.chomp = False;
         $!io = $io;
 
@@ -882,6 +887,7 @@ class Text::CSV {
             }
 
         $!io =  IO;
+        $io.nl    = $nl;
         $io.chomp = $chomped;
         return @lines;
         }
