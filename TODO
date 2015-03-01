@@ -15,3 +15,5 @@
 • Speed
 
 • bind_columns
+
+• file with \r EOL and $eol undefined (buffering)
