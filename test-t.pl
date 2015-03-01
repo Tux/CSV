@@ -502,7 +502,11 @@ class Text::CSV {
         return $x;
         } # string
 
-    method combine (*@f) returns Bool {
+    multi method combine (*@f) returns Bool {
+        return self.combine ([@f]);
+        }
+
+    multi method combine (@f) returns Bool {
         @!fields = ();
         for @f -> $f {
             my $cf = CSV::Field.new;
@@ -871,7 +875,11 @@ class Text::CSV {
         return @lines;
         }
 
-    method print (IO $io, *@fld) returns Bool {
+    multi method print (IO $io, *@fld) returns Bool {
+        return self.print ($io, [@fld]);
+        }
+
+    multi method print (IO $io,  @fld) returns Bool {
         self.combine (@fld) or return False;
         $io.print (self.string);
         return True;
