@@ -4,12 +4,31 @@ use 5.18.0;
 use warnings;
 use Term::ANSIColor;
 
+sub usage
+{
+    my $err = shift and select STDERR;
+    say "usage: $0 [--test]";
+    exit $err;
+    } # usage
+
+use Getopt::Long qw(:config bundling);
+GetOptions (
+    "help|?"     => sub { usage (0); },
+    "s|summary!" => \my $opt_s,
+    ) or usage (1);
+
 my $t = "t$$.pl";
 my $e = "e$$.pl";
 END { unlink $t, $e; }
 
+$opt_s and say "Bug summary:";
+
+my $title = "";
 {   my $b = 1;
-    sub title { say "\n", $b++, colored (["blue"], " @_"); }
+    sub title {
+        $title = join " " => $b++, colored (["blue"], " @_");
+        $opt_s or say "\n", $title;
+        }
     }
 
 sub test
@@ -24,12 +43,19 @@ sub test
     my $E = do { local (@ARGV, $/) = $e; <> };
     (my $P = $E) =~ s{^}{  }gm;
     $P =~s/[\s\r\n]+\z//;
-    printf "\n  --8<--- %s\n%s\n  -->8---\n", $E =~ $re
+    my $fail = $E =~ $re;
+    if ($opt_s) {
+        my $color = $fail ? 31 : 32;
+        (my $msg = $title) =~ s/34m/${color}m/g;
+        say $msg;
+        return;
+        }
+    printf "\n  --8<--- %s\n%s\n  -->8---\n", $fail
         ? colored (["red"  ], "BUG")
         : colored (["green"], "Fixed"), $P;
     } # test
 
-{   title "[Scope] of class variables, they do not work in regex";
+{   title "[Scope]     of class variables, they do not work in regex";
     # Nil
     # Match.new(orig => "baz", from => 1, to => 2, ast => Any, list => ().list, hash => EnumMap.new())
     test (qr{
@@ -85,7 +111,7 @@ EOP
 EOP
     }
 
-{   title "[Scope] Placeholder variables cannot be used in a method";
+{   title "[Scope]     Placeholder variables cannot be used in a method";
     # They work in sub but not in method
     # ===SORRY!=== Error while compiling t.pl
     # Placeholder variables cannot be used in a method
@@ -142,9 +168,18 @@ EOP
 EOP
     }
 
-{   title "[Lists] Nil in list is silently dropped";
+{   title "[Lists]     Nil in list is silently dropped";
 
     # Array.new("foo", 1, 2, "a", "", 3)
     test (qr{1, 2},
           q{my @x = ("foo",1,Nil,2,"a","",3); @x.perl.say});
+    }
+
+{   title "[Test]      Compare to undefined type";
+
+    # Failed test at lib/Test.pm line 110
+    # expected: something with undefine
+    #      got: something with undefine
+    test (qr{expected:},
+          q{use Test;my Str $s;is($s, Str, "");});
     }

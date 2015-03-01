@@ -1,4 +1,5 @@
 test:		Text/CSV.pm
+	perl bugs.pl -s
 	prove -e 'perl6 -I.'	\
 	    t/10_base.t		\
 	    t/11_subclass.t	\
