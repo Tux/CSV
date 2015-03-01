@@ -26,27 +26,30 @@ $opt_s and say "Bug summary:";
 my $title = "";
 {   my $b = 1;
     sub title {
-        $title = join " " => $b++, colored (["blue"], " @_");
+        my ($class, $t, $rt) = @_;
+        $title = sprintf "%2d  %-11s %-60s %s",
+            $b++, "[$class]",
+            colored (["blue"], $t), colored (["blue"], $rt // "");
         $opt_s or say "\n", $title;
         }
     }
 
 sub test
 {
-    my ($re, $p) = @_;
+    my ($re, $p, @arg) = @_;
 
     open my $fh, ">", $t or die "$t: $!\n";
     print $fh $p;
     close $fh;
 
-    system "perl6 $t >$e 2>&1";
+    system "perl6 $t @arg >$e 2>&1";
     my $E = do { local (@ARGV, $/) = $e; <> };
     (my $P = $E) =~ s{^}{  }gm;
     $P =~s/[\s\r\n]+\z//;
     my $fail = $E =~ $re;
     if ($opt_s) {
         my $color = $fail ? 31 : 32;
-        (my $msg = $title) =~ s/34m/${color}m/g;
+        (my $msg = $title) =~ s/34m/${color}m/;
         say $msg;
         return;
         }
@@ -55,7 +58,8 @@ sub test
         : colored (["green"], "Fixed"), $P;
     } # test
 
-{   title "[Scope]     class variables cannot be used in regex";
+{   title "Scope", "class variables cannot be used in regex", "RT#122892";
+    # https://rt.perl.org/Ticket/Display.html?id=122892
     # Nil
     # Match.new(orig => "baz", from => 1, to => 2, ast => Any, list => ().list, hash => EnumMap.new())
     test (qr{
@@ -81,7 +85,8 @@ sub test
 EOP
     }
 
-{   title "[Operation] s{} fails on native type (int)";
+{   title "Operation", "s{} fails on native type (int)", "RT#123597";
+    # https://rt.perl.org//Public/Bug/Display.html?id=123597 
     # bar
     # 000:
     # 1x
@@ -111,7 +116,7 @@ EOP
 EOP
     }
 
-{   title "[Scope]     Placeholder variables cannot be used in a method";
+{   title "Scope", "Placeholder variables cannot be used in a method";
     # They work in sub but not in method
     # ===SORRY!=== Error while compiling t.pl
     # Placeholder variables cannot be used in a method
@@ -152,7 +157,7 @@ EOP
 EOP
     }
 
-{   title "[Operation] ++ and += do not work on basic types";
+{   title "Operation", "++ and += do not work on basic types";
 
     # Cannot assign to an immutable value
     #   in sub postfix:<++> at src/gen/m-CORE.setting:5082
@@ -168,18 +173,27 @@ EOP
 EOP
     }
 
-{   title "[Lists]     Nil in list is silently dropped";
+{   title "Lists", "Nil in list is silently dropped";
 
     # Array.new("foo", 1, 2, "a", "", 3)
     test (qr{1, 2},
           q{my @x = ("foo",1,Nil,2,"a","",3); @x.perl.say});
     }
 
-{   title "[Test]      Compare to undefined type";
+{   title "Test", "Compare to undefined type", "RT#123924";
 
     # Failed test at lib/Test.pm line 110
     # expected: something with undefine
     #      got: something with undefine
     test (qr{expected:},
           q{use Test;my Str $s;is($s, Str, "");});
+    }
+
+{   title "IO", "Cannot change input-line-separator", "RT#123888";
+    open my $fh, ">", "xx.txt";
+    print $fh "A+B+C+D+";
+    close $fh;
+    test (qr{A\+B\+C\+D\+},
+          q{$*IN.input-line-separator="+";.say for lines():eager},
+          "xx.txt");
     }
