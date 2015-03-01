@@ -55,7 +55,7 @@ sub test
         : colored (["green"], "Fixed"), $P;
     } # test
 
-{   title "[Scope]     of class variables, they do not work in regex";
+{   title "[Scope]     class variables cannot be used in regex";
     # Nil
     # Match.new(orig => "baz", from => 1, to => 2, ast => Any, list => ().list, hash => EnumMap.new())
     test (qr{
