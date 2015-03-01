@@ -556,6 +556,9 @@ class Text::CSV {
             }
 
         my sub chunks (Str $str, Regex $re) {
+            $str.defined or  return ();
+            $str eq ""   and return ("");
+
             return $str.split ($re, :all).map: {
                 if $_ ~~ Str {
                     $_   if .chars;
@@ -589,9 +592,9 @@ class Text::CSV {
         my @ch;
         $!io and @ch = @!ahead;
         @!ahead = ();
-        $buffer.defined or return parse_error (2012);
+        $buffer.defined and @ch.push (chunks ($buffer, $chx));
+        @ch or return parse_error (2012);
 
-        @ch.push (chunks ($buffer, $chx));
         $opt_v > 2 and progress (0, @ch.perl);
 
         @ch.elems or return keep ();       # An empty line
