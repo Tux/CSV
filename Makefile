@@ -12,7 +12,8 @@ test:		Text/CSV.pm
 	    t/41_null.t		\
 	    t/50_utf8.t         \
 	    t/55_combi.t        \
-	    t/65_allow.t
+	    t/65_allow.t        \
+	    t/77_getall.t
 
 test-verbose:	Text/CSV.pm
 	perl6 -I. t/10_base.t
@@ -27,6 +28,7 @@ test-verbose:	Text/CSV.pm
 	perl6 -I. t/50_utf8.t
 	perl6 -I. t/55_combi.t
 	perl6 -I. t/65_allow.t
+	perl6 -I. t/77_getall.t
 
 Text/CSV.pm:
 	@[ -d Text ] || ( mkdir Text ; ln -s ../test-t.pl Text/CSV.pm )

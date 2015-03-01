@@ -27,7 +27,16 @@ sub un-obj (@aoo) {
     } # un-obj
 
 sub do_tests (Sub $sub) {
-    $sub.(@list);
+    $sub.(@list );
+    $sub.(@list,        0);
+#   $sub.(@list[2,3],   2);
+#   $sub.([],           0, 0);
+    $sub.(@list,        0, 10);
+#   $sub.(@list[0,1],   0,  2);
+#   $sub.(@list[1,2],   1,  2);
+#   $sub.(@list[1..3], -3);
+#   $sub.(@list[1,2],  -3,  2);
+#   $sub.(@list[1..3], -3,  3);
     } # do_tests
 
 for ("\n", "\r") -> $eol {
@@ -39,10 +48,6 @@ for ("\n", "\r") -> $eol {
         ok ($csv.print ($fh, $_), "write "~$_.perl) for @list;
         $fh.close;
         }
-
-#   {   my $fh = open $tfn, :r or die "$tfn: $!";
-#       .say for $fh.lines;
-#       }
 
     {   ok (my $csv = Text::CSV.new (eol => $eol), "csv in");
 
@@ -56,28 +61,12 @@ for ("\n", "\r") -> $eol {
             });
         }
 
-    #unlink $tfn;
+    unlink $tfn;
     }
 
 done;
 
 =finish
-
-sub do_tests
-{
-    my $sub = shift;
-
-    $sub->(\@list);
-    $sub->(\@list,         0);
-    $sub->([@list[2,3]],   2);
-    $sub->([],             0,  0);
-    $sub->(\@list,         0, 10);
-    $sub->([@list[0,1]],   0,  2);
-    $sub->([@list[1,2]],   1,  2);
-    $sub->([@list[1..3]], -3);
-    $sub->([@list[1,2]],  -3,  2);
-    $sub->([@list[1..3]], -3,  3);
-    } # do_tests
 
 foreach my $eol ("\n", "\r") {
 
