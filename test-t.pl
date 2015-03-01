@@ -125,6 +125,7 @@ class Text::CSV {
     has Bool $!always_quote;
     has Bool $!quote_space;
     has Bool $!quote_null;
+    has Bool $!quote_empty;
     has Bool $!quote_binary;
     has Bool $!keep_meta_info;
 
@@ -202,6 +203,7 @@ class Text::CSV {
         $!allow_unquoted_escape = False;
 
         $!always_quote          = False;
+        $!quote_empty           = False;
         $!quote_space           = True;
         $!quote_null            = True;
         $!quote_binary          = True;
@@ -331,6 +333,7 @@ class Text::CSV {
         }
     method binary                (*@s) { return self!a_bool ($!binary,                @s); }
     method always_quote          (*@s) { return self!a_bool ($!always_quote,          @s); }
+    method quote_empty           (*@s) { return self!a_bool ($!quote_empty,           @s); }
     method quote_space           (*@s) { return self!a_bool ($!quote_space,           @s); }
     method quote_null            (*@s) { return self!a_bool ($!quote_null,            @s); }
     method quote_binary          (*@s) { return self!a_bool ($!quote_binary,          @s); }
@@ -371,6 +374,7 @@ class Text::CSV {
         alias ("quo",                   < quote quote_char quote-char >);
         alias ("esc",                   < escape escape_char escape-char >);
         alias ("always_quote",          < always-quote quote_always quote-always >);
+        alias ("quote_empty",           < quote-empty >);
         alias ("quote_space",           < quote-space >);
         alias ("quote_null",            < quote-null escape_null escape-null >);
         alias ("quote_binary",          < quote-binary >);
@@ -428,12 +432,16 @@ class Text::CSV {
         return @!fields[$i].is_missing;
         }
 
-    method !ready (CSV::Field $f) returns Bool {
+    # combine : direction = 0
+    # parse   : direction = 1
+    method !ready (int $direction, CSV::Field $f) returns Bool {
 
         $f.text.defined or $f.undefined = True;
 
         if ($f.undefined) {
-            $!blank_is_undef || $!empty_is_undef or $f.add ("");
+            if ($direction) {
+                $!blank_is_undef || $!empty_is_undef or $f.add ("");
+                }
             push @!fields, $f;
             return True;
             }
@@ -483,7 +491,7 @@ class Text::CSV {
                 }
             my Str $t = $f.text ~ "";
             if ($t eq "") {
-                @f.push ($!always_quote ?? "$!quo$!quo" !! "");
+                @f.push ($!always_quote || $!quote_empty ?? "$!quo$!quo" !! "");
                 next;
                 }
             $t .= subst (/( $q | $e )/, { "$e$0" }, :g);
@@ -517,7 +525,7 @@ class Text::CSV {
                 $cf = CSV::Field.new;
                 defined $f and $cf.add ($f.Str);
                 }
-            unless (self!ready ($cf)) {
+            unless (self!ready (0, $cf)) {
                 $!errno       = 2110;
                 $!error_input = $f.Str;
                 return False;
@@ -571,7 +579,7 @@ class Text::CSV {
         @!fields = ();
 
         my sub keep () {
-            self!ready ($f) or return False;
+            self!ready (1, $f) or return False;
             $f = CSV::Field.new;
             return True;
             } # add
