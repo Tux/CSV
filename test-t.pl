@@ -860,14 +860,19 @@ class Text::CSV {
         return @!fields;
         } # getline
 
-    method getline_all (IO $io) {
+    # @a = $csv.getline_all ($io);
+    # @a = $csv.getline_all ($io, $offset);
+    # @a = $csv.getline_all ($io, $offset, $length);
+    method getline_all (IO $io, Int $offset is copy = 0, Int $length is copy = 0) {
         my Bool $chomped = $io.chomp;
         $io.chomp = False;
         $!io = $io;
 
         my @lines;
         while (self.parse ($io.get)) {
+            $offset-- > 0 and next;
             push @lines, [ @!fields ];
+            $length && @lines.elems >= $length and last;
             }
 
         $!io =  IO;
