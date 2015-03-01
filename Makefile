@@ -7,6 +7,7 @@ test:		Text/CSV.pm
 	    t/15_flags.t	\
 	    t/16_methods.t      \
 	    t/20_file.t		\
+	    t/21_combine.t	\
 	    t/40_misc.t		\
 	    t/41_null.t		\
 	    t/50_utf8.t         \
@@ -20,6 +21,7 @@ test-verbose:	Text/CSV.pm
 	perl6 -I. t/15_flags.t
 	perl6 -I. t/16_methods.t
 	perl6 -I. t/20_file.t
+	perl6 -I. t/21_combine.t
 	perl6 -I. t/40_misc.t
 	perl6 -I. t/41_null.t
 	perl6 -I. t/50_utf8.t

@@ -510,10 +510,12 @@ class Text::CSV {
         return $x;
         } # string
 
+    multi method combine (Capture $c) returns Bool {
+        return self.combine ($c.list);
+        }
     multi method combine (*@f) returns Bool {
         return self.combine ([@f]);
         }
-
     multi method combine (@f) returns Bool {
         @!fields = ();
         for @f -> $f {
@@ -898,6 +900,10 @@ class Text::CSV {
         $io.nl    = $nl;
         $io.chomp = $chomped;
         return @lines;
+        }
+
+    multi method print (IO $io, Capture $c) returns Bool {
+        return self.print ($io, $c.list);
         }
 
     multi method print (IO $io, *@fld) returns Bool {
