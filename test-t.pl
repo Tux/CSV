@@ -887,10 +887,20 @@ class Text::CSV {
         $!io = $io;
 
         my @lines;
-        while (self.parse ($io.get)) {
-            $offset--  > 0 and next;
-            $length-- == 0 and last;
-            push @lines, [ @!fields ];
+        if ($offset >= 0) {
+            while (self.parse ($io.get)) {
+                $offset--  > 0 and next;
+                $length-- == 0 and last;
+                push @lines, [ @!fields ];
+                }
+            }
+        else {
+            $offset = -$offset;
+            while (self.parse ($io.get)) {
+                @lines.elems == $offset and @lines.shift;
+                push @lines, [ @!fields ];
+                }
+            $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }
 
         $!io =  IO;

@@ -34,9 +34,10 @@ sub do_tests (Sub $sub) {
     $sub.(@list,         0, 10);
     $sub.(@list[0,1],    0,  2);
     $sub.(@list[1,2],    1,  2);
-#   $sub.(@list[1,2,3], -3);
-#   $sub.(@list[1,2],   -3,  2);
-#   $sub.(@list[1,2,3], -3,  3);
+    $sub.(@list[1,2,3], -3);
+    $sub.([],           -3,  0);
+    $sub.(@list[1,2],   -3,  2);
+    $sub.(@list[1,2,3], -3,  3);
     } # do_tests
 
 for ("\n", "\r") -> $eol {
