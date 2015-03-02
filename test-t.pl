@@ -879,7 +879,7 @@ class Text::CSV {
     # @a = $csv.getline_all ($io);
     # @a = $csv.getline_all ($io, $offset);
     # @a = $csv.getline_all ($io, $offset, $length);
-    method getline_all (IO $io, Int $offset is copy = 0, Int $length is copy = 0) {
+    method getline_all (IO $io, Int $offset is copy = 0, Int $length is copy = -1) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
@@ -888,9 +888,9 @@ class Text::CSV {
 
         my @lines;
         while (self.parse ($io.get)) {
-            $offset-- > 0 and next;
+            $offset--  > 0 and next;
+            $length-- == 0 and last;
             push @lines, [ @!fields ];
-            $length && @lines.elems >= $length and last;
             }
 
         $!io =  IO;
