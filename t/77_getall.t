@@ -56,7 +56,7 @@ for ("\n", "\r") -> $eol {
             my $s_args = @args.join (", ");
             # un-obj for is_deeply
             my @f = un-obj ($csv.getline_all ($fh, |@args));
-            my @exp = @expect;
+            my @exp = @expect; # Needed as Parcels are not Arrays $(1,2) vs [1,2]
             is_deeply (@f, @exp, "getline_all ($s_args)");
             $fh.close;
             });
