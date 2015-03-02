@@ -1,19 +1,11 @@
 test:		Text/CSV.pm
-	perl bugs.pl -s
+	@perl bugs.pl -s
 	prove -e 'perl6 -I.'	\
-	    t/10_base.t		\
-	    t/11_subclass.t	\
-	    t/12_acc.t		\
-	    t/15_flags.t	\
-	    t/16_methods.t      \
-	    t/20_file.t		\
-	    t/21_combine.t	\
-	    t/22_print.t	\
-	    t/40_misc.t		\
-	    t/41_null.t		\
-	    t/50_utf8.t         \
-	    t/55_combi.t        \
-	    t/65_allow.t        \
+	    t/10_base.t  t/11_subclass.t t/12_acc.t   t/15_flags.t t/16_methods.t \
+	    t/20_file.t  t/21_combine.t  t/22_print.t \
+	    t/40_misc.t  t/41_null.t     \
+	    t/50_utf8.t  t/55_combi.t    \
+	    t/65_allow.t \
 	    t/77_getall.t
 
 test-verbose:	Text/CSV.pm
