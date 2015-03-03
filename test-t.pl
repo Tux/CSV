@@ -936,6 +936,7 @@ sub MAIN () {
         }
 
     my Int $sum = 0;
+#   while ($csv.getline ($*IN)) {  # still slower than lines () :eager
     for lines () :eager {
         $csv.parse ($_);
         $sum += $csv.fields.elems;
