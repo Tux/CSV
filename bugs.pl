@@ -197,3 +197,11 @@ EOP
           q{$*IN.input-line-separator="+";.say for lines():eager},
           "xx.txt");
     }
+
+{   title "IO", "Cannot clear \$*OUT.nl", "RT#123978";
+    # Invalid string index: max 4294967295, got 4294967295
+    #   in block  at src/gen/m-CORE.setting:16933
+    #   in block <unit> at t23114.pl:1
+    test (qr{index:},
+          q{$*OUT.nl = ""});
+    }
