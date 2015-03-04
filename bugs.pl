@@ -205,3 +205,9 @@ EOP
     test (qr{index:},
           q{$*OUT.nl = ""});
     }
+
+{   title "Scope", "* does not allow // in map", "RT#123980";
+    # Returns (Str) instead of "-"
+    test (qr{Str},
+          q{(1,Str,"a").map(*//"-")[1].say});
+    }
