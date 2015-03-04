@@ -49,7 +49,6 @@ $csv.quote_char (Str);
 ok ($csv.combine ("abc","def","ghi"),                           "combine");
 is ($csv.string, "abc,def,ghi\n",                               "string ()");
 
-# Ken's test
 ok (1,                                                          "always_quote");
 my $csv2 = Text::CSV.new (always_quote => True);
 ok ($csv2,                                                      "new ()");

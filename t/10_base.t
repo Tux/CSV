@@ -17,8 +17,6 @@ ok (1, "combine () & string () tests");
 is ($csv.combine (),    True,                  "Combine no args");
 is ($csv.string,        Str,                   "String of no fields");
 
-# binary is now true by default.
-# create rejection of \n with binary off later
 ok ($csv.combine (""),                         "Empty string - combine ()");
 is ($csv.string, "",                           "Empty string - string ()");
 ok ($csv.combine ("", " "),                    "Two fields, one space - combine ()");

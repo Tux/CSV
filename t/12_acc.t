@@ -138,7 +138,7 @@ ok ($csv = Text::CSV.new (quote_always => 1, verbose_diag => 1), "New with alias
 is ($csv.always_quote, True, "always_quote = quote_always");
 is ($csv.diag_verbose, 1,    "diag_verbose = verbose_diag");
 
-# Funny settings, all three translate to \0 internally
+# Funny settings
 ok ($csv = Text::CSV.new (
     # sep_char    => Str, -- sep cannot be undefined!
     quote  => Str,
@@ -160,28 +160,39 @@ is ($csv.binary (1),             True,  "binary (1)");
 ok ($csv.parse ("foo,foo\0bar"),        "parse (foo)");
 
 # Some forbidden combinations
+{   my Int $e = 0;
+    {   $csv = Text::CSV.new (Sep => Str);
+        CATCH { default { $e = .error; }}
+        }
+    is ($e, 1001, "Sanity check");
+    ok ($csv = Text::CSV.new (), "New for undefined Sep");
+    {   $csv.sep (Str);
+        CATCH { default { $e = .error; }}
+        }
+    is ($e, 1001, "Sanity check");
+    }
 for (" ", "\t") -> $ws {
     my Int $e = 0;
     ok ($csv = Text::CSV.new (escape_char => $ws), "New blank escape");
-    {   ok ($csv.allow_whitespace (True), "Allow ws");
+    {   $csv.allow_whitespace (True);
         CATCH { default { $e = .error; }}
         }
-    is ($e, 1002, "Sanity check");
+    is ($e, 1002, "Sanity check"); $e = 0;
     ok ($csv = Text::CSV.new (quote_char  => $ws), "New blank quote");
-    {   ok ($csv.allow_whitespace (True), "Allow ws");
+    {   $csv.allow_whitespace (True);
         CATCH { default { $e = .error; }}
         }
-    is ($e, 1002, "Sanity check");
+    is ($e, 1002, "Sanity check"); $e = 0;
     ok ($csv = Text::CSV.new (allow_whitespace => True), "New ws True");
-    {   ok ($csv.escape_char ($ws),     "esc");
+    {   $csv.escape_char ($ws);
         CATCH { default { $e = .error; }}
         }
-    is ($e, 1002, "Sanity check");
+    is ($e, 1002, "Sanity check"); $e = 0;
     ok ($csv = Text::CSV.new (allow_whitespace => True), "New ws True");
-    {   ok ($csv.quote_char  ($ws),     "esc");
+    {   $csv.quote_char  ($ws);
         CATCH { default { $e = .error; }}
         }
-    is ($e, 1002, "Sanity check");
+    is ($e, 1002, "Sanity check"); $e = 0;
     }
 
 # Test 1002 in constructor

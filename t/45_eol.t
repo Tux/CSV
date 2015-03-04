@@ -6,18 +6,18 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-# $/ = $INPUT_RECORD_SEPARATOR  = $*IN.input-line-separator
-# $\ = $OUTPUT_RECORD_SEPARATOR = $*OUT.nl
+# $/ = $INPUT_RECORD_SEPARATOR  = $*IN.input-line-separator = $*IN.nl ?
+# $\ = $OUTPUT_RECORD_SEPARATOR                             = $*OUT.nl
 
 my $def_rs = $*IN.input-line-separator;
 
 for ("\n", "\r\n", "\r") -> $rs {
     for (Str, $rs) -> $ors {
 
-        $*OUT.nl = $ors;
+        $*OUT.nl = $ors.defined ?? $ors !! "";
 
         my $csv = Text::CSV.new ();
-       $ors.defined or $csv.eol ($*IN.input-line-separator = $rs);
+        $ors.defined or $csv.eol ($*IN.nl = $rs);
 
         for (0, 1) -> $pass {
             my IO $fh;
@@ -66,7 +66,7 @@ for ("\n", "\r\n", "\r") -> $rs {
         unlink "_eol.csv";
         }
     }
-$*IN.input-line-separator = $def_rs;
+$*IN.nl = $def_rs;
 
 =finish
 {   my $csv = Text::CSV.new ({ escape_char => undef });
