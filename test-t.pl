@@ -272,7 +272,7 @@ class Text::CSV {
 
         $!build = True;
         for keys %init -> $attr {
-            my @can = self.can (lc $attr) or self!fail (1000);
+            my @can = self.can (lc $attr) or self!fail (1000, "Unknown attribute '$attr'");
             .(self, %init{$attr}) for @can;
             }
         $!build = False;
@@ -280,11 +280,12 @@ class Text::CSV {
         self!check_sanity;
         }
 
-    method !fail (Int $errno) {
-        $!errno         = $errno;
-        $!error_pos     = 0;
-        $!error_message = %!errors{$errno};
-        $!error_input   = Str;
+    method !fail (Int $errno, *@s) {
+        $!errno          = $errno;
+        $!error_pos      = 0;
+        $!error_message  = %!errors{$errno};
+        $!error_message ~= (":", @s).join (" ") if @s.elems;
+        $!error_input    = Str;
         $!auto_diag and self.error_diag;    # Void context
         die self.error_diag;                # Exception object
         }
