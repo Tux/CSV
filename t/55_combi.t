@@ -8,11 +8,10 @@ use Text::CSV;
 
 my @attrib  = ("quote_char", "escape_char", "sep_char");
 my @special = ('"', "'", ",", ";", "\t", "\\", "~");
-# Add undef (Nil or Str), once we can return undef (or Nil or Str)
 my @input   = ( "", 1, "1", 1.4, "1.4", " - 1,4", "1+2=3", "' ain't it great '",
-    '"foo"! said the `bär', q{the ~ in "0 \0 this l'ne is \r ; or "'"} );
+    Str, '"foo"! said the `bär', q{the ~ in "0 \0 this l'ne is \r ; or "'"} );
 my $ninput  = @input.elems;
-my $string  = join "=", "", @input, "";
+my $string  = join "=", "", @input.map ({$_//""}), "";
 my %fail;
 
 ok (1, "--     qc     ec     sc     ac     aw");
