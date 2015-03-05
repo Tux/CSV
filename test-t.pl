@@ -590,6 +590,12 @@ class Text::CSV {
             return True;
             } # add
 
+        my sub parse_done () {
+            self!ready (1, $f) or return False;
+            # HOOK after-parse here
+            return True;
+            }
+
         my @ch;
         $!io and @ch = @!ahead;
         @!ahead = ();
@@ -598,7 +604,7 @@ class Text::CSV {
 
         $opt_v > 2 and progress (0, @ch.perl);
 
-        @ch.elems or return keep ();       # An empty line
+        @ch.elems or return parse_done ();       # An empty line
 
         loop {
             loop (my int $i = 0; $i < @ch.elems; $i = $i + 1) {
@@ -660,7 +666,7 @@ class Text::CSV {
                         $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
                         # ,1,"foo, 3"
                         #           ^
-                        $i == @ch - 1 and return keep ();
+                        $i == @ch - 1 and return parse_done ();
 
                         my Str $next   = @ch[$i + 1];
                         my int $omit   = 1;
@@ -669,7 +675,7 @@ class Text::CSV {
                         # , 1 , "foo, 3" , , bar , "" \r\n
                         #               ^            ^
                         if ($!allow_whitespace && $next ~~ /^ <[\ \t]>+ $/) {
-                            $i == @ch - 2 and return keep ();
+                            $i == @ch - 2 and return parse_done ();
                             $next = @ch[$i + 2];
                             $omit++;
                             }
@@ -687,7 +693,7 @@ class Text::CSV {
 
                         # ,1,"foo, 3"\r\n
                         #           ^
-                        $next ~~ /^ $eol $/ and return keep ();
+                        $next ~~ /^ $eol $/ and return parse_done ();
 
                         if (defined $esc and $esc eq $quo) {
                             $opt_v > 7 and progress ($i, "ESC", "($next)");
@@ -820,7 +826,7 @@ class Text::CSV {
 
                     $!io.defined and @!ahead = @ch[($i + 1) .. *];
 
-                    return keep ();
+                    return parse_done ();
                     }
 
                 # 1,foo,  bar,4
@@ -861,7 +867,7 @@ class Text::CSV {
 #       !$!binary && $f.is_binary and
 #           return parse_error ($f.is_quoted ?? 2026 !! 2037);
 
-        return keep ();
+        return parse_done ();
         } # parse
 
     method getline (IO $io) {
