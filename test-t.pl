@@ -579,7 +579,9 @@ class Text::CSV {
         my Str        $sep = $!sep;
         my Str        $quo = $!quo;
         my Str        $esc = $!esc;
-        my Regex      $chx = rx{ $eol | $sep | $quo | $esc };
+        my Regex      $chx = $!eol.defined
+                       ?? rx{ $eol           | $sep | $quo | $esc }
+                       !! rx{ \r\n | \r | \n | $sep | $quo | $esc };
         my CSV::Field $f   = CSV::Field.new;
 
         @!fields = ();
