@@ -695,7 +695,12 @@ class Text::CSV {
 
                         # ,1,"foo, 3"\r\n
                         #           ^
-                        $next ~~ /^ $eol $/ and return parse_done ();
+                        # $next ~~ /^ $eol $/ and return parse_done ();
+                        if ($!eol.defined
+                                ?? $next eq $!eol
+                                !! $next ~~ /^ \r\n | \n | \r $/) {
+                            return parse_done ();
+                            }
 
                         if (defined $esc and $esc eq $quo) {
                             $opt_v > 7 and progress ($i, "ESC", "($next)");
@@ -803,7 +808,10 @@ class Text::CSV {
                     return parse_error (2025);
                     }
 
-                if ($chunk ~~ rx{^ $eol $}) {
+                #if ($chunk ~~ rx{^ $eol $}) {
+                if ($!eol.defined
+                        ?? $chunk eq $!eol
+                        !! $chunk ~~ /^ \r\n | \n | \r $/) {
                     $opt_v > 5 and progress ($i, "EOL - " ~ $f.gist);
                     if ($f.is_quoted) {     # 1,"2\n3"
                         $!binary or

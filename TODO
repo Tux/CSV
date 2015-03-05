@@ -14,4 +14,13 @@
 
 • Speed
 
+  Once Regexes are "fast" again, and $!eol can be embedded in $chx,
+  re-enable the ~~ $eol again. For now disable the use of Regex in
+  eol attribute.
+
+   new (eol => Str,                     # supported
+   new (eol => "\n",                    # supported
+   new (eol => "\r\n",                  # supported
+   new (eol => rx{ \s* \r?\n },         # future
+
 • bind_columns
