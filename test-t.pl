@@ -574,7 +574,7 @@ class Text::CSV {
         $opt_v > 4 and progress ($!record_number, $buffer.perl);
 
         # A scoping bug in perl6 inhibits the use of $!eol inside the split
-        #for $buffer.split (rx{ $!eol | $!sep | $!quo | $!esc }, :all).map (~*) -> Str $chunk
+        # my Regex $chx = rx{ $!eol | $sep | $quo | $esc };
         my            $eol = $!eol // rx{ \r\n | \r | \n };
         my Str        $sep = $!sep;
         my Str        $quo = $!quo;
