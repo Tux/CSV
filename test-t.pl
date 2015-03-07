@@ -172,7 +172,7 @@ class Text::CSV {
                                    recno  => $!record,
                                    buffer => $!buffer,
                                    }; }
-        method at_pos (int $i) {
+        method AT-POS (int $i) {
             return $i == 0 ?? $!error
                 !! $i == 1 ?? $!message
                 !! $i == 2 ?? $!pos
