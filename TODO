@@ -1,8 +1,16 @@
 • PASS more tests
 
-• Decide if types should be dealt with beyond current overloading
-
 • Buf vs Str - binary data (+ tests)
+
+  Current thought: remove the meaning of "binary" as currently is
+  implemented, as everything is valid Str already.
+
+  Add binary support by allowing *real* binary (images, raw data)
+  by adding a Buf entry in CSV::Field and use that instead of the
+  current Str $.text by using CATCH blocks.
+
+  When fetching the field, check if Buf is set and return that (if
+  possible)
 
 • csv () function
 
@@ -23,4 +31,12 @@
    new (eol => "\r\n",                  # supported
    new (eol => rx{ \s* \r?\n },         # future
 
-• bind_columns
+• Decide if types should be dealt with beyond current overloading
+
+  See use of hashes (_hr)
+
+• bind_columns and hashes
+
+  If returning hashes, consider if returning Str:Str kv pairs is
+  the way to go instead of Str:CSV::Field. If so, then column types
+  might be useful again.
