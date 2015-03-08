@@ -137,7 +137,7 @@ class Text::CSV {
     has IO         $!io;
     has Bool       $!eof;
     has Int        @!types;
-    has            @!callbacks;
+    has            %!callbacks;
 
     has Int  $!errno;
     has Int  $!error_pos;
@@ -268,6 +268,8 @@ class Text::CSV {
             3008 => "EHR - unexpected error in bound fields",
             3009 => "EHR - print_hr () called before column_names ()",
             3010 => "EHR - print_hr () called with invalid arguments",
+
+            3100 => "ECB - Unsupported callback",
             ;
 
         $!build = True;
@@ -364,6 +366,32 @@ class Text::CSV {
     method auto_diag    (*@s) returns Int { return self!a_bool_int ($!auto_diag,    @s); }
     method diag_verbose (*@s) returns Int { return self!a_bool_int ($!diag_verbose, @s); }
 
+    method callbacks (*@cb) {
+        my %hooks;
+        if (@cb.elems == 1) {
+            !@cb[0].defined || !?@cb[0] || @cb[0] ~~ m:i/^( reset | clear | none )$/ or
+                self!fail (1004);
+            %!callbacks = %();
+            }
+        elsif (@cb.elems % 2) {
+            self!fail (1004);
+            }
+        elsif (@cb.elems) {
+            %hooks = %( @cb );
+            }
+        for keys %hooks -> $cb {
+            $cb ~~ s{"-"} = "_";
+            $cb ~~ /^ after_parse
+                    | before_print
+                    | filter
+                    | error
+                    $/ or self!fail (3100, $cb);
+            %hooks{$cb} ~~ Routine or self!fail (1004);
+            %!callbacks{$cb} = %hooks{$cb};
+            }
+        return %!callbacks;
+        }
+
     CHECK {
         sub alias (Str:D $m, *@aka) {
             my $r := Text::CSV.^find_method ($m);
@@ -388,6 +416,7 @@ class Text::CSV {
         alias ("record_number",         < record-number >);
         alias ("auto_diag",             < auto-diag >);
         alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
+        alias ("callbacks",             < hooks >);
         }
 
     method version () returns Str {
@@ -594,7 +623,8 @@ class Text::CSV {
 
         my sub parse_done () {
             self!ready (1, $f) or return False;
-            # HOOK after-parse here
+            %!callbacks{"after_parse"}.defined and
+                %!callbacks{"after_parse"}.(self, @!fields);
             return True;
             }
 
@@ -880,7 +910,12 @@ class Text::CSV {
         return parse_done ();
         } # parse
 
-    method getline (IO $io) {
+    multi method getline (Str $str) {
+        self.parse ($str) or return ();
+        return @!fields;
+        } # getline
+
+    multi method getline (IO $io) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
