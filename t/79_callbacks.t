@@ -33,42 +33,56 @@ sub Push  (Text::CSV $c, CSV::Field @f is rw) { @f.push (CSV::Field.new); }
 sub Replc (Text::CSV $c, CSV::Field @f is rw) { @f[1] =  CSV::Field.new; }
 sub Unshf (Text::CSV $c, CSV::Field @f is rw) { @f.unshift (CSV::Field.new ("0")); }
 
-is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"], "Parse no cb");
+is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"],     "Parse no cb");
 ok ($csv.callbacks ("after_parse", &Empty), "Empty ap cb");
-is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"], "Parse empty cb");
+is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"],     "Parse empty cb");
 ok ($csv.callbacks ("after_parse", &Drop),  "Drop ap cb");
-is_deeply ([$csv.getline ("1,2").map (~*)], ["1"],     "Parse dropping cb");
+is_deeply ([$csv.getline ("1,2").map (~*)], ["1"],         "Parse dropping cb");
 ok ($csv.callbacks ("after_parse", &Push),  "Push ap cb");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2",Str], "Parse pushing cb");
 ok ($csv.callbacks ("after_parse", &Replc), "Replc ap cb");
-is_deeply ([$csv.getline ("1,2").map (~*)], ["1",Str], "Parse pushing cb");
+is_deeply ([$csv.getline ("1,2").map (~*)], ["1",Str],     "Parse pushing cb");
 ok ($csv.callbacks ("after_parse", &Unshf), "Unshf ap cb");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["0","1","2"], "Parse unshifting cb");
 
-done;
-
-
-=finish
 
 # These tests are for the method to fail
-ok ($csv = Text::CSV->new, "new for method fails");
-for  ([""], [1], [[]], [sub{}], [1,2], [1,2,3], [Str,"error"], ["error",Str],
-      ["%23bad",sub {}],["error",sub{0;},Str,1], ["error",[]],
-      ["error","error"],["",sub{0;}], [sub{0;},0],[[],""]) -> @args {
+ok ($csv = Text::CSV.new, "new for method fails");
+for  ([ 1                           ],
+      [ []                          ],
+      [ sub {}                      ],
+      [ 1,        2                 ],
+      [ 1,        2, 3              ],
+      [ "",       "error"           ],
+      [ Str,      "error"           ], # X::AdHoc.new
+      [ "error",  Str               ],
+      [ "%23bad", sub {}            ], # X::AdHoc.new
+      [ "error",  []                ],
+      [ "error",  "error"           ],
+      [ "",       sub { 0; }        ],
+      [ sub { 0; }, 0               ], # Code object coerced to string
+      [ [],       ""                ],
+      [ "error",  sub {0; }, Str, 1 ],
+      ) -> @args {
     my $e;
+    ok (True, "Callbacks:  "~@args.perl);
     {   $csv.callbacks (@args);
         CATCH { default { $e = $_; ""; }}
         }
-    is ($diag[0], 1004,			"invalid callbacks");
-    is ($csv->callbacks, undef,		"not set");
+    is ($e.error, any (1004, 3100),   "invalid callbacks: "~$e.error);
+    is ($csv.callbacks.keys.elems, 0, "not set");
     }
+
+done;
+
+=finish
 
 # These tests are for invalid arguments *inside* the hash
 foreach my $arg (undef, 0, 1, \1, "", [], $csv) {
     eval { $csv->callbacks ({ error => $arg }); };
     my @diag = $csv->error_diag;
-    is ($diag[0], 1004,			"invalid callbacks");
-    is ($csv->callbacks, undef,		"not set");
+    is ($diag[0], 1004,                 "invalid callbacks");
+    is ($csv->callbacks, undef,         "not set");
     }
 ok ($csv->callbacks (bogus => sub { 0; }), "useless callback");
 
@@ -84,35 +98,35 @@ ok ($csv->auto_diag (1), "set auto_diag");
 my $callbacks = {
     error        => \&ignore,
     after_parse  => sub {
-	my ($c, $av) = @_;
-	# Just add a field
-	push @$av, "NEW";
-	},
+        my ($c, $av) = @_;
+        # Just add a field
+        push @$av, "NEW";
+        },
     before_print => sub {
-	my ($c, $av) = @_;
-	# First field set to line number
-	$av->[0] = $idx++;
-	# Maximum 2 fields
-	@{$av} > 2 and splice @{$av}, 2;
-	# Minimum 2 fields
-	@{$av} < 2 and push @{$av}, "";
-	},
+        my ($c, $av) = @_;
+        # First field set to line number
+        $av->[0] = $idx++;
+        # Maximum 2 fields
+        @{$av} > 2 and splice @{$av}, 2;
+        # Minimum 2 fields
+        @{$av} < 2 and push @{$av}, "";
+        },
     };
 is (ref $csv->callbacks ($callbacks), "HASH", "callbacks set");
-ok ($csv->getline (*DATA),		"parse ok");
-is ($c, 1,				"key");
-is ($s, "foo",				"value");
-ok ($csv->getline (*DATA),		"parse bad, skip 3006");
-ok ($csv->getline (*DATA),		"parse good");
-is ($c, 2,				"key");
-is ($s, "bar",				"value");
+ok ($csv->getline (*DATA),              "parse ok");
+is ($c, 1,                              "key");
+is ($s, "foo",                          "value");
+ok ($csv->getline (*DATA),              "parse bad, skip 3006");
+ok ($csv->getline (*DATA),              "parse good");
+is ($c, 2,                              "key");
+is ($s, "bar",                          "value");
 
 $csv->bind_columns (undef);
-ok (my $row = $csv->getline (*DATA),	"get row");
-is_deeply ($row, [ 1, 2, 3, "NEW" ],	"fetch + value from hook");
+ok (my $row = $csv->getline (*DATA),    "get row");
+is_deeply ($row, [ 1, 2, 3, "NEW" ],    "fetch + value from hook");
 
 $error = 2012; # EOF
-ok ($csv->getline (*DATA),		"parse past eof");
+ok ($csv->getline (*DATA),              "parse past eof");
 
 my $fn = "_79test.csv";
 END { unlink $fn; }
@@ -129,13 +143,13 @@ is (do { local $/; <$fh> }, "1,foo\n2,bar\n3,\n", "Modified output");
 close $fh;
 
 # Test the non-IO interface
-ok ($csv->parse ("10,blah,33\n"),			"parse");
-is_deeply ([ $csv->fields ], [ 10, "blah", 33, "NEW" ],	"fields");
+ok ($csv->parse ("10,blah,33\n"),                       "parse");
+is_deeply ([ $csv->fields ], [ 10, "blah", 33, "NEW" ], "fields");
 
-ok ($csv->combine (11, "fri", 22, 18),			"combine - no hook");
-is ($csv->string, qq{11,fri,22,18\n},			"string");
+ok ($csv->combine (11, "fri", 22, 18),                  "combine - no hook");
+is ($csv->string, qq{11,fri,22,18\n},                   "string");
 
-is ($csv->callbacks (undef), undef,			"clear callbacks");
+is ($csv->callbacks (undef), undef,                     "clear callbacks");
 
 is_deeply (Text::CSV_XS::csv (in => $fn, callbacks => $callbacks),
     [[1,"foo","NEW"],[2,"bar","NEW"],[3,"","NEW"]], "using getline_all");

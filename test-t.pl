@@ -378,9 +378,11 @@ class Text::CSV {
     method diag_verbose (*@s) returns Int { return self!a_bool_int ($!diag_verbose, @s); }
 
     method callbacks (*@cb) {
-        my %hooks;
         if (@cb.elems == 1) {
-            !@cb[0].defined || !?@cb[0] || @cb[0] ~~ m:i/^( reset | clear | none )$/ or
+            my $b = @cb[0];
+            !$b.defined ||
+               ($b ~~ Bool || $b ~~ Int and !?$b) ||
+               ($b ~~ Str  && $b ~~ m:i/^( reset | clear | none | 0 )$/) or
                 self!fail (1004);
             %!callbacks = %();
             }
@@ -388,17 +390,21 @@ class Text::CSV {
             self!fail (1004);
             }
         elsif (@cb.elems) {
-            %hooks = %( @cb );
-            }
-        for keys %hooks -> $cb {
-            $cb ~~ s{"-"} = "_";
-            $cb ~~ /^ after_parse
-                    | before_print
-                    | filter
-                    | error
-                    $/ or self!fail (3100, $cb);
-            %hooks{$cb} ~~ Routine or self!fail (1004);
-            %!callbacks{$cb} = %hooks{$cb};
+            my %hooks;
+            for @cb -> $name, $hook {
+                $name.defined && $name ~~ Str     &&
+                $hook.defined && $hook ~~ Routine or
+                    self!fail (1004);
+
+                $name ~~ s{"-"} = "_";
+                $name ~~ /^ after_parse
+                          | before_print
+                          | filter
+                          | error
+                          $/ or self!fail (3100, $name);
+                %hooks{$name} = $hook;
+                }
+            %!callbacks = %hooks;
             }
         return %!callbacks;
         }
