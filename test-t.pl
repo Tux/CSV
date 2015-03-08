@@ -34,6 +34,17 @@ class CSV::Field {
     has Bool $!is_missing = False;
     has Bool $!analysed   = False;
 
+    multi method new (Str $str) {
+        my $f = self.bless;
+        $str.defined and $f.add ($str);
+        return $f;
+        }
+    multi method new (Num $num) {
+        my $f = self.bless;
+        $num.defined and $f.add ($num.Str);
+        return $f;
+        }
+
     method Bool {
         return $!undefined ?? False !! ?$!text;
         }
@@ -508,6 +519,10 @@ class Text::CSV {
         } # fields
 
     method string () returns Str {
+
+        %!callbacks{"before_print"}.defined and
+            %!callbacks{"before_print"}.(self, @!fields);
+
         @!fields or return Str;
         my Str $s = $!sep;
         my Str $q = $!quo;
@@ -943,14 +958,19 @@ class Text::CSV {
             while (self.parse ($io.get)) {
                 $offset--  > 0 and next;
                 $length-- == 0 and last;
-                push @lines, [ @!fields ];
+
+                !%!callbacks{"filter"}.defined ||
+                    %!callbacks{"filter"}.(self, @!fields) and
+                        push @lines, [ @!fields ];
                 }
             }
         else {
             $offset = -$offset;
             while (self.parse ($io.get)) {
                 @lines.elems == $offset and @lines.shift;
-                push @lines, [ @!fields ];
+                !%!callbacks{"filter"}.defined ||
+                    %!callbacks{"filter"}.(self, @!fields) and
+                        push @lines, [ @!fields ];
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }

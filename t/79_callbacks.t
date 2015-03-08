@@ -31,6 +31,7 @@ sub Empty (Text::CSV $c, CSV::Field @f) {}
 sub Drop  (Text::CSV $c, CSV::Field @f is rw) { @f.pop; }
 sub Push  (Text::CSV $c, CSV::Field @f is rw) { @f.push (CSV::Field.new); }
 sub Replc (Text::CSV $c, CSV::Field @f is rw) { @f[1] =  CSV::Field.new; }
+sub Unshf (Text::CSV $c, CSV::Field @f is rw) { @f.unshift (CSV::Field.new ("0")); }
 
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"], "Parse no cb");
 ok ($csv.callbacks ("after_parse", &Empty), "Empty ap cb");
@@ -41,40 +42,23 @@ ok ($csv.callbacks ("after_parse", &Push),  "Push ap cb");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2",Str], "Parse pushing cb");
 ok ($csv.callbacks ("after_parse", &Replc), "Replc ap cb");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1",Str], "Parse pushing cb");
+ok ($csv.callbacks ("after_parse", &Unshf), "Unshf ap cb");
+is_deeply ([$csv.getline ("1,2").map (~*)], ["0","1","2"], "Parse unshifting cb");
 
 done;
 
 
 =finish
 
-ok ($csv = Text::CSV_XS->new (),	"new");
-is ($csv->callbacks, undef,		"no callbacks");
-ok ($csv->bind_columns (\my ($c, $s)),	"bind");
-ok ($csv->getline (*DATA),		"parse ok");
-is ($c, 1,				"key");
-is ($s, "foo",				"value");
-$s = "untouched";
-ok ($csv->getline (*DATA),		"parse bad");
-is ($c, 1,				"key");
-is ($s, "untouched",			"untouched");
-ok ($csv->getline (*DATA),		"parse bad");
-is ($c, "foo",				"key");
-is ($s, "untouched",			"untouched");
-ok ($csv->getline (*DATA),		"parse good");
-is ($c, 2,				"key");
-is ($s, "bar",				"value");
-eval { is ($csv->getline (*DATA), undef,"parse bad"); };
-my @diag = $csv->error_diag;
-is ($diag[0], 3006,			"too many values");
-
-# These tests are for the method
-foreach my $args ([""], [1], [[]], [sub{}], [1,2], [1,2,3],
-		  [undef,"error"], ["error",undef],
-		  ["%23bad",sub {}],["error",sub{0;},undef,1],
-		  ["error",[]],["error","error"],["",sub{0;}],
-		  [sub{0;},0],[[],""]) {
-    eval { $csv->callbacks (@$args); };
-    my @diag = $csv->error_diag;
+# These tests are for the method to fail
+ok ($csv = Text::CSV->new, "new for method fails");
+for  ([""], [1], [[]], [sub{}], [1,2], [1,2,3], [Str,"error"], ["error",Str],
+      ["%23bad",sub {}],["error",sub{0;},Str,1], ["error",[]],
+      ["error","error"],["",sub{0;}], [sub{0;},0],[[],""]) -> @args {
+    my $e;
+    {   $csv.callbacks (@args);
+        CATCH { default { $e = $_; ""; }}
+        }
     is ($diag[0], 1004,			"invalid callbacks");
     is ($csv->callbacks, undef,		"not set");
     }
