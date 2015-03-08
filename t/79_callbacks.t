@@ -29,12 +29,18 @@ ok ($csv = Text::CSV.new (callbacks => "CLEAR"), "new with empty callbacks");
 
 sub Empty (Text::CSV $c, CSV::Field @f) {}
 sub Drop  (Text::CSV $c, CSV::Field @f is rw) { @f.pop; }
+sub Push  (Text::CSV $c, CSV::Field @f is rw) { @f.push (CSV::Field.new); }
+sub Replc (Text::CSV $c, CSV::Field @f is rw) { @f[1] =  CSV::Field.new; }
 
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"], "Parse no cb");
 ok ($csv.callbacks ("after_parse", &Empty), "Empty ap cb");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"], "Parse empty cb");
 ok ($csv.callbacks ("after_parse", &Drop),  "Drop ap cb");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1"],     "Parse dropping cb");
+ok ($csv.callbacks ("after_parse", &Push),  "Push ap cb");
+is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2",Str], "Parse pushing cb");
+ok ($csv.callbacks ("after_parse", &Replc), "Replc ap cb");
+is_deeply ([$csv.getline ("1,2").map (~*)], ["1",Str], "Parse pushing cb");
 
 done;
 
