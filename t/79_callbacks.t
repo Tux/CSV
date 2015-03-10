@@ -6,6 +6,8 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
+my $tfn = "_79_callbacks.csv";
+
 my $csv = Text::CSV.new;
 
 is ($csv.callbacks.keys.elems,           0, "No callbacks");
@@ -45,6 +47,26 @@ is_deeply ([$csv.getline ("1,2").map (~*)], ["1",Str],     "Parse pushing cb");
 ok ($csv.callbacks ("after_parse", &Unshf), "Unshf ap cb");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["0","1","2"], "Parse unshifting cb");
 
+my $fh = open $tfn, :w;
+$fh.say ("1,a");
+$fh.say ("2,b");
+$fh.say ("3,c");
+$fh.say ("4,d");
+$fh.say ("5,e");
+$fh.say ("6,f");
+$fh.say ("7,g");
+$fh.close;
+
+$fh = open $tfn, :r;
+
+sub Filter (Text::CSV $c, CSV::Field @f is rw) returns Bool { +@f[0] % 2 && @f[1] ~~ /^ <[abcd]> / ?? True !! False };
+$csv = Text::CSV.new;
+ok ($csv.callbacks ("filter", &Filter), "Add filer");
+ok ((my @r = $csv.getline_all ($fh)), "Fetch all with filter");
+for @r -> @f { $_ = ~$_ for @f; }
+is_deeply (@r, [["1","a"],["3","c"]], "Filtered content");
+
+unlink $tfn;
 
 # These tests are for the method to fail
 ok ($csv = Text::CSV.new, "new for method fails");
