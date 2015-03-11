@@ -229,7 +229,6 @@ class Text::CSV {
 
         $!io                    = IO;
         $!eof                   = False;
-        @!crange                = 0 .. Inf;
 
         %!errors =
             # Success
@@ -528,7 +527,7 @@ class Text::CSV {
         } # ready
 
     method fields () {
-        return @!fields[@!crange];
+        return @! crange ?? @!fields[@!crange] !! @!fields;
         } # fields
 
     method string () returns Str {
@@ -542,7 +541,7 @@ class Text::CSV {
         my Str $e = $!esc;
         #progress (0, @!fields);
         my Str @f;
-        for @!fields[@!crange] -> $f {
+        for @!crange ?? @!fields[@!crange] !! @!fields -> $f {
             if ($f.undefined) {
                 @f.push ("");
                 next;
@@ -940,7 +939,7 @@ class Text::CSV {
 
     multi method getline (Str $str) {
         self.parse ($str) or return ();
-        return @!fields[@!crange];
+        return @!crange ?? @!fields[@!crange] !! @!fields;
         } # getline
 
     multi method getline (IO $io) {
@@ -953,7 +952,7 @@ class Text::CSV {
         $!io =  IO;
         $io.nl    = $nl;
         $io.chomp = $chomped;
-        return @!fields[@!crange];
+        return @!crange ?? @!fields[@!crange] !! @!fields;
         } # getline
 
     # @a = $csv.getline_all ($io);
@@ -974,7 +973,7 @@ class Text::CSV {
 
                 !%!callbacks{"filter"}.defined ||
                     %!callbacks{"filter"}.(self, @!fields) and
-                        push @lines, [ @!fields[@!crange] ];
+                        push @lines, [ @!crange ?? @!fields[@!crange] !! @!fields ];
                 }
             }
         else {
@@ -983,7 +982,7 @@ class Text::CSV {
                 @lines.elems == $offset and @lines.shift;
                 !%!callbacks{"filter"}.defined ||
                     %!callbacks{"filter"}.(self, @!fields) and
-                        push @lines, [ @!fields[@!crange] ];
+                        push @lines, [ @!crange ?? @!fields[@!crange] !! @!fields ];
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }
