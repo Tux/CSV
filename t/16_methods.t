@@ -37,7 +37,7 @@ is ($csv.eof,                   False,   "eof");
 is ($csv.error_diag,            "",      "error_diag");
 is ($csv.record_number,         0,       "record_number");
 is ($csv.string,                Str,     "string");
-is_deeply ($csv.fields, Array[CSV::Field].new (), "fields");
+is ($csv.fields.elems,          0,       "fields");
 is ($csv.is_quoted (0),         False,   "is_quoted");
 is ($csv.is_binary (0),         False,   "is_binary");
 is ($csv.is_missing (0),        False,   "is_missing");

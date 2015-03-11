@@ -148,6 +148,7 @@ class Text::CSV {
     has IO         $!io;
     has Bool       $!eof;
     has Int        @!types;
+    has Int        @!crange;
     has            %!callbacks;
 
     has Int  $!errno;
@@ -228,6 +229,7 @@ class Text::CSV {
 
         $!io                    = IO;
         $!eof                   = False;
+        @!crange                = 0 .. Inf;
 
         %!errors =
             # Success
@@ -409,6 +411,11 @@ class Text::CSV {
         return %!callbacks;
         }
 
+    method colrange (@cr) {
+        @cr.elems and @!crange = @cr;
+        return @!crange;
+        }
+
     CHECK {
         sub alias (Str:D $m, *@aka) {
             my $r := Text::CSV.^find_method ($m);
@@ -521,7 +528,7 @@ class Text::CSV {
         } # ready
 
     method fields () {
-        return @!fields;
+        return @!fields[@!crange];
         } # fields
 
     method string () returns Str {
@@ -535,7 +542,7 @@ class Text::CSV {
         my Str $e = $!esc;
         #progress (0, @!fields);
         my Str @f;
-        for @!fields -> $f {
+        for @!fields[@!crange] -> $f {
             if ($f.undefined) {
                 @f.push ("");
                 next;
@@ -933,7 +940,7 @@ class Text::CSV {
 
     multi method getline (Str $str) {
         self.parse ($str) or return ();
-        return @!fields;
+        return @!fields[@!crange];
         } # getline
 
     multi method getline (IO $io) {
@@ -946,7 +953,7 @@ class Text::CSV {
         $!io =  IO;
         $io.nl    = $nl;
         $io.chomp = $chomped;
-        return @!fields;
+        return @!fields[@!crange];
         } # getline
 
     # @a = $csv.getline_all ($io);
@@ -967,7 +974,7 @@ class Text::CSV {
 
                 !%!callbacks{"filter"}.defined ||
                     %!callbacks{"filter"}.(self, @!fields) and
-                        push @lines, [ @!fields ];
+                        push @lines, [ @!fields[@!crange] ];
                 }
             }
         else {
@@ -976,7 +983,7 @@ class Text::CSV {
                 @lines.elems == $offset and @lines.shift;
                 !%!callbacks{"filter"}.defined ||
                     %!callbacks{"filter"}.(self, @!fields) and
-                        push @lines, [ @!fields ];
+                        push @lines, [ @!fields[@!crange] ];
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }
