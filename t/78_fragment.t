@@ -12,6 +12,8 @@ is ([$csv.getline ("1,2").map (~*)], ["1","2"], "no fragments");
 $csv.colrange ([1]);
 is ([$csv.getline ("1,2").map (~*)], ["2"], "no fragments");
 
+done;
+
 =finish
 
 my @test = (
