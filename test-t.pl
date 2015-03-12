@@ -527,7 +527,7 @@ class Text::CSV {
         } # ready
 
     method fields () {
-        return @! crange ?? @!fields[@!crange] !! @!fields;
+        return @!crange ?? @!fields[@!crange] !! @!fields;
         } # fields
 
     method string () returns Str {
