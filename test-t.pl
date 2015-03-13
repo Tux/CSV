@@ -410,8 +410,32 @@ class Text::CSV {
         return %!callbacks;
         }
 
-    method colrange (@cr) {
+    multi method colrange (@cr) {
         @cr.elems and @!crange = @cr;
+        return @!crange;
+        }
+
+    multi method colrange (Str $range) {
+        my @r;
+        if ($range) {
+            my Regex $rr = rx{ <[0..9]>+ ( "-" ( <[0..9]>+ | "*" ) )? };
+            $range ~~ /^ $rr ( ";" $rr )* $/ or self!fail (2013, $range);
+            for $range.split (/ ";" /) -> $r {
+                my @lr = $r.split (/ "-" /);
+                if (@lr[1].defined) {
+                    if (@lr[1] eq "*") {
+                        @r.plan (@lr[0] - 1 .. Inf);
+                        }
+                    else {
+                        @r.plan (@lr[0] - 1 .. @lr[1] - 1);
+                        }
+                    }
+                else {
+                    @r.plan (@lr[0] - 1);
+                    }
+                }
+            @!crange = @r;
+            }
         return @!crange;
         }
 
