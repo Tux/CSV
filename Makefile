@@ -1,3 +1,11 @@
+# ex:se inputtab=tab autotab:
+
+.PHONY:         test test-verbose profile time
+.PRECIOUS:      test-t.pl
+
+Text/CSV.pm:
+	@[ -d Text ] || ( mkdir Text ; ln -s ../test-t.pl Text/CSV.pm )
+
 test:		Text/CSV.pm
 	@perl bugs.pl -s
 	prove -e 'perl6 -I.' \
@@ -29,8 +37,9 @@ test-verbose:	Text/CSV.pm
 	perl6 -I. t/81_subclass.t
 	perl6 -I. t/82_subclass.t
 
-Text/CSV.pm:
-	@[ -d Text ] || ( mkdir Text ; ln -s ../test-t.pl Text/CSV.pm )
+profile:
+	perl6 -I. test-t.pl < /tmp/hello.csv
+	mv profile-[0-9]* profile.html
 
 time:
 	perl time.pl
