@@ -416,26 +416,29 @@ class Text::CSV {
         return @!crange;
         }
 
-    multi method colrange (Str $range) {
-        my @r;
-        if ($range) {
-            my Regex $rr = rx{ <[0..9]>+ ( "-" ( <[0..9]>+ | "*" ) )? };
-            $range ~~ /^ $rr ( ";" $rr )* $/ or self!fail (2013, $range);
-            for $range.split (/ ";" /) -> $r {
-                my @lr = $r.split (/ "-" /);
-                if (@lr[1].defined) {
-                    if (@lr[1] eq "*") {
-                        @r.plan (@lr[0] - 1 .. Inf);
-                        }
-                    else {
-                        @r.plan (@lr[0] - 1 .. @lr[1] - 1);
-                        }
-                    }
-                else {
-                    @r.plan (@lr[0] - 1);
-                    }
+    method !rfc7111range2pairs (Str $range) {
+        my Pair @r;
+        for $range.split (/ ";" /) -> $r {
+            $r ~~ /^ (<[0..9]>+)["-"[(<[0..9]>+)||("*")]]? $/ or self!fail (2013);
+            my $from = +$0;
+            my $to   = ($1 // $from).Str;
+            $from--;
+            if ($to eq "*") {
+                @r.push ($from => Inf);
+                next;
                 }
-            @!crange = @r;
+            $to--;
+            $from <= $to or self!fail (2013);
+            @r.push ($from => $to);
+            }
+        # Detect overlapping ranges?
+        return @r.sort;
+        }
+
+    multi method colrange (Str $range) {
+        if ($range) {
+            @!crange = ();
+            @!crange.plan (.key .. .value) for self!rfc7111range2pairs ($range);
             }
         return @!crange;
         }
