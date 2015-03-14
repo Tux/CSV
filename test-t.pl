@@ -75,7 +75,8 @@ class CSV::Field {
 
     method set_quoted () {
         $!is_quoted = True;
-        self.add ("");
+        $!undefined = False;
+        $!text      = "";
         }
 
     method !analyse () {
