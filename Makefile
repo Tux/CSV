@@ -38,7 +38,7 @@ test-verbose:	Text/CSV.pm
 	perl6 -I. t/82_subclass.t
 
 profile:
-	perl6 -I. test-t.pl < /tmp/hello.csv
+	perl6 -I. --profile test-t.pl < /tmp/hello.csv
 	mv profile-[0-9]* profile.html
 
 time:
