@@ -513,6 +513,12 @@ class Text::CSV {
         return @!fields[$i].is_missing;
         }
 
+    method !accept-field (CSV::Field $f) returns Bool {
+        # reject if not in @!rowrange
+        push @!fields, $f;
+        return True;
+        }
+
     # combine : direction = 0
     # parse   : direction = 1
     method !ready (int $direction, CSV::Field $f) returns Bool {
@@ -523,8 +529,7 @@ class Text::CSV {
             if ($direction) {
                 $!blank_is_undef || $!empty_is_undef or $f.add ("");
                 }
-            push @!fields, $f;
-            return True;
+            return self!accept-field ($f);
             }
 
         if ($f.text eq "") {
@@ -532,8 +537,7 @@ class Text::CSV {
                 $f.undefined = True;
                 $f.text      = Str;
                 }
-            push @!fields, $f;
-            return True;
+            return self!accept-field ($f);
             }
 
         # Postpone all other field attributes like is_binary and is_utf8
@@ -550,8 +554,7 @@ class Text::CSV {
             return False;
             }
 
-        push @!fields, $f;
-        return True;
+        return self!accept-field ($f);
         } # ready
 
     method fields () {
