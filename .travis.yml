@@ -18,7 +18,7 @@ install:
 before_script:
     - panda list --installed --verbose
 script:
-    - prove -v -s -e perl6 -Ilib t
+    - prove -v -e 'perl6 -Ilib' t
 notifications:
   irc:
     channels:
