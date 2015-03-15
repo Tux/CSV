@@ -32,19 +32,15 @@ class Range {
         self.bless (:@ranges);
         }
 
-    multi method add (Pair $p)            { @!ranges.push ($p);               }
-    multi method add (Int $from, Num $to) { @!ranges.push ($from => $to);     }
-    multi method add (Int $from, Any $to) { @!ranges.push ($from => $to.Num); }
+    multi method add (Pair:D $p)              { @!ranges.push ($p);               }
+    multi method add (Int:D $from)            { @!ranges.push ($from => $from);   }
+    multi method add (Int:D $from, Num:D $to) { @!ranges.push ($from => $to);     }
+    multi method add (Int:D $from, Any:D $to) { @!ranges.push ($from => $to.Num); }
 
-    method min () {
-        @!ranges>>.key.min
-        }
+    method min () { @!ranges>>.key.min   }
+    method max () { @!ranges>>.value.max }
 
-    method max () {
-        @!ranges>>.value.max
-        }
-
-    method in (Int $i) returns Bool {
+    method in (Int:D $i) returns Bool {
         for @!ranges -> $r {
             $i >= $r.key && $i <= $r.value and return True;
             }
@@ -341,7 +337,7 @@ class Text::CSV {
         self!check_sanity;
         }
 
-    method !fail (Int $errno, *@s) {
+    method !fail (Int:D $errno, *@s) {
         $!errno          = $errno;
         $!error_pos      = 0;
         $!error_message  = %!errors{$errno};
@@ -533,28 +529,27 @@ class Text::CSV {
             );
         }
 
-    method is_quoted  (Int $i) returns Bool {
+    method is_quoted  (Int:D $i) returns Bool {
         $i >= @!fields.elems and return False;
         return @!fields[$i].is_quoted;
         }
 
-    method is_binary  (Int $i) returns Bool {
+    method is_binary  (Int:D $i) returns Bool {
         $i >= @!fields.elems and return False;
         return @!fields[$i].is_binary;
         }
 
-    method is_utf8    (Int $i) returns Bool {
+    method is_utf8    (Int:D $i) returns Bool {
         $i >= @!fields.elems and return False;
         return @!fields[$i].is_utf8;
         }
 
-    method is_missing (Int $i) returns Bool {
+    method is_missing (Int:D $i) returns Bool {
         $i >= @!fields.elems and return False;
         return @!fields[$i].is_missing;
         }
 
     method !accept-field (CSV::Field $f) returns Bool {
-        # reject if not in @!rowrange
         push @!fields, $f;
         return True;
         }
@@ -683,7 +678,7 @@ class Text::CSV {
             return False;
             }
 
-        my sub chunks (Str $str, Regex $re) {
+        my sub chunks (Str $str, Regex:D $re) {
             $str.defined or  return ();
             $str eq ""   and return ("");
 
@@ -1013,7 +1008,7 @@ class Text::CSV {
         return @!crange ?? @!fields[@!crange] !! @!fields;
         } # getline
 
-    multi method getline (IO $io) {
+    multi method getline (IO:D $io) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
@@ -1029,7 +1024,7 @@ class Text::CSV {
     # @a = $csv.getline_all ($io);
     # @a = $csv.getline_all ($io, $offset);
     # @a = $csv.getline_all ($io, $offset, $length);
-    method getline_all (IO $io, Int $offset is copy = 0, Int $length is copy = -1) {
+    method getline_all (IO:D $io, Int $offset is copy = 0, Int $length is copy = -1) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
@@ -1064,15 +1059,15 @@ class Text::CSV {
         return @lines;
         }
 
-    multi method print (IO $io, Capture $c) returns Bool {
+    multi method print (IO:D $io, Capture $c) returns Bool {
         return self.print ($io, $c.list);
         }
 
-    multi method print (IO $io, *@fld) returns Bool {
+    multi method print (IO:D $io, *@fld) returns Bool {
         return self.print ($io, [@fld]);
         }
 
-    multi method print (IO $io,  @fld) returns Bool {
+    multi method print (IO:D $io,  @fld) returns Bool {
         self.combine (@fld) or return False;
         $io.print (self.string);
         return True;
