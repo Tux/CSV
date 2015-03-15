@@ -13,9 +13,9 @@ my Str @exp = (1 .. 10).map (~*);
 is ([$csv.getline ($str).map (~*)], @exp,                "no fragments");
 $csv.colrange ([1]);
 is ([$csv.getline ($str).map (~*)], @exp[1],             "fragment [1]");
-$csv.colrange ([1,4..6]);
+$csv.colrange ([1, 4..6]);
 is ([$csv.getline ($str).map (~*)], @exp[1,4..6],        "fragment [1,4..6]");
-$csv.colrange ([1,4..6,8..Inf]);
+$csv.colrange ([1, 4..6, 8..Inf]);
 is ([$csv.getline ($str).map (~*)], @exp[1,4..6,8..Inf], "fragment [1,4..6,8..Inf]");
 
 $csv.colrange ("2");

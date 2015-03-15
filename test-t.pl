@@ -6,6 +6,7 @@ use Slang::Tuxic;
 my $VERSION = "1.00";
 
 my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
+
 my $test  = qq{,1,ab,"cd","e"0f","g,h","nl\nz"0i""""3",\r\n};
 my @rslt  = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
 
@@ -22,6 +23,51 @@ sub progress (*@y) {
         }
     $x.say;
     } # progress
+
+class Range {
+
+    has Pair @!ranges;
+
+    method new (**@ranges) {
+        self.bless (:@ranges);
+        }
+
+    multi method add (Pair $p)            { @!ranges.push ($p);               }
+    multi method add (Int $from, Num $to) { @!ranges.push ($from => $to);     }
+    multi method add (Int $from, Any $to) { @!ranges.push ($from => $to.Num); }
+
+    method min () {
+        @!ranges>>.key.min
+        }
+
+    method max () {
+        @!ranges>>.value.max
+        }
+
+    method in (Int $i) returns Bool {
+        for @!ranges -> $r {
+            $i >= $r.key && $i <= $r.value and return True;
+            }
+        return False;
+        }
+
+    method to_list () {
+        gather {
+            for sort @!ranges -> $r {
+                take $r.key .. $r.value;
+                }
+            }
+        }
+
+    method list () {
+        # There's a more efficient way to do this... :-)
+        gather {
+            for $.min .. $.max -> $maybe {
+                take $maybe if $maybe ~~ self;
+                }
+            }
+        }
+    }
 
 class CSV::Field {
 
@@ -416,29 +462,23 @@ class Text::CSV {
         return @!crange;
         }
 
-    method !rfc7111range2pairs (Str $range) {
-        my Pair @r;
-        for $range.split (/ ";" /) -> $r {
+    method !rfc7111ranges (Str $spec) {
+        my Range $range = Range.new;
+        for $spec.split (/ ";" /) -> $r {
             $r ~~ /^ (<[0..9]>+)["-"[(<[0..9]>+)||("*")]]? $/ or self!fail (2013);
-            my $from = +$0;
-            my $to   = ($1 // $from).Str;
-            $from--;
-            if ($to eq "*") {
-                @r.push ($from => Inf);
-                next;
-                }
-            $to--;
-            $from <= $to or self!fail (2013);
-            @r.push ($from => $to);
+            my Int $from = +$0;
+            my Str $tos  = ($1 // $from).Str;
+            my Num $to   = $tos eq "*" ?? Inf !! (+$tos - 1).Num;
+            --$from <= $to or self!fail (2013);
+            $range.add ($from, $to);
             }
-        # Detect overlapping ranges?
-        return @r.sort;
+        return $range.to_list;
         }
 
     multi method colrange (Str $range) {
         if ($range) {
             @!crange = ();
-            @!crange.plan (.key .. .value) for self!rfc7111range2pairs ($range);
+            @!crange = self!rfc7111ranges ($range);
             }
         return @!crange;
         }
