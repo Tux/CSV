@@ -1,0 +1,27 @@
+language: perl
+perl:
+    - '5.18'
+env:
+    - BACKEND=moar
+before_install:
+    - git config --global user.name "TravisCI"
+    - git config --global user.email $HOSTNAME":not-for-mail@travis-ci.org"
+    - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
+    - source ~/travis-perl-helpers/init
+    - git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
+    - export PATH=~/.rakudobrew/bin:$PATH
+    - rakudobrew build $BACKEND
+    - perl6 -v
+    - rakudobrew build-panda  
+install:
+    - panda --notests install . # installs deps
+before_script:
+    - panda list --installed --verbose
+script:
+    - prove -v -s -e perl6 -Ilib t
+notifications:
+  irc:
+    channels:
+      - "irc.perl.org#csv"
+    on_success: always
+    on_failure: always

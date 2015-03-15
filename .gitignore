@@ -29,8 +29,7 @@ sandbox/rfc7111.odt
 sandbox/test.*
 
 # And for CSV6
-t/02-9]?_*
-t/util.pl
+t-old/*
 xt/??_*
 
 # Re-enable parts later

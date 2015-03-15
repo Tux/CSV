@@ -1,0 +1,10 @@
+{ "name"        : "Text::CSV",
+  "version"     : "0.001",
+  "description" : "Parse CSV data, API like Text::CSV_XS",
+  "auth"        : "auth:Tux",
+  "depends"     : [ "Slang::Tuxic" ],
+  "provides"    : {
+    "Text::CSV" : "lib/Text/CSV.pm"
+    },
+  "source-url"  : "git://github.com/Tux/CSV.git"
+  } 
