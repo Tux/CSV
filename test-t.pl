@@ -192,6 +192,7 @@ class Text::CSV {
     has Bool       $!eof;
     has Int        @!types;
     has Int        @!crange;
+    has Range      $!rrange;
     has            %!callbacks;
 
     has Int  $!errno;
@@ -453,12 +454,7 @@ class Text::CSV {
         return %!callbacks;
         }
 
-    multi method colrange (@cr) {
-        @cr.elems and @!crange = @cr;
-        return @!crange;
-        }
-
-    method !rfc7111ranges (Str $spec) {
+    method !rfc7111ranges (Str:D $spec) returns Range {
         my Range $range = Range.new;
         for $spec.split (/ ";" /) -> $r {
             $r ~~ /^ (<[0..9]>+)["-"[(<[0..9]>+)||("*")]]? $/ or self!fail (2013);
@@ -468,15 +464,28 @@ class Text::CSV {
             --$from <= $to or self!fail (2013);
             $range.add ($from, $to);
             }
-        return $range.to_list;
+        return $range;
+        }
+
+    multi method colrange (@cr) {
+        @cr.elems and @!crange = @cr;
+        return @!crange;
         }
 
     multi method colrange (Str $range) {
-        if ($range) {
-            @!crange = ();
-            @!crange = self!rfc7111ranges ($range);
-            }
+        @!crange = ();
+        $range and @!crange = self!rfc7111ranges ($range).to_list;
         return @!crange;
+        }
+
+    multi method colrange () {
+        return @!crange;
+        }
+
+    multi method rowrange (Str $range) returns Range {
+        $!rrange = Range;
+        $range and $!rrange = self!rfc7111ranges ($range);
+        return $!rrange;
         }
 
     CHECK {
@@ -1052,6 +1061,21 @@ class Text::CSV {
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }
+
+        $!io =  IO;
+        $io.nl    = $nl;
+        $io.chomp = $chomped;
+        return @lines;
+        }
+
+    method fragment (IO:D $io, Str:D $spec) {
+        my Bool $chomped = $io.chomp;
+        my Str  $nl      = $io.nl;
+        $!eol.defined  and $io.nl = $!eol;
+        $io.chomp = False;
+        $!io = $io;
+
+        my @lines;
 
         $!io =  IO;
         $io.nl    = $nl;
