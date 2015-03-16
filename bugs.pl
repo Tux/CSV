@@ -13,8 +13,9 @@ sub usage
 
 use Getopt::Long qw(:config bundling);
 GetOptions (
-    "help|?"     => sub { usage (0); },
-    "s|summary!" => \my $opt_s,
+    "help|?"      => sub { usage (0); },
+    "s|summary!"  => \my $opt_s,
+    "v|verbose:1" => \my $opt_v,
     ) or usage (1);
 
 my $t = "t$$.pl";
@@ -210,4 +211,13 @@ EOP
     # Returns (Str) instead of "-"
     test (qr{Str},
           q{(1,Str,"a").map(*//"-")[1].say});
+    }
+
+#   title "Range", "plan is not lazy", "RT#124059";
+
+{   title "Type", "Int \$i cannot be Int.Range.max", "RT#124082";
+    # Type check failed in assignment to '$i'; expected 'Int' but got 'Num'
+    #   in block <unit> at t4156.pl:1
+    test (qr{expected 'Int' but got 'Num'},
+          q{my Int $i = Int.Range.max});
     }
