@@ -1,12 +1,12 @@
 Str.^methodsÂ».name.grep: /uni/
 
-$ p6 -e'Str.^methods».name.say'
+$ p6 -e'Str.^methodsÂ».name.say'
  BUILD Int Num chomp chop pred succ match ords samecase samespace
  trim-leading trim-trailing trim encode wordcase trans indent codes
  path unival univals WHY WHICH Bool Str Stringy DUMP ACCEPTS Numeric
  gist perl comb subst-mutate subst lines split words
 
-$ p6 -e'Num.^methods».name.say'
+$ p6 -e'Num.^methodsÂ».name.say'
  Num Bridge Int Rat FatRat succ pred isNaN abs log sqrt rand ceiling
  floor sin asin cos acos tan atan sec asec cosec acosec cotan acotan
  sinh asinh cosh acosh tanh atanh sech asech cosech acosech cotanh
@@ -14,7 +14,7 @@ $ p6 -e'Num.^methods».name.say'
  truncate polymod base Real sleep log10 roots WHICH new perl Str
  Numeric ACCEPTS Bool gist DUMP
 
-$ p6 -e'Bool.^methods».name.say'
+$ p6 -e'Bool.^methodsÂ».name.say'
  Int pred succ key value pick roll enums Bool Numeric Str gist DUMP
  ACCEPTS perl
 
@@ -23,4 +23,15 @@ $ p6 -e'"\x[00d0]\x[0110]\x[0189]".perl.say'
 $ p6 -e'say to-json "\x[00d0]\x[0110]\x[0189]"'
 "\u00d0\u0110\u0189"
 
+$ p6 -e'Int.Range.say'
+-Inf..Inf
+$ p6 -e'Int.Range.max.say'
+Inf
+$ p6 -e'int.Range.say'
+-9223372036854775808..9223372036854775807
+$ p6 -e'int.Range.max.say'
+9223372036854775807
+
 â€¢ attribute defaults are ignored when the class has submethod BUILD
+
+
