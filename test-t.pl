@@ -1041,27 +1041,32 @@ class Text::CSV {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
-        $io.chomp = False;
-        $!io = $io;
+        $io.chomp        = False;
+        $!io             = $io;
+        $!record_number  = 0;
 
         my @lines;
         if ($offset >= 0) {
             while (self.parse ($io.get)) {
+                !$!rrange || $!rrange.in ($!record_number - 1) or next;
+
                 $offset--  > 0 and next;
                 $length-- == 0 and last;
 
                 !%!callbacks{"filter"}.defined ||
-                    %!callbacks{"filter"}.(self, @!fields) and
-                        push @lines, [ @!crange ?? @!fields[@!crange] !! @!fields ];
+                    %!callbacks{"filter"}.(self, @!fields) or next;
+
+                push @lines, [ @!crange ?? @!fields[@!crange] !! @!fields ];
                 }
             }
         else {
             $offset = -$offset;
             while (self.parse ($io.get)) {
-                @lines.elems == $offset and @lines.shift;
                 !%!callbacks{"filter"}.defined ||
-                    %!callbacks{"filter"}.(self, @!fields) and
-                        push @lines, [ @!crange ?? @!fields[@!crange] !! @!fields ];
+                    %!callbacks{"filter"}.(self, @!fields) or next;
+
+                @lines.elems == $offset and @lines.shift;
+                push @lines, [ @!crange ?? @!fields[@!crange] !! @!fields ];
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }

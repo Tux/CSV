@@ -61,6 +61,12 @@ for ("\n", "\r") -> $eol {
             is_deeply (@f, @exp, "getline_all ($s_args)");
             $fh.close;
             });
+
+        my $fh = open $tfn, :r or die "$tfn: $!";
+        ok ($csv.colrange ("1;4"),      "ColRange 1;4");
+        ok ($csv.rowrange ("2;4"),      "RowRange 2;4");
+        is_deeply (un-obj ($csv.getline_all ($fh)),
+            [["2","B"],["4","D"]],      "Selection");
         }
 
     unlink $tfn;
