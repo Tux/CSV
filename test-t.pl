@@ -24,7 +24,7 @@ sub progress (*@y) {
     $x.say;
     } # progress
 
-class Range {
+class RangeSet {
 
     has Pair @!ranges;
 
@@ -49,8 +49,12 @@ class Range {
 
     method to_list () {
         gather {
+            my Int $max = -1;
             for sort @!ranges -> $r {
-                take $r.key .. $r.value;
+                my $from = ($r.key, $max + 1).max.Int;
+                take $from .. $r.value;
+                $r.value == Inf and last;
+                $max = ($max, $r.value).max.Int;
                 }
             }
         }
@@ -192,7 +196,7 @@ class Text::CSV {
     has Bool       $!eof;
     has Int        @!types;
     has Int        @!crange;
-    has Range      $!rrange;
+    has RangeSet   $!rrange;
     has            %!callbacks;
 
     has Int  $!errno;
@@ -454,8 +458,8 @@ class Text::CSV {
         return %!callbacks;
         }
 
-    method !rfc7111ranges (Str:D $spec) returns Range {
-        my Range $range = Range.new;
+    method !rfc7111ranges (Str:D $spec) returns RangeSet {
+        my RangeSet $range = RangeSet.new;
         for $spec.split (/ ";" /) -> $r {
             $r ~~ /^ (<[0..9]>+)["-"[(<[0..9]>+)||("*")]]? $/ or self!fail (2013);
             my Int $from = +$0;
@@ -482,8 +486,8 @@ class Text::CSV {
         return @!crange;
         }
 
-    multi method rowrange (Str $range) returns Range {
-        $!rrange = Range;
+    multi method rowrange (Str $range) returns RangeSet {
+        $!rrange = RangeSet;
         $range and $!rrange = self!rfc7111ranges ($range);
         return $!rrange;
         }
@@ -1068,20 +1072,17 @@ class Text::CSV {
         return @lines;
         }
 
-    method fragment (IO:D $io, Str:D $spec) {
-        my Bool $chomped = $io.chomp;
-        my Str  $nl      = $io.nl;
-        $!eol.defined  and $io.nl = $!eol;
-        $io.chomp = False;
-        $!io = $io;
+#   method fragment (IO:D $io, Str:D $spec is copy) {
 
-        my @lines;
+#       if ($spec ~~ s{^ "col=" } = "") {
+#           $!rrange = RangeSet;
+#           self!colrange ($spec);
+#           return self!getline_all ($io);
+#           }
 
-        $!io =  IO;
-        $io.nl    = $nl;
-        $io.chomp = $chomped;
-        return @lines;
-        }
+#       my @lines;
+#       return @lines;
+#       }
 
     multi method print (IO:D $io, Capture $c) returns Bool {
         return self.print ($io, $c.list);

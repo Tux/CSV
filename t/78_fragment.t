@@ -24,6 +24,8 @@ $csv.colrange ("2;5-7");
 is ([$csv.getline ($str).map (~*)], @exp[1,4..6],        "fragment '2;5-7'");
 $csv.colrange ("2;5-7;9-*");
 is ([$csv.getline ($str).map (~*)], @exp[1,4..6,8..Inf], "fragment '2;5-7;9-*'");
+$csv.colrange ("2;5-7;5-6;2-2;7-7;9-*;12-*");
+is ([$csv.getline ($str).map (~*)], @exp[1,4..6,8..Inf], "fragment '2;5-7;9-*' with overlaps");
 
 done;
 
