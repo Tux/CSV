@@ -10,6 +10,7 @@ my $csv = Text::CSV.new;
 
 ok ($csv,                                      "New parser");
 is ($csv.fields.elems, 0,                      "fields () before parse ()");
+is ($csv.list.elems, 0,                        "list () before parse ()");
 is ($csv.string, Str,                          "string () undef before combine");
 is ($csv.status, True,                         "No failures yet");
 
@@ -47,6 +48,7 @@ ok ($csv.parse ("\n"),                         "Single newline");
 ok ($csv.parse ('","'),                        "comma - parse ()");
 is ($csv.fields.elems, 1,                      "comma - fields () - count");
 is ($csv.fields[0].text, ",",                  "comma - fields () - content");
+is_deeply ([$csv.list], [","],                 "As list");
 
 ok ($csv.parse (qq{"","I said,\t""Hi!""",""}), "Hi! - parse ()");
 is ($csv.fields.elems, 3,                      "Hi! - fields () - count");
@@ -55,10 +57,12 @@ is ($csv.fields[0].text, "",                   "Hi! - fields () - field 1");
 is ($csv.fields[1].text, qq{I said,\t"Hi!"},   "Hi! - fields () - field 2");
 is ($csv.fields[2].text, "",                   "Hi! - fields () - field 3");
 is ($csv.status, True,                         "status");
+is_deeply ([$csv.list], [ "", qq{I said,\t"Hi!"}, "" ], "As list");
 
 ok ($csv.parse (""),                           "Empty line");
 is ($csv.fields.elems, 1,                      "Empty - count");
 is ($csv.fields[0].text, "",                   "One empty field");
+is_deeply ([$csv.list], [""],                  "Return as data");
 
 ok (1,                                         "Integers and Reals");
 ok ($csv.combine ("", 2, 3.25, "a", "a b"),    "Mixed - combine ()");

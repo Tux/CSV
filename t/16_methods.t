@@ -38,19 +38,25 @@ is ($csv.error_diag,            "",      "error_diag");
 is ($csv.record_number,         0,       "record_number");
 is ($csv.string,                Str,     "string");
 is ($csv.fields.elems,          0,       "fields");
+is ($csv.list.elems,            0,       "list");
 is ($csv.is_quoted (0),         False,   "is_quoted");
 is ($csv.is_binary (0),         False,   "is_binary");
 is ($csv.is_missing (0),        False,   "is_missing");
 is ($csv.combine (),            True,    "combine");
 is ($csv.parse (""),            True,    "parse");
 
-# sub callbacks
+# Done or work-in progress
+# getline
+# getline_all
+# fragment
+# callbacks
+
+# TODO
 # sub column_names
 # sub bind_columns
 # sub getline_hr
 # sub getline_hr_all
 # sub print_hr
-# sub fragment
 # sub csv
 
 done;

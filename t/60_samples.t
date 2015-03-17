@@ -27,6 +27,7 @@ use Text::CSV;
     is (@list.elems, @olist.elems,      "field count");
     is (@list[0], @olist[0],            "field 1");
     is (@list[1], @olist[1],            "field 2");
+    is_deeply ($csv.list, @olist».text, "As list");
     }
 
 done;

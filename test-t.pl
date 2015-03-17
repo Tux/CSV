@@ -609,6 +609,10 @@ class Text::CSV {
         return @!crange ?? @!fields[@!crange] !! @!fields;
         } # fields
 
+    method list () {
+        return self.fields».text;
+        }
+
     method string () returns Str {
 
         %!callbacks{"before_print"}.defined and
