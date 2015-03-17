@@ -1020,12 +1020,12 @@ class Text::CSV {
         return parse_done ();
         } # parse
 
-    multi method getline (Str $str) {
+    multi method getline (Str $str, Bool :$no-meta = False) {
         self.parse ($str) or return ();
-        return @!crange ?? @!fields[@!crange] !! @!fields;
+        return $no-meta ?? self.list !! self.fields;
         } # getline
 
-    multi method getline (IO:D $io) {
+    multi method getline (IO:D $io, Bool :$no-meta = False) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
@@ -1035,13 +1035,16 @@ class Text::CSV {
         $!io =  IO;
         $io.nl    = $nl;
         $io.chomp = $chomped;
-        return @!crange ?? @!fields[@!crange] !! @!fields;
+        return $no-meta ?? self.list !! self.fields;
         } # getline
 
     # @a = $csv.getline_all ($io);
     # @a = $csv.getline_all ($io, $offset);
     # @a = $csv.getline_all ($io, $offset, $length);
-    method getline_all (IO:D $io, Int $offset is copy = 0, Int $length is copy = -1) {
+    method getline_all (IO:D  $io,
+                        Int   $offset is copy =  0,
+                        Int   $length is copy = -1,
+                        Bool :$no-meta = False) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
@@ -1060,7 +1063,7 @@ class Text::CSV {
                 !%!callbacks{"filter"}.defined ||
                     %!callbacks{"filter"}.(self, @!fields) or next;
 
-                push @lines, [ @!crange ?? @!fields[@!crange] !! @!fields ];
+                push @lines, [ $no-meta ?? self.list !! self.fields ];
                 }
             }
         else {
@@ -1070,7 +1073,7 @@ class Text::CSV {
                     %!callbacks{"filter"}.(self, @!fields) or next;
 
                 @lines.elems == $offset and @lines.shift;
-                push @lines, [ @!crange ?? @!fields[@!crange] !! @!fields ];
+                push @lines, [ $no-meta ?? self.list !! self.fields ];
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }

@@ -53,12 +53,19 @@ for ("\n", "\r") -> $eol {
     {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.perl);
 
         do_tests (anon sub (@expect, *@args) {
-            my $fh = open $tfn, :r or die "$tfn: $!";
+
+            my @exp = @expect; # Needed as Parcels are not Arrays $(1,2) vs [1,2]
             my $s_args = @args.join (", ");
+
+            my $fh = open $tfn, :r or die "$tfn: $!";
             # un-obj for is_deeply
             my @f = un-obj ($csv.getline_all ($fh, |@args));
-            my @exp = @expect; # Needed as Parcels are not Arrays $(1,2) vs [1,2]
             is_deeply (@f, @exp, "getline_all ($s_args)");
+            $fh.close;
+
+            $fh = open $tfn, :r or die "$tfn: $!";
+            @f = $csv.getline_all ($fh, |@args, no-meta => True);
+            is_deeply (@f, @exp, "getline_all ($s_args, no-meta)");
             $fh.close;
             });
 
