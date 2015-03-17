@@ -1020,12 +1020,12 @@ class Text::CSV {
         return parse_done ();
         } # parse
 
-    multi method getline (Str $str, Bool :$no-meta = False) {
+    multi method getline (Str $str, Bool :$meta = True) {
         self.parse ($str) or return ();
-        return $no-meta ?? self.list !! self.fields;
+        return $meta ?? self.fields !! self.list;
         } # getline
 
-    multi method getline (IO:D $io, Bool :$no-meta = False) {
+    multi method getline (IO:D $io, Bool :$meta = True) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
@@ -1035,7 +1035,7 @@ class Text::CSV {
         $!io =  IO;
         $io.nl    = $nl;
         $io.chomp = $chomped;
-        return $no-meta ?? self.list !! self.fields;
+        return $meta ?? self.fields !! self.list;
         } # getline
 
     # @a = $csv.getline_all ($io);
@@ -1044,7 +1044,7 @@ class Text::CSV {
     method getline_all (IO:D  $io,
                         Int   $offset is copy =  0,
                         Int   $length is copy = -1,
-                        Bool :$no-meta = False) {
+                        Bool :$meta = True) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
@@ -1063,7 +1063,7 @@ class Text::CSV {
                 !%!callbacks{"filter"}.defined ||
                     %!callbacks{"filter"}.(self, @!fields) or next;
 
-                push @lines, [ $no-meta ?? self.list !! self.fields ];
+                push @lines, [ $meta ?? self.fields !! self.list ];
                 }
             }
         else {
@@ -1073,7 +1073,7 @@ class Text::CSV {
                     %!callbacks{"filter"}.(self, @!fields) or next;
 
                 @lines.elems == $offset and @lines.shift;
-                push @lines, [ $no-meta ?? self.list !! self.fields ];
+                push @lines, [ $meta ?? self.fields !! self.list ];
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }
@@ -1084,18 +1084,18 @@ class Text::CSV {
         return @lines;
         }
 
-    method fragment (IO:D $io, Str:D $spec is copy) {
+    method fragment (IO:D $io, Str:D $spec is copy, Bool :$meta = True) {
 
         if ($spec ~~ s{^ "col=" } = "") {
             self.rowrange (Str);
             self.colrange ($spec);
-            return self.getline_all ($io);
+            return self.getline_all ($io, meta => $meta);
             }
 
         if ($spec ~~ s{^ "row=" } = "") {
             self.rowrange ($spec);
             self.colrange (Str);
-            return self.getline_all ($io);
+            return self.getline_all ($io, meta => $meta);
             }
 
         my @lines;
