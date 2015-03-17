@@ -478,7 +478,7 @@ class Text::CSV {
 
     multi method colrange (Str $range) {
         @!crange = ();
-        $range and @!crange = self!rfc7111ranges ($range).to_list;
+        $range.defined and @!crange = self!rfc7111ranges ($range).to_list;
         return @!crange;
         }
 
@@ -488,7 +488,7 @@ class Text::CSV {
 
     multi method rowrange (Str $range) returns RangeSet {
         $!rrange = RangeSet;
-        $range and $!rrange = self!rfc7111ranges ($range);
+        $range.defined and $!rrange = self!rfc7111ranges ($range);
         return $!rrange;
         }
 
@@ -1077,17 +1077,23 @@ class Text::CSV {
         return @lines;
         }
 
-#   method fragment (IO:D $io, Str:D $spec is copy) {
+    method fragment (IO:D $io, Str:D $spec is copy) {
 
-#       if ($spec ~~ s{^ "col=" } = "") {
-#           $!rrange = RangeSet;
-#           self!colrange ($spec);
-#           return self!getline_all ($io);
-#           }
+        if ($spec ~~ s{^ "col=" } = "") {
+            self.rowrange (Str);
+            self.colrange ($spec);
+            return self.getline_all ($io);
+            }
 
-#       my @lines;
-#       return @lines;
-#       }
+        if ($spec ~~ s{^ "row=" } = "") {
+            self.rowrange ($spec);
+            self.colrange (Str);
+            return self.getline_all ($io);
+            }
+
+        my @lines;
+        return @lines;
+        }
 
     multi method print (IO:D $io, Capture $c) returns Bool {
         return self.print ($io, $c.list);
