@@ -342,6 +342,33 @@ class Text::CSV {
         self!check_sanity;
         }
 
+    CHECK {
+        sub alias (Str:D $m, *@aka) {
+            my $r := Text::CSV.^find_method ($m);
+            my $p := $r.package;
+            $p.^add_method ($_, $r) for @aka;
+            }
+
+        alias ("sep",                   < sep_char sep-char >);
+        alias ("quo",                   < quote quote_char quote-char >);
+        alias ("esc",                   < escape escape_char escape-char >);
+        alias ("always_quote",          < always-quote quote_always quote-always >);
+        alias ("quote_empty",           < quote-empty >);
+        alias ("quote_space",           < quote-space >);
+        alias ("quote_null",            < quote-null escape_null escape-null >);
+        alias ("quote_binary",          < quote-binary >);
+        alias ("allow_loose_quotes",    < allow-loose-quotes allow_loose_quote allow-loose-quote >);
+        alias ("allow_loose_escapes",   < allow-loose-escapes allow_loose_escape allow-loose-escape >);
+        alias ("allow_unquoted_escape", < allow-unquoted-escape allow_unquoted_escapes allow-unquoted-escapes >);
+        alias ("allow_whitespace",      < allow-whitespace >);
+        alias ("blank_is_undef",        < blank-is-undef >);
+        alias ("empty_is_undef",        < empty-is-undef >);
+        alias ("record_number",         < record-number >);
+        alias ("auto_diag",             < auto-diag >);
+        alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
+        alias ("callbacks",             < hooks >);
+        }
+
     method !fail (Int:D $errno, *@s) {
         $!errno          = $errno;
         $!error_pos      = 0;
@@ -490,33 +517,6 @@ class Text::CSV {
         $!rrange = RangeSet;
         $range.defined and $!rrange = self!rfc7111ranges ($range);
         return $!rrange;
-        }
-
-    CHECK {
-        sub alias (Str:D $m, *@aka) {
-            my $r := Text::CSV.^find_method ($m);
-            my $p := $r.package;
-            $p.^add_method ($_, $r) for @aka;
-            }
-
-        alias ("sep",                   < sep_char sep-char >);
-        alias ("quo",                   < quote quote_char quote-char >);
-        alias ("esc",                   < escape escape_char escape-char >);
-        alias ("always_quote",          < always-quote quote_always quote-always >);
-        alias ("quote_empty",           < quote-empty >);
-        alias ("quote_space",           < quote-space >);
-        alias ("quote_null",            < quote-null escape_null escape-null >);
-        alias ("quote_binary",          < quote-binary >);
-        alias ("allow_loose_quotes",    < allow-loose-quotes allow_loose_quote allow-loose-quote >);
-        alias ("allow_loose_escapes",   < allow-loose-escapes allow_loose_escape allow-loose-escape >);
-        alias ("allow_unquoted_escape", < allow-unquoted-escape allow_unquoted_escapes allow-unquoted-escapes >);
-        alias ("allow_whitespace",      < allow-whitespace >);
-        alias ("blank_is_undef",        < blank-is-undef >);
-        alias ("empty_is_undef",        < empty-is-undef >);
-        alias ("record_number",         < record-number >);
-        alias ("auto_diag",             < auto-diag >);
-        alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
-        alias ("callbacks",             < hooks >);
         }
 
     method version () returns Str {
