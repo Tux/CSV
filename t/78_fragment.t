@@ -3,11 +3,14 @@
 use v6;
 use Slang::Tuxic;
 
+my $tfn = "_78matrix.csv";
+
 use Test;
 use Text::CSV;
 
 my $csv = Text::CSV.new;
 
+# Colranges on a single row
 my Str $str = (1 .. 10).join (",");
 my Str @exp = (1 .. 10).map (~*);
 is ([$csv.getline ($str).map (~*)], @exp,                "no fragments");
@@ -27,11 +30,32 @@ is ([$csv.getline ($str).map (~*)], @exp[1,4..6,8..Inf], "fragment '2;5-7;9-*'")
 $csv.colrange ("2;5-7;5-6;2-2;7-7;9-*;12-*");
 is ([$csv.getline ($str).map (~*)], @exp[1,4..6,8..Inf], "fragment '2;5-7;9-*' with overlaps");
 
-done;
+# Tests on a matrix
+my @expect =
+    [11,12,13,14,15,16,17,18,19],
+    [21,22,23,24,25,26,27,28,29],
+    [31,32,33,34,35,36,37,38,39],
+    [41,42,43,44,45,46,47,48,49],
+    [51,52,53,54,55,56,57,58,59],
+    [61,62,63,64,65,66,67,68,69],
+    [71,72,73,74,75,76,77,78,79],
+    [81,82,83,84,85,86,87,88,89],
+    [91,92,93,94,95,96,97,98,99];
 
-=finish
+my $fh = open $tfn, :w;
+$fh.say ($_.join (",")) for @expect;
+$fh.close;
 
-my @test = (
+sub to-int (@str) { [ @str.map ({[ $_.map (*.Int) ]}) ]; }
+
+$csv = Text::CSV.new;
+
+$fh = open $tfn, :r;
+my @matrix = $csv.getline_all ($fh, meta => False);
+is_deeply (to-int (@matrix), @expect, "Whole matrix");
+$fh.close;
+
+my @test =
     "row=1"         => [[ 11,12,13,14,15,16,17,18,19 ]],
     "row=2-3"       => [[ 21,22,23,24,25,26,27,28,29 ],
 			[ 31,32,33,34,35,36,37,38,39 ]],
@@ -55,6 +79,22 @@ my @test = (
 			[51,52,54,56,57,58,59], [61,62,64,66,67,68,69],
 			[71,72,74,76,77,78,79], [81,82,84,86,87,88,89],
 			[91,92,94,96,97,98,99]],
+    ;
+
+for @test -> $t {
+    my $spec = $t.key;
+    my $expt = $t.value;
+
+    $fh = open $tfn, :r;
+    is_deeply (to-int ($csv.fragment ($fh, $spec, meta => False)), $expt, "spec: $spec");
+    $fh.close;
+    }
+
+unlink $tfn;
+
+done;
+=finish
+
     #cell=R,C
     "cell=7,7"      => [[ 77 ]],
     "cell=7,7-8,8"  => [[ 77,78 ], [ 87,88 ]],
@@ -98,13 +138,3 @@ is_deeply ($csv->fragment ($io, "cell=3,2-4,3"),
 
 #$csv->eol ("\n");
 #foreach my $r (1..9){$csv->print(*STDOUT,[map{$r.$_}1..9])}
-__END__
-11,12,13,14,15,16,17,18,19
-21,22,23,24,25,26,27,28,29
-31,32,33,34,35,36,37,38,39
-41,42,43,44,45,46,47,48,49
-51,52,53,54,55,56,57,58,59
-61,62,63,64,65,66,67,68,69
-71,72,73,74,75,76,77,78,79
-81,82,83,84,85,86,87,88,89
-91,92,93,94,95,96,97,98,99
