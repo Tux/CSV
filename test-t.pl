@@ -1104,22 +1104,24 @@ class Text::CSV {
         }
     }
 
-sub MAIN () {
+sub MAIN (:$getline, :$getline_all) {
 
     my $csv = Text::CSV.new;
 
-    if ($opt_v) {
-        $opt_v > 1 and say $csv.perl;
-        $csv.parse ($test) or die $csv.error_diag;
-        progress (.gist) for $csv.fields;
-        < Expected: Str 1 ab cd e\0f g,h nl\nz\0i""3 Str >.say;
-        }
-
     my Int $sum = 0;
-#   while ($csv.getline ($*IN)) {  # still slower than lines () :eager
-    for lines () :eager {
-        $csv.parse ($_);
-        $sum += $csv.fields.elems;
+    if ($getline_all) { # slowest
+        $sum = [+] $csv.getline_all ($*IN)».map(*.elems);
+        }
+    elsif ($getline) {  # middle, but safe
+        while ($csv.getline ($*IN)) {
+            $sum += $csv.fields.elems;
+            }
+        }
+    else {              # fastest, but unsafe
+        for lines () :eager {
+            $csv.parse ($_);
+            $sum += $csv.fields.elems;
+            }
         }
     $sum.say;
     }

@@ -31,5 +31,8 @@ profile:
 	perl6 -I. -Ilib --profile test-t.pl < /tmp/hello.csv
 	mv profile-[0-9]* profile.html
 
+check:
+	head -5 /tmp/hello.csv | perl6 test-t.pl
+
 time:
 	perl time.pl
