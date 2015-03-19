@@ -90,6 +90,10 @@ for @test -> $t {
     $fh.close;
     }
 
+my $c = CellSet.new;
+$c.add (1, 1);
+#ok ($c.in (1, 1), "In one cell");
+
 unlink $tfn;
 
 done;

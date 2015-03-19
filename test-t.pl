@@ -69,6 +69,33 @@ class RangeSet {
         }
     }
 
+class CellSet {
+
+    class CellRange {
+
+        has RangeSet $.row;
+        has RangeSet $.col;
+
+        method in (Int $row, Int $col) {
+            $.row && $.col && $.row.in ($row) && $.col.in ($col);
+            }
+        }
+
+    has CellRange @!cr;
+
+    method add (Int:D $tlr,            Int:D $tlc,
+                Num   $brr = $tlr.Num, Num   $brc = $tlc.Num) {
+        my $r = RangeSet.new; $r.add ($tlr, $brr);
+        my $c = RangeSet.new; $c.add ($tlc, $brc);
+        @!cr.push (CellRange.new (row => $r, col => $c));
+        }
+
+    method in (Int:D $row, Int:D $col) returns Bool {
+        # Needs work
+        return @!cr.any (*.in ($row, $col));
+        }
+    }
+
 class CSV::Field {
 
     has Bool $.undefined  is rw = True;
