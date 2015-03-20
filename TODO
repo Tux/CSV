@@ -14,17 +14,6 @@
 
 • csv () function
 
-• Fragments
-
-  Lazyness++
-
-  col=2,5-8,20-*  => (1,4..7,19..Inf)
-
-  $ perl6 -e 'my@range=(1,4..7,19..Inf);my@c=(^10)[@range];@c.perl.say'
-  Array.new(1, 4, 5, 6, 7)
-
-• Hooks
-
 • Documentation
 
 • Speed
@@ -39,6 +28,8 @@
    new (eol => rx{ \s* \r?\n },         # future
 
 • Decide if types should be dealt with beyond current overloading
+
+  Also of possible impact to Text::CSV.list
 
   See use of hashes (_hr)
 
