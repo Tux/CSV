@@ -69,6 +69,7 @@ my @test =
 			[ 71,72,73,74,75,76,77,78,79 ],
 			[ 81,82,83,84,85,86,87,88,89 ],
 			[ 91,92,93,94,95,96,97,98,99 ]],
+
     "col=1"         => [[11],[21],[31],[41],[51],[61],[71],[81],[91]],
     "col=2-3"       => [[12,13],[22,23],[32,33],[42,43],[52,53],
 			[62,63],[72,73],[82,83],[92,93]],
@@ -79,25 +80,6 @@ my @test =
 			[51,52,54,56,57,58,59], [61,62,64,66,67,68,69],
 			[71,72,74,76,77,78,79], [81,82,84,86,87,88,89],
 			[91,92,94,96,97,98,99]],
-    ;
-
-for @test -> $t {
-    my $spec = $t.key;
-    my $expt = $t.value;
-
-    $fh = open $tfn, :r;
-    is_deeply (to-int ($csv.fragment ($fh, $spec, meta => False)), $expt, "spec: $spec");
-    $fh.close;
-    }
-
-my $c = CellSet.new;
-$c.add (1, 1);
-#ok ($c.in (1, 1), "In one cell");
-
-unlink $tfn;
-
-done;
-=finish
 
     #cell=R,C
     "cell=7,7"      => [[ 77 ]],
@@ -126,7 +108,22 @@ done;
 	[21,22],
 		[33,34],
 	[41,     43,44]],
-    );
+    ;
+
+for @test -> $t {
+    my $spec = $t.key;
+    my $expt = $t.value;
+
+    $fh = open $tfn, :r;
+    is_deeply (to-int ($csv.fragment ($fh, $spec, meta => False)), $expt, "spec: $spec");
+    $fh.close;
+    }
+
+unlink $tfn;
+
+done;
+=finish
+
 my $todo = "";
 my $data = join "" => <DATA>;
 while (my ($spec, $expect) = splice @test, 0, 2) {

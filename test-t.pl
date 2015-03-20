@@ -91,8 +91,11 @@ class CellSet {
         }
 
     method in (Int:D $row, Int:D $col) returns Bool {
-        # Needs work
-        return @!cr.any (*.in ($row, $col));
+        #return @!cr.any (*.in ($row, $col));
+        for @!cr -> $c {
+            $c.in ($row, $col) and return True;
+            }
+        return False;
         }
     }
 
@@ -1113,19 +1116,60 @@ class Text::CSV {
 
     method fragment (IO:D $io, Str:D $spec is copy, Bool :$meta = True) {
 
-        if ($spec ~~ s{^ "col=" } = "") {
-            self.rowrange (Str);
+        self.rowrange (Str);
+        self.colrange (Str);
+
+        if ($spec ~~ s:i{^ "row=" } = "") {
+            self.rowrange ($spec);
+            return self.getline_all ($io, meta => $meta);
+            }
+
+        if ($spec ~~ s:i{^ "col=" } = "") {
             self.colrange ($spec);
             return self.getline_all ($io, meta => $meta);
             }
 
-        if ($spec ~~ s{^ "row=" } = "") {
-            self.rowrange ($spec);
-            self.colrange (Str);
-            return self.getline_all ($io, meta => $meta);
+        $spec ~~ s:i{^ "cell=" } = "" or self!fail (2013);
+
+        my CellSet $cs = CellSet.new;
+        # cell=1,1-2,2;3,3-4,4;1,4;4,1
+        for $spec.split (/ ";" /) -> $r {
+            $r ~~ /^     (<[0..9]>+)         ","  (<[0..9]>+)
+                   ["-" [(<[0..9]>+)||("*")] "," [(<[0..9]>+)||("*") ]]?
+                   $/ or self!fail (2013);
+            my Int $tlr = +$0;
+            my Int $tlc = +$1;
+            my Str $Brr = ($2 // $tlr).Str;
+            my Str $Brc = ($3 // $tlc).Str;
+            my Num $brr = $Brr eq "*" ?? Inf !! (+$Brr).Num;
+            my Num $brc = $Brc eq "*" ?? Inf !! (+$Brc).Num;
+            $tlr <= $brr && --$tlc <= --$brc or self!fail (2013);
+            $cs.add ($tlr, $tlc, $brr, $brc);
             }
 
+        my Bool $chomped = $io.chomp;
+        my Str  $nl      = $io.nl;
+        $!eol.defined  and $io.nl = $!eol;
+        $io.chomp        = False;
+        $!io             = $io;
+        $!record_number  = 0;
+
         my @lines;
+        while (self.parse ($io.get)) {
+
+            my CSV::Field @f = @!fields[
+                (^(@!fields.elems)).grep ({
+                    $cs.in ($!record_number, $_) })] or next;
+
+            !%!callbacks{"filter"}.defined ||
+                %!callbacks{"filter"}.(self, @f) or next;
+
+            push @lines, [ $meta ?? @f !! @f.map (*.text) ];
+            }
+
+        $!io =  IO;
+        $io.nl    = $nl;
+        $io.chomp = $chomped;
         return @lines;
         }
 
