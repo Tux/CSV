@@ -33,6 +33,9 @@
 
   See use of hashes (_hr)
 
+  Decide if $!meta should be an attribute again, so .list and .fields
+  can merge. Mind csv () and fragment ("cells="...")
+
 • bind_columns and hashes
 
   If returning hashes, consider if returning Str:Str kv pairs is
