@@ -1188,6 +1188,42 @@ class Text::CSV {
         }
     }
 
+sub csv ( Any       :$in,
+          Any       :$out,
+          Any       :$headers,
+          Str       :$key,
+          Str       :$encoding,
+          Str       :$fragment,
+          Text::CSV :$csv = Text::CSV.new,
+          *%args ) {
+
+    # Aliasses
+    #   frag   fragment
+    #   enc    encoding
+
+    # Check csv-only args
+    # Hooks
+    #   after_in    after-in    after_parse  after-parse
+    #   before_out  before-out
+    #   on_in       on-in
+
+    # in
+    #   parse
+    #     "file.csv"
+    #     $io
+    #     \"str,ing"
+    #   generate
+    #     [[1,2],[3,4]]         AoA
+    #     [{1,2},{3,4}]         AoH
+    #     [{1=>2},{3=>4}]       AoP
+    #     sub { ... }
+
+    # out
+    #   "file.csv"
+    #   $fh
+    #   \my $str
+    }
+
 sub MAIN (:$getline, :$getline_all) {
 
     my $csv = Text::CSV.new;
