@@ -360,6 +360,10 @@ class Text::CSV {
             3010 => "EHR - print_hr () called with invalid arguments",
 
             3100 => "ECB - Unsupported callback",
+
+            # csv CI
+            5000 => "CSV - Unsupported type for in",
+            5001 => "CSV - Unsupported type for out",
             ;
 
         $!build = True;
@@ -1206,6 +1210,9 @@ class Text::CSV {
         #   before_out  before-out
         #   on_in       on-in
 
+        my @in; # Either AoA or AoH
+
+        my IO $io-in;
         # in
         #   parse
         #     "file.csv"                    Str
@@ -1216,17 +1223,55 @@ class Text::CSV {
         #     [{1,2},{3,4}]         AoH     Array
         #     [1=>2,3=>4]           AoP     Array
         #     sub { ... }                   Sub
-        $in.WHAT.say;
-        if ($in.WHAT === Array) {
-            my @in = $in;
-            @in[0].WHAT.say;
+        given ($in.WHAT) {
+            when Nil {
+                $io-in = $*IN;
+                }
+            when Str {
+                $io-in = open $in, :r, chomp => False;
+                }
+            when IO {
+                $io-in = $in;
+                }
+            when Capture {
+                my @str = $in.list;
+                for @str -> $str {
+                    # open $io-in < $str
+                    }
+                }
+            when Array {
+                my @in = $in;
+                @in[0].WHAT.say;
+                }
+            when Routine {
+                }
+            default {
+                self!fail (5000);
+                }
             }
-        $in.perl.say;
 
+        my IO $io-out;
         # out
         #   "file.csv"
         #   $fh
         #   \my $str
+        given ($out.WHAT) {
+            when Nil {
+                $io-out = $*OUT;
+                }
+            when Str {
+                $io-out = open $out, :w, chomp => False;
+                }
+            when IO {
+                $io-out = $out;
+                }
+            when Capture {
+                # open $io-out >> $out.list[0]
+                }
+            default {
+                self!fail (5001);
+                }
+            }
         }
     }
 
