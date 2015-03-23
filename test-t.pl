@@ -1186,6 +1186,48 @@ class Text::CSV {
         $io.print (self.string);
         return True;
         }
+
+    method csv ( Any       :$in,
+                 Any       :$out,
+                 Any       :$headers,
+                 Str       :$key,
+                 Str       :$encoding,
+                 Str       :$fragment,
+                 Text::CSV :$csv = self || Text::CSV.new,
+                 *%args ) {
+
+        # Aliasses
+        #   frag   fragment
+        #   enc    encoding
+
+        # Check csv-only args
+        # Hooks
+        #   after_in    after-in    after_parse  after-parse
+        #   before_out  before-out
+        #   on_in       on-in
+
+        # in
+        #   parse
+        #     "file.csv"                    Str
+        #     $io                           IO::Handle
+        #     \"str,ing"                    Capture
+        #   generate
+        #     [[1,2],[3,4]]         AoA     Array
+        #     [{1,2},{3,4}]         AoH     Array
+        #     [1=>2,3=>4]           AoP     Array
+        #     sub { ... }                   Sub
+        $in.WHAT.say;
+        if ($in.WHAT === Array) {
+            my @in = $in;
+            @in[0].WHAT.say;
+            }
+        $in.perl.say;
+
+        # out
+        #   "file.csv"
+        #   $fh
+        #   \my $str
+        }
     }
 
 sub csv ( Any       :$in,
@@ -1215,8 +1257,9 @@ sub csv ( Any       :$in,
     #   generate
     #     [[1,2],[3,4]]         AoA
     #     [{1,2},{3,4}]         AoH
-    #     [{1=>2},{3=>4}]       AoP
+    #     [1=>2,3=>4]           AoP
     #     sub { ... }
+    $in.perl.say;
 
     # out
     #   "file.csv"
