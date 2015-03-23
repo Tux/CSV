@@ -9,13 +9,13 @@ before_install:
     - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
     - source ~/travis-perl-helpers/init
     - git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/panda/bin:$PATH
+    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/panda/bin:$PATH
     - rakudobrew build $BACKEND
     - perl6 -v
     - rakudobrew build-panda  
     - panda install Slang::Tuxic
 install:
-    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/panda/bin:$PATH
+    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/panda/bin:$PATH
     - panda --notests install . # installs deps
 before_script:
     - panda list --installed --verbose
