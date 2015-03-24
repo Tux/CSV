@@ -1282,34 +1282,16 @@ sub csv ( Any       :$in,
           Str       :$encoding,
           Str       :$fragment,
           Text::CSV :$csv = Text::CSV.new,
-          *%args ) {
+          *%args ) is export {
 
-    # Aliasses
-    #   frag   fragment
-    #   enc    encoding
-
-    # Check csv-only args
-    # Hooks
-    #   after_in    after-in    after_parse  after-parse
-    #   before_out  before-out
-    #   on_in       on-in
-
-    # in
-    #   parse
-    #     "file.csv"
-    #     $io
-    #     \"str,ing"
-    #   generate
-    #     [[1,2],[3,4]]         AoA
-    #     [{1,2},{3,4}]         AoH
-    #     [1=>2,3=>4]           AoP
-    #     sub { ... }
-    $in.perl.say;
-
-    # out
-    #   "file.csv"
-    #   $fh
-    #   \my $str
+    return $csv.csv (
+        in       => $in,
+        out      => $out,
+        headers  => $headers,
+        key      => $key,
+        encoding => $encoding,
+        fragment => $fragment,
+        |%args);
     }
 
 sub MAIN (:$getline, :$getline_all) {
