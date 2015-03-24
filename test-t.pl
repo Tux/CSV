@@ -1191,13 +1191,13 @@ class Text::CSV {
         return True;
         }
 
-    method csv ( Any       :$in,
-                 Any       :$out,
+    # Only as a method, both in and out are required
+    method CSV ( Any       :$in!,
+                 Any       :$out!,
                  Any       :$headers,
                  Str       :$key,
                  Str       :$encoding,
                  Str       :$fragment,
-                 Text::CSV :$csv = self || Text::CSV.new,
                  *%args ) {
 
         # Aliasses
@@ -1223,27 +1223,35 @@ class Text::CSV {
         #     [{1,2},{3,4}]         AoH     Array
         #     [1=>2,3=>4]           AoP     Array
         #     sub { ... }                   Sub
+        $in.WHAT.say;
+        $in.perl.say;
         given ($in.WHAT) {
-            when Nil {
-                $io-in = $*IN;
-                }
             when Str {
+                "=STR".say;
                 $io-in = open $in, :r, chomp => False;
                 }
             when IO {
+                "=IO".say;
                 $io-in = $in;
                 }
             when Capture {
+                "=CAPTURE".say;
                 my @str = $in.list;
                 for @str -> $str {
                     # open $io-in < $str
                     }
                 }
             when Array {
+                "=ARRAY".say;
                 my @in = $in;
                 @in[0].WHAT.say;
                 }
             when Routine {
+                "=ROUTINE".say;
+                }
+            when Any {
+                "=ANY".say;
+                $io-in = $*IN;
                 }
             default {
                 self!fail (5000);
@@ -1255,10 +1263,9 @@ class Text::CSV {
         #   "file.csv"
         #   $fh
         #   \my $str
+        $out.WHAT.say;
+        $out.perl.say;
         given ($out.WHAT) {
-            when Nil {
-                $io-out = $*OUT;
-                }
             when Str {
                 $io-out = open $out, :w, chomp => False;
                 }
@@ -1268,10 +1275,31 @@ class Text::CSV {
             when Capture {
                 # open $io-out >> $out.list[0]
                 }
+            when Any {
+                $io-out = $*OUT;
+                }
             default {
                 self!fail (5001);
                 }
             }
+        }
+
+    method csv ( Any       :$in,
+                 Any       :$out,
+                 Any       :$headers,
+                 Str       :$key,
+                 Str       :$encoding,
+                 Str       :$fragment,
+                 Text::CSV :$csv = self || Text::CSV.new,
+                 *%args ) {
+        return $csv.CSV (
+            in       => $in,
+            out      => $out,
+            headers  => $headers,
+            key      => $key,
+            encoding => $encoding,
+            fragment => $fragment,
+            |%args);
         }
     }
 
@@ -1284,7 +1312,7 @@ sub csv ( Any       :$in,
           Text::CSV :$csv = Text::CSV.new,
           *%args ) is export {
 
-    return $csv.csv (
+    return $csv.CSV (
         in       => $in,
         out      => $out,
         headers  => $headers,
