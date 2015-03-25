@@ -1223,34 +1223,25 @@ class Text::CSV {
         #     [{1,2},{3,4}]         AoH     Array
         #     [1=>2,3=>4]           AoP     Array
         #     sub { ... }                   Sub
-        $in.WHAT.say;
-        $in.perl.say;
         given ($in.WHAT) {
             when Str {
-                "=STR".say;
                 $io-in = open $in, :r, chomp => False;
                 }
             when IO {
-                "=IO".say;
                 $io-in = $in;
                 }
             when Capture {
-                "=CAPTURE".say;
                 my @str = $in.list;
                 for @str -> $str {
                     # open $io-in < $str
                     }
                 }
             when Array {
-                "=ARRAY".say;
                 my @in = $in;
-                @in[0].WHAT.say;
                 }
             when Routine {
-                "=ROUTINE".say;
                 }
             when Any {
-                "=ANY".say;
                 $io-in = $*IN;
                 }
             default {
@@ -1263,8 +1254,6 @@ class Text::CSV {
         #   "file.csv"
         #   $fh
         #   \my $str
-        $out.WHAT.say;
-        $out.perl.say;
         given ($out.WHAT) {
             when Str {
                 $io-out = open $out, :w, chomp => False;
