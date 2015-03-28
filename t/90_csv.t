@@ -22,13 +22,18 @@ my @in =
     sub { ... },
     ;
 
+sub okk ($test, Str $diag) {
+    ok ($test, $diag);
+    $io-in.seek (0, 0);
+    }
+
 # Test supported "in" formats
 for @in -> $in {
     my $s-in = $in.gist;
-    ok (Text::CSV.csv (in => $in),              "Class   $s-in");
-    ok (     $csv.csv (in => $in),              "Method  $s-in");
-    ok (          csv (in => $in),              "Sub     $s-in");
-    ok (          csv (in => $in, csv => $csv), "Sub/Obj $s-in");
+    okk (Text::CSV.csv (in => $in),              "Class   $s-in");
+    okk (     $csv.csv (in => $in),              "Method  $s-in");
+    okk (          csv (in => $in),              "Sub     $s-in");
+    okk (          csv (in => $in, csv => $csv), "Sub/Obj $s-in");
     }
 
 # Test supported "out" formats

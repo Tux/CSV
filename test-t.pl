@@ -1241,10 +1241,7 @@ class Text::CSV {
                 $io-in = $in;
                 }
             when Capture {
-                my @str = $in.list;
-                for @str -> $str {
-                    # open $io-in < $str
-                    }
+                @in = $in.list.map ({[self.getline ($_);]});
                 }
             when Array {
                 @in = $in.list;
@@ -1275,7 +1272,7 @@ class Text::CSV {
                 # open $io-out >> $out.list[0]
                 }
             when Any {
-                # $io-out = $*OUT;
+                $in ~~ Array and $io-out = $*OUT;
                 }
             default {
                 self!fail (5001);
