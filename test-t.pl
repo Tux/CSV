@@ -1198,6 +1198,7 @@ class Text::CSV {
                  Str       :$key,
                  Str       :$encoding,
                  Str       :$fragment,
+                 Bool      :$meta = True,
                  *%args ) {
 
         # Aliasses
@@ -1279,8 +1280,10 @@ class Text::CSV {
                  Str       :$key,
                  Str       :$encoding,
                  Str       :$fragment,
-                 Text::CSV :$csv = self || Text::CSV.new,
+                 Bool      :$meta = True,
+                 Text::CSV :$csv  = self || Text::CSV.new,
                  *%args ) {
+
         return $csv.CSV (
             in       => $in,
             out      => $out,
@@ -1288,6 +1291,7 @@ class Text::CSV {
             key      => $key,
             encoding => $encoding,
             fragment => $fragment,
+            meta     => $meta,
             |%args);
         }
     }
