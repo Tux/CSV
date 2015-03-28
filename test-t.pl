@@ -147,6 +147,7 @@ class CSV::Field {
     method add (Str $chunk) {
         $!text     ~= $chunk;
         $!undefined = False;
+        return self;
         }
 
     method set_quoted () {
