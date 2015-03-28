@@ -1194,16 +1194,18 @@ class Text::CSV {
     # Only as a method, both in and out are required
     method CSV ( Any       :$in!,
                  Any       :$out!,
-                 Any       :$headers,
+                 Any       :$headers  is copy,
                  Str       :$key,
-                 Str       :$encoding,
-                 Str       :$fragment,
+                 Str       :$encoding is copy,
+                 Str       :$fragment is copy,
                  Bool      :$meta = True,
                  *%args ) {
 
         # Aliasses
         #   frag   fragment
         #   enc    encoding
+        %args{"frag"}.defined and $fragment ||= %args{"frag"} :delete;
+        %args{"enc" }.defined and $encoding ||= %args{"enc"}  :delete;
 
         # Check csv-only args
         # Hooks
