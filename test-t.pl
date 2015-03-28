@@ -1247,7 +1247,7 @@ class Text::CSV {
                     }
                 }
             when Array {
-                @in = $in;
+                @in = $in.list;
                 }
             when Routine {
                 }
@@ -1275,7 +1275,7 @@ class Text::CSV {
                 # open $io-out >> $out.list[0]
                 }
             when Any {
-                $io-out = $*OUT;
+                # $io-out = $*OUT;
                 }
             default {
                 self!fail (5001);
@@ -1286,7 +1286,18 @@ class Text::CSV {
             @in = $fragment
                 ?? self.fragment    ($io-in, meta => $meta, $fragment)
                 !! self.getline_all ($io-in, meta => $meta);
-            #.gist.say for @in;
+            }
+
+        if ($out.defined) {
+            my $eol = self.eol;
+            $eol.defined or self.eol ("\r\n");
+            for @in -> @row {
+                @!fields = @row[0] ~~ CSV::Field
+                    ?? @row
+                    !! @row.map ({ CSV::Field.new.add ($_.Str); });
+                $io-out.print (self.string);
+                }
+            self.eol ($eol);
             }
 
         return True;
