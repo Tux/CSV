@@ -366,6 +366,10 @@ class Text::CSV {
             5001 => "CSV - Unsupported type for out",
             ;
 
+        self!set-attributes (%init);
+        }
+
+    method !set-attributes (%init) {
         $!build = True;
         for keys %init -> $attr {
             my @can = self.can (lc $attr) or self!fail (1000, "Unknown attribute '$attr'");
@@ -1199,7 +1203,7 @@ class Text::CSV {
                  Str       :$encoding is copy,
                  Str       :$fragment is copy,
                  Bool      :$meta = True,
-                 *%args ) {
+                 *%args               is copy) {
 
         # Aliasses
         #   frag   fragment
@@ -1212,6 +1216,8 @@ class Text::CSV {
         #   after_in    after-in    after_parse  after-parse
         #   before_out  before-out
         #   on_in       on-in
+
+        self!set-attributes (%args);
 
         my @in; # Either AoA or AoH
 
@@ -1274,6 +1280,13 @@ class Text::CSV {
                 self!fail (5001);
                 }
             }
+
+        if ($io-in ~~ IO) {
+            #@in = self.getline_all ($io-in);
+            #self.fragment ($fragment);
+            }
+
+        return True;
         }
 
     method csv ( Any       :$in,
