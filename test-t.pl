@@ -1238,7 +1238,7 @@ class Text::CSV {
                     }
                 }
             when Array {
-                my @in = $in;
+                @in = $in;
                 }
             when Routine {
                 }
