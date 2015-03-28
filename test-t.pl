@@ -1292,24 +1292,7 @@ class Text::CSV {
         }
     }
 
-sub csv ( Any       :$in,
-          Any       :$out,
-          Any       :$headers,
-          Str       :$key,
-          Str       :$encoding,
-          Str       :$fragment,
-          Text::CSV :$csv = Text::CSV.new,
-          *%args ) is export {
-
-    return $csv.CSV (
-        in       => $in,
-        out      => $out,
-        headers  => $headers,
-        key      => $key,
-        encoding => $encoding,
-        fragment => $fragment,
-        |%args);
-    }
+sub csv (*%args) is export { return Text::CSV.csv (|%args); }
 
 sub MAIN (:$getline, :$getline_all) {
 
