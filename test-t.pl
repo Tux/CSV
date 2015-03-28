@@ -1281,9 +1281,11 @@ class Text::CSV {
                 }
             }
 
-        if ($io-in ~~ IO) {
-            #@in = self.getline_all ($io-in);
-            #self.fragment ($fragment);
+        if ($io-in ~~ IO and $io-in.defined) {
+            @in = $fragment
+                ?? self.fragment    ($io-in, meta => $meta, $fragment)
+                !! self.getline_all ($io-in, meta => $meta);
+            #.gist.say for @in;
             }
 
         return True;
