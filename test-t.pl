@@ -1285,8 +1285,9 @@ class Text::CSV {
                 !! self.getline_all ($io-in, meta => $meta);
             }
 
-        if ($out.defined) {
-            my $eol = self.eol;
+        $out.defined or return @in;
+
+        {   my $eol = self.eol;
             $eol.defined or self.eol ("\r\n");
             for @in -> @row {
                 @!fields = @row[0] ~~ CSV::Field
