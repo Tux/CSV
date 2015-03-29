@@ -1247,6 +1247,7 @@ class Text::CSV {
                 @in = $in.list;
                 }
             when Routine {
+                return "NYI";
                 }
             when Any {
                 $io-in = $*IN;
