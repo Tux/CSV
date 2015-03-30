@@ -1,13 +1,19 @@
 { "name"         : "Text::CSV",
   "version"      : "0.001",
+  "perl"         : "v6.0.0",
   "description"  : "Parse CSV data, API like Text::CSV_XS",
-  "author"       : "H.Merijn Brand (Tux)",
   "auth"         : "github:Tux",
-  "depends"      : [ "Slang::Tuxic" ],
-  "test-depends" : [ "Test"         ],
+  "authors"      : [ "H.Merijn Brand (Tux)" ],
+  "tags"         : [ "CSV"                  ],
+  "depends"      : [ "Slang::Tuxic"         ],
+  "test-depends" : [ "Test"                 ],
   "provides"     : {
     "Text::CSV"  : "lib/Text/CSV.pm"
     },
   "repo-type"    : "git",
-  "source-url"   : "git://github.com/Tux/CSV.git"
+  "source-url"   : "git://github.com/Tux/CSV.git",
+  "license"      : "http://www.perlfoundation.org/artistic_license_2_0",
+  "support"      : {
+    "irc"        : "irc://irc.perl.org/#csv"
+    }
   } 
