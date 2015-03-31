@@ -32,10 +32,10 @@ class RangeSet {
         self.bless (:@ranges);
         }
 
-    multi method add (Pair:D $p)              { @!ranges.push ($p);               }
-    multi method add (Int:D $from)            { @!ranges.push ($from => $from);   }
-    multi method add (Int:D $from, Num:D $to) { @!ranges.push ($from => $to);     }
-    multi method add (Int:D $from, Any:D $to) { @!ranges.push ($from => $to.Num); }
+    multi method add (Pair:D $p)              { @!ranges.push: $p;               }
+    multi method add (Int:D $from)            { @!ranges.push: $from => $from;   }
+    multi method add (Int:D $from, Num:D $to) { @!ranges.push: $from => $to;     }
+    multi method add (Int:D $from, Any:D $to) { @!ranges.push: $from => $to.Num; }
 
     method min () { @!ranges>>.key.min   }
     method max () { @!ranges>>.value.max }
@@ -87,7 +87,7 @@ class CellSet {
                 Num   $brr = $tlr.Num, Num   $brc = $tlc.Num) {
         my $r = RangeSet.new; $r.add ($tlr, $brr);
         my $c = RangeSet.new; $c.add ($tlc, $brc);
-        @!cr.push (CellRange.new (row => $r, col => $c));
+        @!cr.push: CellRange.new (row => $r, col => $c);
         }
 
     method in (Int:D $row, Int:D $col) returns Bool {
@@ -602,7 +602,7 @@ class Text::CSV {
         }
 
     method !accept-field (CSV::Field $f) returns Bool {
-        push @!fields, $f;
+        @!fields.push: $f;
         return True;
         }
 
@@ -665,12 +665,12 @@ class Text::CSV {
         my Str @f;
         for @!crange ?? @!fields[@!crange] !! @!fields -> $f {
             if ($f.undefined) {
-                @f.push ("");
+                @f.push: "";
                 next;
                 }
             my Str $t = $f.text ~ "";
             if ($t eq "") {
-                @f.push ($!always_quote || $!quote_empty ?? "$!quo$!quo" !! "");
+                @f.push: $!always_quote || $!quote_empty ?? "$!quo$!quo" !! "";
                 next;
                 }
             $t .= subst (/( $q | $e )/, { "$e$0" }, :g);
@@ -680,7 +680,7 @@ class Text::CSV {
             || ($!quote_space  && $t ~~ / " " | \t /)
             || ($!quote_binary && $t ~~ / <[ \x00..\x08 \x0a..\x1f \x7f..\xa0 ]> /)
                 and $t = "$q$t$q";
-            push @f, $t;
+            @f.push: $t;
             }
         #progress (0, @f);
         my Str $x = join $!sep, @f;
@@ -780,7 +780,7 @@ class Text::CSV {
         my @ch;
         $!io and @ch = @!ahead;
         @!ahead = ();
-        $buffer.defined and @ch.push (chunks ($buffer, $chx));
+        $buffer.defined and @ch.push: chunks ($buffer, $chx);
         @ch or return parse_error (2012);
 
         $opt_v > 2 and progress (0, @ch.perl);
@@ -1003,7 +1003,7 @@ class Text::CSV {
 
                         if ($i == @ch.elems - 1 && $!io.defined) {
                             my $str = $!io.get or return parse_error (2012);
-                            @ch.push (chunks ($str, $chx));
+                            @ch.push: chunks ($str, $chx);
                             }
 
                         next;
@@ -1102,7 +1102,7 @@ class Text::CSV {
                 !%!callbacks{"filter"}.defined ||
                     %!callbacks{"filter"}.(self, @!fields) or next;
 
-                push @lines, [ $meta ?? self.fields !! self.list ];
+                @lines.push: [ $meta ?? self.fields !! self.list ];
                 }
             }
         else {
@@ -1112,7 +1112,7 @@ class Text::CSV {
                     %!callbacks{"filter"}.(self, @!fields) or next;
 
                 @lines.elems == $offset and @lines.shift;
-                push @lines, [ $meta ?? self.fields !! self.list ];
+                @lines.push: [ $meta ?? self.fields !! self.list ];
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }
@@ -1173,7 +1173,7 @@ class Text::CSV {
             !%!callbacks{"filter"}.defined ||
                 %!callbacks{"filter"}.(self, @f) or next;
 
-            push @lines, [ $meta ?? @f !! @f.map (*.text) ];
+            @lines.push: [ $meta ?? @f !! @f.map (*.text) ];
             }
 
         $!io =  IO;
