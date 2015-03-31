@@ -10,6 +10,16 @@ my $csv = Text::CSV.new;
 
 my $io-in  = open "files/utf8.csv", :r;
 my $io-out = open "_90.csv",        :w;
+
+sub provider {
+    state Int $n = 3;
+    if (--$n < 0) {
+        $n = 3;
+        return False;
+        }
+    return [1,2],[2,3];
+    }
+
 my @in =
     "files/utf8.csv",
     $io-in,
@@ -19,21 +29,24 @@ my @in =
     [{1,2},{3,4}],
     [{1=>2},{3=>4}],    #?
 
-    sub { ... },
+    # I Also want Supply
+    &provider,
     ;
 
-sub okk ($test, Str $diag) {
-    ok ($test, $diag);
+sub inok ($test, Str $diag) {
+    ok ((my @r = $test), $diag);
     $io-in.seek (0, 0);
+    ok (@r ~~ Array, "Returned array");
     }
 
 # Test supported "in" formats
 for @in -> $in {
     my $s-in = $in.gist;
-    okk (Text::CSV.csv (in => $in),              "Class   $s-in");
-    okk (     $csv.csv (in => $in),              "Method  $s-in");
-    okk (          csv (in => $in),              "Sub     $s-in");
-    okk (          csv (in => $in, csv => $csv), "Sub/Obj $s-in");
+    my @r;
+    inok (Text::CSV.csv (in => $in),              "Class   $s-in");
+    inok (     $csv.csv (in => $in),              "Method  $s-in");
+    inok (          csv (in => $in),              "Sub     $s-in");
+    inok (          csv (in => $in, csv => $csv), "Sub/Obj $s-in");
     }
 
 # Test supported "out" formats
@@ -41,27 +54,6 @@ for @in -> $in {
 done;
 
 =finish
-
-my $csv = Text::CSV.new;
-
-ok ($csv,                                      "New parser");
-is ($csv.fields.elems, 0,                      "fields () before parse ()");
-is ($csv.list.elems, 0,                        "list () before parse ()");
-is ($csv.string, Str,                          "string () undef before combine");
-is ($csv.status, True,                         "No failures yet");
-
-use strict;
-use warnings;
-use Config;
-
-#use Test::More "no_plan";
- use Test::More tests => 28;
-
-BEGIN {
-    use_ok "Text::CSV_XS", ("csv");
-    plan skip_all => "Cannot load Text::CSV_XS" if $@;
-    require "t/util.pl";
-    }
 
 my $file = "_90test.csv"; END { -f $file and unlink $file }
 my $data =

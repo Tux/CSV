@@ -1241,13 +1241,13 @@ class Text::CSV {
                 $io-in = $in;
                 }
             when Capture {
-                @in = $in.list.map ({[self.getline ($_);]});
+                @in = gather for ($in.list) -> $x { take self.getline ($x.Str) };
                 }
             when Array {
                 @in = $in.list;
                 }
             when Routine {
-                return "NYI";
+                @in = gather while $in() -> $r { take $r };
                 }
             when Any {
                 $io-in = $*IN;
