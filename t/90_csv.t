@@ -12,8 +12,11 @@ my $sup    = Supply.new;
 my $fni    = "_90in.csv";
 my $fno    = "_90out.csv";
 
+my Str @data = "a,b", "1,2", "3,4";
+my Str $data = @data.map (*~"\n").join ("");
+
 {   my $fh = open $fni, :w;
-    $fh.say ($_) for "a,b", "1,2", "3,4";
+    $fh.say ($_) for @data;
     $fh.close;
     }
 
@@ -21,20 +24,20 @@ my $io-in  = open $fni, :r;
 my $io-out = open $fno, :w;
 
 sub provider {
-    state Int $n = 3;
-    if (--$n < 0) {
-        $n = 3;
+    state Str @dta = @data;
+    if (@dta.elems == 0) {
+        @dta = @data;
         return False;
         }
-    return [1,2],[2,3];
+    return @dta.shift;
     }
 
 my @in =
     $fni,
     $io-in,
-    \"a,b\n1,2\n3,4\n",
-    ["a,b\n1,2\n3,4\n"],
-    ["a,b","1,2","3,4"],
+    \$data,
+    [$data],
+    [@data],
     [["a","b"],[1,2],[3,4]],
     [{a=>1,b=>2},{a=>3,b=>4}],
 
