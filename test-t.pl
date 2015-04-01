@@ -1225,14 +1225,14 @@ class Text::CSV {
         my IO $io-in;
         # in
         #   parse
-        #     "file.csv"                    Str
-        #     $io                           IO::Handle
-        #     \"str,ing"                    Capture
+        #     "file.csv"                       Str
+        #     $io                              IO::Handle
+        #     \"str,ing"                       Capture
         #   generate
-        #     [[1,2],[3,4]]         AoA     Array
-        #     [{1,2},{3,4}]         AoH     Array
-        #     [1=>2,3=>4]           AoP     Array
-        #     sub { ... }                   Sub
+        #     [["a","b"][1,2],[3,4]]     AoA   Array
+        #     [{a=>1,b=>2},{a=>3,b=>4}]  AoH   Array
+        #     sub { ... }                      Sub
+        #     Supply.new                       Supply
         given ($in.WHAT) {
             when Str {
                 $io-in = open $in, :r, chomp => False;
@@ -1241,16 +1241,25 @@ class Text::CSV {
                 $io-in = $in;
                 }
             when Array {
-                @in = $in.list;
+                $in.list.elems or return;
+                given ($in.list[0].WHAT) {
+                    when Str {
+                        @in = gather
+                             for   ($in.list) -> $x { take self.getline ($x.Str) };
+                        }
+                    default {
+                        @in = $in.list;
+                        }
+                    }
                 }
             when Capture {
-                @in = gather for ($in.list)  -> $x { take self.getline ($x.Str) };
+                @in = gather for   ($in.list) -> $x { take self.getline ($x.Str) };
                 }
             when Supply {
-                @in = gather while ($in.tap) -> $r { take $r };
+                @in = gather while ($in.tap)  -> $r { take $r };
                 }
             when Routine {
-                @in = gather while $in()     -> $r { take $r };
+                @in = gather while  $in()     -> $r { take $r };
                 }
             when Any {
                 $io-in = $*IN;

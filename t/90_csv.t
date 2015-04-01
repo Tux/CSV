@@ -9,8 +9,16 @@ use Text::CSV;
 my $csv    = Text::CSV.new;
 my $sup    = Supply.new;
 
-my $io-in  = open "files/utf8.csv", :r;
-my $io-out = open "_90.csv",        :w;
+my $fni    = "_90in.csv";
+my $fno    = "_90out.csv";
+
+{   my $fh = open $fni, :w;
+    $fh.say ($_) for "a,b", "1,2", "3,4";
+    $fh.close;
+    }
+
+my $io-in  = open $fni, :r;
+my $io-out = open $fno, :w;
 
 sub provider {
     state Int $n = 3;
@@ -22,13 +30,13 @@ sub provider {
     }
 
 my @in =
-    "files/utf8.csv",
+    $fni,
     $io-in,
-    \"1,2,3",
-
-    [[1,2],[3,4]],
-    [{1,2},{3,4}],
-    [{1=>2},{3=>4}],    #?
+    \"a,b\n1,2\n3,4\n",
+    ["a,b\n1,2\n3,4\n"],
+    ["a,b","1,2","3,4"],
+    [["a","b"],[1,2],[3,4]],
+    [{a=>1,b=>2},{a=>3,b=>4}],
 
 #   $sup,       # Need to understand timing (when to call .done)
     &provider,
@@ -44,12 +52,12 @@ sub inok ($test, Str $diag) {
 
 # Test supported "in" formats
 for @in -> $in {
-    my $s-in = $in.gist;
+    my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
     my @r;
-    inok (Text::CSV.csv (in => $in),              "Class   $s-in");
-    inok (     $csv.csv (in => $in),              "Method  $s-in");
-    inok (          csv (in => $in),              "Sub     $s-in");
-    inok (          csv (in => $in, csv => $csv), "Sub/Obj $s-in");
+    inok (Text::CSV.csv (in => $in, meta => False),              "Class   $s-in");
+    inok (     $csv.csv (in => $in, meta => False),              "Method  $s-in");
+    inok (          csv (in => $in, meta => False),              "Sub     $s-in");
+    inok (          csv (in => $in, meta => False, csv => $csv), "Sub/Obj $s-in");
     }
 
 # Test supported "out" formats
