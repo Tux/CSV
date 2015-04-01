@@ -221,3 +221,10 @@ EOP
     test (qr{expected 'Int' but got 'Num'},
           q{my Int $i = Int.Range.max});
     }
+
+{   title "Exception", "For loop fails to CATCH exception", "RT#124191";
+    # OH NOES
+    #    in block  at -e:1
+    test (qr{OH NOES},
+          q{class C is Exception { method message { "OH NOES" } }; for ^208 { { die C.new; CATCH { default {} } }; print "" }});
+    }
