@@ -1240,14 +1240,17 @@ class Text::CSV {
             when IO {
                 $io-in = $in;
                 }
-            when Capture {
-                @in = gather for ($in.list) -> $x { take self.getline ($x.Str) };
-                }
             when Array {
                 @in = $in.list;
                 }
+            when Capture {
+                @in = gather for ($in.list)  -> $x { take self.getline ($x.Str) };
+                }
+            when Supply {
+                @in = gather while ($in.tap) -> $r { take $r };
+                }
             when Routine {
-                @in = gather while $in() -> $r { take $r };
+                @in = gather while $in()     -> $r { take $r };
                 }
             when Any {
                 $io-in = $*IN;

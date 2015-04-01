@@ -6,7 +6,8 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-my $csv = Text::CSV.new;
+my $csv    = Text::CSV.new;
+my $sup    = Supply.new;
 
 my $io-in  = open "files/utf8.csv", :r;
 my $io-out = open "_90.csv",        :w;
@@ -29,11 +30,13 @@ my @in =
     [{1,2},{3,4}],
     [{1=>2},{3=>4}],    #?
 
-    # I Also want Supply
+#   $sup,       # Need to understand timing (when to call .done)
     &provider,
     ;
 
 sub inok ($test, Str $diag) {
+    $sup.emit ([[1,2], [3,4]]);
+    $sup.done;
     ok ((my @r = $test), $diag);
     $io-in.seek (0, 0);
     ok (@r ~~ Array, "Returned array");
