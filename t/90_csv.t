@@ -14,6 +14,7 @@ my $fno    = "_90out.csv";
 
 my Str @data = "a,b", "1,2", "3,4";
 my Str $data = @data.map (*~"\n").join ("");
+my @expect = @data.map ({[ $_.split (",") ]});
 
 {   my $fh = open $fni, :w;
     $fh.say ($_) for @data;
@@ -29,7 +30,7 @@ sub provider {
         @dta = @data;
         return False;
         }
-    return @dta.shift;
+    return [ @dta.shift.split (",") ];
     }
 
 my @in =
@@ -38,25 +39,26 @@ my @in =
     \$data,
     [$data],
     [@data],
-    [["a","b"],[1,2],[3,4]],
-    [{a=>1,b=>2},{a=>3,b=>4}],
+    [["a","b"],["1","2"],["3","4"]],
+#   [{a=>1,b=>2},{a=>3,b=>4}],
 
 #   $sup,       # Need to understand timing (when to call .done)
     &provider,
     ;
 
-sub inok ($test, Str $diag) {
-    $sup.emit ([[1,2], [3,4]]);
+sub inok (@r, Str $diag) {
     $sup.done;
-    ok ((my @r = $test), $diag);
+    ok (@r, $diag); # Expect Array.new (["a", "b"], ["1", "2"], ["3", "4"])
+    #@r.perl.say;
     $io-in.seek (0, 0);
-    ok (@r ~~ Array, "Returned array");
+    is (@r.elems, 3, "AoA should have 3 rows");
+    is_deeply (@r, @expect, "Content");
     }
 
 # Test supported "in" formats
 for @in -> $in {
     my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
-    my @r;
+    $sup.emit ($_) for @data;
     inok (Text::CSV.csv (in => $in, meta => False),              "Class   $s-in");
     inok (     $csv.csv (in => $in, meta => False),              "Method  $s-in");
     inok (          csv (in => $in, meta => False),              "Sub     $s-in");

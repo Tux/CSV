@@ -24,6 +24,19 @@ sub progress (*@y) {
     $x.say;
     } # progress
 
+# I don't want this inside Text::CSV
+class IO::String is IO::Handle {
+
+    use File::Temp;
+
+    multi method new (Str $str!) returns IO::Handle {
+        (my Str $filename, my $fh) = tempfile;
+        $fh.print ($str);
+        $fh.close;
+        return open $filename, :r, chomp => False;
+        }
+    }
+
 class RangeSet {
 
     has Pair @!ranges;
@@ -1244,8 +1257,7 @@ class Text::CSV {
                 $in.list.elems or return;
                 given ($in.list[0].WHAT) {
                     when Str {
-                        @in = gather
-                             for   ($in.list) -> $x { take self.getline ($x.Str, meta => $meta) };
+                        $io-in = IO::String.new ($in.list.join ($!eol // "\n"));
                         }
                     default {
                         @in = $in.list;
@@ -1253,7 +1265,7 @@ class Text::CSV {
                     }
                 }
             when Capture {
-                @in = gather for   ($in.list) -> $x { take self.getline ($x.Str, meta => $meta) };
+                $io-in = IO::String.new ($in.list.map (*.Str).join ($!eol // "\n"));
                 }
             when Supply {
                 @in = gather while ($in.tap)  -> $r { take $r };
