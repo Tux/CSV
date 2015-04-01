@@ -43,10 +43,20 @@ sub test
     print $fh $p;
     close $fh;
 
-    system "perl6 $t @arg >$e 2>&1";
+    eval {
+        local $SIG{ALRM} = sub {
+            open my $fh, ">", $e;
+            print $fh "TIMEOUT\n";
+            close $fh;
+            };
+        alarm (3);
+        system "perl6 $t @arg >$e 2>&1";
+        alarm (0);
+        };
     my $E = do { local (@ARGV, $/) = $e; <> };
     (my $P = $E) =~ s{^}{  }gm;
     $P =~s/[\s\r\n]+\z//;
+    $opt_v and say "Expected: $re\nGot     : $E\n";
     my $fail = $E =~ $re;
     if ($opt_s) {
         my $color = $fail ? 31 : 32;
