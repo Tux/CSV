@@ -1245,7 +1245,7 @@ class Text::CSV {
                 given ($in.list[0].WHAT) {
                     when Str {
                         @in = gather
-                             for   ($in.list) -> $x { take self.getline ($x.Str) };
+                             for   ($in.list) -> $x { take self.getline ($x.Str, meta => $meta) };
                         }
                     default {
                         @in = $in.list;
@@ -1253,7 +1253,7 @@ class Text::CSV {
                     }
                 }
             when Capture {
-                @in = gather for   ($in.list) -> $x { take self.getline ($x.Str) };
+                @in = gather for   ($in.list) -> $x { take self.getline ($x.Str, meta => $meta) };
                 }
             when Supply {
                 @in = gather while ($in.tap)  -> $r { take $r };
