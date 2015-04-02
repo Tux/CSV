@@ -1283,9 +1283,13 @@ class Text::CSV {
         my IO  $io-out;
         my Str $tmpfn;
         # out
-        #   Str              - return output as Str
-        #   "file.csv"       - write to file
-        #   $fh              - write to $fh
+        #   Array       - return AoA (default)
+        #   Hash        - return AoH (headers required)
+        #   Str         - return output as Str
+        #   "file.csv"  - write to file
+        #   $fh         - write to $fh
+        #   Supply:D    - emit to Supply
+        #   Routine:D   - pass row(s) to Routine
         given ($out.WHAT) {
             when Str {
                 ($tmpfn, $io-out) = $out.defined
