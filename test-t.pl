@@ -675,8 +675,8 @@ class Text::CSV {
         my Str $e = $!esc;
         #progress (0, @!fields);
         my Str @f;
-        for @!crange ?? @!fields[@!crange] !! @!fields -> $f {
-            if ($f.undefined) {
+        for @!fields -> $f {
+            if (!$f.defined || $f.undefined) {
                 @f.push: "";
                 next;
                 }
