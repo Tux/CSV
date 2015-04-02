@@ -2,6 +2,7 @@
 
 use v6;
 use Slang::Tuxic;
+use File::Temp;
 
 my $VERSION = "1.00";
 
@@ -26,8 +27,6 @@ sub progress (*@y) {
 
 # I don't want this inside Text::CSV
 class IO::String is IO::Handle {
-
-    use File::Temp;
 
     multi method new (Str $str!) returns IO::Handle {
         (my Str $filename, my $fh) = tempfile;
@@ -1281,20 +1280,20 @@ class Text::CSV {
                 }
             }
 
-        my IO $io-out;
+        my IO  $io-out;
+        my Str $tmpfn;
         # out
-        #   "file.csv"
-        #   $fh
-        #   \my $str
+        #   Str              - return output as Str
+        #   "file.csv"       - write to file
+        #   $fh              - write to $fh
         given ($out.WHAT) {
             when Str {
-                $io-out = open $out, :w, chomp => False;
+                ($tmpfn, $io-out) = $out.defined
+                    ?? (Str, open $out, :w, chomp => False)
+                    !! tempfile;
                 }
             when IO {
                 $io-out = $out;
-                }
-            when Capture {
-                # open $io-out >> $out.list[0]
                 }
             when Any {
                 $in ~~ Array and $io-out = $*OUT;
@@ -1310,7 +1309,7 @@ class Text::CSV {
                 !! self.getline_all ($io-in, meta => $meta);
             }
 
-        $out.defined or return @in;
+        ?$out || ?$tmpfn or return @in;
 
         {   my $eol = self.eol;
             $eol.defined or self.eol ("\r\n");
@@ -1321,6 +1320,12 @@ class Text::CSV {
                 $io-out.print (self.string);
                 }
             self.eol ($eol);
+            }
+
+        if (?$tmpfn) {
+            $io-out.close;
+            my $fh = open $tmpfn, :r, chomp => False;
+            return $fh.slurp-rest;
             }
 
         return True;

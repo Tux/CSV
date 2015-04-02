@@ -15,7 +15,7 @@ my $fno    = "_90out.csv";
 my Str @hdr  = < foo bar baz >;
 my Str $hdr  = @hdr.join (",");
 my Str @data = $hdr, "1,2,3", "2,a b,";
-my Str $data = @data.map (*~"\n").join ("");
+my Str $data = @data.map (*~"\r\n").join ("");
 my @expect   = @data.map ({[ $_.split (",") ]});
 
 {   my $fh = open $fni, :w;
@@ -68,6 +68,12 @@ for @in -> $in {
     }
 
 # Test supported "out" formats
+
+for @in -> $in {
+    my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
+
+    is (csv (in => $in, out => Str, quote-space => False), $data, "csv => Str $s-in");
+    }
 
 done;
 
