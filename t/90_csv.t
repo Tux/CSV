@@ -75,6 +75,10 @@ for @in -> $in {
     is (csv (in => $in, out => Str, quote-space => False), $data, "csv => Str $s-in");
     }
 
+is (csv (in => $fni, out => Str, fragment => "row=2"),    "1,2,3\r\n",        "Fragment, row");
+is (csv (in => $fni, out => Str, fragment => "col=3"),    "baz\r\n3\r\n\r\n", "Fragment, col");
+is (csv (in => $fni, out => Str, fragment => "cell=1,1"), "foo\r\n",          "Fragment, cell");
+
 done;
 
 =finish
