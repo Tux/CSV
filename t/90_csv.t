@@ -12,9 +12,11 @@ my $sup    = Supply.new;
 my $fni    = "_90in.csv";
 my $fno    = "_90out.csv";
 
-my Str @data = "a,b", "1,2", "3,4";
+my Str @hdr  = < foo bar baz >;
+my Str $hdr  = @hdr.join (",");
+my Str @data = $hdr, "1,2,3", "2,a b,";
 my Str $data = @data.map (*~"\n").join ("");
-my @expect = @data.map ({[ $_.split (",") ]});
+my @expect   = @data.map ({[ $_.split (",") ]});
 
 {   my $fh = open $fni, :w;
     $fh.say ($_) for @data;
@@ -39,7 +41,7 @@ my @in =
     \$data,
     [$data],
     [@data],
-    [["a","b"],["1","2"],["3","4"]],
+    [[@hdr],["1","2","3"],["2","a b",""]],
 #   [{a=>1,b=>2},{a=>3,b=>4}],
 
 #   $sup,       # Need to understand timing (when to call .done)
@@ -71,32 +73,10 @@ done;
 
 =finish
 
-my $file = "_90test.csv"; END { -f $file and unlink $file }
-my $data =
-    "foo,bar,baz\n".
-    "1,2,3\n".
-    "2,a b,\n";
-open  FH, ">", $file or die "_90test.csv: $!";
-print FH $data;
-close FH;
-
-my @hdr = qw( foo bar baz );
-my $aoa = [
-    \@hdr,
-    [ 1, 2, 3 ],
-    [ 2, "a b", "" ],
-    ];
 my $aoh = [
     { foo => 1, bar => 2, baz => 3 },
     { foo => 2, bar => "a b", baz => "" },
     ];
-
-SKIP: for my $io ([ $file, "file" ], [ \*FH, "globref" ], [ *FH, "glob" ], [ \$data, "ScalarIO"] ) {
-    $] < 5.008 && ref $io->[0] eq "SCALAR" and skip "No ScalarIO support for $]", 1;
-    open FH, "<", $file;
-    is_deeply (csv ({ in => $io->[0] }), $aoa, "AOA $io->[1]");
-    close FH;
-    }
 
 SKIP: for my $io ([ $file, "file" ], [ \*FH, "globref" ], [ *FH, "glob" ], [ \$data, "ScalarIO"] ) {
     $] < 5.008 && ref $io->[0] eq "SCALAR" and skip "No ScalarIO support for $]", 1;
@@ -109,14 +89,9 @@ my @aoa = @{$aoa}[1,2];
 is_deeply (csv (file => $file, headers  => "skip"),    \@aoa, "AOA skip");
 is_deeply (csv (file => $file, fragment => "row=2-3"), \@aoa, "AOA fragment");
 
-if ($] >= 5.008) {
-    is_deeply (csv (in => $file, encoding => "utf-8", headers => ["a", "b", "c"],
-		    fragment => "row=2", sep_char => ","),
-	   [{ a => 1, b => 2, c => 3 }], "AOH headers fragment");
-    }
-else {
-    ok (1, q{This perl does not support open with "<:encoding(...)"});
-    }
+is_deeply (csv (in => $file, encoding => "utf-8", headers => ["a", "b", "c"],
+                fragment => "row=2", sep_char => ","),
+       [{ a => 1, b => 2, c => 3 }], "AOH headers fragment");
 
 ok (csv (in => $aoa, out => $file), "AOA out file");
 is_deeply (csv (in => $file), $aoa, "AOA parse out");
