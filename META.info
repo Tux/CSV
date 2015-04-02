@@ -5,8 +5,11 @@
   "auth"         : "github:Tux",
   "authors"      : [ "H.Merijn Brand (Tux)" ],
   "tags"         : [ "CSV"                  ],
-  "depends"      : [ "Slang::Tuxic"         ],
   "test-depends" : [ "Test"                 ],
+  "depends"      : [
+    "Slang::Tuxic",
+    "File::Temp"
+    ],
   "provides"     : {
     "Text::CSV"  : "lib/Text/CSV.pm"
     },
