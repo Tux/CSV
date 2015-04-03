@@ -1084,12 +1084,12 @@ class Text::CSV {
 
     multi method getline_hr (Str $str, Bool :$meta = True) {
         @!colnames or self!fail (3002);
-        return zip (@!colnames, self.getline ($str, :$meta)).hash;
+        return hash @!colnames Z self.getline ($str, :$meta)
         } # getline_hr
 
     multi method getline_hr (IO:D $io, Bool :$meta = True) {
         @!colnames or self!fail (3002);
-        return zip (@!colnames, self.getline ($io,  :$meta)).hash;
+        return hash @!colnames Z self.getline ($io,  :$meta)
         } # getline_hr
 
     multi method getline (Str $str, Bool :$meta = True) {
