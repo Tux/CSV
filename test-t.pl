@@ -235,6 +235,7 @@ class Text::CSV {
 
     has CSV::Field @!fields;
     has Str        @!ahead;
+    has Str        @!colnames;
     has IO         $!io;
     has Bool       $!eof;
     has Int        @!types;
@@ -504,6 +505,16 @@ class Text::CSV {
     method auto_diag    (*@s) returns Int { return self!a_bool_int ($!auto_diag,    @s); }
     method diag_verbose (*@s) returns Int { return self!a_bool_int ($!diag_verbose, @s); }
 
+    method column_names (*@c) returns Array[Str] {
+        if (@c.elems == 1 and !@c[0].defined || (@c[0] ~~ Bool && !?@c[0])) {
+            @!colnames = @();
+            }
+        elsif (@c.elems) {
+            @!colnames = @c.map (*.Str);
+            }
+        return @!colnames;
+        }
+
     method callbacks (*@cb) {
         if (@cb.elems == 1) {
             my $b = @cb[0];
@@ -549,18 +560,18 @@ class Text::CSV {
         return $range;
         }
 
-    multi method colrange (@cr) {
+    multi method colrange (@cr) returns Array[Int] {
         @cr.elems and @!crange = @cr;
         return @!crange;
         }
 
-    multi method colrange (Str $range) {
+    multi method colrange (Str $range) returns Array[Int] {
         @!crange = ();
         $range.defined and @!crange = self!rfc7111ranges ($range).to_list;
         return @!crange;
         }
 
-    multi method colrange () {
+    multi method colrange () returns Array[Int] {
         return @!crange;
         }
 
@@ -1070,6 +1081,16 @@ class Text::CSV {
 
         return parse_done ();
         } # parse
+
+    multi method getline_hr (Str $str, Bool :$meta = True) {
+        @!colnames or self!fail (3002);
+        return zip (@!colnames, self.getline ($str, meta => $meta)).hash;
+        } # getline_hr
+
+    multi method getline_hr (IO:D $io, Bool :$meta = True) {
+        @!colnames or self!fail (3002);
+        return zip (@!colnames, self.getline ($io, meta => $meta)).hash;
+        } # getline_hr
 
     multi method getline (Str $str, Bool :$meta = True) {
         self.parse ($str) or return ();

@@ -44,20 +44,19 @@ is ($csv.is_binary (0),         False,   "is_binary");
 is ($csv.is_missing (0),        False,   "is_missing");
 is ($csv.combine (),            True,    "combine");
 is ($csv.parse (""),            True,    "parse");
+is ($csv.column_names.elems,    0,       "column_names");
 
 # Done or work-in progress
 # getline
+# getline_hr
 # getline_all
 # fragment
 # callbacks
+# sub csv
 
 # TODO
-# sub column_names
-# sub bind_columns
-# sub getline_hr
 # sub getline_hr_all
 # sub print_hr
-# sub csv
 
 done;
 
@@ -68,7 +67,5 @@ sub PV { 0 }
 sub IV { 1 }
 sub NV { 2 }
 sub decode_utf8
-sub keep_meta_info
 sub verbatim
-sub meta_info
 sub types
