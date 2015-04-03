@@ -49,7 +49,7 @@ my @in =
     ;
 
 sub inok (@r, Str $diag) {
-    $sup.done;
+    start { sleep (1); $sup.emit ($_) for @data; $sup.done; };
     ok (@r, $diag); # Expect Array.new (["a", "b"], ["1", "2"], ["3", "4"])
     #@r.perl.say;
     $io-in.seek (0, 0);
@@ -60,7 +60,6 @@ sub inok (@r, Str $diag) {
 # Test supported "in" formats
 for @in -> $in {
     my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
-    $sup.emit ($_) for @data;
     inok (Text::CSV.csv (in => $in, meta => False),              "Class   $s-in");
     inok (     $csv.csv (in => $in, meta => False),              "Method  $s-in");
     inok (          csv (in => $in, meta => False),              "Sub     $s-in");
