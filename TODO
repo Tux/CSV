@@ -1,16 +1,20 @@
 • PASS more tests
 
-• Buf vs Str - binary data (+ tests)
+• Str/Buf/Blob - binary data (+ tests)
 
-  Current thought: remove the meaning of "binary" as currently is
+  Current thought:  remove the meaning of "binary" as currently is
   implemented, as everything is valid Str already.
 
-  Add binary support by allowing *real* binary (images, raw data)
-  by adding a Buf entry in CSV::Field and use that instead of the
+  Add binary support by allowing *real* binary  (images, raw data)
+  by adding a Blob entry in CSV::Field and use that instead of the
   current Str $.text by using CATCH blocks.
 
   When fetching the field, check if Buf is set and return that (if
   possible)
+
+    Str    = String of characters
+    Buf    = Mutable buffer for binary data
+    Blob   = Common interface for binary large objects
 
 • csv () function
 

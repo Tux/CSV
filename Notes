@@ -33,5 +33,3 @@ $ p6 -e'int.Range.max.say'
 9223372036854775807
 
 • attribute defaults are ignored when the class has submethod BUILD
-
-
