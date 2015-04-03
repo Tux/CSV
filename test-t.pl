@@ -1357,7 +1357,10 @@ class Text::CSV {
         }
     }
 
-sub csv (*%args) is export { return Text::CSV.csv (|%args); }
+sub csv (*%args) is export {
+    %args{"meta"} //= False;
+    return Text::CSV.csv (|%args);
+    }
 
 sub MAIN (:$getline, :$getline_all) {
 

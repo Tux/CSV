@@ -60,10 +60,10 @@ sub inok (@r, Str $diag) {
 # Test supported "in" formats
 for @in -> $in {
     my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
-    inok (Text::CSV.csv (in => $in, meta => False),              "Class   $s-in");
-    inok (     $csv.csv (in => $in, meta => False),              "Method  $s-in");
-    inok (          csv (in => $in, meta => False),              "Sub     $s-in");
-    inok (          csv (in => $in, meta => False, csv => $csv), "Sub/Obj $s-in");
+    inok (Text::CSV.csv (in => $in, meta => False), "Class   $s-in");
+    inok (     $csv.csv (in => $in, meta => False), "Method  $s-in");
+    inok (          csv (in => $in, meta => False), "Sub     $s-in");
+    inok (          csv (in => $in, csv  => $csv),  "Sub/Obj $s-in");
     }
 
 # Test supported "out" formats
