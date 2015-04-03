@@ -1084,12 +1084,12 @@ class Text::CSV {
 
     multi method getline_hr (Str $str, Bool :$meta = True) {
         @!colnames or self!fail (3002);
-        return zip (@!colnames, self.getline ($str, meta => $meta)).hash;
+        return zip (@!colnames, self.getline ($str, :$meta)).hash;
         } # getline_hr
 
     multi method getline_hr (IO:D $io, Bool :$meta = True) {
         @!colnames or self!fail (3002);
-        return zip (@!colnames, self.getline ($io, meta => $meta)).hash;
+        return zip (@!colnames, self.getline ($io,  :$meta)).hash;
         } # getline_hr
 
     multi method getline (Str $str, Bool :$meta = True) {
@@ -1163,12 +1163,12 @@ class Text::CSV {
 
         if ($spec ~~ s:i{^ "row=" } = "") {
             self.rowrange ($spec);
-            return self.getline_all ($io, meta => $meta);
+            return self.getline_all ($io, :$meta);
             }
 
         if ($spec ~~ s:i{^ "col=" } = "") {
             self.colrange ($spec);
-            return self.getline_all ($io, meta => $meta);
+            return self.getline_all ($io, :$meta);
             }
 
         $spec ~~ s:i{^ "cell=" } = "" or self!fail (2013);
@@ -1330,8 +1330,8 @@ class Text::CSV {
 
         if ($io-in ~~ IO and $io-in.defined) {
             @in = $fragment
-                ?? self.fragment    ($io-in, meta => $meta, $fragment)
-                !! self.getline_all ($io-in, meta => $meta);
+                ?? self.fragment    ($io-in, :$meta, $fragment)
+                !! self.getline_all ($io-in, :$meta);
             }
 
         ?$out || ?$tmpfn or return @in;
