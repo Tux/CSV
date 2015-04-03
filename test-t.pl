@@ -97,9 +97,9 @@ class CellSet {
 
     method add (Int:D $tlr,            Int:D $tlc,
                 Num   $brr = $tlr.Num, Num   $brc = $tlc.Num) {
-        my $r = RangeSet.new; $r.add ($tlr, $brr);
-        my $c = RangeSet.new; $c.add ($tlc, $brc);
-        @!cr.push: CellRange.new (row => $r, col => $c);
+        my $row = RangeSet.new; $row.add ($tlr, $brr);
+        my $col = RangeSet.new; $col.add ($tlc, $brc);
+        @!cr.push: CellRange.new (:$row, :$col);
         }
 
     method in (Int:D $row, Int:D $col) returns Bool {
@@ -1366,15 +1366,7 @@ class Text::CSV {
                  Text::CSV :$csv  = self || Text::CSV.new,
                  *%args ) {
 
-        return $csv.CSV (
-            in       => $in,
-            out      => $out,
-            headers  => $headers,
-            key      => $key,
-            encoding => $encoding,
-            fragment => $fragment,
-            meta     => $meta,
-            |%args);
+        return $csv.CSV (:$in, :$out, :$headers, :$key, :$encoding, :$fragment, :$meta, |%args);
         }
     }
 
