@@ -1110,13 +1110,30 @@ class Text::CSV {
         return $meta ?? self.fields !! self.list;
         } # getline
 
+    method getline_hr_all (IO:D  $io,
+                           Int   $offset =  0,
+                           Int   $length = -1,
+                           Bool :$meta   = True) {
+        return self.getline_all ($io, $offset, $length, :$meta, hr => True);
+        }
+
+    method !row (Bool:D $meta, Bool:D $hr) {
+        my @row = $meta ?? self.fields !! self.list;
+        if ($hr) {
+            my %hash = @!colnames Z @row;
+            return { %hash };
+            }
+        return [ @row ];
+        }
+
     # @a = $csv.getline_all ($io);
     # @a = $csv.getline_all ($io, $offset);
     # @a = $csv.getline_all ($io, $offset, $length);
     method getline_all (IO:D  $io,
                         Int   $offset is copy =  0,
                         Int   $length is copy = -1,
-                        Bool :$meta = True) {
+                        Bool :$meta = True,
+                        Bool :$hr   = False) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
@@ -1135,7 +1152,7 @@ class Text::CSV {
                 !%!callbacks{"filter"}.defined ||
                     %!callbacks{"filter"}.(self, @!fields) or next;
 
-                @lines.push: [ $meta ?? self.fields !! self.list ];
+                @lines.push: self!row ($meta, $hr);
                 }
             }
         else {
@@ -1145,7 +1162,7 @@ class Text::CSV {
                     %!callbacks{"filter"}.(self, @!fields) or next;
 
                 @lines.elems == $offset and @lines.shift;
-                @lines.push: [ $meta ?? self.fields !! self.list ];
+                @lines.push: self!row ($meta, $hr);
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }

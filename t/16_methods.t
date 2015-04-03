@@ -50,12 +50,12 @@ is ($csv.column_names.elems,    0,       "column_names");
 # getline
 # getline_hr
 # getline_all
+# sub getline_hr_all
 # fragment
 # callbacks
 # sub csv
 
 # TODO
-# sub getline_hr_all
 # sub print_hr
 
 done;
