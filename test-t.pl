@@ -1083,12 +1083,12 @@ class Text::CSV {
         } # parse
 
     multi method getline_hr (Str $str, Bool :$meta = True) {
-        @!cnames or self!fail (3002);
+        @!cnames.elems or self!fail (3002);
         return hash @!cnames Z self.getline ($str, :$meta)
         } # getline_hr
 
     multi method getline_hr (IO:D $io, Bool :$meta = True) {
-        @!cnames or self!fail (3002);
+        @!cnames.elems or self!fail (3002);
         return hash @!cnames Z self.getline ($io,  :$meta)
         } # getline_hr
 
@@ -1114,6 +1114,7 @@ class Text::CSV {
                            Int   $offset =  0,
                            Int   $length = -1,
                            Bool :$meta   = True) {
+        @!cnames.elems or self!fail (3002);
         return self.getline_all ($io, $offset, $length, :$meta, hr => True);
         }
 
