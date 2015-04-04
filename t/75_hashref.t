@@ -51,6 +51,14 @@ while $csv.getline_hr ($fh) -> %row {
 
 $fh.close;
 
+$fh = open $tfn, :r, chomp => False;
+$csv.colrange ([0, 2]);
+is_deeply ($csv.getline_hr ($fh, meta => False),
+ { :code("code"), :price("price") }, "selection");
+$fh.close;
+
+unlink $tfn;
+
 done;
 
 =finish

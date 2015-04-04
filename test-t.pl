@@ -1082,14 +1082,19 @@ class Text::CSV {
         return parse_done ();
         } # parse
 
+    method !row_hr (@row) {
+        my @cn  = (@!crange ?? @!cnames[@!crange] !! @!cnames);
+        return hash @cn Z @row;
+        }
+
     multi method getline_hr (Str $str, Bool :$meta = True) {
         @!cnames.elems or self!fail (3002);
-        return hash @!cnames Z self.getline ($str, :$meta)
+        return self!row_hr (self.getline ($str, :$meta));
         } # getline_hr
 
     multi method getline_hr (IO:D $io, Bool :$meta = True) {
         @!cnames.elems or self!fail (3002);
-        return hash @!cnames Z self.getline ($io,  :$meta)
+        return self!row_hr (self.getline ($io,  :$meta));
         } # getline_hr
 
     multi method getline (Str $str, Bool :$meta = True) {
