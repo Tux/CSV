@@ -235,7 +235,7 @@ class Text::CSV {
 
     has CSV::Field @!fields;
     has Str        @!ahead;
-    has Str        @!colnames;
+    has Str        @!cnames;
     has IO         $!io;
     has Bool       $!eof;
     has Int        @!types;
@@ -507,12 +507,12 @@ class Text::CSV {
 
     method column_names (*@c) returns Array[Str] {
         if (@c.elems == 1 and !@c[0].defined || (@c[0] ~~ Bool && !?@c[0])) {
-            @!colnames = @();
+            @!cnames = @();
             }
         elsif (@c.elems) {
-            @!colnames = @c.map (*.Str);
+            @!cnames = @c.map (*.Str);
             }
-        return @!colnames;
+        return @!cnames;
         }
 
     method callbacks (*@cb) {
@@ -1083,13 +1083,13 @@ class Text::CSV {
         } # parse
 
     multi method getline_hr (Str $str, Bool :$meta = True) {
-        @!colnames or self!fail (3002);
-        return hash @!colnames Z self.getline ($str, :$meta)
+        @!cnames or self!fail (3002);
+        return hash @!cnames Z self.getline ($str, :$meta)
         } # getline_hr
 
     multi method getline_hr (IO:D $io, Bool :$meta = True) {
-        @!colnames or self!fail (3002);
-        return hash @!colnames Z self.getline ($io,  :$meta)
+        @!cnames or self!fail (3002);
+        return hash @!cnames Z self.getline ($io,  :$meta)
         } # getline_hr
 
     multi method getline (Str $str, Bool :$meta = True) {
@@ -1120,7 +1120,8 @@ class Text::CSV {
     method !row (Bool:D $meta, Bool:D $hr) {
         my @row = $meta ?? self.fields !! self.list;
         if ($hr) {
-            my %hash = @!colnames Z @row;
+            my @cn = (@!crange ?? @!cnames[@!crange] !! @!cnames);
+            my %hash = @cn Z @row;
             return { %hash };
             }
         return [ @row ];

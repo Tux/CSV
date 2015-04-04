@@ -79,29 +79,52 @@ for ("\n", "\r") -> $eol {
     unlink $tfn;
     }
 
-done;
+my Str @hdr = < A B C D >;
+sub expect_hr (@expect) {
+    my @expect_hr;
+    for @expect -> @r {
+        my %h = @hdr Z @r;
+        @expect_hr.push: { %h };
+        }
+    return @expect_hr;
+    }
 
-=finish
+for ("\n", "\r") -> $eol {
 
-# redo tests with _hr & column_names
+    @list   = @testlist;
+    my $hdr = [ @hdr ];
 
     {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.perl);
-        ok ($csv.column_names (my @cn = qw( foo bar bin baz )), "Set column names");
-        @list = map { my %h; @h{@cn} = @$_; \%h } @list;
+        my $fh = open $tfn, :w or die "$tfn: $!";
+        ok ($csv.print ($fh, $_), "write "~$_.perl) for @list;
+        $fh.close;
+        }
+
+    {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.perl);
+
+        $csv.column_names (@hdr);
+
+        my Bool $meta = False;
 
         do_tests (anon sub (@expect, *@args) {
-            my $fh = open $tfn, :r;
-            my $s_args = @args.perl;
-            my @exp = @expect;
-            is_deeply ($csv.getline_hr_all ($fh, @args), @exp, "getline_hr_all ($s_args)");
-            close $fh;
+
+            my @exp = expect_hr (@expect);
+            my $s_args = @args.join (", ");
+
+            my $fh  = open $tfn, :r or die "$tfn: $!";
+            my @f = $csv.getline_hr_all ($fh, :$meta, |@args);
+            is_deeply (@f, @exp, "getline_hr_all ($s_args)");
+            $fh.close;
             });
+
+        my $fh = open $tfn, :r or die "$tfn: $!";
+        ok ($csv.colrange ("1;4"),      "ColRange 1;4");
+        ok ($csv.rowrange ("2;4"),      "RowRange 2;4");
+        is_deeply ($csv.getline_hr_all ($fh, :$meta),
+            [{:A("2"), :D("B")},{:A("4"), :D("D")}], "Selection");
         }
 
-    {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.perl);
-        my $fh = open $tfn, :r;
-        eval { my $row = $csv.getline_hr_all ($fh); };
-        is ($csv.error_diag () + 0, 3002, "Use _hr before colnames ()");
-        }
-
+    unlink $tfn;
     }
+
+done;
