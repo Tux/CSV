@@ -46,17 +46,16 @@ is ($csv.combine (),            True,    "combine");
 is ($csv.parse (""),            True,    "parse");
 is ($csv.column_names.elems,    0,       "column_names");
 
-# Done or work-in progress
+# Done or work-in progress (more tests needed?)
 # getline
 # getline_hr
 # getline_all
-# sub getline_hr_all
+# getline_hr_all
 # fragment
 # callbacks
+# print
+# print_hr
 # sub csv
-
-# TODO
-# sub print_hr
 
 done;
 

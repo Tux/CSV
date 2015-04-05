@@ -454,7 +454,7 @@ class Text::CSV {
     method !a_str ($attr is rw, *@s) returns Str {
         if (@s.elems == 1) {
             my $x = @s[0];
-            $x.defined && $x.^name eq "Str" && $x eq "" and $x = Str;
+            $x.defined && $x ~~ Str && $x eq "" and $x = Str;
             $attr = $x;
             self!check_sanity;
             }
