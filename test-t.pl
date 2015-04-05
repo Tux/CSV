@@ -1239,18 +1239,37 @@ class Text::CSV {
         return @lines;
         }
 
-    multi method print (IO:D $io, Capture $c) returns Bool {
-        return self.print ($io, $c.list);
+    multi method print (IO:D $io, *%p) returns Bool {
+        @!cnames.elems or self!fail (3009);
+        return self.print ($io, %p{@!cnames});
         }
 
-    multi method print (IO:D $io, *@fld) returns Bool {
-        return self.print ($io, [@fld]);
+    multi method print (IO:D $io,  %c) returns Bool {
+        @!cnames.elems or self!fail (3009);
+        return self.print ($io, [ %c{@!cnames} ]);
+        }
+
+    multi method print (IO:D $io, Capture $c) returns Bool {
+        return self.print ($io, $c.list);
         }
 
     multi method print (IO:D $io,  @fld) returns Bool {
         self.combine (@fld) or return False;
         $io.print (self.string);
         return True;
+        }
+
+    multi method print (IO:D $io, *@fld) returns Bool {
+        # Temp guard ... I expected *%p sig to be called
+        if (@fld[0] ~~ Pair) {
+            @!cnames.elems or self!fail (3009);
+            my %hash;
+            for @fld -> $kv {
+                %hash{$kv.key} = $kv.value;
+                }
+            return self.print ($io, [ %hash{@!cnames} ]);
+            }
+        return self.print ($io, [@fld]);
         }
 
     method say (IO:D $io, *@f) returns Bool {
