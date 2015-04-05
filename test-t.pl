@@ -1253,6 +1253,14 @@ class Text::CSV {
         return True;
         }
 
+    method say (IO:D $io, *@f) returns Bool {
+        my $eol = $!eol;
+        $!eol ||= "\r\n";
+        my Bool $state = self.print ($io, |@f);
+        $!eol = $eol;
+        return $state;
+        }
+
     # Only as a method, both in and out are required
     method CSV ( Any       :$in!,
                  Any       :$out!,
