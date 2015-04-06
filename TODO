@@ -47,3 +47,18 @@
   might be useful again.
 
 • merge masak's Text::CSV
+
+  :strict
+
+  Throw an error if a row has a different number of columns than
+  the previous ones.
+
+  :trim
+
+  Removes whitespace on both ends of each value.Currently implemented
+  as :allow-whitespace, but that does not trim inside quotation
+
+  :skip-header
+
+  Causes the first line not to be included in the output. Function &
+  method csv () already supports headers => "skip" (NYI)

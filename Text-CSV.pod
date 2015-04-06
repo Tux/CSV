@@ -187,9 +187,11 @@ Return).
 =item sep
 =item sep_char
 =item sep-char
+=item separator
 X<sep>
 X<sep_char>
 X<sep-char>
+X<separator>
 
  my $csv = Text::CSV.new(sep => ";");
            $csv.sep("\x[ff0c]"); # FULLWIDTH COMMA
@@ -1299,6 +1301,12 @@ Combining all of them could give something like
      fragment => "row=3;6-9;15-*",
      );
  say $aoh->[15]{Foo};
+
+=head3 strict
+X<strict>
+
+If set to True, any crow that parses to a different number of columns than
+the previous row will cause the parser to throw an error;
 
 =head2 Callbacks
 

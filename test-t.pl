@@ -401,7 +401,7 @@ class Text::CSV {
             $p.^add_method ($_, $r) for @aka;
             }
 
-        alias ("sep",                   < sep_char sep-char >);
+        alias ("sep",                   < sep_char sep-char separator >);
         alias ("quo",                   < quote quote_char quote-char >);
         alias ("esc",                   < escape escape_char escape-char >);
         alias ("always_quote",          < always-quote quote_always quote-always >);
@@ -1281,14 +1281,15 @@ class Text::CSV {
         }
 
     # Only as a method, both in and out are required
-    method CSV ( Any       :$in!,
-                 Any       :$out!,
-                 Any       :$headers  is copy,
-                 Str       :$key,
-                 Str       :$encoding is copy,
-                 Str       :$fragment is copy,
-                 Bool      :$meta = True,
-                 *%args               is copy) {
+    method CSV ( Any    :$in!,
+                 Any    :$out!,
+                 Any    :$headers  is copy,
+                 Str    :$key,
+                 Str    :$encoding is copy,
+                 Str    :$fragment is copy,
+                 Bool   :$strict = False,
+                 Bool   :$meta   = True,
+                 *%args            is copy) {
 
         # Aliasses
         #   frag   fragment
