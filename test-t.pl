@@ -1301,8 +1301,36 @@ class Text::CSV {
         # Hooks
         #   after_in    after-in    after_parse  after-parse
         #   before_out  before-out
+        #   filter
+        #   error
         #   on_in       on-in
+        my Routine $on-in;
+        for (%args.keys) -> $k {
+            my %hooks;
+            if ($k.lc ~~ m{^ "on"     <[-_]>   "in"             $}) {
+                $on-in                 = %args{$k} :delete;
+                next;
+                }
+            if ($k.lc ~~ m{^ "after"  <[-_]> ( "parse" | "in" ) $}) {
+                %hooks{"after_parse"}  = %args{$k} :delete;
+                next;
+                }
+            if ($k.lc ~~ m{^ "before" <[-_]>   "print"          $}) {
+                %hooks{"before_print"} = %args{$k} :delete;
+                next;
+                }
+            if ($k.lc eq "filter") {
+                %hooks{"filter"}       = %args{$k} :delete;
+                next;
+                }
+            if ($k.lc eq "error") {
+                %hooks{"error"}        = %args{$k} :delete;
+                next;
+                }
+            self.callbacks (%hooks);
+            }
 
+        # Rest is for Text::CSV
         self!set-attributes (%args);
 
         my @in; # Either AoA or AoH
