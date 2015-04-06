@@ -45,3 +45,5 @@
   If returning hashes, consider if returning Str:Str kv pairs is
   the way to go instead of Str:CSV::Field. If so, then column types
   might be useful again.
+
+• merge masak's Text::CSV
