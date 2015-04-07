@@ -32,7 +32,7 @@ class IO::String is IO::Handle {
         (my Str $filename, my $fh) = tempfile;
         $fh.print ($str);
         $fh.close;
-        return open $filename, :r, chomp => False;
+        open $filename, :r, chomp => False;
         }
     }
 
@@ -56,7 +56,7 @@ class RangeSet {
         for @!ranges -> $r {
             $i >= $r.key && $i <= $r.value and return True;
             }
-        return False;
+        False;
         }
 
     method to_list () {
@@ -107,7 +107,7 @@ class CellSet {
         for @!cr -> $c {
             $c.in ($row, $col) and return True;
             }
-        return False;
+        False;
         }
     }
 
@@ -124,24 +124,24 @@ class CSV::Field {
     multi method new (Str $str) {
         my $f = self.bless;
         $str.defined and $f.add ($str);
-        return $f;
+        $f;
         }
     multi method new (Num $num) {
         my $f = self.bless;
         $num.defined and $f.add ($num.Str);
-        return $f;
+        $f;
         }
 
     method Bool {
-        return $.text.defined ?? ?$.text !! False;
+        $.text.defined ?? ?$.text !! False;
         }
 
     method Str {
-        return $.text;
+        $.text;
         }
 
     method Numeric {
-        return $.text.defined
+        $.text.defined
             ?? $!text ~~ m{^ <[0..9]> } ?? +$!text
             !!                              $!text.unival.Int
             !! Num;
@@ -153,12 +153,12 @@ class CSV::Field {
            $s ~= $!is_binary  ?? "B" !! "b";
            $s ~= $!is_utf8    ?? "8" !! "7";
            $s ~= $!is_missing ?? "M" !! "m";
-        return $s ~ ":" ~ $.text.perl;
+        $s ~ ":" ~ $.text.perl;
         }
 
     method add (Str $chunk) {
         $!text ~= $chunk;
-        return self;
+        self;
         }
 
     method set_quoted () {
@@ -167,7 +167,7 @@ class CSV::Field {
         }
 
     method undefined () {
-        return !$!text.defined;
+        !$!text.defined;
         }
 
     method !analyse () {
@@ -187,17 +187,17 @@ class CSV::Field {
 
     method is_binary () returns Bool {
         $!analysed or self!analyse;
-        return $!is_binary;
+        $!is_binary;
         }
 
     method is_utf8 () returns Bool {
         $!analysed or self!analyse;
-        return $!is_utf8;
+        $!is_utf8;
         }
 
     method is_missing () returns Bool {
         $!analysed or self!analyse;
-        return $!is_missing;
+        $!is_missing;
         }
 
     } # CSV::Field
@@ -266,22 +266,22 @@ class Text::CSV {
                ~ "\e[31m" ~ substr ($!buffer,    $!pos)
                ~ "\e[0m";
             }
-        method Numeric  { return   $!error; }
-        method Str      { return   $!message; }
-        method iterator { return [ $!error, $!message, $!pos, $!record, $!buffer ].iterator; }
-        method hash     { return { errno  => $!error,
-                                   error  => $!message,
-                                   pos    => $!pos,
-                                   recno  => $!record,
-                                   buffer => $!buffer,
-                                   }; }
+        method Numeric  { $!error; }
+        method Str      { $!message; }
+        method iterator { [ $!error, $!message, $!pos, $!record, $!buffer ].iterator; }
+        method hash     { { errno  => $!error,
+                            error  => $!message,
+                            pos    => $!pos,
+                            recno  => $!record,
+                            buffer => $!buffer,
+                          }; }
         method AT-POS (int $i) {
-            return $i == 0 ?? $!error
-                !! $i == 1 ?? $!message
-                !! $i == 2 ?? $!pos
-                !! $i == 3 ?? $!record
-                !! $i == 4 ?? $!buffer
-                !! Nil;
+               $i == 0 ?? $!error
+            !! $i == 1 ?? $!message
+            !! $i == 2 ?? $!pos
+            !! $i == 3 ?? $!record
+            !! $i == 4 ?? $!buffer
+            !! Nil;
             }
         }
 
@@ -457,12 +457,12 @@ class Text::CSV {
             $attr = $x;
             self!check_sanity;
             }
-        return $attr;
+        $attr;
         }
-    method sep (*@s) returns Str { return self!a_str ($!sep, @s); }
-    method quo (*@s) returns Str { return self!a_str ($!quo, @s); }
-    method esc (*@s) returns Str { return self!a_str ($!esc, @s); }
-    method eol (*@s) returns Str { return self!a_str ($!eol, @s); }
+    method sep (*@s) returns Str { self!a_str ($!sep, @s); }
+    method quo (*@s) returns Str { self!a_str ($!quo, @s); }
+    method esc (*@s) returns Str { self!a_str ($!esc, @s); }
+    method eol (*@s) returns Str { self!a_str ($!eol, @s); }
 
     # Boolean attributes
     method !a_bool ($attr is rw, *@s) returns Bool {
@@ -470,28 +470,28 @@ class Text::CSV {
             $attr = ?@s[0];
             self!check_sanity;
             }
-        return $attr;
+        $attr;
         }
-    method binary                (*@s) returns Bool { return self!a_bool ($!binary,                @s); }
-    method always_quote          (*@s) returns Bool { return self!a_bool ($!always_quote,          @s); }
-    method quote_empty           (*@s) returns Bool { return self!a_bool ($!quote_empty,           @s); }
-    method quote_space           (*@s) returns Bool { return self!a_bool ($!quote_space,           @s); }
-    method quote_null            (*@s) returns Bool { return self!a_bool ($!quote_null,            @s); }
-    method quote_binary          (*@s) returns Bool { return self!a_bool ($!quote_binary,          @s); }
-    method allow_loose_quotes    (*@s) returns Bool { return self!a_bool ($!allow_loose_quotes,    @s); }
-    method allow_loose_escapes   (*@s) returns Bool { return self!a_bool ($!allow_loose_escapes,   @s); }
-    method allow_unquoted_escape (*@s) returns Bool { return self!a_bool ($!allow_unquoted_escape, @s); }
-    method allow_whitespace      (*@s) returns Bool { return self!a_bool ($!allow_whitespace,      @s); }
-    method blank_is_undef        (*@s) returns Bool { return self!a_bool ($!blank_is_undef,        @s); }
-    method empty_is_undef        (*@s) returns Bool { return self!a_bool ($!empty_is_undef,        @s); }
-    method eof                   ()    returns Bool { return $!eof; }
+    method binary                (*@s) returns Bool { self!a_bool ($!binary,                @s); }
+    method always_quote          (*@s) returns Bool { self!a_bool ($!always_quote,          @s); }
+    method quote_empty           (*@s) returns Bool { self!a_bool ($!quote_empty,           @s); }
+    method quote_space           (*@s) returns Bool { self!a_bool ($!quote_space,           @s); }
+    method quote_null            (*@s) returns Bool { self!a_bool ($!quote_null,            @s); }
+    method quote_binary          (*@s) returns Bool { self!a_bool ($!quote_binary,          @s); }
+    method allow_loose_quotes    (*@s) returns Bool { self!a_bool ($!allow_loose_quotes,    @s); }
+    method allow_loose_escapes   (*@s) returns Bool { self!a_bool ($!allow_loose_escapes,   @s); }
+    method allow_unquoted_escape (*@s) returns Bool { self!a_bool ($!allow_unquoted_escape, @s); }
+    method allow_whitespace      (*@s) returns Bool { self!a_bool ($!allow_whitespace,      @s); }
+    method blank_is_undef        (*@s) returns Bool { self!a_bool ($!blank_is_undef,        @s); }
+    method empty_is_undef        (*@s) returns Bool { self!a_bool ($!empty_is_undef,        @s); }
+    method eof                   ()    returns Bool { $!eof; }
 
     # Numeric attributes
     method !a_num ($attr is rw, *@s) returns Int {
         @s.elems == 1 and $attr = +@s[0];
-        return $attr;
+        $attr;
         }
-    method record_number (*@s) returns Int { return self!a_num ($!record_number, @s); }
+    method record_number (*@s) returns Int { self!a_num ($!record_number, @s); }
 
     # Numeric attributes, boolean allowed
     method !a_bool_int ($attr is rw, *@s) returns Int {
@@ -499,10 +499,10 @@ class Text::CSV {
             my $v = @s[0];
             $attr = $v ~~ Bool ?? $v ?? 1 !! 0 !! $v.defined ?? +$v !! 0;
             }
-        return $attr;
+        $attr;
         }
-    method auto_diag    (*@s) returns Int { return self!a_bool_int ($!auto_diag,    @s); }
-    method diag_verbose (*@s) returns Int { return self!a_bool_int ($!diag_verbose, @s); }
+    method auto_diag    (*@s) returns Int { self!a_bool_int ($!auto_diag,    @s); }
+    method diag_verbose (*@s) returns Int { self!a_bool_int ($!diag_verbose, @s); }
 
     method column_names (*@c) returns Array[Str] {
         if (@c.elems == 1 and !@c[0].defined || (@c[0] ~~ Bool && !?@c[0])) {
@@ -511,7 +511,7 @@ class Text::CSV {
         elsif (@c.elems) {
             @!cnames = @c.map (*.Str);
             }
-        return @!cnames;
+        @!cnames;
         }
 
     method callbacks (*@cb) {
@@ -556,45 +556,45 @@ class Text::CSV {
             --$from <= $to or self!fail (2013);
             $range.add ($from, $to);
             }
-        return $range;
+        $range;
         }
 
     multi method colrange (@cr) returns Array[Int] {
         @cr.elems and @!crange = @cr;
-        return @!crange;
+        @!crange;
         }
 
     multi method colrange (Str $range) returns Array[Int] {
         @!crange = ();
         $range.defined and @!crange = self!rfc7111ranges ($range).to_list;
-        return @!crange;
+        @!crange;
         }
 
     multi method colrange () returns Array[Int] {
-        return @!crange;
+        @!crange;
         }
 
     multi method rowrange (Str $range) returns RangeSet {
         $!rrange = RangeSet;
         $range.defined and $!rrange = self!rfc7111ranges ($range);
-        return $!rrange;
+        $!rrange;
         }
 
     method version () returns Str {
-        return $VERSION;
+        $VERSION;
         }
 
     method status () returns Bool {
-        return !?$!errno;
+        !?$!errno;
         }
 
     method error_input () returns Str {
         $!errno or return Str;
-        return $!error_input;
+        $!error_input;
         }
 
     method error_diag () returns CSV::Diag {
-        return CSV::Diag.new (
+        CSV::Diag.new (
             error   => $!errno,
             message => $!error_message,
             pos     => $!error_pos,
@@ -605,27 +605,27 @@ class Text::CSV {
 
     method is_quoted  (Int:D $i) returns Bool {
         $i >= @!fields.elems and return False;
-        return @!fields[$i].is_quoted;
+        @!fields[$i].is_quoted;
         }
 
     method is_binary  (Int:D $i) returns Bool {
         $i >= @!fields.elems and return False;
-        return @!fields[$i].is_binary;
+        @!fields[$i].is_binary;
         }
 
     method is_utf8    (Int:D $i) returns Bool {
         $i >= @!fields.elems and return False;
-        return @!fields[$i].is_utf8;
+        @!fields[$i].is_utf8;
         }
 
     method is_missing (Int:D $i) returns Bool {
         $i >= @!fields.elems and return False;
-        return @!fields[$i].is_missing;
+        @!fields[$i].is_missing;
         }
 
     method !accept-field (CSV::Field $f) returns Bool {
         @!fields.push: $f;
-        return True;
+        True;
         }
 
     # combine : direction = 0
@@ -658,15 +658,15 @@ class Text::CSV {
             return False;
             }
 
-        return self!accept-field ($f);
+        self!accept-field ($f);
         } # ready
 
     method fields () {
-        return @!crange ?? @!fields[@!crange] !! @!fields;
+        @!crange ?? @!fields[@!crange] !! @!fields;
         } # fields
 
     method list () {
-        return self.fields».text;
+        self.fields».text;
         }
 
     method string () returns Str {
@@ -703,14 +703,14 @@ class Text::CSV {
         my Str $x = join $!sep, @f;
         defined $!eol and $x ~= $!eol;
         #progress (1, $x);
-        return $x;
+        $x;
         } # string
 
     multi method combine (Capture $c) returns Bool {
-        return self.combine ($c.list);
+        self.combine ($c.list);
         }
     multi method combine (*@f) returns Bool {
-        return self.combine ([@f]);
+        self.combine ([@f]);
         }
     multi method combine (@f) returns Bool {
         @!fields = ();
@@ -729,7 +729,7 @@ class Text::CSV {
                 return False;
                 }
             }
-        return True;
+        True;
         }
 
     method parse (Str $buffer) returns Bool {
@@ -748,14 +748,14 @@ class Text::CSV {
             $!error_input   = $buffer;
             $!auto_diag and self.error_diag;
             $!eof           = $errno == 2012;
-            return False;
+            False;
             }
 
         my sub chunks (Str $str, Regex:D $re) {
             $str.defined or  return ();
             $str eq ""   and return ("");
 
-            return $str.split ($re, :all).map: {
+            $str.split ($re, :all).map: {
                 if $_ ~~ Str {
                     $_   if .chars;
                     }
@@ -784,14 +784,14 @@ class Text::CSV {
         my sub keep () {
             self!ready (1, $f) or return False;
             $f = CSV::Field.new;
-            return True;
+            True;
             } # add
 
         my sub parse_done () {
             self!ready (1, $f) or return False;
             %!callbacks{"after_parse"}.defined and
                 %!callbacks{"after_parse"}.(self, @!fields);
-            return True;
+            True;
             }
 
         my @ch;
@@ -1073,27 +1073,27 @@ class Text::CSV {
 #       !$!binary && $f.is_binary and
 #           return parse_error ($f.is_quoted ?? 2026 !! 2037);
 
-        return parse_done ();
+        parse_done ();
         } # parse
 
     method !row_hr (@row) {
         my @cn  = (@!crange ?? @!cnames[@!crange] !! @!cnames);
-        return hash @cn Z @row;
+        hash @cn Z @row;
         }
 
     multi method getline_hr (Str $str, Bool :$meta = True) {
         @!cnames.elems or self!fail (3002);
-        return self!row_hr (self.getline ($str, :$meta));
+        self!row_hr (self.getline ($str, :$meta));
         } # getline_hr
 
     multi method getline_hr (IO:D $io, Bool :$meta = True) {
         @!cnames.elems or self!fail (3002);
-        return self!row_hr (self.getline ($io,  :$meta));
+        self!row_hr (self.getline ($io,  :$meta));
         } # getline_hr
 
     multi method getline (Str $str, Bool :$meta = True) {
         self.parse ($str) or return ();
-        return $meta ?? self.fields !! self.list;
+        $meta ?? self.fields !! self.list;
         } # getline
 
     multi method getline (IO:D $io, Bool :$meta = True) {
@@ -1106,7 +1106,7 @@ class Text::CSV {
         $!io =  IO;
         $io.nl    = $nl;
         $io.chomp = $chomped;
-        return $meta ?? self.fields !! self.list;
+        $meta ?? self.fields !! self.list;
         } # getline
 
     method getline_hr_all (IO:D  $io,
@@ -1114,7 +1114,7 @@ class Text::CSV {
                            Int   $length = -1,
                            Bool :$meta   = True) {
         @!cnames.elems or self!fail (3002);
-        return self.getline_all ($io, $offset, $length, :$meta, hr => True);
+        self.getline_all ($io, $offset, $length, :$meta, hr => True);
         }
 
     method !row (Bool:D $meta, Bool:D $hr) {
@@ -1124,7 +1124,7 @@ class Text::CSV {
             my %hash = @cn Z @row;
             return { %hash };
             }
-        return [ @row ];
+        [ @row ];
         }
 
     # @a = $csv.getline_all ($io);
@@ -1171,7 +1171,7 @@ class Text::CSV {
         $!io =  IO;
         $io.nl    = $nl;
         $io.chomp = $chomped;
-        return @lines;
+        @lines;
         }
 
     method fragment (IO:D $io, Str:D $spec is copy, Bool :$meta = True) {
@@ -1230,27 +1230,27 @@ class Text::CSV {
         $!io =  IO;
         $io.nl    = $nl;
         $io.chomp = $chomped;
-        return @lines;
+        @lines;
         }
 
     multi method print (IO:D $io, *%p) returns Bool {
         @!cnames.elems or self!fail (3009);
-        return self.print ($io, %p{@!cnames});
+        self.print ($io, %p{@!cnames});
         }
 
     multi method print (IO:D $io,  %c) returns Bool {
         @!cnames.elems or self!fail (3009);
-        return self.print ($io, [ %c{@!cnames} ]);
+        self.print ($io, [ %c{@!cnames} ]);
         }
 
     multi method print (IO:D $io, Capture $c) returns Bool {
-        return self.print ($io, $c.list);
+        self.print ($io, $c.list);
         }
 
     multi method print (IO:D $io,  @fld) returns Bool {
         self.combine (@fld) or return False;
         $io.print (self.string);
-        return True;
+        True;
         }
 
     multi method print (IO:D $io, *@fld) returns Bool {
@@ -1263,7 +1263,7 @@ class Text::CSV {
                 }
             return self.print ($io, [ %hash{@!cnames} ]);
             }
-        return self.print ($io, [@fld]);
+        self.print ($io, [@fld]);
         }
 
     method say (IO:D $io, *@f) returns Bool {
@@ -1271,7 +1271,7 @@ class Text::CSV {
         $!eol ||= "\r\n";
         my Bool $state = self.print ($io, |@f);
         $!eol = $eol;
-        return $state;
+        $state;
         }
 
     # Only as a method, both in and out are required
@@ -1427,7 +1427,7 @@ class Text::CSV {
             return $fh.slurp-rest;
             }
 
-        return True;
+        True;
         }
 
     method csv ( Any       :$in,
@@ -1440,13 +1440,13 @@ class Text::CSV {
                  Text::CSV :$csv  = self || Text::CSV.new,
                  *%args ) {
 
-        return $csv.CSV (:$in, :$out, :$headers, :$key, :$encoding, :$fragment, :$meta, |%args);
+        $csv.CSV (:$in, :$out, :$headers, :$key, :$encoding, :$fragment, :$meta, |%args);
         }
     }
 
 sub csv (*%args) is export {
     %args{"meta"} //= False;
-    return Text::CSV.csv (|%args);
+    Text::CSV.csv (|%args);
     }
 
 1;
