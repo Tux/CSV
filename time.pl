@@ -52,13 +52,13 @@ foreach my $v (keys %perl) {
 
 for (@test) {
     my ($v, $script) = @$_;
-    open my $ph, "|-", "$perl{$v} $script.pl 2>&1 >/dev/null";
+    open my $ph, "|-", "$perl{$v} -Ilib $script.pl 2>&1 >/dev/null";
     print   $ph "\n";
     close   $ph;
 
     printf "%-11s ", $_->[1];
     my $t0 = [ gettimeofday ];
-    open my $th, "-|", "$perl{$v} $script.pl 2>&1 </tmp/hello.csv";
+    open my $th, "-|", "$perl{$v} -Ilib $script.pl 2>&1 </tmp/hello.csv";
     my $i = 0;
     while (<$th>) {
         m/^(\d+)$/ and $i = $1;
