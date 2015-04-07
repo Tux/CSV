@@ -109,7 +109,6 @@ is ($s.WHICH,     "Str",      "Undefined in String  context type");
 is ($s.defined,   False,      "Undefined in String  context defined");
 is ($f.gist,      "<undef>",  "Undefined as gist");
 
-$f.undefined = False;           # "0"
 $f.text      = "0";
 is (?$f,          False,      "'0' in Boolean context");
 $n = +$f;
@@ -147,8 +146,7 @@ is ($s.defined,   True,       "'15' in String  context defined");
 is ($s,           "15",       "'15' in String  context value");
 is ($f.gist,      'Qb7m:"15"', "'15' as gist");
 
-$f = CSV::Field.new (undefined => False, is_quoted => True);
-$f.text      = "\x[246e]";      # "CIRCLED NUMBER FIFTEEN"
+$f = CSV::Field.new (text => "\x[246e]", :is_quoted); # "CIRCLED NUMBER FIFTEEN"
 is (?$f,          True,       "'\"\x[246e]\"' in Boolean context");
 $n = +$f;
 is ($n.^name,     "Int",      "'\"\x[246e]\"' in Numeric context type");

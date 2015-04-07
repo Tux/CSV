@@ -113,9 +113,8 @@ class CellSet {
 
 class CSV::Field {
 
-    has Bool $.undefined  is rw = True;
     has Bool $.is_quoted  is rw = False;
-    has Str  $.text       is rw;
+    has Str  $.text       is rw = Str;
 
     has Bool $!is_binary  = False;
     has Bool $!is_utf8    = False;
@@ -134,21 +133,22 @@ class CSV::Field {
         }
 
     method Bool {
-        return $!undefined ?? False !! ?$!text;
+        return $.text.defined ?? ?$.text !! False;
         }
 
     method Str {
-        return $!undefined ?? Str   !!  $!text;
+        return $.text;
         }
 
     method Numeric {
-        return $!undefined              ??  Num
-            !! $!text ~~ m{^ <[0..9]> } ?? +$!text
-            !!                              $!text.unival.Int;
+        return $.text.defined
+            ?? $!text ~~ m{^ <[0..9]> } ?? +$!text
+            !!                              $!text.unival.Int
+            !! Num;
         }
 
     method gist {
-        $.undefined and return "<undef>";
+        $.text.defined or return "<undef>";
         my $s  = $.is_quoted  ?? "Q" !! "q";
            $s ~= $!is_binary  ?? "B" !! "b";
            $s ~= $!is_utf8    ?? "8" !! "7";
@@ -157,15 +157,17 @@ class CSV::Field {
         }
 
     method add (Str $chunk) {
-        $!text     ~= $chunk;
-        $!undefined = False;
+        $!text ~= $chunk;
         return self;
         }
 
     method set_quoted () {
         $!is_quoted = True;
-        $!undefined = False;
         $!text      = "";
+        }
+
+    method undefined () {
+        return !$!text.defined;
         }
 
     method !analyse () {
@@ -173,10 +175,7 @@ class CSV::Field {
 
         $!analysed = True;
 
-        $!text.defined or
-            $!undefined = True;
-
-        $!undefined || $!text eq "" and
+        !$!text.defined || $!text eq "" and
             return; # Default is False for both
 
         $!text ~~ m{^ <[ \x09, \x20 .. \x7E ]>+ $} or
@@ -633,8 +632,6 @@ class Text::CSV {
     # parse   : direction = 1
     method !ready (int $direction, CSV::Field $f) returns Bool {
 
-        $f.text.defined or $f.undefined = True;
-
         if ($f.undefined) {
             if ($direction) {
                 $!blank_is_undef || $!empty_is_undef or $f.add ("");
@@ -643,10 +640,7 @@ class Text::CSV {
             }
 
         if ($f.text eq "") {
-            if ($!empty_is_undef) {
-                $f.undefined = True;
-                $f.text      = Str;
-                }
+            $!empty_is_undef and $f.text = Str;
             return self!accept-field ($f);
             }
 
