@@ -121,15 +121,8 @@ class CSV::Field {
     has Bool $!is_missing = False;
     has Bool $!analysed   = False;
 
-    multi method new (Str $str) {
-        my $f = self.bless;
-        $str.defined and $f.add ($str);
-        $f;
-        }
-    multi method new (Num $num) {
-        my $f = self.bless;
-        $num.defined and $f.add ($num.Str);
-        $f;
+    multi method new(Str(Cool) $str) {
+        $str.defined ?? self.bless.add($str) !! self.bless;
         }
 
     method Bool {
