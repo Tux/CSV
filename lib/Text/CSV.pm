@@ -133,7 +133,7 @@ class CSV::Field {
         }
 
     method Bool {
-        $.text.defined ?? ?$.text !! False;
+        $.text.defined && ?$.text;
         }
 
     method Str {
@@ -604,23 +604,19 @@ class Text::CSV {
         }
 
     method is_quoted  (Int:D $i) returns Bool {
-        $i >= @!fields.elems and return False;
-        @!fields[$i].is_quoted;
+        $i >= 0 && $i < @!fields.elems && @!fields[$i].is_quoted;
         }
 
     method is_binary  (Int:D $i) returns Bool {
-        $i >= @!fields.elems and return False;
-        @!fields[$i].is_binary;
+        $i >= 0 && $i < @!fields.elems && @!fields[$i].is_binary;
         }
 
     method is_utf8    (Int:D $i) returns Bool {
-        $i >= @!fields.elems and return False;
-        @!fields[$i].is_utf8;
+        $i >= 0 && $i < @!fields.elems && @!fields[$i].is_utf8;
         }
 
     method is_missing (Int:D $i) returns Bool {
-        $i >= @!fields.elems and return False;
-        @!fields[$i].is_missing;
+        $i >= 0 && $i < @!fields.elems && @!fields[$i].is_missing;
         }
 
     method !accept-field (CSV::Field $f) returns Bool {
