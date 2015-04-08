@@ -121,8 +121,8 @@ class CSV::Field {
     has Bool $!is_missing = False;
     has Bool $!analysed   = False;
 
-    multi method new(Str(Cool) $str) {
-        $str.defined ?? self.bless.add($str) !! self.bless;
+    multi method new (Str(Cool) $str) {
+        $str.defined ?? self.bless.add ($str) !! self.bless;
         }
 
     method Bool {
