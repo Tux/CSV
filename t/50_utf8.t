@@ -7,7 +7,7 @@ use Test;
 use Text::CSV;
 
 # Test rejection of binary whilst accepting UTF-8
-my $csv = Text::CSV.new (always_quote => True, binary => False);
+my $csv = Text::CSV.new (:always_quote, :!binary, :meta);
 
 # Special characters to check:
 # 0A = \n  2C = ,  20 =     22 = "  

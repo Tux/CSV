@@ -207,6 +207,7 @@ class Text::CSV {
     has Bool $!decode_utf8;
     has Int  $!auto_diag;
     has Int  $!diag_verbose;
+    has Bool $!keep_meta;
 
     has Bool $!blank_is_undef;
     has Bool $!empty_is_undef;
@@ -220,7 +221,6 @@ class Text::CSV {
     has Bool $!quote_null;
     has Bool $!quote_empty;
     has Bool $!quote_binary;
-    has Bool $!keep_meta_info;
 
     has Bool $!build;
     has Int  $!record_number;
@@ -290,6 +290,7 @@ class Text::CSV {
         $!decode_utf8           = True;
         $!auto_diag             = 0;
         $!diag_verbose          = 0;
+        $!keep_meta             = False;
 
         $!blank_is_undef        = False;
         $!empty_is_undef        = False;
@@ -303,7 +304,6 @@ class Text::CSV {
         $!quote_space           = True;
         $!quote_null            = True;
         $!quote_binary          = True;
-        $!keep_meta_info        = False;
 
         $!errno                 = 0;
         $!error_pos             = 0;
@@ -409,6 +409,7 @@ class Text::CSV {
         alias ("empty_is_undef",        < empty-is-undef >);
         alias ("record_number",         < record-number >);
         alias ("auto_diag",             < auto-diag >);
+        alias ("keep_meta",             < keep-meta meta>);
         alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
         alias ("callbacks",             < hooks >);
         }
@@ -477,6 +478,7 @@ class Text::CSV {
     method allow_whitespace      (*@s) returns Bool { self!a_bool ($!allow_whitespace,      @s); }
     method blank_is_undef        (*@s) returns Bool { self!a_bool ($!blank_is_undef,        @s); }
     method empty_is_undef        (*@s) returns Bool { self!a_bool ($!empty_is_undef,        @s); }
+    method keep_meta             (*@s) returns Bool { self!a_bool ($!keep_meta,             @s); }
     method eof                   ()    returns Bool { $!eof; }
 
     # Numeric attributes
@@ -1070,22 +1072,22 @@ class Text::CSV {
         hash @cn Z @row;
         }
 
-    multi method getline_hr (Str $str, Bool :$meta = True) {
+    multi method getline_hr (Str $str, Bool :$meta = $!keep_meta) {
         @!cnames.elems or self!fail (3002);
         self!row_hr (self.getline ($str, :$meta));
         } # getline_hr
 
-    multi method getline_hr (IO:D $io, Bool :$meta = True) {
+    multi method getline_hr (IO:D $io, Bool :$meta = $!keep_meta) {
         @!cnames.elems or self!fail (3002);
         self!row_hr (self.getline ($io,  :$meta));
         } # getline_hr
 
-    multi method getline (Str $str, Bool :$meta = True) {
+    multi method getline (Str $str, Bool :$meta = $!keep_meta) {
         self.parse ($str) or return ();
         $meta ?? self.fields !! self.list;
         } # getline
 
-    multi method getline (IO:D $io, Bool :$meta = True) {
+    multi method getline (IO:D $io, Bool :$meta = $!keep_meta) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
@@ -1101,7 +1103,7 @@ class Text::CSV {
     method getline_hr_all (IO:D  $io,
                            Int   $offset =  0,
                            Int   $length = -1,
-                           Bool :$meta   = True) {
+                           Bool :$meta   = False) {
         @!cnames.elems or self!fail (3002);
         self.getline_all ($io, $offset, $length, :$meta, hr => True);
         }
@@ -1122,7 +1124,7 @@ class Text::CSV {
     method getline_all (IO:D  $io,
                         Int   $offset is copy =  0,
                         Int   $length is copy = -1,
-                        Bool :$meta = True,
+                        Bool :$meta = $!keep_meta,
                         Bool :$hr   = False) {
         my Bool $chomped = $io.chomp;
         my Str  $nl      = $io.nl;
@@ -1163,7 +1165,7 @@ class Text::CSV {
         @lines;
         }
 
-    method fragment (IO:D $io, Str:D $spec is copy, Bool :$meta = True) {
+    method fragment (IO:D $io, Str:D $spec is copy, Bool :$meta = $!keep_meta) {
 
         self.rowrange (Str);
         self.colrange (Str);
@@ -1271,7 +1273,7 @@ class Text::CSV {
                  Str    :$encoding is copy,
                  Str    :$fragment is copy,
                  Bool   :$strict = False,
-                 Bool   :$meta   = True,
+                 Bool   :$meta   = False,
                  *%args            is copy) {
 
         # Aliasses
@@ -1425,7 +1427,7 @@ class Text::CSV {
                  Str       :$key,
                  Str       :$encoding,
                  Str       :$fragment,
-                 Bool      :$meta = True,
+                 Bool      :$meta = $!keep_meta,
                  Text::CSV :$csv  = self || Text::CSV.new,
                  *%args ) {
 

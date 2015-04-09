@@ -6,7 +6,7 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-my $csv = Text::CSV.new (binary => False, eol => "\n");
+my $csv = Text::CSV.new (binary => False, eol => "\n", :meta);
 
 my $tf20 = "_20test.csv";
 

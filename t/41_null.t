@@ -41,12 +41,7 @@ for @pat -> $pat {
     }
 my Str @line = ("", Str, "0\n", "", "\0\0\n0");
 
-my $csv = Text::CSV.new (
-    eol                 => "\n",
-    binary              => True,
-    auto_diag           => True,
-    blank_is_undef      => True,
-    );
+my $csv = Text::CSV.new (eol => "\n", :binary, :auto_diag, :blank_is_undef, :meta);
 
 ok ($csv.combine (@line), "combine [ ... ]");
 is ($csv.string, qq{,,"0\n",,""0"0\n0"\n}, "string");
@@ -88,6 +83,7 @@ $csv = Text::CSV.new (
     auto_diag      => True,
     blank_is_undef => True,
     quote_null     => False,
+    meta           => True,
     );
 
 ok ($csv.combine (@line), "combine [ ... ]");

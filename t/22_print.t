@@ -6,7 +6,7 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-ok (my $csv = Text::CSV.new (quote-empty => True, blank-is-undef => True), "new");
+ok (my $csv = Text::CSV.new (:quote-empty, :blank-is-undef, :meta), "new");
 
 my $tfn = "_22_print.csv";
 

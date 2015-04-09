@@ -8,7 +8,7 @@ use Text::CSV;
 
 my $tfn = "_79_callbacks.csv";
 
-my $csv = Text::CSV.new;
+my $csv = Text::CSV.new (:meta);
 
 is ($csv.callbacks.keys.elems,           0, "No callbacks");
 is ($csv.callbacks (0).keys.elems,       0, "Reset no callbacks");
@@ -35,6 +35,7 @@ sub Push  (Text::CSV $c, CSV::Field @f is rw) { @f.push (CSV::Field.new); }
 sub Replc (Text::CSV $c, CSV::Field @f is rw) { @f[1] =  CSV::Field.new; }
 sub Unshf (Text::CSV $c, CSV::Field @f is rw) { @f.unshift (CSV::Field.new ("0")); }
 
+ok ($csv.meta (True), "Set meta again");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"],     "Parse no cb");
 ok ($csv.callbacks ("after_parse", &Empty), "Empty ap cb");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"],     "Parse empty cb");
