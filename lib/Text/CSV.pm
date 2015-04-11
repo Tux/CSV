@@ -181,7 +181,7 @@ class CSV::Field {
         }
 
     method Bool {
-        $.text.defined && ?$.text;
+        $.text.defined && $.text ne "0" && $.text ne "";
         }
 
     method Str {
