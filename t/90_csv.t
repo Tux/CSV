@@ -35,13 +35,15 @@ sub provider {
     return [ @dta.shift.split (",") ];
     }
 
+my $full-aoa = [[@hdr],["1","2","3"],["2","a b",""]];
+
 my @in =
     $fni,
     $io-in,
     \$data,
     [$data],
     [@data],
-    [[@hdr],["1","2","3"],["2","a b",""]],
+    $full-aoa,
 #   [{a=>1,b=>2},{a=>3,b=>4}],
 
 #   $sup,       # Need to understand timing (when to call .done)
@@ -78,6 +80,13 @@ is (csv (in => $fni, out => Str, fragment => "row=2"),    "1,2,3\r\n",        "F
 is (csv (in => $fni, out => Str, fragment => "col=3"),    "baz\r\n3\r\n\r\n", "Fragment, col");
 is (csv (in => $fni, out => Str, fragment => "cell=1,1"), "foo\r\n",          "Fragment, cell");
 
+$io-in.seek (0, 0);
+for @in -> $in {
+    my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
+
+    is_deeply (csv (in => $in, out => Array),
+        [["foo", "bar", "baz"], ["1", "2", "3"], ["2", "a b", ""]], "csv => Array $s-in");
+    }
 done;
 
 =finish
