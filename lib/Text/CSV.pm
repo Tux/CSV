@@ -1395,7 +1395,13 @@ class Text::CSV {
                 !! self.getline_all ($io-in, :$meta);
             }
 
-        ?$out || ?$tmpfn or return @in;
+        unless (?$out || ?$tmpfn) {
+            if ($out ~~ Hash) {
+                my @h = @in.shift.list or return [];
+                return [ @in.map (-> @r { $%( @h Z=> @r ) }) ];
+                }
+            return @in;
+            }
 
         {   my $eol = self.eol;
             $eol.defined or self.eol ("\r\n");

@@ -87,6 +87,15 @@ for @in -> $in {
     is_deeply (csv (in => $in, out => Array),
         [["foo", "bar", "baz"], ["1", "2", "3"], ["2", "a b", ""]], "csv => Array $s-in");
     }
+
+$io-in.seek (0, 0);
+for @in -> $in {
+    my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
+
+    is_deeply (csv (in => $in, out => Hash),
+        [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash $s-in");
+    }
+
 done;
 
 =finish
