@@ -253,46 +253,20 @@ be the same as what you have changed L<C<quote>|/quote> to.
 
 The escape sequence can not be equal to the separation sequence.
 
-################################################################################
-
 =item binary
 X<binary>
 
- my $csv = Text::CSV.new ({ binary => 1 });
-         $csv.binary (0);
+WORK IN PROGRESS. Default is True.
+
+ my $csv = Text::CSV.new(binary => True);
+         $csv.binary(False);
  my $f = $csv.binary;
 
-If this attribute is C<1>,  you may use binary characters in quoted fields,
+If this attribute is C<True>, you may use binary data in quoted fields,
 including line feeds, carriage returns and C<NULL> bytes. (The latter could
-be escaped as C<"0>.) By default this feature is off.
+be escaped as C<"0>.) By default this feature is on.
 
-If a string is marked UTF8,  C<binary> will be turned on automatically when
-binary characters other than C<CR> and C<NL> are encountered.   Note that a
-simple string like C<"\x{00a0}"> might still be binary, but not marked UTF8,
-so setting C<< { binary => 1 } >> is still a wise option.
-
-=item decode_utf8
-X<decode_utf8>
-
- my $csv = Text::CSV.new ({ decode_utf8 => 1 });
-         $csv.decode_utf8 (0);
- my $f = $csv.decode_utf8;
-
-This attributes defaults to TRUE.
-
-While I<parsing>,  fields that are valid UTF-8, are automatically set to be
-UTF-8, so that
-
-  $csv.parse ("\xC4\xA8\n");
-
-results in
-
-  PV("\304\250"\0) [UTF8 "\x{128}"]
-
-Sometimes it might not be a desired action.  To prevent those upgrades, set
-this attribute to false, and the result will be
-
-  PV("\304\250"\0)
+Note that valid Unicode (UTF-8) is not considered binary.
 
 =item auto_diag
 X<auto_diag>
