@@ -126,7 +126,32 @@ class RangeSet {
             }
         }
 
-    method list () {
+    multi method list (Int $last) {
+        my Int @x;
+        my Int $max = -1;
+        for sort @!ranges -> $r {
+            my $from = ($r.key,   $max  + 1).max.Int;
+            my $to   = ($r.value, $last - 1).min.Int;
+            $from > $to and next;
+            @x.push: $from .. $to;
+            $to >= $last || $r.value == Inf and last;
+            $max = ($max, $r.value).max.Int;
+            }
+        return @x;
+        }
+
+    multi method list () {
+        my @x;
+        my Int $max = -1;
+        for sort @!ranges -> $r {
+            my $from = ($r.key, $max + 1).max.Int;
+            $from > $r.value and next;
+            @x.plan: $from .. $r.value;
+            $r.value == Inf and last;
+            $max = ($max, $r.value).max.Int;
+            }
+        @x.elems and return @x;
+
         # There's a more efficient way to do this... :-)
         gather {
             for $.min .. $.max -> $maybe {
@@ -1278,6 +1303,9 @@ class Text::CSV {
         %args{"frag"}.defined and $fragment ||= %args{"frag"} :delete;
         %args{"enc" }.defined and $encoding ||= %args{"enc"}  :delete;
 
+        my $skip = %args{"skip"} :delete || 0 and
+            self.rowrange (++$skip ~ "-*");
+
         # Check csv-only args
         # Hooks
         #   after_in    after-in    after_parse  after-parse
@@ -1341,7 +1369,9 @@ class Text::CSV {
                         $io-in = IO::String.new ($in.list.join ($!eol // "\n"));
                         }
                     default {
-                        @in = $in.list;
+                        @in = $!rrange
+                            ?? $in.list[$!rrange.list ($in.list.elems)]
+                            !! $in.list;
                         }
                     }
                 }
@@ -1349,10 +1379,12 @@ class Text::CSV {
                 $io-in = IO::String.new ($in.list.map (*.Str).join ($!eol // "\n"));
                 }
             when Supply {
-                @in = gather while ($in.tap)  -> $r { take $r };
+                my int $i = 0;
+                @in = gather while ($in.tap) -> $r { !$!rrange || $!rrange.in ($i++) and take $r };
                 }
             when Routine {
-                @in = gather while  $in()     -> $r { take $r };
+                my int $i = 0;
+                @in = gather while  $in()    -> $r { !$!rrange || $!rrange.in ($i++) and take $r };
                 }
             when Any {
                 $io-in = $*IN;
@@ -1397,7 +1429,7 @@ class Text::CSV {
 
         unless (?$out || ?$tmpfn) {
             if ($out ~~ Hash) {
-                my @h = @in.shift.list or return [];
+                my @h = @!cnames.elems ?? @!cnames !! @in.shift.list or return [];
                 return [ @in.map (-> @r { $%( @h Z=> @r ) }) ];
                 }
             return @in;

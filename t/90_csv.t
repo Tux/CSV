@@ -96,6 +96,16 @@ for @in -> $in {
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash $s-in");
     }
 
+$io-in.seek (0, 0);
+for @in -> $in {
+    my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
+
+    ok (my $csv = Text::CSV.new,           "new");
+    ok ($csv.column_names (<foo bar baz>), "colnames");
+    is_deeply ($csv.csv (in => $in, out => Hash, skip => 1),
+        [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash $s-in");
+    }
+
 done;
 
 =finish
@@ -104,13 +114,6 @@ my $aoh = [
     { foo => 1, bar => 2, baz => 3 },
     { foo => 2, bar => "a b", baz => "" },
     ];
-
-SKIP: for my $io ([ $file, "file" ], [ \*FH, "globref" ], [ *FH, "glob" ], [ \$data, "ScalarIO"] ) {
-    $] < 5.008 && ref $io->[0] eq "SCALAR" and skip "No ScalarIO support for $]", 1;
-    open FH, "<", $file;
-    is_deeply (csv (in => $io->[0], headers => "auto"), $aoh, "AOH $io->[1]");
-    close FH;
-    }
 
 my @aoa = @{$aoa}[1,2];
 is_deeply (csv (file => $file, headers  => "skip"),    \@aoa, "AOA skip");
