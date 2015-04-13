@@ -1302,6 +1302,7 @@ class Text::CSV {
         #   enc    encoding
         %args{"frag"}.defined and $fragment ||= %args{"frag"} :delete;
         %args{"enc" }.defined and $encoding ||= %args{"enc"}  :delete;
+        $fragment //= "";
 
         my $skip = %args{"skip"} :delete || 0 and
             self.rowrange (++$skip ~ "-*");
@@ -1369,6 +1370,8 @@ class Text::CSV {
                         $io-in = IO::String.new ($in.list.join ($!eol // "\n"));
                         }
                     default {
+                        $fragment ~~ s:i{^ "row=" } = "" and
+                            self.rowrange ($fragment);
                         @in = $!rrange
                             ?? $in.list[$!rrange.list ($in.list.elems)]
                             !! $in.list;
@@ -1379,10 +1382,12 @@ class Text::CSV {
                 $io-in = IO::String.new ($in.list.map (*.Str).join ($!eol // "\n"));
                 }
             when Supply {
+                $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
                 my int $i = 0;
                 @in = gather while ($in.tap) -> $r { !$!rrange || $!rrange.in ($i++) and take $r };
                 }
             when Routine {
+                $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
                 my int $i = 0;
                 @in = gather while  $in()    -> $r { !$!rrange || $!rrange.in ($i++) and take $r };
                 }
@@ -1427,8 +1432,10 @@ class Text::CSV {
                 !! self.getline_all ($io-in, :$meta);
             }
 
+        $headers ~~ Array and self.column_names ($headers.list);
+
         unless (?$out || ?$tmpfn) {
-            if ($out ~~ Hash) {
+            if ($out ~~ Hash or $headers ~~ Array or $headers ~~ Str && $headers eq "auto") {
                 my @h = @!cnames.elems ?? @!cnames !! @in.shift.list or return [];
                 return [ @in.map (-> @r { $%( @h Z=> @r ) }) ];
                 }

@@ -36,18 +36,19 @@ sub provider {
     }
 
 my $full-aoa = [[@hdr],["1","2","3"],["2","a b",""]];
+my Str $s-in;
 
 my @in =
-    $fni,
-    $io-in,
-    \$data,
-    [$data],
-    [@data],
-    $full-aoa,
+    $fni,                       # Str
+    $io-in,                     # IO::Handle
+    \$data,                     # Capture
+    [$data],                    # Array
+    [@data],                    # Array
+    $full-aoa,                  # Array
 #   [{a=>1,b=>2},{a=>3,b=>4}],
 
 #   $sup,       # Need to understand timing (when to call .done)
-    &provider,
+    &provider,                  # Sub
     ;
 
 sub inok (@r, Str $diag) {
@@ -61,7 +62,7 @@ sub inok (@r, Str $diag) {
 
 # Test supported "in" formats
 for @in -> $in {
-    my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
+    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     inok (Text::CSV.csv (in => $in, meta => False), "Class   $s-in");
     inok (     $csv.csv (in => $in, meta => False), "Method  $s-in");
     inok (          csv (in => $in, meta => False), "Sub     $s-in");
@@ -71,8 +72,7 @@ for @in -> $in {
 # Test supported "out" formats
 
 for @in -> $in {
-    my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
-
+    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     is (csv (in => $in, out => Str, quote-space => False), $data, "csv => Str $s-in");
     }
 
@@ -82,28 +82,41 @@ is (csv (in => $fni, out => Str, fragment => "cell=1,1"), "foo\r\n",          "F
 
 $io-in.seek (0, 0);
 for @in -> $in {
-    my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
-
+    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     is_deeply (csv (in => $in, out => Array),
         [["foo", "bar", "baz"], ["1", "2", "3"], ["2", "a b", ""]], "csv => Array $s-in");
     }
 
 $io-in.seek (0, 0);
 for @in -> $in {
-    my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
-
+    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     is_deeply (csv (in => $in, out => Hash),
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash $s-in");
     }
 
 $io-in.seek (0, 0);
 for @in -> $in {
-    my $s-in = $in.gist; $s-in ~~ s:g{\n} = "\\n";
-
+    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
     ok ($csv.column_names (<foo bar baz>), "colnames");
     is_deeply ($csv.csv (in => $in, out => Hash, skip => 1),
-        [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash $s-in");
+        [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + skip $s-in");
+    }
+
+$io-in.seek (0, 0);
+for @in -> $in {
+    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
+    ok (my $csv = Text::CSV.new,           "new");
+    is_deeply ($csv.csv (in => $in, headers => "auto"),
+        [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + auto $s-in");
+    }
+
+$io-in.seek (0, 0);
+for @in -> $in {
+    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
+    ok (my $csv = Text::CSV.new,           "new");
+    is_deeply ($csv.csv (in => $in, headers => [<foo bar baz>], frag => "row=2-*"),
+        [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + hdrs $s-in");
     }
 
 done;
