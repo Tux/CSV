@@ -285,7 +285,7 @@ class Text::CSV {
 
     has Bool $!binary;
     has Bool $!decode_utf8;
-    has Int  $!auto_diag;
+    has Bool $!auto_diag;
     has Int  $!diag_verbose;
     has Bool $!keep_meta;
 
@@ -367,7 +367,7 @@ class Text::CSV {
 
         $!binary                = True;
         $!decode_utf8           = True;
-        $!auto_diag             = 0;
+        $!auto_diag             = False;
         $!diag_verbose          = 0;
         $!keep_meta             = False;
 
@@ -500,6 +500,7 @@ class Text::CSV {
     method blank_is_undef        (*@s) returns Bool { self!a_bool ($!blank_is_undef,        @s); }
     method empty_is_undef        (*@s) returns Bool { self!a_bool ($!empty_is_undef,        @s); }
     method keep_meta             (*@s) returns Bool { self!a_bool ($!keep_meta,             @s); }
+    method auto_diag             (*@s) returns Bool { self!a_bool ($!auto_diag,             @s); }
     method eof                   ()    returns Bool { $!eof; }
 
     # Numeric attributes
@@ -517,7 +518,6 @@ class Text::CSV {
             }
         $attr;
         }
-    method auto_diag    (*@s) returns Int { self!a_bool_int ($!auto_diag,    @s); }
     method diag_verbose (*@s) returns Int { self!a_bool_int ($!diag_verbose, @s); }
 
     method column_names (*@c) returns Array[Str] {

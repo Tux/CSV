@@ -297,23 +297,20 @@ this attribute to false, and the result will be
 =item auto_diag
 X<auto_diag>
 
- my $csv = Text::CSV.new ({ auto_diag => 1 });
-         $csv.auto_diag (2);
+ my $csv = Text::CSV.new (auto_diag => False);
+         $csv.auto_diag(True);
  my $l = $csv.auto_diag;
 
-Set this attribute to a number between C<1> and C<9> causes  L</error_diag>
-to be automatically called in void context upon errors.
+Set this attribute to a number between C<1> and C<9> causes L</error_diag>
+to be automatically called in void context upon errors. The value C<True>
+evaluates to C<1>.
 
 In case of error C<2012 - EOF>, this call will be void.
 
 If C<auto_diag> is set to a numeric value greater than C<1>, it will C<die>
-on errors instead of C<warn>.  If set to anything unrecognized,  it will be
-silently ignored.
+on errors instead of C<warn>.
 
-Future extensions to this feature will include more reliable auto-detection
-of  C<autodie>  being active in the scope of which the error occurred which
-will increment the value of C<auto_diag> with  C<1> the moment the error is
-detected.
+################################################################################
 
 =item diag_verbose
 X<diag_verbose>
