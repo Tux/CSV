@@ -4,7 +4,7 @@ use v6;
 use Slang::Tuxic;
 use File::Temp;
 
-my $VERSION = "1.00";
+my $VERSION = "0.002";
 
 my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
 
