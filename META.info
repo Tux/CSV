@@ -3,13 +3,10 @@
   "perl"         : "v6.0.0",
   "description"  : "Parse CSV data, API like Text::CSV_XS",
   "auth"         : "github:Tux",
-  "authors"      : [ "H.Merijn Brand (Tux)" ],
-  "tags"         : [ "CSV"                  ],
-  "test-depends" : [ "Test"                 ],
-  "depends"      : [
-    "Slang::Tuxic",
-    "File::Temp"
-    ],
+  "authors"      : [ "H.Merijn Brand (Tux)"       ],
+  "tags"         : [ "CSV"                        ],
+  "depends"      : [ "Slang::Tuxic", "File::Temp" ],
+  "test-depends" : [ "Test"                       ],
   "provides"     : {
     "Text::CSV"  : "lib/Text/CSV.pm"
     },
