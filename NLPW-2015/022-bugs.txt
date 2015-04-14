@@ -1,0 +1,16 @@
+Int.Range.say
+
+=>
+
+-Inf..Inf
+
+
+but
+
+my Int $i = Int.Range.max;
+
+=>
+
+Type check failed in assignment to '$i'; expected 'Int' but got 'Num'
+  in block <unit> at test.pl:4
+

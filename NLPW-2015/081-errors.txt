@@ -1,0 +1,18 @@
+perl5
+
+foreach my $ws (" ", "\t") {
+    $csv = Text::CSV_XS->new ({ escape_char = $ws });
+    eval { $csv->allow_white_space (1); };
+    is (0 +$csv->error_diag, 1002, "Sanity check");
+
+
+perl6
+
+for (" ", "\t") -> $ws {
+    my Int $e = 0;
+    ok ($csv = Text::CSV.new (escape_char => $ws), "New blank escape");
+    {   $csv.allow_whitespace (True);
+        CATCH { default { $e = .error; }}
+        }
+    is ($e, 1002, "Sanity check");
+

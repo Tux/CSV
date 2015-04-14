@@ -1,0 +1,10 @@
+
+my int $i = 0;
+while ($i++ < 10) {
+
+=>
+
+Cannot assign to an immutable value
+  in sub postfix:<++> at src/gen/m-CORE.setting:5082
+  in block <unit> at t.pl:7
+

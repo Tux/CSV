@@ -1,0 +1,12 @@
+class C {
+
+    has Int  $.i = 0;
+    has Bool $.b = False;
+
+    method is-insane () returns Bool {
+	?$.i && $.b;
+	}
+    }
+
+my $c = C.new (i => 1, b => True);
+$c.is-insane.perl.say;

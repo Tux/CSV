@@ -1,0 +1,51 @@
+Test::More in perl5
+
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Test::More tests => 177;
+
+BEGIN {
+    use_ok "Text::CSV_XS";
+    plan skip_all => "Cannot load Text::CSV_XS" if $@;
+    }
+
+ok (my $csv = Text::CSV_XS->new,        "new ()");
+
+is ($csv->quote_char,            '"',   "quote_char");
+is ($csv->quote,                 '"',   "quote");
+is ($csv->escape_char,           '"',   "escape_char");
+is ($csv->sep_char,              ",",   "sep_char");
+is ($csv->sep,                   ",",   "sep");
+is ($csv->eol,                   "",    "eol");
+is ($csv->always_quote,          0,     "always_quote");
+:
+
+Test in perl6
+
+#!perl6
+
+use v6;
+use Slang::Tuxic;
+
+use Test;
+use Text::CSV;
+
+my $csv = Text::CSV.new;
+
+ok ($csv,                               "new ()");
+
+is ($csv.quote_char,             '"',   "quote_char");
+is ($csv.quote,                  '"',   "quote");
+is ($csv.escape_char,            '"',   "escape_char");
+is ($csv.escape-char,            '"',   "escape-char");
+is ($csv.sep,                    ",",   "sep");
+is ($csv.sep_char,               ",",   "sep_char");
+is ($csv.sep-char,               ",",   "sep-char");
+is ($csv.separator,              ",",   "separator");
+is ($csv.eol.defined,            False, "eol");
+is ($csv.always_quote,           False, "always_quote");
+is ($csv.always-quote,           False, "always-quote");
+:

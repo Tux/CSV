@@ -1,0 +1,23 @@
+Legal in perl5:
+
+ my $foo = foo( 1 );
+ my $foo = foo(1);
+ my $foo = foo (1);
+ my $foo = foo      (    1
+           );
+
+ my $foo = $object->method (1)
+                  ->method (2)
+                  ->method (3);
+
+NOT legal in perl6
+
+ my $foo = foo (1);
+ my $foo = foo      (    1
+           );
+
+ my $foo = $object.method(1)
+                  .method(2)
+                  .method(3);
+
+But with Slang::Tuxic they are!

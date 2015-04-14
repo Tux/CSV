@@ -1,0 +1,8 @@
+class C {
+
+    has Int  $.i = 0;
+    has Bool $.b = False;
+
+    }
+
+my $c = C.new (i => 1, b => True);

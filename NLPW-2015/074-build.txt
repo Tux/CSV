@@ -1,0 +1,22 @@
+class C {
+
+    has Int  $.i;
+    has Bool $.b;
+
+    submethod BUILD (*%init) {
+	$.i = 0;
+	$.b = False;
+
+	?%init{"i"} && %init{"b"} and die "Don't be insane!";
+	for keys %init -> $attr {
+	    ...
+	    }
+	}
+
+    method is-insane () returns Bool {
+	?$.i && $.b;
+	}
+    }
+
+my $c = C.new (i => 1, b => True);
+$c.is-insane.perl.say;

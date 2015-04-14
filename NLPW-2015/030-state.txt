@@ -1,0 +1,22 @@
+    enum State <Start Data QuotedData Finish Escape>;
+
+    my Int $last = $line.chars;
+    $index = 0;
+    while $index < $last {
+	$input = $line.substr ($index, 1);
+	given $state {
+	    when State::Start {
+		given $input {
+		    when $!sep_char   { store; }
+		    when $!quote_char { non_nil;     $state = State::QuotedData; }
+		    default           { append ($_); $state = State::Data; }
+		    }
+		}
+	    when State::Data {
+		given $input {
+		    when $!sep_char   { store;       $state = State::Start; }
+		    when $!quote_char { parse_error ("Halfway quoting is forbidden"); }
+		    default           { append ($_); }
+		    }
+		}
+

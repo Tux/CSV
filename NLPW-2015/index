@@ -1,0 +1,91 @@
+* It is a different language, COPE!
+
+* I can haz spaces (Slang::Tuxic)
+
+* Keep current
+
+  - rakudobrew
+
+  - IRC
+
+* Debugging
+
+  - .perl and .gist
+
+* BUGS, DEAL! (and report)
+
+* Approach
+
+  - rewrite state machine
+
+  - grammar-based
+
+  - regex based
+
+    . chunks of interest
+
+    . flexibility
+
+* Test-driven (I have tests already)
+
+  - test conversion
+
+  - test speed
+
+    . perl5 XS
+
+    . perl5 PP
+
+    . Inline::Perl5
+
+    . perl6 State
+
+    . perl6 Grammar
+
+    . perl6 Chunks
+
+    . perl6 CSV::Parse
+
+    . perl6 Text::CSV (masak)
+
+* Meta info
+
+* References
+
+  - \$foo vs [$foo]
+
+  - bind_columns
+
+  - speed (no advantage)
+
+* class contstructors
+
+  - types
+
+  - defaults
+
+  - constraints
+
+  - sanity checks
+
+  - BUILD
+
+* Errors
+
+* Hooks
+
+* Ranges
+
+  - lazy lists
+
+  - pairs
+
+  - cell-ranges
+
+  - merging rfc7111
+
+* multi methods and hashes
+
+* csv ()
+
+  - In/Out

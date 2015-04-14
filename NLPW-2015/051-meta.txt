@@ -1,0 +1,25 @@
+perl5
+
+    ok ( $csv->parse (qq("","I said,\t""Hi!""",)),     "Hi! - parse ()");
+    is ( scalar $csv->fields (), 3,                    "Hi! - fields () - count");
+    is ( scalar $csv->meta_info (), 3,                 "Hi! - meta_info () - count");
+
+    is (($csv->fields ())[0], "",                      "Hi! - fields () - field 1");
+    is (($csv->meta_info ())[0], 1,                    "Hi! - meta_info () - field 1");
+    is (($csv->fields ())[1], qq(I said,\t"Hi!"),      "Hi! - fields () - field 2");
+    is (($csv->meta_info ())[1], 1,                    "Hi! - meta_info () - field 2");
+    is (($csv->fields ())[2], "",                      "Hi! - fields () - field 3");
+    is (($csv->meta_info ())[2], 0,                    "Hi! - meta_info () - field 3");
+
+perl6
+
+    ok ($csv.parse (qq{,"I said,\t""Hi!""",""}),       "Hi! - parse ()");
+    is ($csv.fields.elems, 3,                          "Hi! - fields () - count");
+    is ($csv.fields[0].text, "",                       "comma - fields () - content");
+    is ($csv.fields[0].is_quoted, False,               "comma - fields () - quoted");
+    is ($csv.fields[1].text, "I said,\t\"Hi!\"",       "comma - fields () - content");
+    is ($csv.fields[1].is_quoted, True,                "comma - fields () - quoted");
+    is ($csv.fields[2].text, "",                       "comma - fields () - content");
+    is ($csv.fields[2].is_quoted, True,                "comma - fields () - quoted");
+    is_deeply ([$csv.list], ["",qq{I said,\t"Hi!"},""], "As list");
+

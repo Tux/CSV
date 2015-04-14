@@ -1,0 +1,15 @@
+
+for $buffer.split (rx{ $!eol | $!sep | $!quo | $!esc }, :all).map (~*) -> Str $chunk {
+
+:
+
+    if $chunk eq $sep {
+	$opt_v > 5 and progress($i, "SEP");
+	if $f.is_quoted {        # "1,2"
+	    $f.add($chunk);
+	    next;
+	    }
+	keep;                    # 1,2
+	next;
+	}
+

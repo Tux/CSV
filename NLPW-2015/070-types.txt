@@ -1,0 +1,11 @@
+
+my Bool       $b;
+my Int        $i;
+my Str        $s;
+my Num        $n;
+my CSV::Field $f;
+
+
+method foo (IO:D $io, Str $s, Bool :$meta) returns Bool {
+
+sub blah (Int $x is rw, Int :$incr = 0) returns Str {

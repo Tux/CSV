@@ -1,0 +1,7 @@
+class C {
+
+    has Int         $.i             = 0;
+
+    has Str         $.s       is rw = "foo";
+
+    has CSV::Field  @!fields;

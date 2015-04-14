@@ -1,0 +1,8 @@
+$ perl6 -e'$*OUT.nl = "\n"'
+
+
+$ perl6 -e'$*OUT.nl = ""'
+Invalid string index: max 4294967295, got 4294967295
+  in block  at src/gen/m-CORE.setting:17674
+  in block <unit> at -e:1
+

@@ -1,0 +1,14 @@
+use v6;
+use Slang::Tuxic;
+
+class C {
+    method foo { self; }
+    }
+
+my @foo = 1, "foo", Str, "2", Nil, 3, C.new;
+@foo.perl.say;
+
+
+=>
+
+Array.new(1, "foo", Str, "2", 3, C.new)

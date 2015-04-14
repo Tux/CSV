@@ -1,0 +1,9 @@
+Freenode
+
+#perl6
+
+https://gist.github.com
+
+http://doc.perl6.org
+
+http://modules.perl6.org

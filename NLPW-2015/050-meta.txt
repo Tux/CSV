@@ -1,0 +1,26 @@
+$ perl5 -MCSV -e'dcsv (in => \q{1,,"2","",3})'
+[
+    [   1,
+        '',
+        2,
+        '',
+        3
+        ]
+    ]
+
+$ perl5 -MCSV -e'dcsv (in => \q{1,,"2","",3}, blank_is_undef => 1)'
+[
+    [   1,
+        undef,
+        2,
+        '',
+        3
+        ]
+    ]
+
+$ p6 -MText::CSV -e'csv(in => [q{1,,"2","",3}]).perl.say'
+[["1", "", "2", "", "3"]]<>
+
+$ p6 -MText::CSV -e'csv(in => [q{1,,"2","",3}], :blank-is-undef).perl.say'
+[["1", Str, "2", "", "3"]]<>
+

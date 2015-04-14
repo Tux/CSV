@@ -1,0 +1,6 @@
+$ git clone github.com:tadzik/rakudobrew ~/.rakudobrew
+$ cd ~/.rakudobrew
+$ export PATH=$PATH:~/.rakudobrew/bin
+$ rakudobrew build moar
+$ rakudobrew build-panda
+$ panda install Slang::Tuxic File::Temp Inline::Perl5

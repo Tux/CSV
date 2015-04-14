@@ -1,0 +1,12 @@
+grammar {
+    token lines       { <line>* }
+    token line        { <fields> <lineend> }
+    token fields      { <field>* % <separator> }
+    token field       { <quote> : $<text>=<quotedvalue> <quote> | $<text>=<value> }
+    token value       { [ <-separator> & <-quote> & <-lineend> ] * }
+    token quotedvalue { <-quote> * }
+    token separator   { "$s" }
+    token quote       { "$q" }
+    token escape      { "$e" }
+    token lineend     { $l }
+    }

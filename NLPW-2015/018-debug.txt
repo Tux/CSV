@@ -1,0 +1,14 @@
+$ perl6 -e'.gist.say for 1, "test.pl".IO, 1/4, \4'
+1
+"/srv/www/htdocs/Talks/CSV6/test.pl".IO
+0.25
+\(4)
+
+$ perl6 -e'.perl.say for 1, "test.pl".IO, 1/4, \4'
+1
+q|test.pl|.IO(:SPEC(IO::Spec::Unix),:CWD</work/www/Talks/CSV6>)
+0.25
+Capture.new(list => (4,))
+
+$ perl6 -e'(1/4).nude.say'
+1 4

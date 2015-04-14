@@ -1,0 +1,15 @@
+    multi method combine (Capture $c) returns Bool {
+    multi method combine (       *@f) returns Bool {
+    multi method combine (        @f) returns Bool {
+
+    multi method getline_hr (Str $str, Bool :$meta = $!keep_meta) {
+    multi method getline_hr (IO:D $io, Bool :$meta = $!keep_meta) {
+    
+    multi method getline    (Str $str, Bool :$meta = $!keep_meta) {
+    multi method getline    (IO:D $io, Bool :$meta = $!keep_meta) {
+    
+    multi method print (IO:D $io,        *%p)   returns Bool {
+    multi method print (IO:D $io,         %c)   returns Bool {
+    multi method print (IO:D $io, Capture $c)   returns Bool {
+    multi method print (IO:D $io,         @fld) returns Bool {
+    multi method print (IO:D $io,        *@fld) returns Bool {

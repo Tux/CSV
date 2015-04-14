@@ -1,0 +1,15 @@
+    method !row_hr (@row) {
+        my @cn  = (@!crange ?? @!cnames[@!crange] !! @!cnames);
+        hash @cn Z @row;
+        }
+
+    multi method getline_hr (Str $str, Bool :$meta = $!keep_meta) {
+        @!cnames.elems or self!fail (3002);
+        self!row_hr (self.getline ($str, :$meta));
+        } # getline_hr
+
+    multi method getline_hr (IO:D $io, Bool :$meta = $!keep_meta) {
+        @!cnames.elems or self!fail (3002);
+        self!row_hr (self.getline ($io,  :$meta));
+        } # getline_hr
+

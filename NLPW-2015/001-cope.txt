@@ -1,0 +1,15 @@
+Perl 5
+
+ my @foo = sort map { foo ($_) } @{$object->bar (2)};
+
+ $str =~ s{foo}{bar}g;
+ $str =~ m{([0-9]+)} and say $1;
+
+ $scalar   $array[1]    $hash{foo}
+
+Perl 6
+
+ my @foo = $object.bar (2).map ({ foo ($_) }).sort;
+
+ $str ~~ s:g{ "foo" } = "bar";
+ $str =~ m{ (<[0..9]>+) } and $0.say;
