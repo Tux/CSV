@@ -30,7 +30,7 @@ is ($csv.allow_whitespace,      False,  "allow_whitespace");
 is ($csv.allow_unquoted_escape, False,  "allow_unquoted_escape");
 is ($csv.blank_is_undef,        False,  "blank_is_undef");
 is ($csv.empty_is_undef,        False,  "empty_is_undef");
-is ($csv.auto_diag,             0,      "auto_diag");
+is ($csv.auto_diag,             False,  "auto_diag");
 is ($csv.keep_meta,             False,  "keep_meta"); 
 is ($csv.keep-meta,             False,  "keep-meta");
 is ($csv.meta,                  False,  "meta");
