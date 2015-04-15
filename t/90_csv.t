@@ -119,6 +119,8 @@ for @in -> $in {
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + hdrs $s-in");
     }
 
+unlink $fni, $fno;
+
 done;
 
 =finish
