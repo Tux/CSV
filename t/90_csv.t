@@ -90,7 +90,7 @@ for @in -> $in {
 $io-in.seek (0, 0);
 for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    is_deeply (csv (in => $in, out => Hash),
+    is_deeply ([csv (in => $in, out => Hash)],
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash $s-in");
     }
 
@@ -99,7 +99,7 @@ for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
     ok ($csv.column_names (<foo bar baz>), "colnames");
-    is_deeply ($csv.csv (in => $in, out => Hash, skip => 1),
+    is_deeply ([$csv.csv (in => $in, out => Hash, skip => 1)],
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + skip $s-in");
     }
 
@@ -107,7 +107,7 @@ $io-in.seek (0, 0);
 for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
-    is_deeply ($csv.csv (in => $in, headers => "auto"),
+    is_deeply ([$csv.csv (in => $in, headers => "auto")],
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + auto $s-in");
     }
 
@@ -115,7 +115,7 @@ $io-in.seek (0, 0);
 for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
-    is_deeply ($csv.csv (in => $in, headers => [<foo bar baz>], frag => "row=2-*"),
+    is_deeply ([$csv.csv (in => $in, headers => [<foo bar baz>], frag => "row=2-*")],
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + hdrs $s-in");
     }
 

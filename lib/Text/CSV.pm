@@ -1437,7 +1437,7 @@ class Text::CSV {
         unless (?$out || ?$tmpfn) {
             if ($out ~~ Hash or $headers ~~ Array or $headers ~~ Str && $headers eq "auto") {
                 my @h = @!cnames.elems ?? @!cnames !! @in.shift.list or return [];
-                return [ @in.map (-> @r { $%( @h Z=> @r ) }) ];
+                return @in.map (-> @r { $%( @h Z=> @r ) });
                 }
             return @in;
             }
