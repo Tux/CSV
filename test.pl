@@ -36,7 +36,7 @@ class CSV::Field {
     method set_quoted () {
         $!is_quoted = True;
         $!undefined = False;
-        .add("");
+        self.add("");
         }
 
     } # CSV::Field
@@ -205,7 +205,7 @@ class Text::CSV {
                 }
 
             $chunk ne "" and $f.add($chunk);
-            $pos += .chars;
+            $pos += $chunk.chars;
             }
 
         keep;
