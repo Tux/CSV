@@ -238,3 +238,11 @@ EOP
     test (qr{OH NOES},
           q{class C is Exception { method message { "OH NOES" } }; for ^208 { { die C.new; CATCH { default {} } }; print "" }});
     }
+
+{   title "Precomp", "Precompilations causes segfault", "RT#124298";
+    qx{mkdir -p blib/lib/Text};
+    qx{perl6 --target=mbc --output=blib/lib/Text/CSV.pm.moarvm lib/Text/CSV.pm};
+    test (qr{Segmentation fault},
+          q{use lib "blib/lib";use Text::CSV; my $c = Text::CSV.new});
+    qx{rm -rf blib};
+    }
