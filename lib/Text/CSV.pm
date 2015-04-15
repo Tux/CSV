@@ -137,7 +137,7 @@ class RangeSet {
             $to >= $last || $r.value == Inf and last;
             $max = ($max, $r.value).max.Int;
             }
-        return @x;
+        @x;
         }
 
     multi method list () {
@@ -559,7 +559,7 @@ class Text::CSV {
                 }
             %!callbacks = %hooks;
             }
-        return %!callbacks;
+        %!callbacks;
         }
 
     method !rfc7111ranges (Str:D $spec) returns RangeSet {
@@ -1135,7 +1135,7 @@ class Text::CSV {
 
         my @cn = (@!crange ?? @!cnames[@!crange] !! @!cnames);
         my %hash = @cn Z @row;
-        return { %hash };
+        { %hash };
         }
 
     # @a = $csv.getline_all ($io);
