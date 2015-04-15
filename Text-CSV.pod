@@ -32,7 +32,8 @@ comma-separated values. An instance of the Text::CSV class will combine
 fields into a C<CSV> string and parse a C<CSV> string into fields.
 
 The module accepts either strings or files as input and support the use of
-user-specified characters for delimiters, separators, and escapes.
+user-specified characters (or sequences therof) for delimiters, separators,
+and escapes.
 
 In all following documentation, C<WIP> stands for "Work In Progress" and
 C<NYI> for "Not Yet Implemented". The goal is to get rid of all of those.
@@ -129,8 +130,7 @@ Line termination by a single carriage return is accepted by default
 
 =item *
 
-The separation-, escape-, and escape- characters can be any valid Unicode
-sequence.
+The separation, escape, and escape can be any valid Unicode sequence.
 
 =item *
 
@@ -200,8 +200,8 @@ X<separator>
            $csv.sep("\x[ff0c]"); # FULLWIDTH COMMA
  my $sep = $csv.sep;
 
-The char used to separate fields, by default a comma: (C<,>). This sequence
-is required and cannot be disabled.
+The sequence used to separate fields, by default a comma: (C<,>). This
+sequence is required and cannot be disabled.
 
 The separation sequence can not be equal to the quote sequence, the
 escape sequence or the newline sequence.
@@ -220,9 +220,9 @@ X<quote-char>
            $csv.quote(Str);
  my $quo = $csv.quote;
 
-The character sequence to quote fields containing blanks or binary data, by
-default the double quote character (C<">). A value of C<Str> disables
-quotation (for simple cases only).
+The sequence to quote fields containing blanks or binary data, by default
+the double quote character (C<">). A value of C<Str> disables quotation
+(for simple cases only).
 
 The quotation sequence can not be equal to the separation sequence or the
 newline sequence.
@@ -241,7 +241,7 @@ X<escape-char>
            $csv.escape(Str);
  my $esc = $csv.escape;
 
-The character sequence to escape certain characters inside quoted fields.
+The sequence to escape certain characters inside quoted fields.
 
 The C<escape> defaults to being the double-quote mark (C<">). In other
 words the same as the default sequence for L<C<quote>|/quote>. This means
@@ -259,11 +259,11 @@ The escape sequence can not be equal to the separation sequence.
 =item binary
 X<binary>
 
-WORK IN PROGRESS. Default is True.
+WIP: Default is True. Non-UTF-8 real binary (Blob) does not yet parse
 
- my $csv = Text::CSV.new(binary => True);
-         $csv.binary(False);
- my $f = $csv.binary;
+ my $csv = Text::CSV.new(:binary);
+           $csv.binary(False);
+ my $bin = $csv.binary;
 
 If this attribute is C<True>, you may use binary data in quoted fields,
 including line feeds, carriage returns and C<NULL> bytes. (The latter could
@@ -277,8 +277,8 @@ X<auto_diag>
 X<auto-diag>
 
  my $csv = Text::CSV.new(auto_diag => False);
-         $csv.auto_diag(True);
- my $l = $csv.auto_diag;
+           $csv.auto_diag(True);
+ my $a-d = $csv.auto_diag;
 
 Set this attribute to a number between C<1> and C<9> causes L</error_diag>
 to be automatically called in void context upon errors. The value C<True>
@@ -295,8 +295,8 @@ X<diag_verbose>
 X<diag-verbose>
 
  my $csv = Text::CSV.new(diag_verbose => 1);
-         $csv.diag_verbose(2);
- my $l = $csv.diag_verbose;
+           $csv.diag_verbose(2);
+ my $d-v = $csv.diag_verbose;
 
 Set the verbosity of the output triggered by C<auto_diag>.
 
@@ -307,9 +307,9 @@ WIP: Does not add any information yet.
 X<blank_is_undef>
 X<blank-is-undef>
 
- my $csv = Text::CSV.new(blank_is_undef => True);
-         $csv.blank_is_undef(False);
- my $f = $csv.blank_is_undef;
+ my $csv = Text::CSV.new(:blank_is_undef);
+           $csv.blank_is_undef(False);
+ my $biu = $csv.blank_is_undef;
 
 Under normal circumstances, C<CSV> data makes no distinction between quoted-
 and unquoted empty fields. These both end up in an empty string field once
@@ -329,17 +329,17 @@ to be parsed as
 
  [ "1", "", Str, " ", "2" ]
 
-################################################################################
-
 =item empty_is_undef
+=item empty-is-undef
 X<empty_is_undef>
+X<empty-is-undef>
 
- my $csv = Text::CSV.new(empty_is_undef => True);
-         $csv.empty_is_undef(False);
- my $f = $csv.empty_is_undef;
+ my $csv = Text::CSV.new(:empty_is_undef);
+           $csv.empty_is_undef(False);
+ my $eiu = $csv.empty_is_undef;
 
-Going one  step  further  than  L<C<blank_is_undef>|/blank_is_undef>,  this
-attribute converts all empty fields to C<undef>, so
+Going one step further than L<C<blank_is_undef>|/blank_is_undef>, this
+attribute causes all empty fields to return as C<Str>, so
 
  1,"",," ",2
 
@@ -347,21 +347,23 @@ is read as
 
  [ 1, Str, Str, " ", 2 ]
 
-Note that this effects only fields that are  originally  empty,  not fields
+Note that this effects only fields that are originally empty, not fields
 that are empty after stripping allowed whitespace. YMMV.
 
 =item allow_whitespace
+=item allow-whitespace
 X<allow_whitespace>
+X<allow-whitespace>
 
- my $csv = Text::CSV.new(allow_whitespace => True);
-         $csv.allow_whitespace(False);
- my $f = $csv.allow_whitespace;
+ my $csv = Text::CSV.new(:allow_whitespace);
+           $csv.allow_whitespace(False);
+ my $a-w = $csv.allow_whitespace;
 
-When this option is set to true,  the whitespace (C<TAB>'s and C<SPACE>'s)
-surrounding  the  separation character  is removed when parsing.  If either
-C<TAB> or C<SPACE> is one of the three characters L<C<sep_char>|/sep_char>,
-L<C<quote_char>|/quote_char>, or L<C<escape_char>|/escape_char> it will not
-be considered whitespace.
+When this option is set to C<True>, the whitespace (C<TAB>'s and C<SPACE>'s)
+surrounding the separation sequence is removed when parsing. If either
+C<TAB> or C<SPACE> is one of the three major sequences L<C<sep>|/sep>,
+L<C<quote>|/quote>, or L<C<escape>|/escape> it will not be considered
+whitespace.
 
 Now lines like:
 
@@ -369,8 +371,8 @@ Now lines like:
 
 are parsed as valid C<CSV>, even though it violates the C<CSV> specs.
 
-Note that  B<all>  whitespace is stripped from both  start and  end of each
-field.  That would make it  I<more> than a I<feature> to enable parsing bad
+Note that B<all> whitespace is stripped from both start and end of each
+field. That would make it I<more> than a I<feature> to enable parsing bad
 C<CSV> lines, as
 
  1,   2.0,  3,   ape  , monkey
@@ -382,19 +384,20 @@ will now be parsed as
 even if the original line was perfectly acceptable C<CSV>.
 
 =item allow_loose_quotes
+=item allow-loose-quotes
 X<allow_loose_quotes>
+X<allow-loose-quotes>
 
- my $csv = Text::CSV.new(allow_loose_quotes => True);
-         $csv.allow_loose_quotes(False);
- my $f = $csv.allow_loose_quotes;
+ my $csv = Text::CSV.new(:allow_loose_quotes);
+           $csv.allow_loose_quotes(False);
+ my $alq = $csv.allow_loose_quotes;
 
-By default, parsing unquoted fields containing L<C<quote_char>|/quote_char>
-characters like
+By default, parsing unquoted fields containing L<C<quote>|/quote>'s like
 
  1,foo "bar" baz,42
 
-would result in parse error 2034.  Though it is still bad practice to allow
-this format,  we  cannot  help  the  fact  that  some  vendors  make  their
+would result in parse error 2034. Though it is still bad practice to allow
+this format, we cannot help the fact that some vendors make their
 applications spit out lines styled this way.
 
 If there is B<really> bad C<CSV> data, like
@@ -406,53 +409,58 @@ or
  1,""foo bar baz"",42
 
 there is a way to get this data-line parsed and leave the quotes inside the
-quoted field as-is.  This can be achieved by setting  C<allow_loose_quotes>
-B<AND> making sure that the L<C<escape_char>|/escape_char> is  I<not> equal
-to L<C<quote_char>|/quote_char>.
+quoted field as-is. This can be achieved by setting C<allow_loose_quotes>
+B<AND> making sure that the L<C<escape>|/escape> is I<not> equal to
+L<C<quote>|/quote>.
 
 =item allow_loose_escapes
+=item allow-loose-escapes
 X<allow_loose_escapes>
+X<allow-loose-escapes>
 
- my $csv = Text::CSV.new(allow_loose_escapes => True);
-         $csv.allow_loose_escapes(False);
- my $f = $csv.allow_loose_escapes;
+ my $csv = Text::CSV.new(:allow_loose_escapes);
+           $csv.allow_loose_escapes(False);
+ my $ale = $csv.allow_loose_escapes;
 
-Parsing fields  that  have  L<C<escape_char>|/escape_char>  characters that
-escape characters that do not need to be escaped, like:
+Parsing fields that have L<C<escape>|/escape> sequences that escape
+characters that do not need to be escaped, like:
 
  my $csv = Text::CSV.new(escape_char => "\\");
- $csv.parse(qq{1,"my bar\'s",baz,42});
+ $csv.parse(q{1,"my bar\'s",baz,42});
 
-would result in parse error 2025.   Though it is bad practice to allow this
-format,  this attribute enables you to treat all escape character sequences
-equal.
+would result in parse returning C<False> with reason 2025. Though it is bad
+practice to allow this format, this attribute enables you to treat all
+escape sequences equal.
 
 =item allow_unquoted_escape
+=item allow-unquoted-escape
 X<allow_unquoted_escape>
+X<allow-unquoted-escape>
 
- my $csv = Text::CSV.new(allow_unquoted_escape => True);
-         $csv.allow_unquoted_escape(False);
- my $f = $csv.allow_unquoted_escape;
+ my $csv = Text::CSV.new(:allow_unquoted_escape);
+           $csv.allow_unquoted_escape(False);
+ my $aue = $csv.allow_unquoted_escape;
 
-A backward compatibility issue where L<C<escape_char>|/escape_char> differs
-from L<C<quote_char>|/quote_char>  prevents  L<C<escape_char>|/escape_char>
-to be in the first position of a field.  If L<C<quote_char>|/quote_char> is
-equal to the default C<"> and L<C<escape_char>|/escape_char> is set to C<\>,
-this would be illegal:
+A backward compatibility issue where L<C<escape>|/escape> differs from
+L<C<quote>|/quote> prevents L<C<escape>|/escape> to be in the first
+position of a field. If L<C<quote>|/quote> is equal to the default C<"> and
+L<C<escape>|/escape> is set to C<\>, this would be illegal:
 
  1,\0,2
 
-Setting this attribute to C<1>  might help to overcome issues with backward
-compatibility and allow this style.
+Setting this attribute to C<True> might help to overcome issues with
+backward compatibility and allow this style.
 
 =item always_quote
+=item always-quote
 X<always_quote>
+X<always-quote>
 
- my $csv = Text::CSV.new(always_quote => True);
+ my $csv = Text::CSV.new(:always_quote);
          $csv.always_quote(False);
  my $f = $csv.always_quote;
 
-By default the generated fields are quoted only if they I<need> to be.  For
+By default the generated fields are quoted only if they I<need> to be. For
 example, if they contain the separator character. If you set this attribute
 to C<1> then I<all> defined fields will be quoted. (undefined (C<Str>)
 fields are not quoted, see L</blank_is_undef>). This makes it quite often
@@ -460,56 +468,124 @@ easier to handle exported data in external applications. (Poor creatures
 who are better to use Text::CSV. :)
 
 =item quote_space
+=item quote-space
 X<quote_space>
+X<quote-space>
 
- my $csv = Text::CSV.new(quote_space => True);
-         $csv.quote_space(False);
- my $f = $csv.quote_space;
+ my $csv = Text::CSV.new(:quote_space);
+           $csv.quote_space(False);
+ my $q-s = $csv.quote_space;
 
-By default,  a space in a field would trigger quotation.  As no rule exists
-this to be forced in C<CSV>,  nor any for the opposite, the default is true
-for safety.   You can exclude the space  from this trigger  by setting this
-attribute to 0.
+By default, a space in a field would trigger quotation. As no rule exists
+this to be forced in C<CSV>, nor any for the opposite, the default is
+C<True> for safety. You can exclude the space from this trigger by setting
+this attribute to C<False>.
 
 =item quote_null
+=item quote-null
 X<quote_null>
+X<quote-null>
 
- my $csv = Text::CSV.new(quote_null => True);
-         $csv.quote_null(False);
- my $f = $csv.quote_null;
+ my $csv = Text::CSV.new(:quote_null);
+           $csv.quote_null(False);
+ my $q-n = $csv.quote_null;
 
 By default, a C<NULL> byte in a field would be escaped. This option enables
-you to treat the  C<NULL>  byte as a simple binary character in binary mode
-(the C<< { binary => 1 } >> is set).  The default is true.  You can prevent
-C<NULL> escapes by setting this attribute to C<0>.
+you to treat the C<NULL> byte as a simple binary character in binary mode
+(the C<< binary => True >> is set). The default is C<True>. You can prevent
+C<NULL> escapes by setting this attribute to C<False>.
 
 =item quote_binary
+=item quote-binary
 X<quote_binary>
+X<quote-binary>
 
- my $csv = Text::CSV.new(quote_binary => True);
-         $csv.quote_binary(False);
- my $f = $csv.quote_binary;
+ my $csv = Text::CSV.new(:quote_binary);
+           $csv.quote_binary(False);
+ my $q-b = $csv.quote_binary;
 
-By default,  all "unsafe" bytes inside a string cause the combined field to
-be quoted.  By setting this attribute to C<0>, you can disable that trigger
-for bytes >= C<0x7F>.
+By default, all "unsafe" bytes inside a string cause the combined field to
+be quoted. By setting this attribute to C<False>, you can disable that
+trigger for bytes >= C<0x7F>. (WIP)
 
 =item keep_meta
 =item keep-meta
 X<keep_meta>
 X<keep-meta>
 
- my $csv = Text::CSV.new(keep_meta => True);
-         $csv.keep_meta(False);
- my $f = $csv.keep_meta_info;
+ my $csv = Text::CSV.new(:keep_meta);
+           $csv.keep_meta(False);
+ my $k-m = $csv.keep_meta_info;
 
 By default, the parsing of input records is as simple and fast as possible.
-However,  some parsing information - like quotation of the original field -
-is lost in that process.  Setting this flag to true enables retrieving that
-information after parsing with  the methods  L</meta_info>,  L</is_quoted>,
-and L</is_binary> described below.  Default is false for performance.
+However, some parsing information - like quotation of the original field -
+is lost in that process. Setting this flag to true enables retrieving that
+information after parsing with the methods L</meta_info>, L</is_quoted>,
+and L</is_binary> described below. Default is C<False> for ease of use.
+
+If C<keep-meta> is set to C<True>, the returned fields are not of type
+C<Str> but of type C<CSV::Field>, which will feature these methods:
+
+=over 2
+
+=item new
+
+The contructor optionally takes an Int or a Str
+
+=item text (Str)
+=item Str (Str)
+
+Returns the text as returned when C<keep-meta> was C<False>.
+
+=item Bool (Bool)
+
+Returns the boolean value of the field. As CSV is text-only be design, this
+will also return C<False> for C<"0">, where perl6 sees C<"0"> as C<True>.
+
+=item Numeric (Int/Num)
+
+Will return the numeric value of the field is appropriate.
+There is an easter-egg in here :)
+
+=item gist
+
+Will show a complete compressed representation of the field with properties.
+C<Q> is quoted, C<q> is unquoted. Likewise for C<B/b> for binary, C<8/7>
+for U nicode-ness and C<M/m> for missing.
+
+=item add
+
+Accepts an Str to be added to this field.
+
+=item set_quoted
+
+Set the fact the the field was/is quoted.
+
+=item is_quoted (Bool)
+
+Is C<True> when the parsed field was quoted in the source.
+
+=item undefined (Bool)
+
+Returns C<True> when the field is undefined.
+
+=item is_binary (Bool)
+
+Returns true if the field has data beyond ASCII (WIP).
+
+=item is_utf8 (Bool)
+
+Returns C<True> if the field is beyond ASCII, but still valid UTF-8.
+
+=item is_missing (Bool)
+
+Returns C<True> if the field is missing (WIP).
+
+=back
 
 =item types
+
+NYI
 
 A set of column types; the attribute is immediately passed to the L</types>
 method.
@@ -554,8 +630,8 @@ is equivalent to
 For all of the above mentioned flags, an accessor method is available where
 you can inquire the current value, or change the value
 
- my $quote = $csv.quote_char;
- $csv.binary(1);
+ my $quote = $csv.quote;
+ $csv.binary(True);
 
 It is not wise to change these settings halfway through writing C<CSV> data
 to a stream. If however you want to create a new stream using the available
@@ -573,6 +649,8 @@ thrown with the reason like the L</error_diag> method would return:
 The message will be a string like
 
  "INI - Unknown attribute 'ecs_char'"
+
+################################################################################
 
 =head2 print
 X<print>
@@ -868,7 +946,7 @@ the remaining references is left untouched.
 
  $csv.bind_columns(\$code, \$name, \$price, \$description);
  while ($csv.getline($io)) {
-     print "The price of a $name is \x{20ac} $price\n";
+     print "The price of a $name is \x[20ac] $price\n";
      }
 
 To reset or clear all column binding, call L</bind_columns> with the single
@@ -898,10 +976,10 @@ This method is used to force that (all)  columns are of a given type.  For
 example, if you have an integer column,  two  columns  with  doubles  and a
 string column, then you might do a
 
- $csv.types([Text::CSV_XS::IV(),
-               Text::CSV_XS::NV(),
-               Text::CSV_XS::NV(),
-               Text::CSV_XS::PV()]);
+ $csv.types([Text::CSV::IV(),
+               Text::CSV::NV(),
+               Text::CSV::NV(),
+               Text::CSV::PV()]);
 
 Column types are used only for I<decoding> columns while parsing,  in other
 words by the L</parse> and L</getline> methods.
@@ -1087,7 +1165,7 @@ X<csv>
 
 This function is not exported by default and should be explicitly requested:
 
- use Text::CSV_XS qw( csv );
+ use Text::CSV qw( csv );
 
 This is the second draft. This function will stay,  but the arguments might
 change based on user feedback.
@@ -1237,7 +1315,7 @@ is ignored when I<generating> C<CSV>. See L</out>.
 
 Combining all of them could give something like
 
- use Text::CSV_XS qw( csv );
+ use Text::CSV qw( csv );
  my $aoh = csv(
      in       => "test.txt",
      encoding => "utf-8",
@@ -1255,7 +1333,7 @@ the previous row will cause the parser to throw an error;
 
 =head2 Callbacks
 
-Callbacks enable actions triggered from the I<inside> of Text::CSV_XS.
+Callbacks enable actions triggered from the I<inside> of Text::CSV.
 
 While most of what this enables  can easily be done in an  unrolled loop as
 described in the L</SYNOPSIS> callbacks can be used to meet special demands
@@ -1418,7 +1496,7 @@ change in future releases.
 
 =head2 Reading a CSV file line by line:
 
- my $csv = Text::CSV.new(auto_diag => True);
+ my $csv = Text::CSV.new(:auto_diag);
  my $fh = open "file.csv", :r, chomp => False;
  while (my @row = $csv.getline($fh)) {
      # do something with @$row
@@ -1427,7 +1505,7 @@ change in future releases.
 
 =head3 Reading only a single column
 
- my $csv = Text::CSV.new(auto_diag => True);
+ my $csv = Text::CSV.new(:auto_diag);
  my $fh = open "file.csv", :r, chomp => False;
  # get only the 4th column
  my @column = $csv.getline_all($fh).map(*[3]);
@@ -1439,10 +1517,10 @@ with L</csv>, you could do
 
 =head2 Parsing CSV strings:
 
- my $csv = Text::CSV.new(keep_meta => True);
+ my $csv = Text::CSV.new(:keep_meta);
 
  my $sample_input_string =
-     qq{"I said, ""Hi!""",Yes,"",2.34,,"1.09","\x{20ac}",};
+     q{"I said, ""Hi!""",Yes,"",2.34,,"1.09","\x[20ac]",};
  if ($csv.parse($sample_input_string)) {
      my @field = $csv.fields;
      for ^@field.elems -> $col {
@@ -1493,7 +1571,7 @@ or using the slower L</combine> and L</string> methods:
 
 Rewrite C<CSV> files with C<;> as separator character to well-formed C<CSV>:
 
- use Text::CSV_XS qw( csv );
+ use Text::CSV qw( csv );
  csv(in => csv(in => "bad.csv", sep_char => ";"), out => *STDOUT);
 
 =head2 Dumping database tables to CSV
@@ -1525,8 +1603,8 @@ Dumping a database table can be simple as this (TIMTOWTDI):
 For more extended examples, see the F<examples/> C<1>) sub-directory in the
 original distribution or the git repository C<2>).
 
- 1. http://repo.or.cz/w/Text-CSV_XS.git?a=tree;f=examples
- 2. http://repo.or.cz/w/Text-CSV_XS.git
+ 1. http://repo.or.cz/w/Text-CSV.git?a=tree;f=examples
+ 2. http://repo.or.cz/w/Text-CSV.git
 
 The following files can be found there:
 
@@ -1547,7 +1625,7 @@ This is a command-line tool that uses parser-xs.pl  techniques to check the
 C<CSV> file and report on its content.
 
  $ csv-check files/utf8.csv
- Checked with examples/csv-check 1.5 using Text::CSV_XS 0.81
+ Checked with examples/csv-check 1.5 using Text::CSV 0.81
  OK: rows: 1, columns: 2
      sep = <,>, quo = <">, bin = <1>
 
@@ -1571,7 +1649,7 @@ ANSI escape codes or HTML.
 
 =head1 CAVEATS
 
-Text::CSV_XS  is I<not> designed to detect the characters used to quote and
+Text::CSV  is I<not> designed to detect the characters used to quote and
 separate fields.  The parsing is done using predefined (default) settings.
 In the examples  sub-directory,  you can find scripts  that demonstrate how
 you could try to detect these characters yourself.
@@ -1949,25 +2027,12 @@ L<Spreadsheet::CSV> and L<Spreadsheet::Read>, and of course L<perl>.
 
 =head1 AUTHOR
 
-Alan Citterman F<E<lt>alan@mfgrtl.comE<gt>> wrote the original Perl module.
-Please don't send mail concerning Text::CSV_XS to Alan, who is not involved
-in the C/XS part that is now the main part of the module.
-
-Jochen Wiedmann F<E<lt>joe@ispsoft.deE<gt>> rewrote the en- and decoding in
-C by implementing a simple finite-state machine.   He added variable quote,
-escape and separator characters, the binary mode and the print and getline
-methods. See F<ChangeLog> releases 0.10 through 0.23.
-
-H.Merijn Brand F<E<lt>h.m.brand@xs4all.nlE<gt>> cleaned up the code,  added
-the field flags methods,  wrote the major part of the test suite, completed
-the documentation,   fixed most RT bugs,  added all the allow flags and the
-L</csv> function. See ChangeLog releases 0.25 and on.
+H.Merijn Brand F<E<lt>h.m.brand@xs4all.nlE<gt>> wrote this based on the
+features provided by perl5's Text::CSV_XS.
 
 =head1 COPYRIGHT AND LICENSE
 
- Copyright (C) 2007-2014 H.Merijn Brand.  All rights reserved.
- Copyright (C) 1998-2001 Jochen Wiedmann. All rights reserved.
- Copyright (C) 1997      Alan Citterman.  All rights reserved.
+ Copyright (C) 2014-2015 H.Merijn Brand.  All rights reserved.
 
 This library is free software;  you can redistribute and/or modify it under
 the same terms as Perl itself.
@@ -1976,36 +2041,3 @@ the same terms as Perl itself.
 
 =for elvis
 :ex:se gw=75|color guide #ff0000:
-
-=cut
- use Text::CSV;
-
- my $csv = Text::CSV.new;
- my @row = $csv.getline($io);
- $csv.print($io, @row);
-
-=head2 new
-
- .new([attributes])
-
-=over 2
-
-=item sep
-=item sep_char
-=item sep-char
-
-Define the separation character(s). Default is C<,>.
-
-=item quo
-=item quote
-=item quote_char
-=item quote-char
-
-Define the quotation character(s). Default is C<">.
-
-=item esc
-=item escape
-=item escape_char
-=item escape-char
-
-Define the quotation character(s). Default is C<">.
