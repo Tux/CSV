@@ -345,7 +345,7 @@ attribute converts all empty fields to C<undef>, so
 
 is read as
 
- (1, undef, undef, " ", 2)
+ [ 1, Str, Str, " ", 2 ]
 
 Note that this effects only fields that are  originally  empty,  not fields
 that are empty after stripping allowed whitespace. YMMV.
@@ -377,7 +377,7 @@ C<CSV> lines, as
 
 will now be parsed as
 
- ("1", "2.0", "3", "ape", "monkey")
+ [ "1", "2.0", "3", "ape", "monkey" ]
 
 even if the original line was perfectly acceptable C<CSV>.
 
@@ -454,10 +454,10 @@ X<always_quote>
 
 By default the generated fields are quoted only if they I<need> to be.  For
 example, if they contain the separator character. If you set this attribute
-to C<1> then I<all> defined fields will be quoted. (C<undef> fields are not
-quoted, see L</blank_is_undef>). This makes it quite often easier to handle
-exported data in external applications. (Poor creatures who are better to
-use Text::CSV_XS. :)
+to C<1> then I<all> defined fields will be quoted. (undefined (C<Str>)
+fields are not quoted, see L</blank_is_undef>). This makes it quite often
+easier to handle exported data in external applications. (Poor creatures
+who are better to use Text::CSV. :)
 
 =item quote_space
 X<quote_space>
@@ -528,7 +528,7 @@ To sum it up,
 is equivalent to
 
  $csv = Text::CSV.new(
-     eol                   => undef, # \r, \n, or \r\n
+     eol                   => Nil, # \r, \n, or \r\n
      sep                   => ',',
      quote                 => '"',
      escape                => '"',
@@ -561,13 +561,16 @@ It is not wise to change these settings halfway through writing C<CSV> data
 to a stream. If however you want to create a new stream using the available
 C<CSV> object, there is no harm in changing them.
 
-If the L</new> constructor call fails,  it returns C<undef>,  and makes the
-fail reason available through the L</error_diag> method.
+If the L</new> constructor call fails, an exception of type C<CSV::Diac> is
+thrown with the reason like the L</error_diag> method would return:
 
- $csv = Text::CSV.new(ecs_char => ":") or
-     die "".Text::CSV.error_diag();
+ my $e;
+ {   $csv = Text::CSV.new(ecs_char => ":") or
+     CATCH { default { $e = $_; }}
+     }
+ $e and $e.message.say;
 
-L</error_diag> will return a string like
+The message will be a string like
 
  "INI - Unknown attribute 'ecs_char'"
 
@@ -585,17 +588,17 @@ For performance reasons  C<print>  does not create a result string,  so all
 L</string>, L</status>, L</fields>, and L</error_input> methods will return
 undefined information after executing this method.
 
-If C<$colref> is C<undef> (explicit,  not through a variable argument) and
+If C<$colref> is undefined (explicit,  not through a variable argument) and
 L</bind_columns>  was used to specify fields to be printed,  it is possible
 to make performance improvements, as otherwise data would have to be copied
 as arguments to the method call:
 
  $csv.bind_columns(\($foo, $bar));
- $status = $csv.print($fh, undef);
+ $status = $csv.print($fh, Array);
 
 A short benchmark
 
- my @data = ("aa" .. "zz");
+ my @data = "aa" .. "zz";
  $csv.bind_columns(\(@data));
 
  $csv.print($io, [ @data ]);   # 11800 recs/sec
@@ -642,7 +645,7 @@ X<getline>
 This is the counterpart to  L</print>,  as L</parse>  is the counterpart to
 L</combine>:  it parses a row from the C<$io>  handle using the L</getline>
 method associated with C<$io>  and parses this row into an array ref.  This
-array ref is returned by the function or C<undef> for failure.  When C<$io>
+array ref is returned by the function or C<Array> for failure.  When C<$io>
 does not support C<getline>, you are likely to hit errors.
 
 When fields are bound with L</bind_columns> the return value is a reference
@@ -682,7 +685,7 @@ The L</getline_hr> and L</column_names> methods work together  to allow you
 to have rows returned as hashrefs.  You must call L</column_names> first to
 declare your column names.
 
- $csv.column_names(qw( code name price description ));
+ $csv.column_names(< code name price description >);
  $hr = $csv.getline_hr($io);
  print "Price for $hr->{name} is $hr->{price} EUR\n";
 
@@ -756,7 +759,7 @@ reference  will point to a  list of hashes  instead of a  list of lists.  A
 disjointed  cell-based combined selection  might return rows with different
 number of columns making the use of hashes unpredictable.
 
- $csv.column_names("Name", "Age");
+ $csv.column_names(< Name Age >);
  my $AoH = $csv.fragment($io, "col=3;8");
 
 If the L</after_parse> callback is active,  it is also called on every line
@@ -802,7 +805,7 @@ with different number of columns
 
 Disjointed selections will only return selected cells.   The cells that are
 not  specified  will  not  be  included  in the  returned set,  not even as
-C<undef>.  As an example given a C<CSV> like
+C<Str>.  As an example given a C<CSV> like
 
  11,12,13,...19
  21,22,...28,29
@@ -845,7 +848,7 @@ L</column_names> does B<no> checking on duplicates at all, which might lead
 to unexpected results.   Undefined entries will be replaced with the string
 C<"\cAUNDEF\cA">, so
 
- $csv.column_names(undef, "", "name", "name");
+ $csv.column_names(Str, "", "name", "name");
  $hr = $csv.getline_hr($io);
 
 Will set C<< $hr->{"\cAUNDEF\cA"} >> to the 1st field,  C<< $hr->{""} >> to
@@ -869,12 +872,12 @@ the remaining references is left untouched.
      }
 
 To reset or clear all column binding, call L</bind_columns> with the single
-argument C<undef>. This will also clear column names.
+undefined argument like C<Array>. This will also clear column names.
 
- $csv.bind_columns(undef);
+ $csv.bind_columns(Array);
 
 If no arguments are passed at all, L</bind_columns> will return the list of
-current bindings or C<undef> if no binds are active.
+current bindings or C<Array> if no binds are active.
 
 =head2 eof
 X<eof>
@@ -905,7 +908,7 @@ words by the L</parse> and L</getline> methods.
 
 You can unset column types by doing a
 
- $csv.types(undef);
+ $csv.types(Array);
 
 or fetch the current type settings with
 
@@ -1000,13 +1003,13 @@ X<is_missing>
 Where  C<$column_idx> is the (zero-based)  index of the column in the last
 result of L</getline_hr>.
 
- $csv.keep_meta_info(1);
+ $csv.keep_meta(True);
  while (my $hr = $csv.getline_hr($fh)) {
      $csv.is_missing(0) and next; # This was an empty line
      }
 
 When using  L</getline_hr>,  it is impossible to tell if the  parsed fields
-are C<undef> because they where not filled in the C<CSV> stream  or because
+are undefined because they where not filled in the C<CSV> stream  or because
 they were not read at all, as B<all> the fields defined by L</column_names>
 are set in the hash-ref.    If you still need to know if all fields in each
 row are provided, you should enable L<C<keep_meta_info>|/keep_meta_info> so
@@ -1027,7 +1030,7 @@ X<error_input>
 
 This method returns the erroneous argument (if it exists) of L</combine> or
 L</parse>,  whichever was called more recently.  If the last invocation was
-successful, C<error_input> will return C<undef>.
+successful, C<error_input> will return C<Str>.
 
 =head2 error_diag
 X<error_diag>
@@ -1092,7 +1095,7 @@ change based on user feedback.
 This is an high-level function that aims at simple (user) interfaces.  This
 can be used to read/parse a C<CSV> file or stream (the default behavior) or
 to produce a file or write to a stream (define the  C<out>  attribute).  It
-returns an array- or hash-reference on parsing (or C<undef> on fail) or the
+returns an array- or hash-reference on parsing or the
 numeric value of  L</error_diag>  on writing.  When this function fails you
 can get to the error using the class call to L</error_diag>
 
@@ -1276,7 +1279,7 @@ returned by L</error_diag>:
      my ($err, $msg, $pos, $recno, $fldno) = @_;
      if ($err == 3006) {
          # ignore this error
-         ($c, $s) = (undef, undef);
+         ($c, $s) = (Str, Str);
          Text::CSV.SetDiag(0);
          }
      # Any other error
@@ -1442,7 +1445,7 @@ with L</csv>, you could do
      qq{"I said, ""Hi!""",Yes,"",2.34,,"1.09","\x{20ac}",};
  if ($csv.parse($sample_input_string)) {
      my @field = $csv.fields;
-     foreach my $col (0 .. $#field) {
+     for ^@field.elems -> $col {
          my $quo = $csv.is_quoted($col) ? $csv.{quote_char} : "";
          printf "%2d: %s%s%s\n", $col, $quo, $field[$col], $quo;
          }
@@ -1461,8 +1464,8 @@ An example for creating C<CSV> files using the L</print> method:
 
  my $csv = Text::CSV.new(eol => $*OUT.nl);
  open my $fh, ">", "foo.csv" or die "foo.csv: $!";
- for (1 .. 10) {
-     $csv.print($fh, [ $_, "$_" ]) or $csv.error_diag;
+ for 1..10 -> $x {
+     $csv.print($fh, [ $x, ~$x ]) or $csv.error_diag;
      }
  close $fh or die "$tbl.csv: $!";
 
@@ -1620,7 +1623,7 @@ enable a column selection on the call:
 
 Returning something like
 
- [ { fields => [ 1, 2, "foo", 4.5, undef, "", 8 ],
+ [ { fields => [ 1, 2, "foo", 4.5, Str, "", 8 ],
      flags  => [ ... ],
      },
    { fields => [ ... ],
@@ -1775,10 +1778,10 @@ L<C<quote_char>|/quote_char>,   or  L<C<escape_char>|/escape_char>  is  not
 allowed.
 
 =item *
-1004 "INI - callbacks should be undef or a hashref"
+1004 "INI - callbacks should be undefined or a hashref"
 X<1004>
 
-The L<C<callbacks>|/Callbacks>  attribute only allows one to be C<undef> or
+The L<C<callbacks>|/Callbacks> attribute only allows one to be undefined or
 a hash reference.
 
 =item *
