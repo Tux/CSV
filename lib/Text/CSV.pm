@@ -1131,12 +1131,11 @@ class Text::CSV {
 
     method !row (Bool:D $meta, Bool:D $hr) {
         my @row = $meta ?? self.fields !! self.list;
-        if ($hr) {
-            my @cn = (@!crange ?? @!cnames[@!crange] !! @!cnames);
-            my %hash = @cn Z @row;
-            return { %hash };
-            }
-        [ @row ];
+        $hr or return [ @row ];
+
+        my @cn = (@!crange ?? @!cnames[@!crange] !! @!cnames);
+        my %hash = @cn Z @row;
+        return { %hash };
         }
 
     # @a = $csv.getline_all ($io);
