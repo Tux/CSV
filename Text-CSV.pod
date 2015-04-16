@@ -650,38 +650,49 @@ The message will be a string like
 
  "INI - Unknown attribute 'ecs_char'"
 
-################################################################################
-
 =head2 print
 X<print>
 
- $status = $csv.print($io, $colref);
+ $status = $csv.print($io,  $fld, ... );
+ $status = $csv.print($io, ($fld, ...));
+ $status = $csv.print($io, [$fld, ...]);
+ $status = $csv.print($io,  @fld      );
 
-Similar to  L</combine> + L</string> + L</print>,  but much more efficient.
-It expects an array ref as input (not an array!)  and the resulting string
-is not really  created,  but  immediately  written  to the  C<$io>  object,
-typically an IO handle or any other object that offers a L</print> method.
+ $csv.column_names(%fld.keys); # or use a subset
+ $status = $csv.print($io,  %fld      );
 
-For performance reasons  C<print>  does not create a result string,  so all
-L</string>, L</status>, L</fields>, and L</error_input> methods will return
-undefined information after executing this method.
+Similar to L</combine> + L</string> + L</print>, but much more efficient.
+It takes an IO object and any number of arguments interpreted as fields.
+The resulting string is immediately written to the C<$io> stream.
 
-If C<$colref> is undefined (explicit,  not through a variable argument) and
-L</bind_columns>  was used to specify fields to be printed,  it is possible
-to make performance improvements, as otherwise data would have to be copied
-as arguments to the method call:
+NYI: no fields in combination with L</bind_columns>, like
 
  $csv.bind_columns(\($foo, $bar));
- $status = $csv.print($fh, Array);
+ $status = $csv.print($fh);
 
-A short benchmark
+A benchmark showed this order of preference, but the difference is within
+noise range:
 
- my @data = "aa" .. "zz";
- $csv.bind_columns(\(@data));
+ my @data = ^20;
+ $csv.print($io,   @data  );   # 2.6 sec
+ $csv.print($io, [ @data ]);   # 2.7 sec
+ $csv.print($io,    ^20   );   # 2.7 sec
+ $csv.print($io,  \@data  );   # 2.8 sec
 
- $csv.print($io, [ @data ]);   # 11800 recs/sec
- $csv.print($io,  \@data  );   # 57600 recs/sec
- $csv.print($io,   undef  );   # 48500 recs/sec
+=head2 say
+X<say>
+
+Is the same a sL</print> where L<C<eol>|/eol> defaults to C<$*OUT.nl>.
+
+ $status = $csv.say($io,  $fld, ... );
+ $status = $csv.say($io, ($fld, ...));
+ $status = $csv.say($io, [$fld, ...]);
+ $status = $csv.say($io,  @fld      );
+
+ $csv.column_names(%fld.keys); # or use a subset
+ $status = $csv.say($io,  %fld      );
+
+################################################################################
 
 =head2 print_hr
 X<print_hr>
