@@ -5,7 +5,7 @@
 
 test:
 	@perl bugs.pl -s
-	prove -e 'perl6 -I. -Ilib' t
+	prove -j4 -e 'perl6 -I. -Ilib' t
 
 test-verbose:	Text/CSV.pm
 	perl6 -Ilib t/10_base.t
