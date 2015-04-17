@@ -1277,10 +1277,10 @@ class Text::CSV {
         self.print ($io, [@fld]);
         }
 
-    method say (IO:D $io, *@f) returns Bool {
+    method say (IO:D $io, |f) returns Bool {
         my $eol = $!eol;
         $!eol ||= "\r\n";
-        my Bool $state = self.print ($io, |@f);
+        my Bool $state = self.print ($io, |f);
         $!eol = $eol;
         $state;
         }
