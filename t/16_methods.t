@@ -56,8 +56,6 @@ is ($csv.column_names.elems,    0,      "column_names");
 # getline_hr_all
 # fragment
 # callbacks
-# print
-# print_hr
 # sub csv
 
 done;
