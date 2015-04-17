@@ -718,10 +718,10 @@ defined, it is added to the string.
 =head2 getline
 X<getline>
 
- $colref = $csv.getline($io);
- $colref = $csv.getline($io,  :meta);
- $colref = $csv.getline($str);
- $colref = $csv.getline($str, :meta);
+ @row = $csv.getline($io);
+ @row = $csv.getline($io,  :meta);
+ @row = $csv.getline($str);
+ @row = $csv.getline($str, :meta);
 
 This is the counterpart to L</print>, as L</parse> is the counterpart to
 L</combine>: it parses a row from the C<$io> handle or C<$str> using the
@@ -763,56 +763,37 @@ Given a CSV file with 10 lines:
  8..9  $csv.getline_all($io, -2)     # last 2 rows
  6..7  $csv.getline_all($io, -4,  2) # first 2 of last  4 rows
 
-################################################################################
-
 =head2 getline_hr
+=head2 getline-hr
 X<getline_hr>
+X<getline-hr>
 
-The L</getline_hr> and L</column_names> methods work together  to allow you
-to have rows returned as hashrefs.  You must call L</column_names> first to
-declare your column names.
+The L</getline_hr> and L</column_names> methods work together to allow you
+to have rows returned as hashes instead of arrays. You must invoke
+L</column_names> first to declare your column names.
 
  $csv.column_names(< code name price description >);
- $hr = $csv.getline_hr($io);
- print "Price for $hr->{name} is $hr->{price} EUR\n";
+ %hr = $csv.getline_hr($str, :meta);
+ %hr = $csv.getline_hr($io);
+ say "Price for %hr<name> is %hr<price> \c[EURO SIGN]";
 
-L</getline_hr> will croak if called before L</column_names>.
-
-Note that  L</getline_hr>  creates a hashref for every row and will be much
-slower than the combined use of L</bind_columns>  and L</getline> but still
-offering the same ease of use hashref inside the loop:
-
- my @cols = @{$csv.getline($io)};
- $csv.column_names(@cols);
- while (my $row = $csv.getline_hr($io)) {
-     print $row->{price};
-     }
-
-Could easily be rewritten to the much faster:
-
- my @cols = @{$csv.getline($io)};
- my $row = {};
- $csv.bind_columns(\@{$row}{@cols});
- while ($csv.getline($io)) {
-     print $row->{price};
-     }
-
-Your mileage may vary for the size of the data and the number of rows. With
-perl-5.14.2 the comparison for a 100_000 line file with 14 rows:
-
-            Rate hashrefs getlines
- hashrefs 1.00/s       --     -76%
- getlines 4.15/s     313%       --
+L</getline_hr> will fail if invoked before L</column_names>.
 
 =head2 getline_hr_all
+=head2 getline-hr-all
 X<getline_hr_all>
+X<getline-hr-all>
 
- $arrayref = $csv.getline_hr_all($io);
- $arrayref = $csv.getline_hr_all($io, $offset);
- $arrayref = $csv.getline_hr_all($io, $offset, $length);
+ @rows = $csv.getline_hr_all($io);
+ @rows = $csv.getline_hr_all($io,                   :meta);
+ @rows = $csv.getline_hr_all($io, $offset);
+ @rows = $csv.getline_hr_all($io, $offset,          :meta);
+ @rows = $csv.getline_hr_all($io, $offset, $length);
+ @rows = $csv.getline_hr_all($io, $offset, $length, :meta);
 
-This will return a reference to a list of   L<getline_hr($io)|/getline_hr>
-results.  In this call, L<C<keep_meta_info>|/keep_meta_info> is disabled.
+This will return a list of L<getline_hr($io)|/getline_hr> results.
+
+################################################################################
 
 =head2 parse
 X<parse>
