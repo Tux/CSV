@@ -56,8 +56,8 @@ my %errors =
     3006 => "EHR - bind_columns () did not pass enough refs for parsed fields",
     3007 => "EHR - bind_columns needs refs to writable scalars",
     3008 => "EHR - unexpected error in bound fields",
-    3009 => "EHR - print_hr () called before column_names ()",
-    3010 => "EHR - print_hr () called with invalid arguments",
+    3009 => "EHR - print (Hash) called before column_names ()",
+    3010 => "EHR - print (Hash) called with invalid arguments",
 
     3100 => "ECB - Unsupported callback",
 
