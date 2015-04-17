@@ -675,7 +675,7 @@ class Text::CSV {
 
     method fields () {
         @!crange ?? @!fields[@!crange].grep (*.defined) !! @!fields;
-        } # fields
+        }
 
     method list () {
         self.fields».text;
