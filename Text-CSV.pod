@@ -692,55 +692,63 @@ Is the same a sL</print> where L<C<eol>|/eol> defaults to C<$*OUT.nl>.
  $csv.column_names(%fld.keys); # or use a subset
  $status = $csv.say($io,  %fld      );
 
-################################################################################
-
 =head2 combine
 X<combine>
 
- $status = $csv.combine(@columns);
+ $status = $csv.combine(@fields);
+ $status = $csv.combine($fld, ...);
+ $status = $csv.combine(\@fields);
 
-This method constructs a C<CSV> string from C<@columns>,  returning success
-or failure.   Failure can result from lack of arguments or an argument that
-contains an invalid character.   Upon success,  L</string> can be called to
-retrieve the resultant C<CSV> string.  Upon failure,  the value returned by
-L</string> is undefined and L</error_input> could be called to retrieve the
-invalid argument.
+This method constructs a C<CSV> row from C<@fields>, returning success or
+failure. Failure can result from lack of arguments or an argument that
+contains invalid data. Upon success, L</string> can be called to retrieve
+the resultant C<CSV> string. Upon failure, the value returned by L</string>
+is undefined and L</error_input> could be called to retrieve the invalid
+argument. (WIP)
 
 =head2 string
 X<string>
 
  $line = $csv.string();
 
-This method returns the input to  L</parse>  or the resultant C<CSV> string
-of L</combine>, whichever was called more recently.
+This method returns the input to L</parse> or the resultant C<CSV> string
+of L</combine>, whichever was called more recently. If L<C<eol>|/eol> is
+defined, it is added to the string.
 
 =head2 getline
 X<getline>
 
  $colref = $csv.getline($io);
+ $colref = $csv.getline($io,  :meta);
+ $colref = $csv.getline($str);
+ $colref = $csv.getline($str, :meta);
 
-This is the counterpart to  L</print>,  as L</parse>  is the counterpart to
-L</combine>:  it parses a row from the C<$io>  handle using the L</getline>
-method associated with C<$io>  and parses this row into an array ref.  This
-array ref is returned by the function or C<Array> for failure.  When C<$io>
-does not support C<getline>, you are likely to hit errors.
+This is the counterpart to L</print>, as L</parse> is the counterpart to
+L</combine>: it parses a row from the C<$io> handle or C<$str> using the
+L</getline> method associated with C<$io> (or the internal temporary IO
+handle used to read from the string as if it were an IO handle) and parses
+this row into an array. This array is returned by the function or C<Array>
+for failure. When C<$io> does not support C<getline>, you are likely to hit
+errors.
 
-When fields are bound with L</bind_columns> the return value is a reference
-to an empty list.
-
-The L</string>, L</fields>, and L</status> methods are meaningless again.
+NYI: When fields are bound with L</bind_columns> the return value is a
+reference to an empty list.
 
 =head2 getline_all
+=head2 getline-all
 X<getline_all>
+X<getline-all>
 
- $arrayref = $csv.getline_all($io);
- $arrayref = $csv.getline_all($io, $offset);
- $arrayref = $csv.getline_all($io, $offset, $length);
+ @rows = $csv.getline_all($io);
+ @rows = $csv.getline_all($io,                   :meta);
+ @rows = $csv.getline_all($io, $offset);
+ @rows = $csv.getline_all($io, $offset,          :meta);
+ @rows = $csv.getline_all($io, $offset, $length);
+ @rows = $csv.getline_all($io, $offset, $length, :meta);
 
-This will return a reference to a list of L<getline($io)|/getline> results.
-In this call, C<keep_meta_info> is disabled.  If C<$offset> is negative, as
-with C<splice>, only the last  C<abs($offset)> records of C<$io> are taken
-into consideration.
+This will return a list of L<getline($io)|/getline> results.
+If C<$offset> is negative, as with C<splice>, only the last C<abs($offset)>
+records of C<$io> are taken into consideration.
 
 Given a CSV file with 10 lines:
 
@@ -754,6 +762,8 @@ Given a CSV file with 10 lines:
  4..5  $csv.getline_all($io,  4,  2) # start at 4 first 2 rows
  8..9  $csv.getline_all($io, -2)     # last 2 rows
  6..7  $csv.getline_all($io, -4,  2) # first 2 of last  4 rows
+
+################################################################################
 
 =head2 getline_hr
 X<getline_hr>
