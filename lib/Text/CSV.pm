@@ -433,6 +433,17 @@ class Text::CSV {
         alias ("keep_meta",             < keep-meta meta>);
         alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
         alias ("callbacks",             < hooks >);
+
+        alias ("column_names",          < column-names >);
+        alias ("error_diag",            < error-diag >);
+        alias ("error_input",           < error-input >);
+        alias ("getline_all",           < getline-all >);
+        alias ("getline_hr_all",        < getline-hr-all >);
+        alias ("getline_hr",            < getline-hr >);
+        alias ("is_binary",             < is-binary >);
+        alias ("is_missing",            < is-missing >);
+        alias ("is_quoted",             < is-quoted >);
+        alias ("is_utf8",               < is-utf8 >);
         }
 
     method !fail (Int:D $errno, *@s) {
