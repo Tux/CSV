@@ -188,12 +188,15 @@ Common values for C<eol> are C<"\012"> (C<\n> or Line Feed), C<"\015\012">
 Return).
 
 =item sep
-=item sep_char
-=item sep-char
-=item separator
 X<sep>
+
+=item sep_char
 X<sep_char>
+
+=item sep-char
 X<sep-char>
+
+=item separator
 X<separator>
 
  my $csv = Text::CSV.new(sep => ";");
@@ -209,10 +212,12 @@ escape sequence or the newline sequence.
 See also L</CAVEATS>
 
 =item quote
-=item quote_char
-=item quote-char
 X<quote>
+
+=item quote_char
 X<quote_char>
+
+=item quote-char
 X<quote-char>
 
  my $csv = Text::CSV.new(quote => "'");
@@ -230,10 +235,12 @@ newline sequence.
 See also L</CAVEATS>
 
 =item escape
-=item escape_char
-=item escape-char
 X<escape>
+
+=item escape_char
 X<escape_char>
+
+=item escape-char
 X<escape-char>
 
  my $csv = Text::CSV.new(escape => "\\");
@@ -272,8 +279,9 @@ be escaped as C<"0>.) By default this feature is on.
 Note that valid Unicode (UTF-8) is not considered binary.
 
 =item auto_diag
-=item auto-diag
 X<auto_diag>
+
+=item auto-diag
 X<auto-diag>
 
  my $csv = Text::CSV.new(auto_diag => False);
@@ -290,8 +298,9 @@ If C<auto_diag> is set to a numeric value greater than C<1>, it will C<die>
 on errors instead of C<warn>.
 
 =item diag_verbose
-=item diag-verbose
 X<diag_verbose>
+
+=item diag-verbose
 X<diag-verbose>
 
  my $csv = Text::CSV.new(diag_verbose => 1);
@@ -303,8 +312,9 @@ Set the verbosity of the output triggered by C<auto_diag>.
 WIP: Does not add any information yet.
 
 =item blank_is_undef
-=item blank-is-undef
 X<blank_is_undef>
+
+=item blank-is-undef
 X<blank-is-undef>
 
  my $csv = Text::CSV.new(:blank_is_undef);
@@ -330,8 +340,9 @@ to be parsed as
  [ "1", "", Str, " ", "2" ]
 
 =item empty_is_undef
-=item empty-is-undef
 X<empty_is_undef>
+
+=item empty-is-undef
 X<empty-is-undef>
 
  my $csv = Text::CSV.new(:empty_is_undef);
@@ -351,8 +362,9 @@ Note that this effects only fields that are originally empty, not fields
 that are empty after stripping allowed whitespace. YMMV.
 
 =item allow_whitespace
-=item allow-whitespace
 X<allow_whitespace>
+
+=item allow-whitespace
 X<allow-whitespace>
 
  my $csv = Text::CSV.new(:allow_whitespace);
@@ -384,8 +396,9 @@ will now be parsed as
 even if the original line was perfectly acceptable C<CSV>.
 
 =item allow_loose_quotes
-=item allow-loose-quotes
 X<allow_loose_quotes>
+
+=item allow-loose-quotes
 X<allow-loose-quotes>
 
  my $csv = Text::CSV.new(:allow_loose_quotes);
@@ -414,8 +427,9 @@ B<AND> making sure that the L<C<escape>|/escape> is I<not> equal to
 L<C<quote>|/quote>.
 
 =item allow_loose_escapes
-=item allow-loose-escapes
 X<allow_loose_escapes>
+
+=item allow-loose-escapes
 X<allow-loose-escapes>
 
  my $csv = Text::CSV.new(:allow_loose_escapes);
@@ -433,8 +447,9 @@ practice to allow this format, this attribute enables you to treat all
 escape sequences equal.
 
 =item allow_unquoted_escape
-=item allow-unquoted-escape
 X<allow_unquoted_escape>
+
+=item allow-unquoted-escape
 X<allow-unquoted-escape>
 
  my $csv = Text::CSV.new(:allow_unquoted_escape);
@@ -452,8 +467,9 @@ Setting this attribute to C<True> might help to overcome issues with
 backward compatibility and allow this style.
 
 =item always_quote
-=item always-quote
 X<always_quote>
+
+=item always-quote
 X<always-quote>
 
  my $csv = Text::CSV.new(:always_quote);
@@ -468,8 +484,9 @@ easier to handle exported data in external applications. (Poor creatures
 who are better to use Text::CSV. :)
 
 =item quote_space
-=item quote-space
 X<quote_space>
+
+=item quote-space
 X<quote-space>
 
  my $csv = Text::CSV.new(:quote_space);
@@ -482,8 +499,9 @@ C<True> for safety. You can exclude the space from this trigger by setting
 this attribute to C<False>.
 
 =item quote_null
-=item quote-null
 X<quote_null>
+
+=item quote-null
 X<quote-null>
 
  my $csv = Text::CSV.new(:quote_null);
@@ -496,8 +514,9 @@ you to treat the C<NULL> byte as a simple binary character in binary mode
 C<NULL> escapes by setting this attribute to C<False>.
 
 =item quote_binary
-=item quote-binary
 X<quote_binary>
+
+=item quote-binary
 X<quote-binary>
 
  my $csv = Text::CSV.new(:quote_binary);
@@ -509,8 +528,9 @@ be quoted. By setting this attribute to C<False>, you can disable that
 trigger for bytes >= C<0x7F>. (WIP)
 
 =item keep_meta
-=item keep-meta
 X<keep_meta>
+
+=item keep-meta
 X<keep-meta>
 
  my $csv = Text::CSV.new(:keep_meta);
