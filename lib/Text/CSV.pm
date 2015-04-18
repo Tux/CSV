@@ -169,7 +169,7 @@ class CellSet {
         has RangeSet $.col;
 
         method in (Int $row, Int $col) {
-            $.row && $.col && $.row.in ($row) && $.col.in ($col);
+            $!row && $!col && $!row.in ($row) && $!col.in ($col);
             }
         }
 
@@ -206,27 +206,27 @@ class CSV::Field {
         }
 
     method Bool {
-        $.text.defined && $.text ne "0" && $.text ne "";
+        $!text.defined && $!text ne "0" && $!text ne "";
         }
 
     method Str {
-        $.text;
+        $!text;
         }
 
     method Numeric {
-        $.text.defined
+        $!text.defined
             ?? $!text ~~ m{^ <[0..9]> } ?? +$!text
             !!                              $!text.unival.Int
             !! Num;
         }
 
     method gist {
-        $.text.defined or return "<undef>";
-        my $s  = $.is_quoted  ?? "Q" !! "q";
+        $!text.defined or return "<undef>";
+        my $s  = $!is_quoted  ?? "Q" !! "q";
            $s ~= $!is_binary  ?? "B" !! "b";
            $s ~= $!is_utf8    ?? "8" !! "7";
            $s ~= $!is_missing ?? "M" !! "m";
-        $s ~ ":" ~ $.text.perl;
+        $s ~ ":" ~ $!text.perl;
         }
 
     method add (Str $chunk) {
