@@ -524,64 +524,7 @@ information after parsing with the methods L</meta_info>, L</is_quoted>,
 and L</is_binary> described below. Default is C<False> for ease of use.
 
 If C<keep-meta> is set to C<True>, the returned fields are not of type
-C<Str> but of type C<CSV::Field>, which will feature these methods:
-
-=over 2
-
-=item new
-
-The contructor optionally takes an Int or a Str
-
-=item text (Str)
-=item Str (Str)
-
-Returns the text as returned when C<keep-meta> was C<False>.
-
-=item Bool (Bool)
-
-Returns the boolean value of the field. As CSV is text-only be design, this
-will also return C<False> for C<"0">, where perl6 sees C<"0"> as C<True>.
-
-=item Numeric (Int/Num)
-
-Will return the numeric value of the field is appropriate.
-There is an easter-egg in here :)
-
-=item gist
-
-Will show a complete compressed representation of the field with properties.
-C<Q> is quoted, C<q> is unquoted. Likewise for C<B/b> for binary, C<8/7>
-for U nicode-ness and C<M/m> for missing.
-
-=item add
-
-Accepts an Str to be added to this field.
-
-=item set_quoted
-
-Set the fact the the field was/is quoted.
-
-=item is_quoted (Bool)
-
-Is C<True> when the parsed field was quoted in the source.
-
-=item undefined (Bool)
-
-Returns C<True> when the field is undefined.
-
-=item is_binary (Bool)
-
-Returns true if the field has data beyond ASCII (WIP).
-
-=item is_utf8 (Bool)
-
-Returns C<True> if the field is beyond ASCII, but still valid UTF-8.
-
-=item is_missing (Bool)
-
-Returns C<True> if the field is missing (WIP).
-
-=back
+C<Str> but of type L<C<CSV::Field>|/CSV::Field>.
 
 =item types
 
@@ -922,39 +865,41 @@ X<rowrange>
 Set or inspect the row ranges. Only supports L<RFC7111|/fragment> style.
 Indexes are 1-based.
 
-################################################################################
-
 =head2 column_names
+=head2 column-names
 X<column_names>
+X<column-names>
 
 Set the "keys" that will be used in the L</getline_hr> calls. If no keys
 (column names) are passed, it will return the current setting as a list.
 
-L</column_names> accepts a list of scalars (the column names) or a single
-array_ref, so you can pass the return value from L</getline> too:
+ $csv.column_names(< code description price >);
+ my @names = $csv.column_names;
+
+L</column_names> accepts a list of strings (the column names) or a single
+array with the names. You can pass the return value from L</getline> too:
 
  $csv.column_names($csv.getline($io));
 
 L</column_names> does B<no> checking on duplicates at all, which might lead
-to unexpected results. Undefined entries will be replaced with the string
-C<"\cAUNDEF\cA">, so
+to unexpected results. As perl6 does not accept undefined keys in a hash,
+passing just types will lead to fail later on.
 
- $csv.column_names(Str, "", "name", "name");
- $hr = $csv.getline_hr($io);
-
-Will set C<< $hr->{"\cAUNDEF\cA"} >> to the 1st field, C<< $hr->{""} >> to
-the 2nd field, and C<< $hr->{name} >> to the 4th field, discarding the 3rd
-field.
-
-L</column_names> croaks on invalid arguments.
+ $csv.column_names(Str, "", "name"); # Will FAIL becaus of Str
+ $csv.column_names(< code name count name >); # will drop the second column
+ %hr = $csv.getline_hr($io);
 
 =head2 bind_columns
+=head2 bind-columns
 X<bind_columns>
+X<bind-columns>
 
-Takes a list of scalar references to be used for output with  L</print>  or
-to store in the fields fetched by L</getline>.  When you do not pass enough
+NYI!
+
+Takes a list of scalar references to be used for output with L</print> or
+to store in the fields fetched by L</getline>. When you do not pass enough
 references to store the fetched fields in, L</getline> will fail with error
-C<3006>.  If you pass more than there are fields to return,  the content of
+C<3006>. If you pass more than there are fields to return, the content of
 the remaining references is left untouched.
 
  $csv.bind_columns(\$code, \$name, \$price, \$description);
@@ -975,79 +920,60 @@ X<eof>
 
  $eof = $csv.eof();
 
-If L</parse> or  L</getline>  was used with an IO stream,  this method will
-return true (1) if the last call hit end of file,  otherwise it will return
-false ('').  This is useful to see the difference between a failure and end
+If L</parse> or L</getline> was used with an IO stream, this method will
+return C<True> if the last call hit end of file, otherwise it will return
+C<False>. This is useful to see the difference between a failure and end
 of file.
+
+If the last L</parse> or L</getline> finished just before end of file, the
+B<next> L</parse> or L</getline> will fail and set C<eof>.
 
 =head2 types
 X<types>
 
- $csv.types(\@tref);
+NYI!
 
-This method is used to force that (all)  columns are of a given type.  For
-example, if you have an integer column,  two  columns  with  doubles  and a
+ $csv.types(@types);
+ my @types = $csv.types;
+
+This method is used to force a type for all fields in a column. For
+example, if you have an integer column, two columns with doubles and a
 string column, then you might do a
 
- $csv.types([Text::CSV::IV(),
-               Text::CSV::NV(),
-               Text::CSV::NV(),
-               Text::CSV::PV()]);
-
-Column types are used only for I<decoding> columns while parsing,  in other
-words by the L</parse> and L</getline> methods.
+ $csv.types(Int, Num, Num, Str);
 
 You can unset column types by doing a
 
  $csv.types(Array);
 
-or fetch the current type settings with
-
- $types = $csv.types();
-
-=over 4
-
-=item IV
-X<IV>
-
-Set field type to integer.
-
-=item NV
-X<NV>
-
-Set field type to numeric/float.
-
-=item PV
-X<PV>
-
-Set field type to string.
-
-=back
-
 =head2 fields
 X<fields>
 
- @fields = $csv.fields();
+ CSV::Field @fields = $csv.fields();
 
-This method returns the input to   L</combine>  or the resultant decomposed
-fields of a successful L</parse>, whichever was called more recently.
-
-Note that the return value is undefined after using L</getline>, which does
-not fill the data structures returned by L</parse>.
+This method returns the input to L</combine> or the resultant decomposed
+fields of a successful L</parse> or L</getline>, whichever was called more
+recently. The fields are still of type L<C<CSV::Field>|/CSV::Field> and
+thus feature attributes.
 
 =head2 list
 X<list>
 
  @fields = $csv.list();
 
-This method returns the input to   L</combine>  or the resultant decomposed
-fields of a successful L</parse>, whichever was called more recently.
+This method returns the input to L</combine> or the resultant decomposed
+fields of a successful L</parse> or L</getline>, whichever was called more
+recently. The fields are simplified to Str entries from
+L<C<CSV::Field>|/CSV::Field>, so no attributes ate available.
 
-Note that the return value is undefined after using L</getline>, which does
-not fill the data structures returned by L</parse>.
+NYI: If types are used, the fields should comply to the types.
+
+################################################################################
 
 =head2 meta_info
+=head2 meta-info
 X<meta_info>
+X<meta-info>
 
  @flags = $csv.meta_info();
 
@@ -1181,6 +1107,107 @@ X<SetDiag>
  $csv.SetDiag(0);
 
 Use to reset the diagnostics if you are dealing with errors.
+
+=head1 CSV::Field
+
+The fields are internally represented as CSV::Field objects. Any methods
+that directly or indirectly supports the C<meta> attribute coltrols
+weather the returned fields will be of this CSV::Filed type or that the
+fields are simplified to a simple basic type.
+
+If the fields are represented/returned as CSV::Field, it supprts these
+methods:
+
+=head2 new
+
+ my CSV::Field $f .= new;
+ my $f = CSV::Field.new("foo");
+ my $f = CSV::Field.new(1);
+
+Instantiate a new field. Optionally takes a C<Cool>.
+
+=head2 Bool
+
+ ?$f     and say "The field is true";
+ $f.Bool and say "This field is true too";
+
+Return the boolean value of the field. As CSV is text-only be design, this
+will also return C<False> for C<"0">, where perl6 sees C<"0"> as C<True>.
+
+=head2 text
+=head2 Str
+
+ $str = ~$f;
+ $str = $f.Str;
+ $str = $f.text;
+
+Return the string representation of the field.
+
+=head2 Numeric
+
+ $i = +$f;
+ $i = $f.Int;
+ $i = $f.Num;
+
+Return the numeric representation of the field.
+
+=head2 gist
+
+ $f.gist.say;
+
+Will show a complete compressed representation of the field with properties.
+C<Q> is quoted, C<q> is unquoted. Likewise for C<B/b> for binary, C<8/7>
+for U nicode-ness and C<M/m> for missing.
+
+=head2 add
+
+ $f.add($str);
+
+Accepts an Str to be added to this field.
+
+=head2 set_quoted
+
+ $f.set_quoted;
+
+Set the fact the the field was/is quoted.
+
+=head2 is_quoted
+
+ $f.is_quoted and say "The field was quoted in CSV";
+
+Is C<True> when the parsed field was quoted in the source.
+
+=head2 undefined
+
+ $f.undefined and say "The field is undefined";
+
+Returns C<True> when the field is undefined. As CSV is all about strings,
+the various options that allow interpreting empty fields as undefined make
+this a required method.
+
+=head2 is_binary
+
+WIP
+
+ $f.is_binary and say "Do we need a Buf instead?";
+
+Returns true if the field has data beyond ASCII.
+
+=head2 is_utf8
+
+ $f.is_utf8 or say "The field is empty or pure ACII";
+
+Returns C<True> if the field is beyond ASCII, but still valid UTF-8.
+
+=head2 is_missing
+
+WIP
+
+ $f.is_missing and fail;
+
+Returns C<True> if the field is missing.
+
+=head1 CSV::Diag
 
 =head1 FUNCTIONS
 
