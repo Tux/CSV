@@ -331,11 +331,13 @@ class Text::CSV {
             # See also src/core/Exception.pm - role X::Comp  method gist
             # I do not want the "in method sink at ..." here, but there
             # is no way yet to suppress that, so say instead of warn for now
+            my $p = ($!pos    // "Unknown").Str;
+            my $r = ($!record // "Unknown").Str;
             say  "\e[34m" ~ $!message
-               ~ "\e[0m"  ~ " : error $!error @ rec $!record, pos $!pos\n"
-               ~ "\e[32m" ~ substr ($!buffer, 0, $!pos)
+               ~ "\e[0m"  ~ " : error $!error @ record $r, position $p\n"
+               ~ "\e[32m" ~ substr ($!buffer // "", 0, $!pos // 0)
                ~ "\e[33m" ~ "\x[23CF]"
-               ~ "\e[31m" ~ substr ($!buffer,    $!pos)
+               ~ "\e[31m" ~ substr ($!buffer // "",    $!pos // 0)
                ~ "\e[0m";
             }
         method Numeric  { $!error; }
