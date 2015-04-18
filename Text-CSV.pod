@@ -793,45 +793,42 @@ X<getline-hr-all>
 
 This will return a list of L<getline_hr($io)|/getline_hr> results.
 
-################################################################################
-
 =head2 parse
 X<parse>
 
  $status = $csv.parse($line);
 
-This method decomposes a  C<CSV>  string into fields,  returning success or
-failure.   Failure can result from a lack of argument  or the given  C<CSV>
-string is improperly formatted.   Upon success, L</fields> can be called to
-retrieve the decomposed fields. Upon failure calling L</fields> will return
-undefined data and  L</error_input>  can be called to retrieve  the invalid
-argument.
+This method decomposes a C<CSV> string into fields, returning success or
+failure. Failure can result from a lack of argument or improper format in
+the given C<CSV> string. Upon success, invoke L</fields> or L</list> to get
+the decomposed fields. Upon failure these methods shall not be trusted to
+return reliable data.
 
-You may use the L</types>  method for setting column types.  See L</types>'
-description below.
+NYI: You may use the L</types> method for setting column types. See
+L</types>' description below.
 
 =head2 fragment
 X<fragment>
 
-This function tries to implement RFC7111 (URI Fragment Identifiers for the
-text/csv Media Type) - http://tools.ietf.org/html/rfc7111
+This function implements L<RFC7111|/http://tools.ietf.org/html/rfc7111>
+(URI Fragment Identifiers for the text/csv Media Type).
 
- my $AoA = $csv.fragment($io, $spec);
+ my @rows = $csv.fragment($io, $spec);
 
-In specifications,  C<*> is used to specify the I<last> item, a dash (C<->)
-to indicate a range.   All indices are C<1>-based:  the first row or column
+In specifications, C<*> is used to specify the I<last> item, a dash (C<->)
+to indicate a range. All indices are C<1>-based: the first row or column
 has index C<1>. Selections can be combined with the semi-colon (C<;>).
 
-When using this method in combination with  L</column_names>,  the returned
-reference  will point to a  list of hashes  instead of a  list of lists.  A
-disjointed  cell-based combined selection  might return rows with different
-number of columns making the use of hashes unpredictable.
+When using this method in combination with L</column_names>, the returned
+array will be a list of hashes instead of an array of arrays. A disjointed
+cell-based combined selection might return rows with different number of
+columns making the use of hashes unpredictable.
 
  $csv.column_names(< Name Age >);
- my $AoH = $csv.fragment($io, "col=3;8");
+ my @rows = $csv.fragment($io, "col=3;8");
 
-If the L</after_parse> callback is active,  it is also called on every line
-parsed and skipped before the fragment.
+WIP: If the L</after_parse> callback is active, it is also called on every
+line parsed and skipped before the fragment.
 
 =over 2
 
@@ -871,9 +868,9 @@ with different number of columns
 
  cell=1,1-2,2;3,3-4,4;1,4;4,1
 
-Disjointed selections will only return selected cells.   The cells that are
-not  specified  will  not  be  included  in the  returned set,  not even as
-C<Str>.  As an example given a C<CSV> like
+Disjointed selections will only return selected cells. The cells that are
+not specified will not be included in the returned set, not even as
+C<Str>. As an example given a C<CSV> like
 
  11,12,13,...19
  21,22,...28,29
@@ -897,30 +894,56 @@ C<cell=1,1-3,3;2,2-4,4;2,3;4,2> will return:
 
 =back
 
-L<RFC7111|http://tools.ietf.org/html/rfc7111> does  B<not>  allow different
+L<RFC7111|http://tools.ietf.org/html/rfc7111> does B<not> allow different
 types of specs to be combined (either C<row> I<or> C<col> I<or> C<cell>).
 Passing an invalid fragment specification will croak and set error 2013.
+
+Using L</colrange> and L</rowrange> instead of L</fragment> will allow you
+to combine row- and column selecting as a grid.
+
+=head2 colrange
+X<colrange>
+
+ my Int @range = ^5, 5..9;
+ $csv.colrange(@range);
+ $csv.colrange("0-4;6-10");
+ my @range = $csv.colrange;
+
+Set or inspect the column ranges. When passed as an array of C<Int>, the
+indexes are 0-based. When passed as a string, the syntax of the range is as
+defined by L<RFC7111|/fragment> and thus 1-based.
+
+=head2 rowrange
+X<rowrange>
+
+ $csv.rowrange("1;16-*");
+ my @r = $csv.rowrange;
+
+Set or inspect the row ranges. Only supports L<RFC7111|/fragment> style.
+Indexes are 1-based.
+
+################################################################################
 
 =head2 column_names
 X<column_names>
 
-Set the "keys" that will be used in the  L</getline_hr>  calls.  If no keys
+Set the "keys" that will be used in the L</getline_hr> calls. If no keys
 (column names) are passed, it will return the current setting as a list.
 
-L</column_names> accepts a list of scalars (the column names)  or a single
+L</column_names> accepts a list of scalars (the column names) or a single
 array_ref, so you can pass the return value from L</getline> too:
 
  $csv.column_names($csv.getline($io));
 
 L</column_names> does B<no> checking on duplicates at all, which might lead
-to unexpected results.   Undefined entries will be replaced with the string
+to unexpected results. Undefined entries will be replaced with the string
 C<"\cAUNDEF\cA">, so
 
  $csv.column_names(Str, "", "name", "name");
  $hr = $csv.getline_hr($io);
 
-Will set C<< $hr->{"\cAUNDEF\cA"} >> to the 1st field,  C<< $hr->{""} >> to
-the 2nd field, and C<< $hr->{name} >> to the 4th field,  discarding the 3rd
+Will set C<< $hr->{"\cAUNDEF\cA"} >> to the 1st field, C<< $hr->{""} >> to
+the 2nd field, and C<< $hr->{name} >> to the 4th field, discarding the 3rd
 field.
 
 L</column_names> croaks on invalid arguments.
@@ -1004,7 +1027,18 @@ Set field type to string.
 =head2 fields
 X<fields>
 
- @columns = $csv.fields();
+ @fields = $csv.fields();
+
+This method returns the input to   L</combine>  or the resultant decomposed
+fields of a successful L</parse>, whichever was called more recently.
+
+Note that the return value is undefined after using L</getline>, which does
+not fill the data structures returned by L</parse>.
+
+=head2 list
+X<list>
+
+ @fields = $csv.list();
 
 This method returns the input to   L</combine>  or the resultant decomposed
 fields of a successful L</parse>, whichever was called more recently.
