@@ -321,8 +321,8 @@ class Text::CSV {
     has Str  $!error_message;
 
     class CSV::Diag is Iterable does Positional is Exception {
-        has Int $.error   is readonly;
-        has Str $.message is readonly;
+        has Int $.error   is readonly = 0;
+        has Str $.message is readonly = %errors{$!error};
         has Int $.pos     is readonly;
         has Int $.record  is readonly;
         has Str $.buffer  is readonly;
