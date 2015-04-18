@@ -607,6 +607,10 @@ class Text::CSV {
         $!rrange;
         }
 
+    multi method rowrange () returns RangeSet {
+        $!rrange;
+        }
+
     method version () returns Str {
         $VERSION;
         }
