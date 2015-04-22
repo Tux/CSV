@@ -33,6 +33,7 @@ my @test = (
     [ 6, "csv_gram"    ],
     [ 6, "test"        ],
     [ 6, "test-x"      ],
+    [ 6, "csv-parser"  ],
     );
 my %perl = (
     5 => "perl",
