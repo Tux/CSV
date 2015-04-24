@@ -763,7 +763,6 @@ class Text::CSV {
 
     method parse (Str $buffer) returns Bool {
 
-        my     $field;
         my int $skip = 0;
         my int $pos  = 0;
         my int $ppos = 0;
