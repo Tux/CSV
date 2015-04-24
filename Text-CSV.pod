@@ -1841,6 +1841,13 @@ English locale, the default is a comma. In Windows however, the user is
 free to choose a predefined locale, and then change I<every> individual
 setting in it, so checking the locale is no solution.
 
+A lone first line with just
+
+ sep=;
+
+will be recognized and honored: it wil set L<C<sep>|/sep> to C<;> and skip
+that line.
+
 =head1 TODO
 
 =over 2

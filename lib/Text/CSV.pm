@@ -1061,6 +1061,14 @@ class Text::CSV {
 
                     $!io.defined and @!ahead = @ch[($i + 1) .. *];
 
+                    # sep=;
+                    if ($!record_number == 1 && $!io.defined && @!fields.elems == 0 &&
+                            !$f.undefined && $f.text ~~ /^ "sep=" (.*) /) {
+                        $!sep = $0.Str;
+                        $!record_number = 0;
+                        return self.parse ($!io.get);
+                        }
+
                     return parse_done ();
                     }
 
