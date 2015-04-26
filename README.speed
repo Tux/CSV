@@ -46,3 +46,20 @@ csv_gram.pl           13.197   12.596   13.474   13.226   13.440   13.876
 test.pl               41.505   39.047   40.162   38.633   39.618   40.937 
 test-t.pl             40.628   37.194   36.658   35.000   35.903   37.067 
 csv-parser.pl          -        -        -        -      389.192   24.922
+
+                    20150426 
+------------------  -------- 
+Text::CSV::Easy_XS     0.016 
+Text::CSV::Easy_PP     0.017 
+Text::CSV_XS bindc     0.034 
+Text::CSV_XS           0.039 
+Text::CSV_PP           0.525 
+Pegex::CSV             1.340 
+csv.pl                 7.270 
+csv-ip5xs             17.267 
+csv-ip5xsio           17.243 
+csv-ip5pp             18.218 
+csv_gram.pl           14.226 
+test.pl               44.541 
+test-t.pl             39.887 
+csv-parser.pl         25.712 
