@@ -768,7 +768,6 @@ class Text::CSV {
         my int $ppos = 0;
 
         $!errno = 0;
-
         my sub parse_error (Int $errno) {
             $!errno         = $errno;
             $!error_pos     = $pos;
@@ -783,7 +782,7 @@ class Text::CSV {
             $str.defined or  return ();
             $str eq ""   and return ("");
 
-            $str.split ($re, :all).map: {
+            $str.split ($re, :all).flat.map: {
                 if $_ ~~ Str {
                     $_   if .chars;
                     }
