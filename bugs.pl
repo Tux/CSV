@@ -246,3 +246,8 @@ EOP
           q{use lib "blib/lib";use Text::CSV; my $c = Text::CSV.new});
     qx{rm -rf blib};
     }
+
+{   title "MoarVM", "Read bytes too often", "RT#124394";
+    test (qr{\+\+},
+          q{my$fh=open "t.csv",:w;$fh.print("+");$fh.close;$fh=open "t.csv",:r;$fh.get.perl.say;});
+    }
