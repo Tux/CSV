@@ -1098,6 +1098,7 @@ the time of failure, and the cannot be changed afterwards.
      error   => 0,
      message => "",
      pos     => Int,
+     field   => Int,
      record  => Int,
      buffer  => Str
      );
@@ -1115,14 +1116,14 @@ The object can be used in many contexts:
 
 will print
 
- EIF - Loose unescaped quote : error 2034 @ record 1, position 2
+ EIF - Loose unescaped quote : error 2034 @ record 1, field 1, position 2
   "?",
 
 which is what happens when L<C<auto_diag>|/auto_diag> is C<True> and you
 parse illegal CSV:
 
  Text::CSV.new(:auto_diag).parse(q{ "",});'
- EIF - Loose unescaped quote : error 2034 @ record 1, position 2
+ EIF - Loose unescaped quote : error 2034 @ record 1, field 1, position 2
   "?",
 
 =item numeric context
@@ -1147,7 +1148,7 @@ Will return the error message
 
 =item list context
 
-All of the 5 items can be retrieved as a list or positional:
+All of the 6 items can be retrieved as a list or positional:
 
  {   fail CSV::Diag(error => 2034);
      CATCH { default { $_[0].say; }}
@@ -1158,12 +1159,13 @@ The indices are chosen to be compatible with the old API
  $e[0] = error number
  $e[1] = error message
  $e[2] = error position in buffer
- $e[3] = record number
- $e[4] = errror buffer
+ $e[3] = field number
+ $e[4] = record number
+ $e[5] = errror buffer
 
 =item hash context
 
-All of the 5 items can be retrieved as a hash entry
+All of the 6 items can be retrieved as a hash entry
 
  {   fail CSV::Diag(error => 2034);
      CATCH { default { $_<errno>.say; }}
@@ -1174,6 +1176,7 @@ The keys are chosen to be compatible with the old API.
  $e<errno>  = error number
  $e<error>  = error message
  $e<pos>    = error position in buffer
+ $e<field>  = field number
  $e<recno>  = record number
  $e<buffer> = errror buffer
 
@@ -1203,7 +1206,7 @@ failure and the buffer of failure with an eject symbol at that position:
 
 will print
 
- EIF - Loose unescaped quote : error 2034 @ record 1, position 2
+ EIF - Loose unescaped quote : error 2034 @ record 1, field 1, position 2
   "?",
 
 If called in list context, this will return the error code, the error
@@ -1218,8 +1221,6 @@ If called as C<+$csv.error_diag> or C<$csv.error_diag.Num>, it will return
 the error code. If called as C<~$csv.error_diag> or C<$csv.error_diag.Str>
 it will return the error message.
 
-################################################################################
-
 =head2 record_number
 X<record_number>
 
@@ -1229,12 +1230,15 @@ Returns the records parsed by this csv instance. This value should be more
 accurate than C<$.> when embedded newlines come in play. Records written by
 this instance are not counted.
 
-=head2 SetDiag
-X<SetDiag>
+=head2 set_diag
+X<set_diag>
 
- $csv.SetDiag(0);
+ $csv.set_diag(0);
+ $csv.set_diag(2025, pos => 12, fieldno => 4, recno => 99);
 
-Use to reset the diagnostics if you are dealing with errors.
+Use to (re)set the diagnostics if you are dealing with errors.
+
+################################################################################
 
 =head1 CSV::Field
 

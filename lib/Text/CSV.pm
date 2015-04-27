@@ -317,6 +317,7 @@ class Text::CSV {
 
     has Int  $!errno;
     has Int  $!error_pos;
+    has Int  $!error_field;
     has Str  $!error_input;
     has Str  $!error_message;
 
@@ -324,6 +325,7 @@ class Text::CSV {
         has Int $.error   is readonly = 0;
         has Str $.message is readonly = %errors{$!error};
         has Int $.pos     is readonly;
+        has Int $.field   is readonly;
         has Int $.record  is readonly;
         has Str $.buffer  is readonly;
 
@@ -332,9 +334,10 @@ class Text::CSV {
             # I do not want the "in method sink at ..." here, but there
             # is no way yet to suppress that, so say instead of warn for now
             my $p = ($!pos    // "Unknown").Str;
+            my $f = ($!field  // "Unknown").Str;
             my $r = ($!record // "Unknown").Str;
             say  "\e[34m" ~ $!message
-               ~ "\e[0m"  ~ " : error $!error @ record $r, position $p\n"
+               ~ "\e[0m"  ~ " : error $!error @ record $r, field $f, position $p\n"
                ~ "\e[32m" ~ substr ($!buffer // "", 0, $!pos // 0)
                ~ "\e[33m" ~ "\x[23CF]"
                ~ "\e[31m" ~ substr ($!buffer // "",    $!pos // 0)
@@ -342,10 +345,11 @@ class Text::CSV {
             }
         method Numeric  { $!error; }
         method Str      { $!message; }
-        method iterator { [ $!error, $!message, $!pos, $!record, $!buffer ].iterator; }
+        method iterator { [ $!error, $!message, $!pos, $!field, $!record, $!buffer ].iterator; }
         method hash     { { errno  => $!error,
                             error  => $!message,
                             pos    => $!pos,
+                            field  => $!field,
                             recno  => $!record,
                             buffer => $!buffer,
                           }; }
@@ -353,8 +357,9 @@ class Text::CSV {
                $i == 0 ?? $!error
             !! $i == 1 ?? $!message
             !! $i == 2 ?? $!pos
-            !! $i == 3 ?? $!record
-            !! $i == 4 ?? $!buffer
+            !! $i == 3 ?? $!field
+            !! $i == 4 ?? $!record
+            !! $i == 5 ?? $!buffer
             !! Nil;
             }
         }
@@ -388,6 +393,7 @@ class Text::CSV {
 
         $!errno                 = 0;
         $!error_pos             = 0;
+        $!error_field           = 0;
         $!error_input           = "";
         $!error_message         = "";
         $!record_number         = 0;
@@ -446,16 +452,28 @@ class Text::CSV {
         alias ("is_missing",            < is-missing >);
         alias ("is_quoted",             < is-quoted >);
         alias ("is_utf8",               < is-utf8 >);
+        alias ("set_diag",              < SetDiag set-diag >);
         }
 
-    method !fail (Int:D $errno, *@s) {
+    method !fail (Int:D $errno, Int :$field, Str :$input, *@s) {
         $!errno          = $errno;
         $!error_pos      = 0;
         $!error_message  = %errors{$errno};
         $!error_message ~= (":", @s).join (" ") if @s.elems;
-        $!error_input    = Str;
+        $!error_field    = $field // (@!fields.elems + 1);
+        $!error_input    = $input;
         $!auto_diag and self.error_diag;    # Void context
         die self.error_diag;                # Exception object
+        }
+
+    method set_diag (Int:D $errno, Int :$pos, Int :$fieldno, Int :$recno) {
+        $!errno         = $errno;
+        $!error_message = %errors{$errno} // "";
+        $!error_input   = "";
+
+        $pos.defined     and $!error_pos     = $pos;
+        $fieldno.defined and $!error_field   = $fieldno;
+        $recno.defined   and $!record_number = $recno;
         }
 
     method !check_sanity () {
@@ -631,6 +649,7 @@ class Text::CSV {
             error   => $!errno,
             message => $!error_message,
             pos     => $!error_pos,
+            field   => $!error_field,
             record  => $!record_number,
             buffer  => $!error_input // "", # // for 2012
             );
@@ -743,7 +762,9 @@ class Text::CSV {
         }
     multi method combine (@f) returns Bool {
         @!fields = ();
+        my int $i = 0;
         for @f -> $f {
+            $i++;
             my CSV::Field $cf;
             if ($f.isa (CSV::Field)) {
                 $cf = $f;
@@ -755,6 +776,7 @@ class Text::CSV {
             unless (self!ready (0, $cf)) {
                 $!errno       = 2110;
                 $!error_input = $f.Str;
+                $!error_field = $i;
                 return False;
                 }
             }
@@ -771,6 +793,7 @@ class Text::CSV {
         my sub parse_error (Int $errno) {
             $!errno         = $errno;
             $!error_pos     = $pos;
+            $!error_field   = @!fields.elems + 1;
             $!error_message = %errors{$errno};
             $!error_input   = $buffer;
             $!auto_diag and self.error_diag;
