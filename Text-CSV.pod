@@ -1158,9 +1158,9 @@ The indices are chosen to be compatible with the old API
 
  $e[0] = error number
  $e[1] = error message
- $e[2] = error position in buffer
- $e[3] = field number
- $e[4] = record number
+ $e[2] = error position in buffer (0-based)
+ $e[3] = field number             (1-based)
+ $e[4] = record number            (1-based)
  $e[5] = errror buffer
 
 =item hash context
@@ -1175,9 +1175,9 @@ The keys are chosen to be compatible with the old API.
 
  $e<errno>  = error number
  $e<error>  = error message
- $e<pos>    = error position in buffer
- $e<field>  = field number
- $e<recno>  = record number
+ $e<pos>    = error position in buffer (0-based)
+ $e<field>  = field number             (1-based)
+ $e<recno>  = record number            (1-based)
  $e<buffer> = errror buffer
 
 =back
