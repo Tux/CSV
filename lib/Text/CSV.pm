@@ -696,10 +696,11 @@ class Text::CSV {
         # till it is actually asked for unless it is required right now
         # to fail
         if (!$!binary and $f.text ~~ m{ <[ \x00..\x08 \x0A..\x1F ]> }) {
+            $!error_pos     = $/.from + 1 + $f.is_quoted;
             $!errno         = $f.is_quoted ??
                  $f.text ~~ m{<[ \r ]>} ?? 2022 !!
                  $f.text ~~ m{<[ \n ]>} ?? 2021 !!  2026 !! 2037;
-            $!error_pos     = 0;
+            $!error_field   = @!fields.elems + 1;
             $!error_message = %errors{$!errno};
             $!error_input   = $f.text;
             $!auto_diag and self.error_diag;
@@ -790,9 +791,9 @@ class Text::CSV {
         my int $ppos = 0;
 
         $!errno = 0;
-        my sub parse_error (Int $errno) {
+        my sub parse_error (Int $errno, Int :$fpos) {
             $!errno         = $errno;
-            $!error_pos     = $pos;
+            $!error_pos     = $fpos // $pos;
             $!error_field   = @!fields.elems + 1;
             $!error_message = %errors{$errno};
             $!error_input   = $buffer;
@@ -1102,13 +1103,14 @@ class Text::CSV {
 
                 unless ($!binary) {
                     $opt_v > 5 and progress ($i, "data - check binary");
+                    my $fpos = $pos - $chunk.chars + 1;
                     if ($f.is_quoted) {
-                        $chunk ~~ m/  \r / and return parse_error (2022);
-                        $chunk ~~ m/  \n / and return parse_error (2021);
+                        $chunk ~~ m/  \r / and return parse_error (2022, fpos => $fpos + $/.from);
+                        $chunk ~~ m/  \n / and return parse_error (2021, fpos => $fpos + $/.from);
                         }
                     else {
-                        $chunk ~~ m/^ \r / and return parse_error (2031);
-                        $chunk ~~ m/  \r / and return parse_error (2032);
+                        $chunk ~~ m/^ \r / and return parse_error (2031, fpos => $fpos);
+                        $chunk ~~ m/  \r / and return parse_error (2032, fpos => $fpos + $/.from);
                         }
                     }
                 $chunk ne "" and $f.add ($chunk);

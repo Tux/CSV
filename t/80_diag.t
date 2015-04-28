@@ -39,22 +39,22 @@ sub parse_err (Int $err, Int $pos, Int $fld, Str $buf) {
 
 parse_err (2023, 19, 2, qq{2023,",2008-04-05,"Foo, Bar",\n}); # "
 
-$csv = Text::CSV.new (escape => "+", eol => "\n");
+$csv = Text::CSV.new (escape => "+", eol => "\n", :!binary);
 is (~$csv.error_diag, "", "No errors yet");
 
 $recno = 1;
 #parse_err (2010,  3, 1, qq{"x"\r});    # perl5 only
  parse_err (2011,  3, 1, qq{"x"x});
 
-#parse_err (2021,  2, 1, qq{"\n"});
-#parse_err (2022,  2, 1, qq{"\r"});
+ parse_err (2021,  2, 1, qq{"\n"});
+ parse_err (2022,  2, 1, qq{"\r"});
  parse_err (2025,  2, 1, qq{"+ "});
-#parse_err (2026,  2, 1, qq{"\0 "});
+ parse_err (2026,  2, 1, qq{"\0 "});
  parse_err (2027,  1, 1,   '"');
-#parse_err (2031,  1, 1, qq{\r });
-#parse_err (2032,  2, 1, qq{ \r});
+ parse_err (2031,  1, 1, qq{\r });
+ parse_err (2032,  2, 1, qq{ \r});
  parse_err (2034,  4, 2, qq{1, "bar",2});
-#parse_err (2037,  1, 1, qq{\0 });
+ parse_err (2037,  1, 1, qq{\0 });
 
 done;
 
