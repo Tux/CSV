@@ -337,10 +337,10 @@ class Text::CSV {
             my $m =
                  "\e[34m" ~ $!message
                ~ "\e[0m"  ~ " : error $!error @ record $r, field $f, position $p\n";
-            $!buffer.defined && $!buffer.chars and $m ~=
-                 "\e[32m" ~ substr ($!buffer, 0, $!pos // 0)
+            $!buffer.defined && $!buffer.chars  && $!pos.defined and $m ~=
+                 "\e[32m" ~ substr ($!buffer, 0, $!pos - 1)
                ~ "\e[33m" ~ "\x[23CF]"
-               ~ "\e[31m" ~ substr ($!buffer,    $!pos // 0)
+               ~ "\e[31m" ~ substr ($!buffer,    $!pos - 1)
                ~ "\e[0m\n";
             # I do not want the "in method sink at ..." here, but there
             # is no way yet to suppress that, so print instead of warn for now
