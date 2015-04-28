@@ -20,7 +20,7 @@ my %errors =
     1004 => "INI - callbacks should be undef or a hashref",
 
     # Parse errors
-    2010 => "ECR - QUO char inside quotes followed by CR not part of EOL",
+    2010 => "ECR - QUO char inside quotes followed by CR not part of EOL", # 5
     2011 => "ECR - Characters after end of quoted field",
     2012 => "EOF - End of data in parsing input stream",
     2013 => "ESP - Specification error for fragments RFC7111",

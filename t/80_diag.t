@@ -43,7 +43,7 @@ $csv = Text::CSV.new (escape => "+", eol => "\n");
 is (~$csv.error_diag, "", "No errors yet");
 
 $recno = 1;
-#parse_err (2010,  3, 1, qq{"x"\r});
+#parse_err (2010,  3, 1, qq{"x"\r});    # perl5 only
  parse_err (2011,  3, 1, qq{"x"x});
 
 #parse_err (2021,  2, 1, qq{"\n"});
