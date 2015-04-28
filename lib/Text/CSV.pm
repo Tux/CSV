@@ -331,17 +331,20 @@ class Text::CSV {
 
         method sink {
             # See also src/core/Exception.pm - role X::Comp  method gist
-            # I do not want the "in method sink at ..." here, but there
-            # is no way yet to suppress that, so say instead of warn for now
             my $p = ($!pos    // "Unknown").Str;
             my $f = ($!field  // "Unknown").Str;
             my $r = ($!record // "Unknown").Str;
-            say  "\e[34m" ~ $!message
-               ~ "\e[0m"  ~ " : error $!error @ record $r, field $f, position $p\n"
-               ~ "\e[32m" ~ substr ($!buffer // "", 0, $!pos // 0)
+            my $m =
+                 "\e[34m" ~ $!message
+               ~ "\e[0m"  ~ " : error $!error @ record $r, field $f, position $p\n";
+            $!buffer.defined && $!buffer.chars and $m ~=
+                 "\e[32m" ~ substr ($!buffer, 0, $!pos // 0)
                ~ "\e[33m" ~ "\x[23CF]"
-               ~ "\e[31m" ~ substr ($!buffer // "",    $!pos // 0)
-               ~ "\e[0m";
+               ~ "\e[31m" ~ substr ($!buffer,    $!pos // 0)
+               ~ "\e[0m\n";
+            # I do not want the "in method sink at ..." here, but there
+            # is no way yet to suppress that, so print instead of warn for now
+            print $m;
             }
         method Numeric  { $!error; }
         method Str      { $!message; }
@@ -532,7 +535,7 @@ class Text::CSV {
     method empty_is_undef        (*@s) returns Bool { self!a_bool ($!empty_is_undef,        @s); }
     method keep_meta             (*@s) returns Bool { self!a_bool ($!keep_meta,             @s); }
     method auto_diag             (*@s) returns Bool { self!a_bool ($!auto_diag,             @s); }
-    method eof                   ()    returns Bool { $!eof; }
+    method eof                   ()    returns Bool { $!eof || $!errno == 2012; }
 
     # Numeric attributes
     method !a_num ($attr is rw, *@s) returns Int {

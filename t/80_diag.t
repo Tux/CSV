@@ -56,22 +56,29 @@ $recno = 1;
  parse_err (2034,  4, 2, qq{1, "bar",2});
  parse_err (2037,  1, 1, qq{\0 });
 
+# Test error_diag in void context
+{   my $e;
+    #$csv.error_diag ();
+    #ok (@warn == 1, "Got error message");
+    #like ($warn[0], qr{^# CSV ERROR: 2037 - EIF}, "error content");
+    }
+
+is ($csv.eof, False, "No EOF");
+$csv.SetDiag (2012);
+is ($csv.eof, True,  "EOF caused by 2012");
+
+{   my $e;
+    $csv.auto-diag (False);
+    {   Text::CSV.new (ecs_char => ":");
+        CATCH { default { $e = $_; }}
+        }
+    is (+$e, 1000, "unsupported attribute");
+    is (~$e, "INI - constructor failed: Unknown attribute 'ecs_char'", "Reported back");
+    }
+
 done;
 
 =finish
-
-{   my @warn;
-    local $SIG{__WARN__} = sub { push @warn, @_ };
-    $csv.error_diag ();
-    ok (@warn == 1, "Got error message");
-    like ($warn[0], qr{^# CSV ERROR: 2037 - EIF}, "error content");
-    }
-
-is ($csv.eof, "", "No EOF");
-$csv.SetDiag (2012);
-is ($csv.eof, 1,  "EOF caused by 2012");
-
-is (Text::CSV.new ({ ecs_char => ":" }), undef, "Unsupported option");
 
 {   my @warn;
     local $SIG{__WARN__} = sub { push @warn, @_ };
