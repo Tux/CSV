@@ -64,7 +64,7 @@ for ("\n", "\r") -> $eol {
             $fh.close;
 
             $fh = open $tfn, :r or die "$tfn: $!";
-            @f = $csv.getline_all ($fh, |@args, meta => False);
+            @f = $csv.getline_all ($fh, |@args, :!meta);
             is_deeply (@f, @exp, "getline_all ($s_args, no-meta)");
             $fh.close;
             });

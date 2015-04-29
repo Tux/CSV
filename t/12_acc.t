@@ -191,12 +191,12 @@ for (" ", "\t") -> $ws {
         CATCH { default { $e = .error; }}
         }
     is ($e, 1002, "Sanity check"); $e = 0;
-    ok ($csv = Text::CSV.new (allow_whitespace => True), "New ws True");
+    ok ($csv = Text::CSV.new (:allow_whitespace), "New ws True");
     {   $csv.escape_char ($ws);
         CATCH { default { $e = .error; }}
         }
     is ($e, 1002, "Sanity check"); $e = 0;
-    ok ($csv = Text::CSV.new (allow_whitespace => True), "New ws True");
+    ok ($csv = Text::CSV.new (:allow_whitespace), "New ws True");
     {   $csv.quote_char  ($ws);
         CATCH { default { $e = .error; }}
         }
@@ -205,7 +205,7 @@ for (" ", "\t") -> $ws {
 
 # Test 1002 in constructor
 {   my Int $e = 0;
-    {   $csv = Text::CSV.new (esc => "\t", quo => " ", allow-whitespace => True);
+    {   $csv = Text::CSV.new (esc => "\t", quo => " ", :allow-whitespace);
         CATCH { default { $e = .error; }}
         }
     is ($e, 1002, "no whitespace in descriptor");

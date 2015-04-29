@@ -10,7 +10,7 @@ sub is_binary (Str $got, Str $exp, Str $tst) { is ($got.perl, $exp.perl, $tst); 
     
 my @binField = ("abc\0def\n\rghi", "ab\"ce,\x[1a]\"'", "\x[ff]");
 
-my $csv = Text::CSV.new (binary => True);
+my $csv = Text::CSV.new (:binary);
 ok ($csv.combine (@binField),                                   "combine ()");
 
 my $string;
@@ -50,7 +50,7 @@ ok ($csv.combine ("abc","def","ghi"),                           "combine");
 is ($csv.string, "abc,def,ghi\n",                               "string ()");
 
 ok (1,                                                          "always_quote");
-my $csv2 = Text::CSV.new (always_quote => True);
+my $csv2 = Text::CSV.new (:always_quote);
 ok ($csv2,                                                      "new ()");
 ok ($csv2.combine ("abc","def","ghi"),                          "combine ()");
 is ($csv2.string, '"abc","def","ghi"',                          "string ()");

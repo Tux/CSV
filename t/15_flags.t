@@ -56,7 +56,7 @@ sub crnlsp (Text::CSV $csv) {
     ok (!$csv.parse (qq{"\r\r\n"\t \r\r\n}),            "Quoted CR CR NL >TAB Space CR CR NL");
     } # crnlsp
 
-{   my $csv = Text::CSV.new (binary => False);
+{   my $csv = Text::CSV.new (:!binary);
     my $c11 = chr (0x11);       # A random binary character
 
     is ($csv.fields.elems, 0,                           "meta_info () before parse ()");
@@ -86,7 +86,7 @@ sub crnlsp (Text::CSV $csv) {
     is_deeply ([$csv.list], ["",qq{I said,\t"Hi!"},""], "As list");
     }
 
-{   my $csv = Text::CSV.new (eol => "\r", binary => False);
+{   my $csv = Text::CSV.new (eol => "\r", :!binary);
 
     ok (1,                                              "parse () tests - With flags");
     is ($csv.fields.elems, 0,                           "meta_info () before parse ()");
@@ -147,7 +147,7 @@ sub crnlsp (Text::CSV $csv) {
     ok (!$csv.parse (qq{"+\r\n"}),      "Quo ESC CR NL");
     }
 
-{   my $csv = Text::CSV.new (escape_char => "+", binary => True);
+{   my $csv = Text::CSV.new (escape_char => "+", :binary);
 
 #   ok ( $csv.parse ("+"),              "ESC");
     ok ( $csv.parse ("++"),             "ESC ESC");
@@ -166,7 +166,7 @@ sub crnlsp (Text::CSV $csv) {
     }
 
 ok (1, "Testing always_quote");
-{   my $csv = Text::CSV.new (always_quote => False);
+{   my $csv = Text::CSV.new (:!always_quote);
     ok ($csv.combine (1..3),                   "Combine");
     is ($csv.string,           q{1,2,3},       "String");
     is ($csv.always_quote,     False,          "Attr 0");
@@ -181,7 +181,7 @@ ok (1, "Testing always_quote");
     }
 
 ok (1, "Testing quote_space");
-{   my $csv = Text::CSV.new (quote_space => True);
+{   my $csv = Text::CSV.new (:quote_space);
     ok ($csv.combine (1, " ", 3),          "Combine");
     is ($csv.string,           q{1," ",3}, "String");
     is ($csv.quote_space,      True,       "Attr 1");

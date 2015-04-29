@@ -73,7 +73,7 @@ for @in -> $in {
 
 for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    is (csv (in => $in, out => Str, quote-space => False), $data, "csv => Str $s-in");
+    is (csv (in => $in, out => Str, :!quote-space), $data, "csv => Str $s-in");
     }
 
 is (csv (in => $fni, out => Str, fragment => "row=2"),    "1,2,3\r\n",        "Fragment, row");

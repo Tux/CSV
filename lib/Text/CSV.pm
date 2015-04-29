@@ -87,7 +87,7 @@ class IO::String is IO::Handle {
         (my Str $filename, my $fh) = tempfile;
         $fh.print ($str);
         $fh.close;
-        open $filename, :r, chomp => False;
+        open $filename, :r, :!chomp;
         }
     }
 
@@ -1177,7 +1177,7 @@ class Text::CSV {
                            Int   $length = -1,
                            Bool :$meta   = False) {
         @!cnames.elems or self!fail (3002);
-        self.getline_all ($io, $offset, $length, :$meta, hr => True);
+        self.getline_all ($io, $offset, $length, :$meta, :hr);
         }
 
     method !row (Bool:D $meta, Bool:D $hr) {
@@ -1408,7 +1408,7 @@ class Text::CSV {
         #     Supply.new                       Supply
         given ($in.WHAT) {
             when Str {
-                $io-in = open $in, :r, chomp => False;
+                $io-in = open $in, :r, :!chomp;
                 }
             when IO {
                 $io-in = $in;
@@ -1462,7 +1462,7 @@ class Text::CSV {
         given ($out.WHAT) {
             when Str {
                 ($tmpfn, $io-out) = $out.defined
-                    ?? (Str, open $out, :w, chomp => False)
+                    ?? (Str, open $out, :w, :!chomp)
                     !! tempfile;
                 }
             when IO {
@@ -1505,7 +1505,7 @@ class Text::CSV {
 
         if (?$tmpfn) {
             $io-out.close;
-            my $fh = open $tmpfn, :r, chomp => False;
+            my $fh = open $tmpfn, :r, :!chomp;
             return $fh.slurp-rest;
             }
 

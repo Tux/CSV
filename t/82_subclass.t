@@ -15,7 +15,7 @@ is (~$csvs.error_diag (), "", "Last failure for new () - OK");
 
 my $sc_csv;
 {   my $e;
-    {   $sc_csv = Text::CSV::Subclass.new (auto_diag => False, ecs_char => ":");
+    {   $sc_csv = Text::CSV::Subclass.new (:!auto_diag, ecs_char => ":");
         CATCH { default { $e = $_; "" }}
         }
     is ($e.error,   1000,   "Fail new because of unknown attribute");

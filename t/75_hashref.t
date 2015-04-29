@@ -26,7 +26,7 @@ is ($csv.column_names.elems, 1,         "column_names");
 is ($csv.column_names, [< name >],      "column_name stored");
 is ($csv.column_names (False).elems, 0, "reset column_names");
 
-$fh = open $tfn, :r, chomp => False;
+$fh = open $tfn, :r, :!chomp;
 
 my Int $error = 0;
 {   my $hr = $csv.getline_hr ($fh);
@@ -38,7 +38,7 @@ ok ($csv.column_names ("name", "code"), "column_names (list)");
 is_deeply ([$csv.column_names], [ "name", "code" ], "well set");
 
 my @hdr = < code name price description >;
-is_deeply ([$csv.getline ($fh, meta => False)], @hdr, "Header still not _hr");
+is_deeply ([$csv.getline ($fh, :!meta)], @hdr, "Header still not _hr");
 
 ok ($csv.column_names (@hdr), "Set whole header");
 is_deeply ([$csv.column_names], @hdr, "Inspect header");
@@ -51,9 +51,9 @@ while $csv.getline_hr ($fh) -> %row {
 
 $fh.close;
 
-$fh = open $tfn, :r, chomp => False;
+$fh = open $tfn, :r, :!chomp;
 $csv.colrange ([0, 2]);
-is_deeply ($csv.getline_hr ($fh, meta => False),
+is_deeply ($csv.getline_hr ($fh, :!meta),
  { :code("code"), :price("price") }, "selection");
 $fh.close;
 

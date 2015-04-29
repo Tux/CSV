@@ -6,7 +6,7 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-my $csv = Text::CSV.new (quote-empty => True);
+my $csv = Text::CSV.new (:quote-empty);
 
 my $expect = q{1,foo,"a b",,3,""};
 

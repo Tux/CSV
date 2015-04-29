@@ -53,7 +53,7 @@ sub to-int (@str) { [ @str.map ({[ $_.map (*.Int) ]}) ]; }
 $csv = Text::CSV.new;
 
 $fh = open $tfn, :r;
-my @matrix = $csv.getline_all ($fh, meta => False);
+my @matrix = $csv.getline_all ($fh, :!meta);
 is_deeply (to-int (@matrix), @expect, "Whole matrix");
 $fh.close;
 
@@ -119,7 +119,7 @@ for @test -> $t {
     my $expt = $t.value;
 
     $fh = open $tfn, :r;
-    is_deeply (to-int ($csv.fragment ($fh, $spec, meta => False)), $expt, "spec: $spec");
+    is_deeply (to-int ($csv.fragment ($fh, $spec, :!meta)), $expt, "spec: $spec");
     $fh.close;
     }
 
