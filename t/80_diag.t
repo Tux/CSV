@@ -68,7 +68,7 @@ $csv.SetDiag (2012);
 is ($csv.eof, True,  "EOF caused by 2012");
 
 {   my $e;
-    $csv.auto-diag (False);
+    ok (1, "Expecting an error line here:");
     {   Text::CSV.new (ecs_char => ":");
         CATCH { default { $e = $_; }}
         }
@@ -76,52 +76,19 @@ is ($csv.eof, True,  "EOF caused by 2012");
     is (~$e, "INI - constructor failed: Unknown attribute 'ecs_char'", "Reported back");
     }
 
+$csv.set_diag (1000);
+is (+$csv.error_diag, 1000,                       "1000 - Set error Num");
+is (~$csv.error_diag, "INI - constructor failed", "1000 - Set error Str");
+$csv.set-diag (0);
+is (+$csv.error_diag,    0,                       "Reset error Num");
+is (~$csv.error_diag, "",                         "Reset error Str");
+
 done;
 
 =finish
 
-{   my @warn;
-    local $SIG{__WARN__} = sub { push @warn, @_ };
-    Text::CSV::error_diag ();
-    ok (@warn == 1, "Error_diag in void context ::");
-    like ($warn[0], qr{^# CSV ERROR: 1000 - INI}, "error content");
-    }
-{   my @warn;
-    local $SIG{__WARN__} = sub { push @warn, @_ };
-    Text::CSV.error_diag ();
-    ok (@warn == 1, "Error_diag in void context .");
-    like ($warn[0], qr{^# CSV ERROR: 1000 - INI}, "error content");
-    }
-
-{   my @warn;
-    local $SIG{__WARN__} = sub { push @warn, @_ };
-    is (Text::CSV.new ({ auto_diag => 0, ecs_char => ":" }), undef,
-        "Unsupported option");
-    ok (@warn == 0, "Error_diag in from new ({ auto_diag => 0})");
-    }
-{   my @warn;
-    local $SIG{__WARN__} = sub { push @warn, @_ };
-    is (Text::CSV.new ({ auto_diag => 1, ecs_char => ":" }), undef,
-        "Unsupported option");
-    ok (@warn == 1, "Error_diag in from new ({ auto_diag => 1})");
-    like ($warn[0], qr{^# CSV ERROR: 1000 - INI}, "error content");
-    }
-
-is (Text::CSV::error_diag (), "INI - Unknown attribute 'ecs_char'",
-                                        "Last failure for new () - FAIL");
-is (Text::CSV.error_diag (), "INI - Unknown attribute 'ecs_char'",
-                                        "Last failure for new () - FAIL");
-is (Text::CSV::error_diag (bless {}, "Foo"), "INI - Unknown attribute 'ecs_char'",
-                                        "Last failure for new () - FAIL");
-$csv.SetDiag (1000);
-is (0 + $csv.error_diag (), 1000,                       "Set error NUM");
-is (    $csv.error_diag (), "INI - constructor failed","Set error STR");
-$csv.SetDiag (0);
-is (0 + $csv.error_diag (),    0,                       "Reset error NUM");
-is (    $csv.error_diag (),   "",                       "Reset error STR");
-
 ok (1, "Test auto_diag");
-$csv = Text::CSV.new ({ auto_diag => 1 });
+$csv = Text::CSV.new (:auto_diag);
 {   my @warn;
     local $SIG{__WARN__} = sub { push @warn, @_ };
     is ($csv.{_RECNO}, 0, "No records read yet");
