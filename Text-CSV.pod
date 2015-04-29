@@ -1097,9 +1097,9 @@ the time of failure, and the cannot be changed afterwards.
  my CSV::Diag $d .= new(
      error   => 0,
      message => "",
-     pos     => Int,
-     field   => Int,
-     record  => Int,
+     pos     => 0,
+     field   => 0,
+     record  => 0,
      buffer  => Str
      );
 
