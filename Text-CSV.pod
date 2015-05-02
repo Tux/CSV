@@ -1354,18 +1354,11 @@ Returns C<True> if the field is missing.
 =head2 csv
 X<csv>
 
-This function is not exported by default and should be explicitly requested:
-
- use Text::CSV qw( csv );
-
-This is the second draft. This function will stay,  but the arguments might
-change based on user feedback.
-
-This is an high-level function that aims at simple (user) interfaces.  This
+This is an high-level function that aims at simple (user) interfaces. This
 can be used to read/parse a C<CSV> file or stream (the default behavior) or
-to produce a file or write to a stream (define the  C<out>  attribute).  It
+to produce a file or write to a stream (define the C<out> attribute). It
 returns an array- or hash-reference on parsing or the
-numeric value of  L</error_diag>  on writing.  When this function fails you
+numeric value of L</error_diag> on writing. When this function fails you
 can get to the error using the class call to L</error_diag>
 
  my $aoa = csv(in => "test.csv") or
@@ -1377,8 +1370,8 @@ a list or as an anonymous hash:
  my $aoa = csv(in => "test.csv", sep => ";");
  my $aoh = csv(in => $fh,    headers => "auto");
 
-The arguments passed consist of two parts:  the arguments to L</csv> itself
-and the optional attributes to the  C<CSV>  object used inside the function
+The arguments passed consist of two parts: the arguments to L</csv> itself
+and the optional attributes to the C<CSV> object used inside the function
 as enumerated and explained in L</new>.
 
 If not overridden, the default option used for CSV is
@@ -1392,13 +1385,13 @@ The option that is always set and cannot be altered is
 =head3 in
 X<in>
 
-Used to specify the source.  C<in> can be a file name (e.g. C<"file.csv">),
-which will be  opened for reading  and closed when finished,  a file handle
-(e.g.  C<$fh> or C<FH>),  a reference to a glob (e.g. C<\*ARGV>),  the glob
+Used to specify the source. C<in> can be a file name (e.g. C<"file.csv">),
+which will be opened for reading and closed when finished, a file handle
+(e.g. C<$fh> or C<FH>), a reference to a glob (e.g. C<\*ARGV>), the glob
 itself (e.g. C<*STDIN>), or a reference to a scalar (e.g. C<\q{1,2,"csv"}>).
 
 When used with L</out>, C<in> should be a reference to a CSV structure (AoA
-or AoH)  or a CODE-ref that returns an array-reference or a hash-reference.
+or AoH) or a CODE-ref that returns an array-reference or a hash-reference.
 The code-ref will be invoked with no arguments and .
 
  my $aoa = csv(in => "file.csv");
@@ -1418,23 +1411,23 @@ In output mode, the default CSV options when producing CSV are
 
 The L</fragment> attribute is ignored in output mode.
 
-C<out> can be a file name (e.g.  C<"file.csv">),  which will be opened for
-writing and closed when finished,  a file handle (e.g. C<$fh> or C<FH>),  a
+C<out> can be a file name (e.g. C<"file.csv">), which will be opened for
+writing and closed when finished, a file handle (e.g. C<$fh> or C<FH>), a
 reference to a glob (e.g. C<\*STDOUT>), or the glob itself (e.g. C<*STDOUT>).
 
  csv(in => sub { $sth->fetch },            out => "dump.csv");
  csv(in => sub { $sth->fetchrow_hashref }, out => "dump.csv",
       headers => $sth->{NAME_lc});
 
-When a  code-ref  is used,  the output is generated  per invocation,  so no
-buffering is involved.  This implies that there is no  size restriction  on
-the number of records.  The function ends  when the coderef returns a false
+When a code-ref is used, the output is generated per invocation, so no
+buffering is involved. This implies that there is no size restriction on
+the number of records. The function ends when the coderef returns a false
 value.
 
 =head3 encoding
 X<encoding>
 
-If passed,  it should be an encoding accepted by the  C<:encoding()> option
+If passed, it should be an encoding accepted by the C<:encoding()> option
 to C<open>. There is no default value. This attribute does not work in perl
 5.6.x.
 
@@ -1444,8 +1437,8 @@ X<headers>
 If this attribute is not given, the default behavior is to produce an array
 of arrays.
 
-If C<headers> is supplied,  it should be either an anonymous list of column
-names or a flag:  C<auto> or C<skip>. When C<skip> is used, the header will
+If C<headers> is supplied, it should be either an anonymous list of column
+names or a flag: C<auto> or C<skip>. When C<skip> is used, the header will
 not be included in the output.
 
  my $aoa = csv(in => $fh, headers => "skip");
@@ -1455,7 +1448,7 @@ list of field headers and used to produce an array of hashes.
 
  my $aoh = csv(in => $fh, headers => "auto");
 
-If  C<headers>  is an anonymous list,  the entries in the list will be used
+If C<headers> is an anonymous list, the entries in the list will be used
 instead
 
  my $aoh = csv(in => $fh, headers => [qw( Foo Bar )]);
@@ -1464,7 +1457,7 @@ instead
 =head3 key
 X<key>
 
-If passed,  will default  L<C<headers>|/headers>  to C<"auto"> and return a
+If passed, will default L<C<headers>|/headers> to C<"auto"> and return a
 hashref instead of an array of hashes.
 
  my $ref = csv(in => "test.csv", key => "code");
@@ -1526,7 +1519,7 @@ the previous row will cause the parser to throw an error;
 
 Callbacks enable actions triggered from the I<inside> of Text::CSV.
 
-While most of what this enables  can easily be done in an  unrolled loop as
+While most of what this enables can easily be done in an unrolled loop as
 described in the L</SYNOPSIS> callbacks can be used to meet special demands
 or enhance the L</csv> function.
 
@@ -1537,7 +1530,7 @@ X<error>
 
  $csv.callbacks(error => sub { $csv.SetDiag(0) });
 
-the C<error>  callback is invoked when an error occurs,  but  I<only>  when
+the C<error> callback is invoked when an error occurs, but I<only> when
 L</auto_diag> is set to a true value. A callback is invoked with the values
 returned by L</error_diag>:
 
@@ -1569,8 +1562,8 @@ X<after_parse>
      $row->[-1] eq "NEW";
      }
 
-This callback is invoked after parsing with  L</getline>  only if no  error
-occurred.  The callback is invoked with two arguments:   the current C<CSV>
+This callback is invoked after parsing with L</getline> only if no error
+occurred. The callback is invoked with two arguments:  the current C<CSV>
 parser object and an array reference to the fields parsed.
 
 The return code of the callback is ignored.
@@ -1592,8 +1585,8 @@ X<before_print>
  $csv.callbacks(before_print => sub { $_[1][0] = $idx++ });
  $csv.print(*STDOUT, [ 0, $_ ]) for @members;
 
-This callback is invoked  before printing with  L</print>  only if no error
-occurred.  The callback is invoked with two arguments:  the current  C<CSV>
+This callback is invoked before printing with L</print> only if no error
+occurred. The callback is invoked with two arguments: the current C<CSV>
 parser object and an array reference to the fields passed.
 
 The return code of the callback is ignored.
@@ -1639,23 +1632,23 @@ but only feature the L</csv> function.
 X<after_in>
 
 This callback is invoked for each record after all records have been parsed
-but before returning the reference to the caller.  The hook is invoked with
-two arguments:  the current  C<CSV>  parser object  and a  reference to the
-record.   The reference can be a reference to a  HASH  or a reference to an
+but before returning the reference to the caller. The hook is invoked with
+two arguments: the current C<CSV> parser object and a reference to the
+record. The reference can be a reference to a HASH or a reference to an
 ARRAY as determined by the arguments.
 
-This callback can also be passed as  an attribute without the  C<callbacks>
+This callback can also be passed as an attribute without the C<callbacks>
 wrapper.
 
 =item before_out
 X<before_out>
 
-This callback is invoked for each record before the record is printed.  The
-hook is invoked with two arguments:  the current C<CSV> parser object and a
-reference to the record.   The reference can be a reference to a  HASH or a
+This callback is invoked for each record before the record is printed. The
+hook is invoked with two arguments: the current C<CSV> parser object and a
+reference to the record. The reference can be a reference to a HASH or a
 reference to an ARRAY as determined by the arguments.
 
-This callback can also be passed as an attribute  without the  C<callbacks>
+This callback can also be passed as an attribute without the C<callbacks>
 wrapper.
 
 =item on_in
@@ -1663,25 +1656,10 @@ X<on_in>
 
 This callback acts exactly as the L</after_in> or the L</before_out> hooks.
 
-This callback can also be passed as an attribute  without the  C<callbacks>
+This callback can also be passed as an attribute without the C<callbacks>
 wrapper.
 
 =back
-
-=head1 INTERNALS
-
-=over 4
-
-=item Combine(...)
-
-=item Parse(...)
-
-=back
-
-The arguments to these internal functions are deliberately not described or
-documented in order to enable the  module authors make changes it when they
-feel the need for it.  Using them is  highly  discouraged  as  the  API may
-change in future releases.
 
 =head1 EXAMPLES
 
@@ -1697,7 +1675,7 @@ change in future releases.
 =head3 Reading only a single column
 
  my $csv = Text::CSV.new(:auto_diag);
- my $fh = open "file.csv", :r, chomp => False;
+ my $fh = open "file.csv", :r, :!chomp;
  # get only the 4th column
  my @column = $csv.getline_all($fh).map(*[3]);
  $fh.close;
@@ -1892,18 +1870,18 @@ Requirements|http://w3c.github.io/csvw/use-cases-and-requirements/index.html>
 
 Still under construction ...
 
-If an error occurs,  C<< $csv.error_diag >> can be used to get information
+If an error occurs, C<< $csv.error_diag >> can be used to get information
 on the cause of the failure. Note that for speed reasons the internal value
-is never cleared on success,  so using the value returned by L</error_diag>
+is never cleared on success, so using the value returned by L</error_diag>
 in normal cases - when no error occurred - may cause unexpected results.
 
 If the constructor failed, the cause can be found using L</error_diag> as a
 class method, like C<< Text::CSV.error_diag >>.
 
 The C<< $csv.error_diag >> method is automatically invoked upon error when
-the contractor was called with  L<C<auto_diag>|/auto_diag>  set to  C<1> or
-C<2>, or when L<autodie> is in effect.  When set to C<1>, this will cause a
-C<warn> with the error message,  when set to C<2>, it will C<die>. C<2012 -
+the contractor was called with L<C<auto_diag>|/auto_diag> set to C<1> or
+C<2>, or when L<autodie> is in effect. When set to C<1>, this will cause a
+C<warn> with the error message, when set to C<2>, it will C<die>. C<2012 -
 EOF> is excluded from L<C<auto_diag>|/auto_diag> reports.
 
 Errors can be (individually) caught using the L</error> callback.
@@ -1959,16 +1937,16 @@ And below should be the complete list of error codes that can be returned:
 1001 "INI - sep_char is equal to quote_char or escape_char"
 X<1001>
 
-The  L<separation character|/sep_char>  cannot be equal to  L<the quotation
-character|/quote_char> or to L<the escape character|/escape_char>,  as this
+The L<separation character|/sep_char> cannot be equal to L<the quotation
+character|/quote_char> or to L<the escape character|/escape_char>, as this
 would invalidate all parsing rules.
 
 =item *
 1002 "INI - allow_whitespace with escape_char or quote_char SP or TAB"
 X<1002>
 
-Using the  L<C<allow_whitespace>|/allow_whitespace>  attribute  when either
-L<C<quote_char>|/quote_char> or L<C<escape_char>|/escape_char>  is equal to
+Using the L<C<allow_whitespace>|/allow_whitespace> attribute when either
+L<C<quote_char>|/quote_char> or L<C<escape_char>|/escape_char> is equal to
 C<SPACE> or C<TAB> is too ambiguous to allow.
 
 =item *
@@ -1976,7 +1954,7 @@ C<SPACE> or C<TAB> is too ambiguous to allow.
 X<1003>
 
 Using default L<C<eol>|/eol> characters in either L<C<sep_char>|/sep_char>,
-L<C<quote_char>|/quote_char>,   or  L<C<escape_char>|/escape_char>  is  not
+L<C<quote_char>|/quote_char>, or L<C<escape_char>|/escape_char> is not
 allowed.
 
 =item *
@@ -1990,8 +1968,8 @@ a hash reference.
 2010 "ECR - QUO char inside quotes followed by CR not part of EOL"
 X<2010>
 
-When  L<C<eol>|/eol>  has  been  set  to  anything  but the  default,  like
-C<"\r\t\n">,  and  the  C<"\r">  is  following  the   B<second> (closing)
+When L<C<eol>|/eol> has been set to anything but the default, like
+C<"\r\t\n">, and the C<"\r"> is following the B<second> (closing)
 L<C<quote_char>|/quote_char>, where the characters following the C<"\r"> do
 not make up the L<C<eol>|/eol> sequence, this is an error.
 
@@ -2008,7 +1986,7 @@ sequence or a separation character.
 X<2012>
 
 Self-explaining. End-of-file while inside parsing a stream. Can happen only
-when reading from streams with L</getline>,  as using  L</parse> is done on
+when reading from streams with L</getline>, as using L</parse> is done on
 strings that are not required to have a trailing L<C<eol>|/eol>.
 
 =item *
@@ -2050,23 +2028,23 @@ X<2025>
 
 An escape character should escape only characters that need escaping.
 
-Allowing  the escape  for other characters  is possible  with the attribute
+Allowing the escape for other characters is possible with the attribute
 L</allow_loose_escapes>.
 
 =item *
 2026 "EIQ - Binary character inside quoted field, binary off"
 X<2026>
 
-Binary characters are not allowed by default.    Exceptions are fields that
-contain valid UTF-8,  that will automatically be upgraded if the content is
+Binary characters are not allowed by default. Exceptions are fields that
+contain valid UTF-8, that will automatically be upgraded if the content is
 valid UTF-8. Set L<C<binary>|/binary> to C<1> to accept binary data.
 
 =item *
 2027 "EIQ - Quoted field not terminated"
 X<2027>
 
-When parsing a field that started with a quotation character,  the field is
-expected to be closed with a quotation character.   When the parsed line is
+When parsing a field that started with a quotation character, the field is
+expected to be closed with a quotation character. When the parsed line is
 exhausted before the quote is found, that field is not terminated.
 
 =item *
@@ -2145,9 +2123,11 @@ X<3010>
 
 =head1 SEE ALSO
 
-L<IO::File>,  L<IO::Handle>,  L<IO::Wrap>,  L<Text::CSV>,  L<Text::CSV_PP>,
-L<Text::CSV::Encoded>,     L<Text::CSV::Separator>,    L<Text::CSV::Slurp>,
-L<Spreadsheet::CSV> and L<Spreadsheet::Read>, and of course L<perl>.
+Modules in perl5:
+
+L<IO::File>, L<IO::Handle>, L<IO::Wrap>, L<Text::CSV_XS>, L<Text::CSV>,
+L<Text::CSV_PP>, L<Text::CSV::Encoded>, L<Text::CSV::Separator>,
+L<Text::CSV::Slurp>, L<Spreadsheet::CSV> and L<Spreadsheet::Read>;
 
 =head1 AUTHOR
 
@@ -2156,7 +2136,7 @@ features provided by perl5's Text::CSV_XS.
 
 =head1 COPYRIGHT AND LICENSE
 
- Copyright (C) 2014-2015 H.Merijn Brand.  All rights reserved.
+ Copyright (C) 2014-2015 H.Merijn Brand. All rights reserved.
 
 This library is free software; you can redistribute and/or modify it under
 the same terms as Perl itself.
