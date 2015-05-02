@@ -88,6 +88,21 @@ is (($csv.fields)[1].gist, q{qb7m:"cat"},         "ASCII.gist");
 ok ($csv.parse (q{"Ħēłĺº"}),                 "Parse UTF-8");
 is (($csv.fields)[0].gist, q{QB8m:"Ħēłĺº"},  "UTF-8.gist");
 
+{   my $csv = Text::CSV.new ();
+    is ($csv.parse (q{1,"abc"}), True,     "Valid parse");
+    is ($csv.error_input,        Str,      "No error_input");
+    is ($csv.error_diag.error,   0,        "Error code");
+    is ($csv.error_diag.record,  1,        "Error line");
+    is ($csv.error_diag.field,   0,        "Error field");
+    is ($csv.error_diag.pos,     0,        "Error pos");
+    is ($csv.parse (q{a"bc"}),   False,    "Invalid parse");
+    is ($csv.error_input,        q{a"bc"}, "Error_input");
+    is ($csv.error_diag.error,   2034,     "Error code");
+    is ($csv.error_diag.record,  2,        "Error line");
+    is ($csv.error_diag.field,   1,        "Error field");
+    is ($csv.error_diag.pos,     2,        "Error pos");
+    }
+
 done;
 
 =finish
@@ -124,12 +139,6 @@ $csv = Text::CSV.new (:auto_diag);
     Text::CSV.new ()._cache_diag ();
     ok (@warn == 1, "Got warn");
     is ($warn[0], "CACHE: invalid\n", "Uninitialized cache");
-    }
-
-{   my $csv = Text::CSV.new ();
-    ok ($csv.parse (q{1,"abc"}), "Valid parse");
-    is ($csv.error_input (), undef, "Undefined error_input");
-    is ($csv.{_ERROR_INPUT}, undef, "Undefined error_input");
     }
 
 foreach my $spec (
