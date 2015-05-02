@@ -17,7 +17,7 @@ my %errors =
     1001 => "INI - sep_char is equal to quote_char or escape_char",
     1002 => "INI - allow_whitespace with escape_char or quote_char SP or TAB",
     1003 => "INI - \r or \n in main attr not allowed",
-    1004 => "INI - callbacks should be undef or a hashref",
+    1004 => "INI - callbacks should be Hash or undefined",
 
     # Parse errors
     2010 => "ECR - QUO char inside quotes followed by CR not part of EOL", # 5
@@ -565,19 +565,28 @@ class Text::CSV {
         @!cnames;
         }
 
-    method callbacks (*@cb) {
+    method callbacks (*@cb is copy) {
         if (@cb.elems == 1) {
             my $b = @cb[0];
-            !$b.defined ||
-               ($b ~~ Bool || $b ~~ Int and !?$b) ||
-               ($b ~~ Str  && $b ~~ m:i/^( reset | clear | none | 0 )$/) or
-                self!fail (1004);
-            %!callbacks = %();
+            if ($b ~~ Hash) {
+                @cb = $b.kv;
+                }
+            else {
+                $b.WHAT.say;
+                !$b.defined or
+                   ($b ~~ Bool || $b ~~ Int and !?$b) or
+                   ($b ~~ Str  && $b ~~ m:i/^( reset | clear | none | 0 )$/) or
+                    self!fail (1004);
+                %!callbacks = %();
+                @cb = ();
+                }
             }
-        elsif (@cb.elems % 2) {
+        if (@cb.elems % 2) {
+            @cb.perl.say;
+            @cb[0].WHAT.say;
             self!fail (1004);
             }
-        elsif (@cb.elems) {
+        if (@cb.elems) {
             my %hooks;
             for @cb -> $name, $hook {
                 $name.defined && $name ~~ Str     &&
@@ -1373,10 +1382,24 @@ class Text::CSV {
         #   error
         #   on_in       on-in
         my Routine $on-in;
+        my Routine $before-out;
+        my %hooks;
+        if (my $c = %args<callbacks> :delete) {
+            if ($c.defined) {
+                $c ~~ Hash or self!fail (1004);
+                %args{$c.keys} = $c.values;
+                }
+            else {
+                self.callbacks ($c);
+                }
+            }
         for (%args.keys) -> $k {
-            my %hooks;
             if ($k.lc ~~ m{^ "on"     <[-_]>   "in"             $}) {
                 $on-in                 = %args{$k} :delete;
+                next;
+                }
+            if ($k.lc ~~ m{^ "before" <[-_]>   "out"            $}) {
+                $before-out            = %args{$k} :delete;
                 next;
                 }
             if ($k.lc ~~ m{^ "after"  <[-_]> ( "parse" | "in" ) $}) {
@@ -1395,8 +1418,8 @@ class Text::CSV {
                 %hooks{"error"}        = %args{$k} :delete;
                 next;
                 }
-            self.callbacks (%hooks);
             }
+        %hooks.keys and self.callbacks (|%hooks);
 
         # Rest is for Text::CSV
         self!set-attributes (%args);
@@ -1483,6 +1506,8 @@ class Text::CSV {
                 self!fail (5001);
                 }
             }
+
+        # Find the correct spots to invoke $on-in and $before-out
 
         if ($io-in ~~ IO and $io-in.defined) {
             @in = $fragment
