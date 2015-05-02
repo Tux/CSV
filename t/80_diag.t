@@ -83,6 +83,11 @@ $csv.set-diag (0);
 is (+$csv.error_diag,    0,                       "Reset error Num");
 is (~$csv.error_diag, "",                         "Reset error Str");
 
+ok ($csv.parse (q{,cat,}),                        "Parse ASCII");
+is (($csv.fields)[1].gist, q{qb7m:"cat"},         "ASCII.gist");
+ok ($csv.parse (q{"Ħēłĺº"}),                 "Parse UTF-8");
+is (($csv.fields)[0].gist, q{QB8m:"Ħēłĺº"},  "UTF-8.gist");
+
 done;
 
 =finish
