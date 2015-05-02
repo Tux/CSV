@@ -598,11 +598,14 @@ class Text::CSV {
         }
 
     method !rfc7111ranges (Str:D $spec) returns RangeSet {
+        $spec eq "" and self!fail (2013);
         my RangeSet $range = RangeSet.new;
         for $spec.split (/ ";" /) -> $r {
             $r ~~ /^ (<[0..9]>+)["-"[(<[0..9]>+)||("*")]]? $/ or self!fail (2013);
             my Int $from = +$0;
+                   $from ==  0  and self!fail (2013);
             my Str $tos  = ($1 // $from).Str;
+                   $tos  eq "0" and self!fail (2013);
             my Num $to   = $tos eq "*" ?? Inf !! (+$tos - 1).Num;
             --$from <= $to or self!fail (2013);
             $range.add ($from, $to);
@@ -1237,7 +1240,9 @@ class Text::CSV {
         @lines;
         }
 
-    method fragment (IO:D $io, Str:D $spec is copy, Bool :$meta = $!keep_meta) {
+    method fragment (IO:D $io, Str $spec is copy, Bool :$meta = $!keep_meta) {
+
+        $spec.defined && $spec.chars or self!fail (2013);
 
         self.rowrange (Str);
         self.colrange (Str);
@@ -1261,7 +1266,9 @@ class Text::CSV {
                    ["-" [(<[0..9]>+)||("*")] "," [(<[0..9]>+)||("*") ]]?
                    $/ or self!fail (2013);
             my Int $tlr = +$0;
+                   $tlr ==  0  and self!fail (2013);
             my Int $tlc = +$1;
+                   $tlc ==  0  and self!fail (2013);
             my Str $Brr = ($2 // $tlr).Str;
             my Str $Brc = ($3 // $tlc).Str;
             my Num $brr = $Brr eq "*" ?? Inf !! (+$Brr).Num;

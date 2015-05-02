@@ -103,6 +103,36 @@ is (($csv.fields)[0].gist, q{QB8m:"Ħēłĺº"},  "UTF-8.gist");
     is ($csv.error_diag.pos,     2,        "Error pos");
     }
 
+for    (Str,            # No spec at all
+        "",             # No spec at all
+        "row=0",        # row > 0
+        "col=0",        # col > 0
+        "cell=0",       # cell = r,c
+        "cell=0,0",     # col & row > 0
+        "row=*",        # * only after n-
+        "col=3-1",      # to >= from
+        "cell=4,1;1",   # cell has no ;
+        "cell=3,3-2,1", # bottom-right should be right to and below top-left
+        "cell=1,*",     # * in single cell col
+        "cell=*,1",     # * in single cell row
+        "cell=*,*",     # * in single cell row and column
+        "cell=1,*-8,9", # * in cell range top-left cell col
+        "cell=*,1-8,9", # * in cell range top-left cell row
+        "cell=*,*-8,9", # * in cell range top-left cell row and column
+        "row=/",        # illegal character
+        "col=4;row=3",  # cannot combine rows and columns
+        ) -> $spec {
+    my $csv = Text::CSV.new;
+    my $e;
+    my @r;
+    {   @r = $csv.fragment (IO::String.new (""), $spec);
+        CATCH { default { $e = $_; 1; }}
+        }
+    #$csv.error-diag;
+    $e ||= $csv.error-diag;
+    is (@r, [], "Cannot do fragment with bad RFC7111 spec");
+    is ($e.error, 2013, "Illegal RFC7111 spec ({$spec.perl})");
+    }
 done;
 
 =finish
@@ -129,59 +159,5 @@ $csv = Text::CSV.new (:auto_diag);
     like ($warn[2], qr '^   \^',                 "1 - position indicator");
     is ($csv.{_RECNO}, 2, "Another record read");
     }
-{   ok ($csv.{auto_diag} = 2, "auto_diag = 2 to die");
-    eval { $csv.parse ('"","') };
-    like ($@, qr '^# CSV ERROR: 2027 -', "2 - error message");
-    }
-
-{   my @warn;
-    local $SIG{__WARN__} = sub { push @warn, @_ };
-    Text::CSV.new ()._cache_diag ();
-    ok (@warn == 1, "Got warn");
-    is ($warn[0], "CACHE: invalid\n", "Uninitialized cache");
-    }
-
-foreach my $spec (
-        undef,          # No spec at all
-        "",             # No spec at all
-        "row=0",        # row > 0
-        "col=0",        # col > 0
-        "cell=0",       # cell = r,c
-        "cell=0,0",     # col & row > 0
-        "row=*",        # * only after n-
-        "col=3-1",      # to >= from
-        "cell=4,1;1",   # cell has no ;
-        "cell=3,3-2,1", # bottom-right should be right to and below top-left
-        "cell=1,*",     # * in single cell col
-        "cell=*,1",     # * in single cell row
-        "cell=*,*",     # * in single cell row and column
-        "cell=1,*-8,9", # * in cell range top-left cell col
-        "cell=*,1-8,9", # * in cell range top-left cell row
-        "cell=*,*-8,9", # * in cell range top-left cell row and column
-        "row=/",        # illegal character
-        "col=4;row=3",  # cannot combine rows and columns
-        ) {
-    my $csv = Text::CSV.new ();
-    my $r;
-    eval { $r = $csv.fragment (undef, $spec); };
-    is ($r, undef, "Cannot do fragment with bad RFC7111 spec");
-    my ($c_diag, $s_diag, $p_diag) = $csv.error_diag ();
-    is ($c_diag, 2013,  "Illegal RFC7111 spec");
-    is ($p_diag, 0,     "Position");
-    }
-
-my $diag_file = "_$$.out";
-open  EH,     ">&STDERR";
-open  STDERR, ">", $diag_file;
-ok ($csv._cache_diag,   "Cache debugging output");
-close STDERR;
-open  STDERR, ">&EH";
-open  EH,     "<", $diag_file;
-is (scalar <EH>, "CACHE:\n",    "Title");
-while (<EH>) {
-    like ($_, qr{^  \w+\s+[0-9a-f]+:(?:".*"|\s*[0-9]+)$}, "Content");
-    }
-close EH;
-unlink $diag_file;
 
 done;
