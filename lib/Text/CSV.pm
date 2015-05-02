@@ -222,6 +222,7 @@ class CSV::Field {
 
     method gist {
         $!text.defined or return "<undef>";
+        $!analysed or self!analyse;
         my $s  = $!is_quoted  ?? "Q" !! "q";
            $s ~= $!is_binary  ?? "B" !! "b";
            $s ~= $!is_utf8    ?? "8" !! "7";

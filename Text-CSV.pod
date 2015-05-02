@@ -1240,8 +1240,6 @@ X<set_diag>
 
 Use to (re)set the diagnostics if you are dealing with errors.
 
-################################################################################
-
 =head1 CSV::Field
 
 The fields are internally represented as CSV::Field objects. Any methods
@@ -1291,13 +1289,21 @@ Return the numeric representation of the field.
 
 Will show a complete compressed representation of the field with properties.
 C<Q> is quoted, C<q> is unquoted. Likewise for C<B/b> for binary, C<8/7>
-for U nicode-ness and C<M/m> for missing.
+for Unicode-ness and C<M/m> for missing.
+
+A field that was parsed as C<,cat,> would return
+
+ qb7m:"cat"
+
+A field parsed as C<,"Ħēłĺº",> would return
+
+ QB8m:"Ħēłĺº"
 
 =head2 add
 
  $f.add($str);
 
-Accepts an Str to be added to this field.
+Accepts a Str to be added to this field.
 
 =head2 set_quoted
 
@@ -1340,6 +1346,8 @@ WIP
  $f.is_missing and fail;
 
 Returns C<True> if the field is missing.
+
+################################################################################
 
 =head1 FUNCTIONS
 
