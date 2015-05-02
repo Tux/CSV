@@ -1,3 +1,5 @@
+=encoding utf-8
+
 =head1 NAME
 
 Text::CSV - comma-separated values manipulation routines
@@ -773,7 +775,7 @@ L</types>' description below.
 =head2 fragment
 X<fragment>
 
-This function implements L<RFC7111|/http://tools.ietf.org/html/rfc7111>
+This function implements L<RFC7111|http://tools.ietf.org/html/rfc7111>
 (URI Fragment Identifiers for the text/csv Media Type).
 
  my @rows = $csv.fragment($io, $spec);
@@ -998,7 +1000,7 @@ X<meta-info>
  my $km = $csv.keep_meta;
 
 This methods sets or inquires the default setting for keeping meta-info on
-fields. See L<C<CSV::Fields>|/CSV::Fields>.
+fields. See L<C<CSV::Field>|/CSV::Field>.
 
 =head2 is_quoted
 X<is_quoted>
@@ -1057,8 +1059,8 @@ When using L</getline_hr>, it is impossible to tell if the parsed fields
 are undefined because they where not filled in the C<CSV> stream or because
 they were not read at all, as B<all> the fields defined by L</column_names>
 are set in the hash-ref. If you still need to know if all fields in each
-row are provided, you should enable L<C<keep_meta_info>|/keep_meta_info> so
-you can check the flags.
+row are provided, you should enable L<C<keep_meta>|/keep_meta> so you can
+check the flags.
 
 =head2 status
 X<status>
@@ -1082,10 +1084,10 @@ invocation was successful, C<error_input> will return C<Str>.
 
 =head1 DIAGNOSTICS
 
-Errors are transported internally using the L<C<CSV::Diag|/CSV::Diag> class.
-Text::CSV will return that object when it fails, so it can be caught, but
-on non-fatal failures, like parse returning C<False>, one can use the
-methods to inquire the internal status.
+Errors are transported internally using the L<C<CSV::Diag>|/CSV::Diag>
+class.  Text::CSV will return that object when it fails, so it can be
+caught, but on non-fatal failures, like parse returning C<False>, one can
+use the methods to inquire the internal status.
 
 =head2 CSV::Diag
 
@@ -1244,10 +1246,10 @@ Use to (re)set the diagnostics if you are dealing with errors.
 
 The fields are internally represented as CSV::Field objects. Any methods
 that directly or indirectly supports the C<meta> attribute coltrols
-weather the returned fields will be of this CSV::Filed type or that the
+weather the returned fields will be of this CSV::Field type or that the
 fields are simplified to a simple basic type.
 
-If the fields are represented/returned as CSV::Field, it supprts these
+If the fields are represented/returned as CSV::Field, it supports these
 methods:
 
 =head2 new
@@ -2041,7 +2043,7 @@ X<2025>
 An escape character should escape only characters that need escaping.
 
 Allowing  the escape  for other characters  is possible  with the attribute
-L</allow_loose_escape>.
+L</allow_loose_escapes>.
 
 =item *
 2026 "EIQ - Binary character inside quoted field, binary off"
