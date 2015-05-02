@@ -34,7 +34,7 @@ comma-separated values. An instance of the Text::CSV class will combine
 fields into a C<CSV> string and parse a C<CSV> string into fields.
 
 The module accepts either strings or files as input and support the use of
-user-specified characters (or sequences therof) for delimiters, separators,
+user-specified characters (or sequences thereof) for delimiters, separators,
 and escapes.
 
 In all following documentation, C<WIP> stands for "Work In Progress" and
@@ -53,7 +53,7 @@ L</parse> method, which is more complicated from the usual point of usage:
      my @fields = $csv.fields;
      }
 
-this will break for several reasons. The deafult open mode is to C<chomp>
+this will break for several reasons. The default open mode is to C<chomp>
 lines, which will also remove the newline sequence if that sequence is not
 (part of) the newline at all. As the C<for> might read broken lines: it
 does not care about the quoting. If you need to support embedded newlines,
@@ -1093,7 +1093,7 @@ use the methods to inquire the internal status.
 
 The method is created with the widest possible use in mind, serving both
 the mindset of perl6 as well as the direct approach of the old module. It
-is inmutable: it is created with all available error parameters known at
+is immutable: it is created with all available error parameters known at
 the time of failure, and the cannot be changed afterwards.
 
  my CSV::Diag $d .= new(
@@ -1243,7 +1243,7 @@ Use to (re)set the diagnostics if you are dealing with errors.
 =head1 CSV::Field
 
 The fields are internally represented as CSV::Field objects. Any methods
-that directly or indirectly supports the C<meta> attribute coltrols
+that directly or indirectly supports the C<meta> attribute controls
 weather the returned fields will be of this CSV::Field type or that the
 fields are simplified to a simple basic type.
 
@@ -1859,7 +1859,7 @@ A lone first line with just
 
  sep=;
 
-will be recognized and honored: it wil set L<C<sep>|/sep> to C<;> and skip
+will be recognized and honored: it will set L<C<sep>|/sep> to C<;> and skip
 that line.
 
 =head1 TODO
