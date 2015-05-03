@@ -276,20 +276,28 @@ class CSV::Field {
 
     } # CSV::Field
 
+class Text::CSV { ... }
+
 class CSV::Row is Iterable does Positional {
-    has            $.csv;
+    has Text::CSV  $.csv;
     has CSV::Field @.fields is rw;
 
     multi method new (@f) {
         @!fields = @f.map ({ CSV::Field.new (*) });
         }
 
-    method Str      { $!csv.string; }
-    method iterator { [ @.fields ].iterator; }
-    method hash     { my @h = $!csv.column_names or return;
-                      hash @h Z @!fields;
-                      }
+    method Str             { $!csv ?? $!csv.string (@!fields) !! Str; }
+    method iterator        { [ @.fields ].iterator; }
+    method hash            { hash $!csv.column_names Z @!fields; }
+    method AT-KEY (Str $k) { %($!csv.column_names Z @!fields){$k}; }
     method AT-POS (int $i) { @!fields[$i]; }
+
+    multi method push (CSV::Field $f) { @!fields.push: $f; }
+    multi method push (Cool       $f) { @!fields.push: CSV::Field.new ($f); }
+    multi method push (CSV::Row   $r) { for ($r.fields) -> $f { @!fields.push: $f; }}
+#   multi method push (CSV::Row   $r) { @!fields.push: @($r.fields); }}
+
+    method pop returns CSV::Field { @!fields.pop; }
     }
 
 class Text::CSV {
@@ -373,6 +381,7 @@ class Text::CSV {
                             recno  => $!record,
                             buffer => $!buffer,
                           }; }
+#       method AT-KEY (Str $k) { } NYI
         method AT-POS (int $i) {
                $i == 0 ?? $!error
             !! $i == 1 ?? $!message
@@ -705,7 +714,7 @@ class Text::CSV {
         }
 
     method !accept-field (CSV::Field $f) returns Bool {
-        $!csv-row.fields.push: $f;
+        $!csv-row.push ($f);
         True;
         }
 
@@ -751,18 +760,22 @@ class Text::CSV {
         self.fields».text;
         }
 
-    method string () returns Str {
+    multi method string () returns Str {
+        #progress (0, $!csv-row.fields);
+        self.string ($!csv-row.fields);
+        }
+
+    multi method string (CSV::Field:D @fld) returns Str {
 
         %!callbacks{"before_print"}.defined and
             %!callbacks{"before_print"}.($!csv-row);
 
-        $!csv-row.fields or return Str;
+        @fld or return Str;
         my Str $s = $!sep;
         my Str $q = $!quo;
         my Str $e = $!esc;
-        #progress (0, $!csv-row.fields);
         my Str @f;
-        for ($!csv-row.fields) -> $f {
+        for @fld -> $f {
             if (!$f.defined || $f.undefined) {
                 @f.push: "";
                 next;

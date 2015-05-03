@@ -1347,6 +1347,53 @@ WIP
 
 Returns C<True> if the field is missing.
 
+=head1 CSV::Row
+X<CSV::Row>
+
+This class is a wrapper over the current row of fiields just to add
+convenience methods.
+
+This is only arguments to callbacks.
+
+=head2 methods
+
+=over 2
+
+=item new
+
+ my CSV::Row $row .= new;
+ my CSV::Row $row .= new(csv => $csv, fields => @f.map({ CSV::Field.new(*) });
+
+=item csv
+
+The current Text::CSV object related to this row.
+
+
+=item fields
+
+The fields (CSV::Field items) this row consist of.
+
+=item push
+
+ $row.push(CSV::Field.new(1));
+ $row.push(1);
+ $row.push("foo");
+ $row.push($another-row);
+
+=item pop
+
+ my CSV::Field $f = $row.pop;
+
+=back
+
+The row allow direct indexing and iteration as well as hash addressing when
+L</column_names> are set.
+
+ my $field = $row[1];
+ my $field = $row<foo>;
+
+WIP
+
 ################################################################################
 
 =head1 FUNCTIONS
@@ -1557,7 +1604,8 @@ returned by L</error_diag>:
 =item after_parse
 X<after_parse>
 
- $csv.callbacks(after_parse => sub { push @{$_[1]}, "NEW" });
+ sub add-new (CSV::Row $r) { $r.fields.push: "NEW"; }
+ $csv.callbacks(after_parse => &add-new);
  while (my $row = $csv.getline($fh)) {
      $row->[-1] eq "NEW";
      }
@@ -1568,15 +1616,13 @@ parser object and an array reference to the fields parsed.
 
 The return code of the callback is ignored.
 
- sub add_from_db
- {
-     my ($csv, $row) = @_;
-     $sth->execute($row->[4]);
-     push @$row, $sth->fetchrow_array;
+ sub add_from_db (CSV::Row $r) {
+     $sth->execute($r[4]);
+     push $r.fields: $sth->fetchrow_array;
      } # add_from_db
 
  my $aoa = csv(in => "file.csv", callbacks => {
-     after_parse => \&add_from_db });
+     after_parse => &add_from_db });
 
 =item before_print
 X<before_print>
