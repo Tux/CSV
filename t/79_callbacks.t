@@ -29,11 +29,11 @@ ok ($csv = Text::CSV.new (callbacks => "clear"), "new with empty callbacks");
 ok ($csv = Text::CSV.new (callbacks => "RESET"), "new with empty callbacks");
 ok ($csv = Text::CSV.new (callbacks => "CLEAR"), "new with empty callbacks");
 
-sub Empty (Text::CSV $c, CSV::Field @f) {}
-sub Drop  (Text::CSV $c, CSV::Field @f is rw) { @f.pop; }
-sub Push  (Text::CSV $c, CSV::Field @f is rw) { @f.push (CSV::Field.new); }
-sub Replc (Text::CSV $c, CSV::Field @f is rw) { @f[1] =  CSV::Field.new; }
-sub Unshf (Text::CSV $c, CSV::Field @f is rw) { @f.unshift (CSV::Field.new ("0")); }
+sub Empty (CSV::Row $r) {}
+sub Drop  (CSV::Row $r) { $r.fields.pop; }
+sub Push  (CSV::Row $r) { $r.fields.push (CSV::Field.new); }
+sub Replc (CSV::Row $r) { $r.fields[1] =  CSV::Field.new; }
+sub Unshf (CSV::Row $r) { $r.fields.unshift (CSV::Field.new ("0")); }
 
 ok ($csv.meta (True), "Set meta again");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"],     "Parse no cb");
@@ -60,7 +60,7 @@ $fh.close;
 
 $fh = open $tfn, :r;
 
-sub Filter (Text::CSV $c, CSV::Field @f is rw) returns Bool { +@f[0] % 2 && @f[1] ~~ /^ <[abcd]> / ?? True !! False };
+sub Filter (CSV::Row $r) returns Bool { +$r[0] % 2 && $r[1] ~~ /^ <[abcd]> / ?? True !! False };
 $csv = Text::CSV.new;
 ok ($csv.callbacks ("filter", &Filter), "Add filer");
 ok ((my @r = $csv.getline_all ($fh)), "Fetch all with filter");

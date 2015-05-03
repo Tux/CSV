@@ -276,6 +276,22 @@ class CSV::Field {
 
     } # CSV::Field
 
+class CSV::Row is Iterable does Positional {
+    has            $.csv;
+    has CSV::Field @.fields is rw;
+
+    multi method new (@f) {
+        @!fields = @f.map ({ CSV::Field.new (*) });
+        }
+
+    method Str      { $!csv.string; }
+    method iterator { [ @.fields ].iterator; }
+    method hash     { my @h = $!csv.column_names or return;
+                      hash @h Z @!fields;
+                      }
+    method AT-POS (int $i) { @!fields[$i]; }
+    }
+
 class Text::CSV {
 
     # Defaults are set in BUILD!
@@ -306,7 +322,7 @@ class Text::CSV {
     has Bool $!build;
     has Int  $!record_number;
 
-    has CSV::Field @!fields;
+    has CSV::Row   $!csv-row;
     has Str        @!ahead;
     has Str        @!cnames;
     has IO         $!io;
@@ -405,6 +421,8 @@ class Text::CSV {
         $!io                    = IO;
         $!eof                   = False;
 
+        $!csv-row               = CSV::Row.new (csv => self);
+
         self!set-attributes (%init);
         }
 
@@ -464,7 +482,7 @@ class Text::CSV {
         $!error_pos      = 0;
         $!error_message  = %errors{$errno};
         $!error_message ~= (":", @s).join (" ") if @s.elems;
-        $!error_field    = $field // (@!fields.elems + 1);
+        $!error_field    = $field // ($!csv-row.fields.elems + 1);
         $!error_input    = $input;
         $!auto_diag and self.error_diag;    # Void context
         die self.error_diag;                # Exception object
@@ -572,7 +590,6 @@ class Text::CSV {
                 @cb = $b.kv;
                 }
             else {
-                $b.WHAT.say;
                 !$b.defined or
                    ($b ~~ Bool || $b ~~ Int and !?$b) or
                    ($b ~~ Str  && $b ~~ m:i/^( reset | clear | none | 0 )$/) or
@@ -672,23 +689,23 @@ class Text::CSV {
         }
 
     method is_quoted  (Int:D $i) returns Bool {
-        $i >= 0 && $i < @!fields.elems && @!fields[$i].is_quoted;
+        $i >= 0 && $i < $!csv-row.fields.elems && $!csv-row.fields[$i].is_quoted;
         }
 
     method is_binary  (Int:D $i) returns Bool {
-        $i >= 0 && $i < @!fields.elems && @!fields[$i].is_binary;
+        $i >= 0 && $i < $!csv-row.fields.elems && $!csv-row.fields[$i].is_binary;
         }
 
     method is_utf8    (Int:D $i) returns Bool {
-        $i >= 0 && $i < @!fields.elems && @!fields[$i].is_utf8;
+        $i >= 0 && $i < $!csv-row.fields.elems && $!csv-row.fields[$i].is_utf8;
         }
 
     method is_missing (Int:D $i) returns Bool {
-        $i >= 0 && $i < @!fields.elems && @!fields[$i].is_missing;
+        $i >= 0 && $i < $!csv-row.fields.elems && $!csv-row.fields[$i].is_missing;
         }
 
     method !accept-field (CSV::Field $f) returns Bool {
-        @!fields.push: $f;
+        $!csv-row.fields.push: $f;
         True;
         }
 
@@ -716,7 +733,7 @@ class Text::CSV {
             $!errno         = $f.is_quoted ??
                  $f.text ~~ m{<[ \r ]>} ?? 2022 !!
                  $f.text ~~ m{<[ \n ]>} ?? 2021 !!  2026 !! 2037;
-            $!error_field   = @!fields.elems + 1;
+            $!error_field   = $!csv-row.fields.elems + 1;
             $!error_message = %errors{$!errno};
             $!error_input   = $f.text;
             $!auto_diag and self.error_diag;
@@ -727,7 +744,7 @@ class Text::CSV {
         } # ready
 
     method fields () {
-        @!crange ?? (@!fields[@!crange]:v) !! @!fields;
+        @!crange ?? ($!csv-row.fields[@!crange]:v) !! $!csv-row.fields;
         }
 
     method list () {
@@ -737,15 +754,15 @@ class Text::CSV {
     method string () returns Str {
 
         %!callbacks{"before_print"}.defined and
-            %!callbacks{"before_print"}.(self, @!fields);
+            %!callbacks{"before_print"}.($!csv-row);
 
-        @!fields or return Str;
+        $!csv-row.fields or return Str;
         my Str $s = $!sep;
         my Str $q = $!quo;
         my Str $e = $!esc;
-        #progress (0, @!fields);
+        #progress (0, $!csv-row.fields);
         my Str @f;
-        for @!fields -> $f {
+        for ($!csv-row.fields) -> $f {
             if (!$f.defined || $f.undefined) {
                 @f.push: "";
                 next;
@@ -778,7 +795,7 @@ class Text::CSV {
         self.combine ([@f]);
         }
     multi method combine (@f) returns Bool {
-        @!fields = ();
+        $!csv-row.fields = ();
         my int $i = 0;
         for @f -> $f {
             $i++;
@@ -810,7 +827,7 @@ class Text::CSV {
         my sub parse_error (Int $errno, Int :$fpos) {
             $!errno         = $errno;
             $!error_pos     = $fpos // $pos;
-            $!error_field   = @!fields.elems + 1;
+            $!error_field   = $!csv-row.fields.elems + 1;
             $!error_message = %errors{$errno};
             $!error_input   = $buffer;
             $!auto_diag and self.error_diag;
@@ -846,7 +863,7 @@ class Text::CSV {
                        !! rx{ \r\n | \r | \n | $sep | $quo | $esc };
         my CSV::Field $f   = CSV::Field.new;
 
-        @!fields = ();
+        $!csv-row.fields = ();
 
         my sub keep () {
             self!ready (1, $f) or return False;
@@ -857,7 +874,7 @@ class Text::CSV {
         my sub parse_done () {
             self!ready (1, $f) or return False;
             %!callbacks{"after_parse"}.defined and
-                %!callbacks{"after_parse"}.(self, @!fields);
+                %!callbacks{"after_parse"}.($!csv-row);
             True;
             }
 
@@ -1100,7 +1117,7 @@ class Text::CSV {
                     $!io.defined and @!ahead = @ch[($i + 1) .. *];
 
                     # sep=;
-                    if ($!record_number == 1 && $!io.defined && @!fields.elems == 0 &&
+                    if ($!record_number == 1 && $!io.defined && $!csv-row.fields.elems == 0 &&
                             !$f.undefined && $f.text ~~ /^ "sep=" (.*) /) {
                         $!sep = $0.Str;
                         $!record_number = 0;
@@ -1226,7 +1243,7 @@ class Text::CSV {
                 $length-- == 0 and last;
 
                 !%!callbacks{"filter"}.defined ||
-                    %!callbacks{"filter"}.(self, @!fields) or next;
+                    %!callbacks{"filter"}.($!csv-row) or next;
 
                 @lines.push: self!row ($meta, $hr);
                 }
@@ -1235,7 +1252,7 @@ class Text::CSV {
             $offset = -$offset;
             while (self.parse ($io.get)) {
                 !%!callbacks{"filter"}.defined ||
-                    %!callbacks{"filter"}.(self, @!fields) or next;
+                    %!callbacks{"filter"}.($!csv-row) or next;
 
                 @lines.elems == $offset and @lines.shift;
                 @lines.push: self!row ($meta, $hr);
@@ -1296,12 +1313,12 @@ class Text::CSV {
         my @lines;
         while (self.parse ($io.get)) {
 
-            my CSV::Field @f = @!fields[
-                (^(@!fields.elems)).grep ({
+            my CSV::Field @f = $!csv-row.fields[
+                (^($!csv-row.fields.elems)).grep ({
                     $cs.in ($!record_number, $_) })] or next;
 
             !%!callbacks{"filter"}.defined ||
-                %!callbacks{"filter"}.(self, @f) or next;
+                %!callbacks{"filter"}.(CSV::Row.new (csv => self, @f)) or next;
 
             @lines.push: [ $meta ?? @f !! @f.map (*.text) ];
             }
@@ -1528,7 +1545,7 @@ class Text::CSV {
         {   my $eol = self.eol;
             $eol.defined or self.eol ("\r\n");
             for @in -> @row {
-                @!fields = @row[0] ~~ CSV::Field
+                $!csv-row.fields = @row[0] ~~ CSV::Field
                     ?? @row
                     !! @row.map ({ CSV::Field.new.add ($_.Str); });
                 $io-out.print (self.string);
