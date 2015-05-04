@@ -15,6 +15,8 @@ while (<$th>) {
 close $th;
 close $xh;
 
+$| = 1;
+
 open  my $fh, "<", "/tmp/hello.csv";
 1 while <$fh>;
 close    $fh;
@@ -51,13 +53,18 @@ foreach my $v (keys %perl) {
     $start{$v} = $t / 5;
     }
 
+my $pat = shift // ".";
+
 for (@test) {
     my ($v, $script) = @$_;
+    $script =~ $pat or next;
+
+    printf "%-11s ", $_->[1];
+
     open my $ph, "|-", "$perl{$v} -Ilib $script.pl 2>&1 >/dev/null";
     print   $ph "\n";
     close   $ph;
 
-    printf "%-11s ", $_->[1];
     my $t0 = [ gettimeofday ];
     open my $th, "-|", "$perl{$v} -Ilib $script.pl 2>&1 </tmp/hello.csv";
     my $i = 0;
