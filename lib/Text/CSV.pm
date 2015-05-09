@@ -282,15 +282,13 @@ class CSV::Row is Iterable does Positional {
     has Text::CSV  $.csv;
     has CSV::Field @.fields is rw;
 
-    multi method new (@f) {
-        @!fields = @f.map ({ CSV::Field.new (*) });
-        }
+    multi method new (@f)  { @!fields = @f.map ({ CSV::Field.new (*) }); }
 
     method Str             { $!csv ?? $!csv.string (@!fields) !! Str; }
     method iterator        { [ @.fields ].iterator; }
-    method hash            { hash $!csv.column_names Z @!fields».text; }
+    method hash            { hash $!csv.column_names Z @!fields».Str; }
     method AT-KEY (Str $k) { %($!csv.column_names Z @!fields){$k}; }
-    method list ()         { @!fields».text; }
+    method list ()         { @!fields».Str; }
     method AT-POS (int $i) { @!fields[$i]; }
 
     multi method push (CSV::Field $f) { @!fields.push: $f; }
@@ -730,7 +728,7 @@ class Text::CSV {
             return self!accept-field ($f);
             }
 
-        if ($f.text eq "") {
+        if ($f.Str eq "") {
             $!empty_is_undef and $f.text = Str;
             return self!accept-field ($f);
             }
@@ -738,14 +736,14 @@ class Text::CSV {
         # Postpone all other field attributes like is_binary and is_utf8
         # till it is actually asked for unless it is required right now
         # to fail
-        if (!$!binary and $f.text ~~ m{ <[ \x00..\x08 \x0A..\x1F ]> }) {
+        if (!$!binary and $f.Str ~~ m{ <[ \x00..\x08 \x0A..\x1F ]> }) {
             $!error_pos     = $/.from + 1 + $f.is_quoted;
             $!errno         = $f.is_quoted ??
-                 $f.text ~~ m{<[ \r ]>} ?? 2022 !!
-                 $f.text ~~ m{<[ \n ]>} ?? 2021 !!  2026 !! 2037;
+                 $f.Str ~~ m{<[ \r ]>} ?? 2022 !!
+                 $f.Str ~~ m{<[ \n ]>} ?? 2021 !!  2026 !! 2037;
             $!error_field   = $!csv-row.fields.elems + 1;
             $!error_message = %errors{$!errno};
-            $!error_input   = $f.text;
+            $!error_input   = $f.Str;
             $!auto_diag and self.error_diag;
             return False;
             }
@@ -758,7 +756,7 @@ class Text::CSV {
         }
 
     method list () {
-        self.fields».text;
+        self.fields».Str;
         }
 
     multi method string () returns Str {
@@ -781,7 +779,7 @@ class Text::CSV {
                 @f.push: "";
                 next;
                 }
-            my Str $t = $f.text ~ "";
+            my Str $t = $f.Str ~ "";
             if ($t eq "") {
                 @f.push: $!always_quote || $!quote_empty ?? "$!quo$!quo" !! "";
                 next;
@@ -1132,7 +1130,7 @@ class Text::CSV {
 
                     # sep=;
                     if ($!record_number == 1 && $!io.defined && $!csv-row.fields.elems == 0 &&
-                            !$f.undefined && $f.text ~~ /^ "sep=" (.*) /) {
+                            !$f.undefined && $f.Str ~~ /^ "sep=" (.*) /) {
                         $!sep = $0.Str;
                         $!record_number = 0;
                         return self.parse ($!io.get);
@@ -1334,7 +1332,7 @@ class Text::CSV {
             !%!callbacks{"filter"}.defined ||
                 %!callbacks{"filter"}.(CSV::Row.new (csv => self, @f)) or next;
 
-            @lines.push: [ $meta ?? @f !! @f.map (*.text) ];
+            @lines.push: [ $meta ?? @f !! @f.map (*.Str) ];
             }
 
         $!io =  IO;
