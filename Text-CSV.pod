@@ -1368,7 +1368,6 @@ This is only arguments to callbacks.
 
 The current Text::CSV object related to this row.
 
-
 =item fields
 
 The fields (CSV::Field items) this row consist of.
@@ -1384,6 +1383,28 @@ The fields (CSV::Field items) this row consist of.
 
  my CSV::Field $f = $row.pop;
 
+=item Str
+
+ my $str = $row.Str;
+ $io.say(~$row);
+
+The stringification of the CSV::Row object is like invoking the
+L<C<string>|/string> method. This only works if there is a Text::CSV
+object known to the CSV::Row instance.
+
+=item hash
+
+ my %h = $row.hash;
+
+Returns the hash with C<.csv>'s L<C<column_names>|/column_names> as keys
+and the C<.text> of each matching C<fields> entry as values.
+
+=item list
+
+ my @l = $row.list;
+
+Returns the C<.text> part of each entry in C<.fields>.
+
 =back
 
 The row allow direct indexing and iteration as well as hash addressing when
@@ -1391,8 +1412,6 @@ L</column_names> are set.
 
  my $field = $row[1];
  my $field = $row<foo>;
-
-WIP
 
 ################################################################################
 

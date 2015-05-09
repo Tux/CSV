@@ -31,6 +31,12 @@ is ($t<B>, Any, "No hash possible yet");
 
 ok ($t.csv.column_names (<A B C D>), "Set headers");
 
-is ($t<B>.Str, "foo",                    "Hash access");
+is (~$t[0],     "1",   "Str indexed access");
+is ( $t<B>.Str, "foo", "Str hash    access");
+is (+$t[2],     2,     "Num indexed access");
+is (~$t<D>,     "bar", "Str hash    access");
+
+is_deeply ( $t.hash,  { :A("1"), :B("foo"), :C("2"), :D("bar") }, "hash");
+is_deeply ([$t.list], [    "1",     "foo",     "2",     "bar"  ], "list");
 
 done;

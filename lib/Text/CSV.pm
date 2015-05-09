@@ -288,8 +288,9 @@ class CSV::Row is Iterable does Positional {
 
     method Str             { $!csv ?? $!csv.string (@!fields) !! Str; }
     method iterator        { [ @.fields ].iterator; }
-    method hash            { hash $!csv.column_names Z @!fields; }
+    method hash            { hash $!csv.column_names Z @!fields».text; }
     method AT-KEY (Str $k) { %($!csv.column_names Z @!fields){$k}; }
+    method list ()         { @!fields».text; }
     method AT-POS (int $i) { @!fields[$i]; }
 
     multi method push (CSV::Field $f) { @!fields.push: $f; }
