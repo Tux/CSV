@@ -57,7 +57,7 @@ class Text::CSV {
             die "$msg\n$line\n" ~ ' ' x $index ~ "^\n";
             }
             
-        @!fields = Nil;
+        @!fields = ();
 
         my Int $last=$line.chars;
         $index=0;

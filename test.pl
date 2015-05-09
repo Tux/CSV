@@ -98,7 +98,7 @@ class Text::CSV {
         my     $regex := $!regex;
         my $f = CSV::Field.new;
 
-        @!fields = Nil;
+        @!fields = ();
 
         sub keep {
             # Set is_binary
