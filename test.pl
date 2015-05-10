@@ -166,7 +166,7 @@ class Text::CSV {
 
                     my Str $next = @ch[$i + 1] // Nil;
 
-                    if $next eq Nil || $next ~~ /^ $eol $/ {
+                    if $next ~~ Nil || $next ~~ /^ $eol $/ {
                         keep;
                         return @!fields;
                         }

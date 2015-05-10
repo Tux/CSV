@@ -388,7 +388,7 @@ class Text::CSV {
             !! $i == 3 ?? $!field
             !! $i == 4 ?? $!record
             !! $i == 5 ?? $!buffer
-            !! Nil;
+            !! Any;
             }
         }
 

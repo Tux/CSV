@@ -35,6 +35,7 @@ sub parse_err (Int $err, Int $pos, Int $fld, Str $buf) {
     is (@diag[2], $pos,     "$err - Pos diag in list context");
     is (@diag[3], $fld,     "$err - Fld diag in list context");
     is (@diag[4], $recno++, "$err - Rec diag in list context");
+    is (@diag[9], Any,      "$err - no such diag");
     } # parse_err
 
 parse_err (2023, 19, 2, qq{2023,",2008-04-05,"Foo, Bar",\n}); # "
