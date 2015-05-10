@@ -159,14 +159,14 @@ class Text::CSV {
 
                 if $f.is_quoted {
 
-                    if $i == @ch - 1 {
+                    if $i + 1 >= @ch.elems {
                         keep;
                         return @!fields;
                         }
 
-                    my Str $next = @ch[$i + 1] // Nil;
+                    my Str $next = @ch[$i + 1];
 
-                    if $next ~~ Nil || $next ~~ /^ $eol $/ {
+                    if $next ~~ /^ $eol $/ {
                         keep;
                         return @!fields;
                         }
