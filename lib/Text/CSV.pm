@@ -59,7 +59,7 @@ my %errors =
     3009 => "EHR - print (Hash) called before column_names ()",
     3010 => "EHR - print (Hash) called with invalid arguments",
 
-    3100 => "ECB - Unsupported callback",
+    3100 => "EHK - Unsupported callback",
 
     # csv CI
     5000 => "CSV - Unsupported type for in",

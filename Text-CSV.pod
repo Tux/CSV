@@ -1935,19 +1935,22 @@ Requirements|http://w3c.github.io/csvw/use-cases-and-requirements/index.html>
 
 Still under construction ...
 
-If an error occurs, C<< $csv.error_diag >> can be used to get information
-on the cause of the failure. Note that for speed reasons the internal value
-is never cleared on success, so using the value returned by L</error_diag>
-in normal cases - when no error occurred - may cause unexpected results.
+This section describes the error codes that are used in perl5's module
+L<Text::CSV_XS>, and several of these errors are either not applicable in
+perl6 or changed slightly. Once all of the API is finished, this section
+will be cleaned up. The intention of the error coded however remains.
 
-If the constructor failed, the cause can be found using L</error_diag> as a
-class method, like C<< Text::CSV.error_diag >>.
+If an error occurs, L<C<< $csv.error_diag >>|/error_diag> can be used to
+get information on the cause of the failure. Note that for speed reasons
+the internal value is never cleared on success, so using the value returned
+by L</error_diag> in normal cases - when no error occurred - may cause
+unexpected results.
+
+If the constructor failed, the cause will be thrown as an Exception that
+represents L</error_diag>.
 
 The C<< $csv.error_diag >> method is automatically invoked upon error when
-the contractor was called with L<C<auto_diag>|/auto_diag> set to C<1> or
-C<2>, or when L<autodie> is in effect. When set to C<1>, this will cause a
-C<warn> with the error message, when set to C<2>, it will C<die>. C<2012 -
-EOF> is excluded from L<C<auto_diag>|/auto_diag> reports.
+the contractor was called with L<C<auto_diag>|/auto_diag> set to C<True>.
 
 Errors can be (individually) caught using the L</error> callback.
 
@@ -1990,7 +1993,17 @@ Combine error.
 =item *
 EHR
 
-HashRef parse related error.
+Hash parse related error.
+
+=item *
+EHK
+
+Errors related to hooks/callbacks.
+
+=item *
+CSV
+
+Errors related to the csv function.
 
 =back
 
