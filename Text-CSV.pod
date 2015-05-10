@@ -479,7 +479,7 @@ X<always-quote>
  my $f = $csv.always_quote;
 
 By default the generated fields are quoted only if they I<need> to be. For
-example, if they contain the separator character. If you set this attribute
+example, if they contain the separator sequence. If you set this attribute
 to C<1> then I<all> defined fields will be quoted. (undefined (C<Str>)
 fields are not quoted, see L</blank_is_undef>). This makes it quite often
 easier to handle exported data in external applications. (Poor creatures
@@ -1881,11 +1881,13 @@ ANSI escape codes or HTML.
 
 =back
 
+################################################################################
+
 =head1 CAVEATS
 
 Text::CSV is I<not> designed to detect the characters used to quote and
 separate fields. The parsing is done using predefined (default) settings.
-In the examples sub-directory, you can find scripts that demonstrate how
+In the examples sub-directory you can find scripts that demonstrate how
 you could try to detect these characters yourself.
 
 =head2 Microsoft Excel
@@ -2012,11 +2014,11 @@ And below should be the complete list of error codes that can be returned:
 =over 2
 
 =item *
-1001 "INI - sep_char is equal to quote_char or escape_char"
+1001 "INI - separator is equal to quote- or escape sequence"
 X<1001>
 
-The L<separation character|/sep_char> cannot be equal to L<the quotation
-character|/quote_char> or to L<the escape character|/escape_char>, as this
+The L<separation sequence|/sep_char> cannot be equal to L<the quotation
+sequence|/quote_char> or to L<the escape sequence|/escape_char>, as this
 would invalidate all parsing rules.
 
 =item *
@@ -2031,9 +2033,9 @@ C<SPACE> or C<TAB> is too ambiguous to allow.
 1003 "INI - \r or \n in main attr not allowed"
 X<1003>
 
-Using default L<C<eol>|/eol> characters in either L<C<sep_char>|/sep_char>,
-L<C<quote_char>|/quote_char>, or L<C<escape_char>|/escape_char> is not
-allowed.
+Using default L<C<eol>|/eol> sequences in either
+L<separaton sequence|/sep_char>, L<quatation sequence|/quote_char>, or
+L<escape sequence|/escape_char> is not allowed.
 
 =item *
 1004 "INI - callbacks should be undefined or a hashref"
@@ -2057,7 +2059,7 @@ X<2011>
 
 Sequences like C<1,foo,"bar"baz,22,1> are not allowed. C<"bar"> is a quoted
 field and after the closing double-quote, there should be either a new-line
-sequence or a separation character.
+sequence or a separation sequence.
 
 =item *
 2012 "EOF - End of data in parsing input stream"
@@ -2088,7 +2090,7 @@ Sequences like C<1,"foo\rbar",22,1> are allowed only when the binary option
 has been selected with the constructor.
 
 =item *
-2023 "EIQ - QUO character not allowed"
+2023 "EIQ - QUO sequence not allowed"
 X<2023>
 
 Sequences like C<"foo "bar" baz",qu> and C<2023,",2008-04-05,"Foo, Bar",\n>
@@ -2098,13 +2100,13 @@ will cause this error.
 2024 "EIQ - EOF cannot be escaped, not even inside quotes"
 X<2024>
 
-The escape character is not allowed as last character in an input stream.
+The escape sequence is not allowed as last item in an input stream.
 
 =item *
 2025 "EIQ - Loose unescaped escape"
 X<2025>
 
-An escape character should escape only characters that need escaping.
+An escape aequence should escape only characters that need escaping.
 
 Allowing the escape for other characters is possible with the attribute
 L</allow_loose_escapes>.
@@ -2121,8 +2123,8 @@ valid UTF-8. Set L<C<binary>|/binary> to C<1> to accept binary data.
 2027 "EIQ - Quoted field not terminated"
 X<2027>
 
-When parsing a field that started with a quotation character, the field is
-expected to be closed with a quotation character. When the parsed line is
+When parsing a field that started with a quotation aequence, the field is
+expected to be closed with a quotation aequence. When the parsed line is
 exhausted before the quote is found, that field is not terminated.
 
 =item *
@@ -2196,6 +2198,18 @@ X<3009>
 =item *
 3010 "EHR - print_hr () called with invalid arguments"
 X<3010>
+
+=item *
+3100 "EHK - Unsupported callback"
+X<3100>
+
+=item *
+5000 "CSV - Unsupported type for in"
+X<5000>
+
+=item *
+5001 "CSV - Unsupported type for out"
+X<5001>
 
 =back
 

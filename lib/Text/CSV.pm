@@ -14,8 +14,8 @@ my %errors =
 
     # Generic errors
     1000 => "INI - constructor failed",
-    1001 => "INI - sep_char is equal to quote_char or escape_char",
-    1002 => "INI - allow_whitespace with escape_char or quote_char SP or TAB",
+    1001 => "INI - separator is equal to quote- or escape sequence",
+    1002 => "INI - allow_whitespace with escape or quoter SP or TAB",
     1003 => "INI - \r or \n in main attr not allowed",
     1004 => "INI - callbacks should be Hash or undefined",
 
@@ -28,7 +28,7 @@ my %errors =
     #  EIQ - Error Inside Quotes
     2021 => "EIQ - NL or EOL inside quotes, binary off",
     2022 => "EIQ - CR char inside quotes, binary off",
-    2023 => "EIQ - QUO character not allowed",
+    2023 => "EIQ - QUO sequence not allowed",
     2024 => "EIQ - EOF cannot be escaped, not even inside quotes",
     2025 => "EIQ - Loose unescaped escape",
     2026 => "EIQ - Binary character inside quoted field, binary off",
