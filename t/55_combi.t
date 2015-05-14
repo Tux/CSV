@@ -40,8 +40,8 @@ sub combi (*%attr)
                 }}
             };
         }
-    if (%attr{"sep_char"} eq %attr{"quote_char"} ||
-        %attr{"sep_char"} eq %attr{"escape_char"}) {
+    if (%attr<sep_char> eq %attr<quote_char> ||
+        %attr<sep_char> eq %attr<escape_char>) {
         ok (%state{1001}.defined, "Illegal combo sep == quo || sep == esc");
         #ok (%state{1001} ~~ m{"sep_char is equal to"}, "Illegal combo 1001");
         }
@@ -49,16 +49,16 @@ sub combi (*%attr)
         ok (!%state{1001}.defined, "No char conflict");
         }
     if (!%state{1001}.defined and
-            %attr{"sep_char"}    ~~ m/[\r\n]/ ||
-            %attr{"quote_char"}  ~~ m/[\r\n]/ ||
-            %attr{"escape_char"} ~~ m/[\r\n]/
+            %attr<sep_char>    ~~ m/[\r\n]/ ||
+            %attr<quote_char>  ~~ m/[\r\n]/ ||
+            %attr<escape_char> ~~ m/[\r\n]/
             ) {
         ok (%state{1003}.defined, "Special contains eol");
         ok (%state{1003} ~~ rx{"in main attr not"}, "Illegal combo (1003)");
         }
-    if (%attr{"allow_whitespace"} and
-            %attr{"quote_char"}  ~~ m/^[ \t]/ ||
-            %attr{"escape_char"} ~~ m/^[ \t]/
+    if (%attr<allow_whitespace> and
+            %attr<quote_char>  ~~ m/^[ \t]/ ||
+            %attr<escape_char> ~~ m/^[ \t]/
             ) {
         #diag (join " -> ** " => $combi, join ", " => sort %state);
         ok (%state{1002}.defined, "Illegal combo under allow_whitespace");
@@ -80,14 +80,14 @@ sub combi (*%attr)
 
     unless ($ok) {
         $csv.error_diag.perl.say;
-        %fail{"parse"}{$combi} = $csv.error_input;
+        %fail<parse>{$combi} = $csv.error_input;
         return;
         }
 
     my @ret = $csv.fields;
     ok (@ret.elems, "fields");
     unless (@ret.elems) {
-        %fail{"fields"}{$combi} = $csv.error_input;
+        %fail<fields>{$combi} = $csv.error_input;
         return;
         }
 

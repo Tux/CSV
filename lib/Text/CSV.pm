@@ -766,8 +766,8 @@ class Text::CSV {
 
     multi method string (CSV::Field:D @fld) returns Str {
 
-        %!callbacks{"before_print"}.defined and
-            %!callbacks{"before_print"}.($!csv-row);
+        %!callbacks<before_print>.defined and
+            %!callbacks<before_print>.($!csv-row);
 
         @fld or return Str;
         my Str $s = $!sep;
@@ -885,8 +885,8 @@ class Text::CSV {
 
         my sub parse_done () {
             self!ready (1, $f) or return False;
-            %!callbacks{"after_parse"}.defined and
-                %!callbacks{"after_parse"}.($!csv-row);
+            %!callbacks<after_parse>.defined and
+                %!callbacks<after_parse>.($!csv-row);
             True;
             }
 
@@ -1254,8 +1254,8 @@ class Text::CSV {
                 $offset--  > 0 and next;
                 $length-- == 0 and last;
 
-                !%!callbacks{"filter"}.defined ||
-                    %!callbacks{"filter"}.($!csv-row) or next;
+                !%!callbacks<filter>.defined ||
+                    %!callbacks<filter>.($!csv-row) or next;
 
                 @lines.push: self!row ($meta, $hr);
                 }
@@ -1263,8 +1263,8 @@ class Text::CSV {
         else {
             $offset = -$offset;
             while (self.parse ($io.get)) {
-                !%!callbacks{"filter"}.defined ||
-                    %!callbacks{"filter"}.($!csv-row) or next;
+                !%!callbacks<filter>.defined ||
+                    %!callbacks<filter>.($!csv-row) or next;
 
                 @lines.elems == $offset and @lines.shift;
                 @lines.push: self!row ($meta, $hr);
@@ -1329,8 +1329,8 @@ class Text::CSV {
                 (^($!csv-row.fields.elems)).grep ({
                     $cs.in ($!record_number, $_) })] or next;
 
-            !%!callbacks{"filter"}.defined ||
-                %!callbacks{"filter"}.(CSV::Row.new (csv => self, @f)) or next;
+            !%!callbacks<filter>.defined ||
+                %!callbacks<filter>.(CSV::Row.new (csv => self, @f)) or next;
 
             @lines.push: [ $meta ?? @f !! @f.map (*.Str) ];
             }
@@ -1396,11 +1396,11 @@ class Text::CSV {
         # Aliasses
         #   frag   fragment
         #   enc    encoding
-        %args{"frag"}.defined and $fragment ||= %args{"frag"} :delete;
-        %args{"enc" }.defined and $encoding ||= %args{"enc"}  :delete;
+        %args<frag>.defined and $fragment ||= %args<frag> :delete;
+        %args<enc >.defined and $encoding ||= %args<enc>  :delete;
         $fragment //= "";
 
-        my $skip = %args{"skip"} :delete || 0 and
+        my $skip = %args<skip> :delete || 0 and
             self.rowrange (++$skip ~ "-*");
 
         # Check csv-only args
@@ -1424,27 +1424,27 @@ class Text::CSV {
             }
         for (%args.keys) -> $k {
             if ($k.lc ~~ m{^ "on"     <[-_]>   "in"             $}) {
-                $on-in                 = %args{$k} :delete;
+                $on-in               = %args{$k} :delete;
                 next;
                 }
             if ($k.lc ~~ m{^ "before" <[-_]>   "out"            $}) {
-                $before-out            = %args{$k} :delete;
+                $before-out          = %args{$k} :delete;
                 next;
                 }
             if ($k.lc ~~ m{^ "after"  <[-_]> ( "parse" | "in" ) $}) {
-                %hooks{"after_parse"}  = %args{$k} :delete;
+                %hooks<after_parse>  = %args{$k} :delete;
                 next;
                 }
             if ($k.lc ~~ m{^ "before" <[-_]>   "print"          $}) {
-                %hooks{"before_print"} = %args{$k} :delete;
+                %hooks<before_print> = %args{$k} :delete;
                 next;
                 }
             if ($k.lc eq "filter") {
-                %hooks{"filter"}       = %args{$k} :delete;
+                %hooks<filter>       = %args{$k} :delete;
                 next;
                 }
             if ($k.lc eq "error") {
-                %hooks{"error"}        = %args{$k} :delete;
+                %hooks<error>        = %args{$k} :delete;
                 next;
                 }
             }
@@ -1589,7 +1589,7 @@ class Text::CSV {
     }
 
 sub csv (*%args) is export {
-    %args{"meta"} //= False;
+    %args<meta> //= False;
     Text::CSV.csv (|%args);
     }
 
