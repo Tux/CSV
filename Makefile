@@ -6,6 +6,7 @@
 test:
 	@perl bugs.pl -s
 	podchecker Text-CSV.pod 2>&1 | grep -v WARNING:
+	pod-spell-check --aspell --ispell Text-CSV.pod
 	prove -j4 -e 'perl6 -I. -Ilib' t
 
 test-verbose:	Text/CSV.pm

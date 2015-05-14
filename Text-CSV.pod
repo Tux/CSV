@@ -564,7 +564,7 @@ See the L</Callbacks> section below.
 
 To sum it up,
 
- $csv = Text::CSV.new();
+ $csv = Text::CSV.new;
 
 is equivalent to
 
@@ -674,7 +674,7 @@ argument. (WIP)
 =head2 string
 X<string>
 
- $line = $csv.string();
+ $line = $csv.string;
 
 This method returns the input to L</parse> or the resultant C<CSV> string
 of L</combine>, whichever was called more recently. If L<C<eol>|/eol> is
@@ -940,7 +940,7 @@ current bindings or C<Array> if no binds are active.
 =head2 eof
 X<eof>
 
- $eof = $csv.eof();
+ $eof = $csv.eof;
 
 If L</parse> or L</getline> was used with an IO stream, this method will
 return C<True> if the last call hit end of file, otherwise it will return
@@ -978,7 +978,7 @@ Returns the last row parsed. See L<C<CSV::Row>|/CSV::Row>
 =head2 fields
 X<fields>
 
- CSV::Field @fields = $csv.fields();
+ CSV::Field @fields = $csv.fields;
 
 This method returns the input to L</combine> or the resultant decomposed
 fields of a successful L</parse> or L</getline>, whichever was called more
@@ -988,7 +988,7 @@ thus feature attributes.
 =head2 list
 X<list>
 
- @fields = $csv.list();
+ @fields = $csv.list;
 
 This method returns the input to L</combine> or the resultant decomposed
 fields of a successful L</parse> or L</getline>, whichever was called more
@@ -1072,7 +1072,7 @@ check the flags.
 =head2 status
 X<status>
 
- $status = $csv.status();
+ $status = $csv.status;
 
 This method returns success (or failure) of the last invoked L</combine> or
 L</parse> call.
@@ -1083,7 +1083,7 @@ X<error_input>
 =head2 error-input
 X<error-input>
 
- $bad_argument = $csv.error_input();
+ $bad_argument = $csv.error_input;
 
 This method returns the erroneous argument (if it exists) of L</combine>,
 L</parse>, or L</getline>, whichever was called most recent. If the last
@@ -1199,10 +1199,10 @@ X<error_diag>
 =head2 error-diag
 X<error-diag>
 
- $csv.error_diag();
- $error_code = +$csv.error_diag();
- $error_str  = ~$csv.error_diag();
- ($cde, $str, $pos, $rec, $fld) = $csv.error_diag();
+ $csv.error_diag;
+ $error_code = +$csv.error_diag;
+ $error_str  = ~$csv.error_diag;
+ ($cde, $str, $pos, $rec, $fld) = $csv.error_diag;
 
 This function returns the diagnostics of the most recent error.
 
@@ -1233,7 +1233,7 @@ it will return the error message.
 =head2 record_number
 X<record_number>
 
- $recno = $csv.record_number();
+ $recno = $csv.record_number;
 
 Returns the records parsed by this csv instance. This value should be more
 accurate than C<$.> when embedded newlines come in play. Records written by
@@ -1357,7 +1357,7 @@ Returns C<True> if the field is missing.
 =head1 CSV::Row
 X<CSV::Row>
 
-This class is a wrapper over the current row of fiields just to add
+This class is a wrapper over the current row of fields just to add
 convenience methods.
 
 This is the only argument to callbacks.
@@ -1684,7 +1684,7 @@ This callback is not active for L</combine>.
 
 =back
 
-=head3 Callbacks for csv ()
+=head3 Callbacks for csv
 
 The L</csv> allows for some callbacks that do not integrate in XS internals
 but only feature the L</csv> function.
@@ -1778,9 +1778,9 @@ with L</csv>, you could do
          }
      }
  else {
-     print STDERR "parse () failed on argument: ",
+     print STDERR "parse failed on argument: ",
          $csv.error_input, "\n";
-     $csv.error_diag();
+     $csv.error_diag;
      }
 
 =head2 Printing CSV data
@@ -1811,7 +1811,7 @@ or using the slower L</combine> and L</string> methods:
      print $csv_fh $csv.string, "\n";
      }
  else {
-     print "combine () failed on argument: ",
+     print "combine failed on argument: ",
          $csv.error_input, "\n";
      }
  close $csv_fh or die "hello.csv: $!";
@@ -2049,7 +2049,7 @@ C<SPACE> or C<TAB> is too ambiguous to allow.
 X<1003>
 
 Using default L<C<eol>|/eol> sequences in either
-L<separaton sequence|/sep_char>, L<quatation sequence|/quote_char>, or
+L<separation sequence|/sep_char>, L<quotation sequence|/quote_char>, or
 L<escape sequence|/escape_char> is not allowed.
 
 =item *
@@ -2121,7 +2121,7 @@ The escape sequence is not allowed as last item in an input stream.
 2025 "EIQ - Loose unescaped escape"
 X<2025>
 
-An escape aequence should escape only characters that need escaping.
+An escape sequence should escape only characters that need escaping.
 
 Allowing the escape for other characters is possible with the attribute
 L</allow_loose_escapes>.
@@ -2138,8 +2138,8 @@ valid UTF-8. Set L<C<binary>|/binary> to C<1> to accept binary data.
 2027 "EIQ - Quoted field not terminated"
 X<2027>
 
-When parsing a field that started with a quotation aequence, the field is
-expected to be closed with a quotation aequence. When the parsed line is
+When parsing a field that started with a quotation sequence, the field is
+expected to be closed with a quotation sequence. When the parsed line is
 exhausted before the quote is found, that field is not terminated.
 
 =item *
@@ -2179,23 +2179,23 @@ X<2110>
 X<2200>
 
 =item *
-3001 "EHR - Unsupported syntax for column_names ()"
+3001 "EHR - Unsupported syntax for column_names"
 X<3001>
 
 =item *
-3002 "EHR - getline_hr () called before column_names ()"
+3002 "EHR - getline_hr called before column_names"
 X<3002>
 
 =item *
-3003 "EHR - bind_columns () and column_names () fields count mismatch"
+3003 "EHR - bind_columns and column_names fields count mismatch"
 X<3003>
 
 =item *
-3004 "EHR - bind_columns () only accepts refs to scalars"
+3004 "EHR - bind_columns only accepts refs to scalars"
 X<3004>
 
 =item *
-3006 "EHR - bind_columns () did not pass enough refs for parsed fields"
+3006 "EHR - bind_columns did not pass enough refs for parsed fields"
 X<3006>
 
 =item *
@@ -2207,11 +2207,11 @@ X<3007>
 X<3008>
 
 =item *
-3009 "EHR - print_hr () called before column_names ()"
+3009 "EHR - print_hr called before column_names"
 X<3009>
 
 =item *
-3010 "EHR - print_hr () called with invalid arguments"
+3010 "EHR - print_hr called with invalid arguments"
 X<3010>
 
 =item *
