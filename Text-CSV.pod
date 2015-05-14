@@ -968,6 +968,13 @@ You can unset column types by doing a
 
  $csv.types(Array);
 
+=head2 row
+X<row>
+
+ CSV::Row $row = $csv.row;
+
+Returns the last row parsed. See L<C<CSV::Row>|/CSV::Row>
+
 =head2 fields
 X<fields>
 
@@ -1353,7 +1360,11 @@ X<CSV::Row>
 This class is a wrapper over the current row of fiields just to add
 convenience methods.
 
-This is only arguments to callbacks.
+This is the only argument to callbacks.
+
+The fields in C<CSV::Row> are always of class L<C<CSV::Field>|/CSV::Field>
+and thus contain all meta-information, even if the C<Text::CSV> attribute
+L<C<meta_info>|/meta_info> is C<False>.
 
 =head2 methods
 
@@ -1412,6 +1423,10 @@ L</column_names> are set.
 
  my $field = $row[1];
  my $field = $row<foo>;
+
+The last parsed row of a L<Text::CSV>|/Text::CSV> can be acquired using
+
+ my CSV::Row $row = $csv.row;
 
 ################################################################################
 

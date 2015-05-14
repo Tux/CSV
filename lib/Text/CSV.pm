@@ -1181,6 +1181,8 @@ class Text::CSV {
         parse_done ();
         } # parse
 
+    method row returns CSV::Row { $!csv-row; }
+
     method !row_hr (@row) {
         my @cn  = (@!crange ?? @!cnames[@!crange] !! @!cnames);
         hash @cn Z @row;

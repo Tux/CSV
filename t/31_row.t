@@ -39,4 +39,9 @@ is (~$t<D>,     "bar", "Str hash    access");
 is_deeply ( $t.hash,  { :A("1"), :B("foo"), :C("2"), :D("bar") }, "hash");
 is_deeply ([$t.list], [    "1",     "foo",     "2",     "bar"  ], "list");
 
+my $csv = Text::CSV.new (:!keep_meta);
+is_deeply ([$csv.getline ("foo,bar,zip")], [<foo bar zip>], "getline");
+ok (my $row = $csv.row, "Get last row");
+is_deeply ([$row.list], [<foo bar zip>], "list");
+
 done;
