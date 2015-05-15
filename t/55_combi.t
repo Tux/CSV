@@ -101,14 +101,6 @@ sub combi (*%attr)
     is ($ret, $string,          "content");
     } # combi
 
-#combi (
-#    sep_char         => ";",
-#    quote_char       => "'",
-#    escape_char      => "\t",
-#    always_quote     => False,
-#    allow_whitespace => False,
-#    );
-
 for ( False, True    ) -> $aw {
 for ( False, True    ) -> $aq {
 for ( @special       ) -> $qc {
