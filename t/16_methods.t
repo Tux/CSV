@@ -58,14 +58,13 @@ is ($csv.column_names.elems,    0,      "column_names");
 # callbacks
 # sub csv
 
+# do we really want to support ...
+# types
+
 done;
 
 =finish
 
 # Not ported - deprecated
-sub PV { 0 }
-sub IV { 1 }
-sub NV { 2 }
 sub decode_utf8
 sub verbatim
-sub types

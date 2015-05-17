@@ -27,8 +27,8 @@ test_auq (3, 2034, qq{some "spaced" quote data,2,3,4}                );
 test_auq (4,    0, qq{and an,entirely,quoted,"field"}                );
 test_auq (5,    0, qq{and then,"one with ""quoted"" quotes",okay,?}  );
 
-#$csv = Text::CSV_XS.new ({ quote_char => '"', escape_char => "=" });
-#ok (!$csv.parse (qq{foo,d'uh"bar}),        "should fail");
+$csv = Text::CSV.new (quote => '"', escape => "=");
+is ($csv.parse (qq{foo,d'uh"bar}), False, "should fail"); #"
 
 # Allow unescaped quotes inside a quoted field
 ok (1, "Allow loose quotes inside quoted");
@@ -163,8 +163,6 @@ sub test_tj (int $tst, int $bin, Str $eol, Str $bad) {
     my $err = $bin ?? $tst < 4 ?? 0 !! 2023 !! $eol ?? 2021 !! 2022;
 
     $csv = Text::CSV.new (binary => $bin, eol => $eol);
-    #is ($csv.parse ($bad),  !$err, "$tst - parse () default");
-    #is (0 + $csv.error_diag, $err, "$tst - error $err");
 
     $csv.allow_whitespace (1);
     $bin and $err = 0;
@@ -173,7 +171,7 @@ sub test_tj (int $tst, int $bin, Str $eol, Str $bad) {
     is ($csv.parse ($bad),  !$err, "$tst - parse () allow");
     is (0 + $csv.error_diag, $err, "$tst - error $err");
     }
-for ("", "\r") -> $eol {
+for (Str, "\r") -> $eol {
     for (0, 1) -> $bin {
         my $s_eol = $eol.perl;
         ok ($csv, "$s_eol - new ()");
@@ -223,24 +221,24 @@ for ("", "\r") -> $eol {
     my $s2011 = qq{2011,",2008-04-05,"  "Foo, Bar",\n};
     #                                ^
 
-    is ( $csv.parse ($s2011),       False, "Parse 2011");
-    is (($csv.error_diag)[0],       2011,  "Fail code 2011");
-    is (($csv.error_diag)[2],       19,    "Fail position");
+    is ($csv.parse ($s2011),       False, "Parse 2011");
+    is ($csv.error_diag[0],        2011,  "Fail code 2011");
+    is ($csv.error_diag[2],        19,    "Fail position");
 
-    is ( $csv.allow_whitespace (1), True,  "Allow whitespace");
-    is ( $csv.parse ($s2011),       False, "Parse 2021");
-    is (($csv.error_diag)[0],       2011,  "Fail code 2021");
-    is (($csv.error_diag)[2],       19,    "Space not skipped");
+    is ($csv.allow_whitespace (1), True,  "Allow whitespace");
+    is ($csv.parse ($s2011),       False, "Parse 2021");
+    is ($csv.error_diag[0],        2011,  "Fail code 2021");
+    is ($csv.error_diag[2],        19,    "Space not skipped");
     }
 
 {   my $csv = Text::CSV.new (allow_unquoted_escape => 1, escape_char => "=");
     my $str = q{1,3,=};
-    is ( $csv.parse ($str),   False, "Parse trailing ESC");
-    is (($csv.error_diag)[0], 2035,  "Fail code 2035");
+    is ($csv.parse ($str),         False, "Parse trailing ESC");
+    is ($csv.error_diag[0],        2035,  "Fail code 2035");
 
     $str ~= "0";
-    is ( $csv.parse ($str),   True,  "Parse trailing ESC");
-    #is_deeply ([ $csv.fields ], [ 1,3,"\0" ],   "Parse passed");
+    is ($csv.parse ($str),    True,               "Parse trailing ESC");
+    is_deeply ([ $csv.list ], [ "1", "3", "\0" ], "Parse passed");
     }
 
 done;

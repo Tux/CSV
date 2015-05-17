@@ -149,14 +149,14 @@ sub crnlsp (Text::CSV $csv) {
 
 {   my $csv = Text::CSV.new (escape_char => "+", :binary);
 
-#   ok ( $csv.parse ("+"),              "ESC");
+    ok (!$csv.parse ("+"),              "ESC");
     ok ( $csv.parse ("++"),             "ESC ESC");
     ok (!$csv.parse ("+ "),             "ESC Space");
     ok ( $csv.parse ("+0"),             "ESC NUL");
     ok (!$csv.parse ("+\n"),            "ESC NL");
     ok (!$csv.parse ("+\r"),            "ESC CR");
     ok (!$csv.parse ("+\r\n"),          "ESC CR NL");
-#   ok (!$csv.parse (qq{"+"}),          "Quo ESC");
+    ok (!$csv.parse (qq{"+"}),          "Quo ESC");
     ok ( $csv.parse (qq{"++"}),         "Quo ESC ESC");
     ok (!$csv.parse (qq{"+ "}),         "Quo ESC Space");
     ok ( $csv.parse (qq{"+0"}),         "Quo ESC NUL");
