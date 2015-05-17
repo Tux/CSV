@@ -129,16 +129,13 @@ is_deeply ($csv.fragment ($fh, "row=3"),
     [{ :c1("31") }],            "Fragment to AoH (row)");
 $fh.close;
 
-# The column names for fragments are for the columns *before* the
-# fragment is taken to be in-line with fetching the column names
-# from the header line (first line)
-$csv.column_names ("c1", "c2", "c3");
+$csv.column_names (< x x c3 >);
 $fh = open $tfn, :r;
 my @rx; # Bug in map
 # @rx = (1..9).map ({{ c3 => ~(10 * $_ + 3) }});
 for (1..9) -> $x { @rx.push: { c3 => ~(10 * $x + 3) }};
-is_deeply ($csv.fragment ($fh, "col=3"), [ @rx ],
-                                "Fragment to AoH (col)");
+is_deeply ($csv.fragment ($fh, "col=3"),
+    [ @rx ],                    "Fragment to AoH (col)");
 $fh.close;
 
 $csv.column_names ("c3","c4");

@@ -790,7 +790,20 @@ cell-based combined selection might return rows with different number of
 columns making the use of hashes unpredictable.
 
  $csv.column_names(< Name Age >);
- my @rows = $csv.fragment($io, "col=3;8");
+ my @rows = $csv.fragment($io, "row=3;8");
+
+Note that for C<col="..">, the column names are the names for I<before> the
+selection is taken to make it more consistent with reading possible headers
+from the first line of the CSV datastream.
+
+ $csv,column_names(< foo bar >);  # WRONG
+ $csv.fragment($io, "col=3");
+
+would set the column names for the first two columns that are then skipped
+in the fragment. To skip the unwanted columns, use placeholders.
+
+ $csv.column_names(< x x Name >);
+ $csv.fragment($io, "col=3");
 
 WIP: If the L</after_parse> callback is active, it is also called on every
 line parsed and skipped before the fragment.
