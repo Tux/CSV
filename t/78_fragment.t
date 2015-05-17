@@ -3,7 +3,7 @@
 use v6;
 use Slang::Tuxic;
 
-my $tfn = "_78matrix.csv";
+my $tfn = "_78matrix.csv"; END { unlink $tfn; }
 
 use Test;
 use Text::CSV;
@@ -123,23 +123,29 @@ for @test -> $t {
     $fh.close;
     }
 
-unlink $tfn;
+$csv.column_names ("c1");
+$fh = open $tfn, :r;
+is_deeply ($csv.fragment ($fh, "row=3"),
+    [{ :c1("31") }],            "Fragment to AoH (row)");
+$fh.close;
+
+# The column names for fragments are for the columns *before* the
+# fragment is taken to be in-line with fetching the column names
+# from the header line (first line)
+$csv.column_names ("c1", "c2", "c3");
+$fh = open $tfn, :r;
+my @rx; # Bug in map
+# @rx = (1..9).map ({{ c3 => ~(10 * $_ + 3) }});
+for (1..9) -> $x { @rx.push: { c3 => ~(10 * $x + 3) }};
+is_deeply ($csv.fragment ($fh, "col=3"), [ @rx ],
+                                "Fragment to AoH (col)");
+$fh.close;
+
+$csv.column_names ("c3","c4");
+$fh = open $tfn, :r;
+is_deeply ($csv.fragment ($fh, "cell=3,2-4,3"),
+    [{ :c3("32"), :c4("33") },
+     { :c3("42"), :c4("43") }], "Fragment to AoH (cell)");
+$fh.close;
 
 done;
-=finish
-
-my $todo = "";
-my $data = join "" => <DATA>;
-while (my ($spec, $expect) = splice @test, 0, 2) {
-    open my $io, "<", \$data;
-    my $aoa = $csv->fragment ($io, $spec);
-    is_deeply ($aoa, $expect, "${todo}Fragment $spec");
-    }
-
-$csv->column_names ("c3","c4");
-open my $io, "<", \$data;
-is_deeply ($csv->fragment ($io, "cell=3,2-4,3"),
-    [ { c3 => 32, c4 =>33 }, { c3 => 42, c4 => 43 }], "Fragment to AoH");
-
-#$csv->eol ("\n");
-#foreach my $r (1..9){$csv->print(*STDOUT,[map{$r.$_}1..9])}

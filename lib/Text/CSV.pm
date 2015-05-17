@@ -1289,12 +1289,14 @@ class Text::CSV {
 
         if ($spec ~~ s:i{^ "row=" } = "") {
             self.rowrange ($spec);
-            return self.getline_all ($io, :$meta);
+            return @!cnames.elems ?? self.getline_hr_all ($io, :$meta)
+                                  !! self.getline_all    ($io, :$meta);
             }
 
         if ($spec ~~ s:i{^ "col=" } = "") {
             self.colrange ($spec);
-            return self.getline_all ($io, :$meta);
+            return @!cnames.elems ?? self.getline_hr_all ($io, :$meta)
+                                  !! self.getline_all    ($io, :$meta);
             }
 
         $spec ~~ s:i{^ "cell=" } = "" or self!fail (2013);
@@ -1334,7 +1336,13 @@ class Text::CSV {
             !%!callbacks<filter>.defined ||
                 %!callbacks<filter>.(CSV::Row.new (csv => self, @f)) or next;
 
-            @lines.push: [ $meta ?? @f !! @f.map (*.Str) ];
+            my @row = $meta ?? @f !! @f.map (*.Str);
+            if (@!cnames.elems) {
+                my %h = @!cnames Z @row;
+                @lines.push: { %h };
+                next;
+                }
+            @lines.push: [ @row ];
             }
 
         $!io =  IO;
