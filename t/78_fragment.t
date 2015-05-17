@@ -131,8 +131,10 @@ $fh.close;
 
 $csv.column_names (< x x c3 >);
 $fh = open $tfn, :r;
-my @rx; # Bug in map
-# @rx = (1..9).map ({{ c3 => ~(10 * $_ + 3) }});
+my @rx;
+# { c3 => 3 }              is a hash
+# { c3 => ~(10 * $_ + 3) } is a closure generating a pair
+# @rx = (1..9).map ({ :c3(~(10 * $_ + 3)).hash.item });
 for (1..9) -> $x { @rx.push: { c3 => ~(10 * $x + 3) }};
 is_deeply ($csv.fragment ($fh, "col=3"),
     [ @rx ],                    "Fragment to AoH (col)");
