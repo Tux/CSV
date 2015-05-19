@@ -5,16 +5,6 @@ use warnings;
 
 use Time::HiRes qw( gettimeofday tv_interval );
 
-unlink "test-x.pl"; END { unlink "test-x.pl" }
-open my $th, "<", "test-t.pl" or die "test-t.pl: $!\n";
-open my $xh, ">", "test-x.pl" or die "test-x.pl: $!\n";
-while (<$th>) {
-    s/^ ?(?=\s*.opt_v)/#/;
-    print $xh $_;
-    }
-close $th;
-close $xh;
-
 $| = 1;
 
 open  my $fh, "<", "/tmp/hello.csv";
@@ -34,7 +24,7 @@ my @test = (
     [ 6, "csv-ip5pp"   ],
     [ 6, "csv_gram"    ],
     [ 6, "test"        ],
-    [ 6, "test-x"      ],
+    [ 6, "test-t"      ],
     [ 6, "csv-parser"  ],
     );
 my %perl = (
