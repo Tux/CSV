@@ -1516,7 +1516,7 @@ X<out>
 
 In output mode, the default CSV options when producing CSV are
 
- eol       => "\r\n"
+ eol    => "\r\n"
 
 The L</fragment> attribute is ignored in output mode.
 
@@ -1524,14 +1524,14 @@ C<out> can be a file name (e.g. C<"file.csv">), which will be opened for
 writing and closed when finished, a file handle (e.g. C<$fh> or C<FH>), a
 reference to a glob (e.g. C<\*STDOUT>), or the glob itself (e.g. C<*STDOUT>).
 
- csv(in => sub { $sth->fetch },            out => "dump.csv");
- csv(in => sub { $sth->fetchrow_hashref }, out => "dump.csv",
-      headers => $sth->{NAME_lc});
+ csv(in => sub { $sth.fetch },            out => "dump.csv");
+ csv(in => sub { $sth.fetchrow_hashref }, out => "dump.csv",
+      headers => $sth.{NAME_lc});
 
-When a code-ref is used, the output is generated per invocation, so no
-buffering is involved. This implies that there is no size restriction on
-the number of records. The function ends when the coderef returns a false
-value.
+When a code-ref is used for C<in>, the output is generated per invocation,
+so no buffering is involved. This implies that there is no size restriction
+on the number of records. The C<csv> function ends when the coderef returns
+C<False>.
 
 =head3 encoding
 X<encoding>
@@ -1609,14 +1609,14 @@ is ignored when I<generating> C<CSV>. See L</out>.
 Combining all of them could give something like
 
  use Text::CSV qw( csv );
- my $aoh = csv(
+ my @aoh = csv(
      in       => "test.txt",
      encoding => "utf-8",
      headers  => "auto",
      sep_char => "|",
      fragment => "row=3;6-9;15-*",
      );
- say $aoh->[15]{Foo};
+ say @aoh[15]{Foo};
 
 =head3 strict
 X<strict>
@@ -1668,8 +1668,8 @@ X<after_parse>
 
  sub add-new (CSV::Row $r) { $r.fields.push: "NEW"; }
  $csv.callbacks(after_parse => &add-new);
- while (my $row = $csv.getline($fh)) {
-     $row->[-1] eq "NEW";
+ while (my @row = $csv.getline($fh)) {
+     @row[-1] eq "NEW";
      }
 
 This callback is invoked after parsing with L</getline> only if no error
@@ -1679,8 +1679,8 @@ parser object and an array reference to the fields parsed.
 The return code of the callback is ignored.
 
  sub add_from_db (CSV::Row $r) {
-     $sth->execute($r[4]);
-     push $r.fields: $sth->fetchrow_array;
+     $sth.execute($r[4]);
+     push $r.fields: $sth.fetchrow_array;
      } # add_from_db
 
  my $aoa = csv(in => "file.csv", callbacks => {
@@ -1855,25 +1855,52 @@ Rewrite C<CSV> files with C<;> as separator character to well-formed C<CSV>:
 
 Dumping a database table can be simple as this (TIMTOWTDI):
 
- my $dbh = DBI->connect(...);
+ my $dbh = DBI.connect(...);
  my $sql = "select * from foo";
 
  # using your own loop
  open my $fh, ">", "foo.csv" or die "foo.csv: $!\n";
  my $csv = Text::CSV.new(eol => "\r\n");
- my $sth = $dbh->prepare($sql); $sth->execute;
- $csv.print($fh, $sth->{NAME_lc});
- while (my $row = $sth->fetch) {
+ my $sth = $dbh.prepare($sql); $sth.execute;
+ $csv.print($fh, $sth.{NAME_lc});
+ while (my $row = $sth.fetch) {
      $csv.print($fh, $row);
      }
 
  # using the csv function, all in memory
- csv(out => "foo.csv", in => $dbh->selectall_arrayref($sql));
+ csv(out => "foo.csv", in => $dbh.selectall_arrayref($sql));
 
  # using the csv function, streaming with callbacks
- my $sth = $dbh->prepare($sql); $sth->execute;
- csv(out => "foo.csv", in => sub { $sth->fetch            });
- csv(out => "foo.csv", in => sub { $sth->fetchrow_hashref });
+ my $sth = $dbh.prepare($sql); $sth.execute;
+ csv(out => "foo.csv", in => sub { $sth.fetch            });
+ csv(out => "foo.csv", in => sub { $sth.fetchrow_hashref });
+
+Note that this does not discriminate between "empty" values and NULL-values
+from the database, as both will be the same empty field in CSV. To enable
+distinction between the two, use L<C<quote_empty>|/quote_empty>.
+
+ csv(out => "foo.csv", in => sub { $sth.fetch }, :quote_empty);
+
+If the database import utility supports special sequences to insert C<NULL>
+values into the database, like MySQL/MariaDB supports C<\N>, use a filter
+or a map
+
+ csv(out => "foo.csv", in => sub { $sth.fetch },
+                    on_in => sub { $_ //= "\\N" for @$_[1] }); # WIP
+
+ while (my @row = $sth.fetch) {
+     $csv.print($fh, @row.map({ * // "\\N" }));
+     }
+
+these special secuences are not recognized by Text::CSV_XS on parsing the
+CSV generated like this, but map and filter are your friends again
+
+ while (my @row = $csv.getline($io)) {
+     $sth.execute(@row.map({ $_ eq "\\N" ?? Nil !! $_ }));
+     }
+
+ csv(in => "foo.csv", filter => { 1 => sub {
+     $sth.execute(@{$_[1]}.map({ $_ eq "\\N" ?? Nil !! $_ }); False; }});
 
 =head2 The examples folder
 
