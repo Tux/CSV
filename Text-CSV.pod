@@ -485,6 +485,21 @@ fields are not quoted, see L</blank_is_undef>). This makes it quite often
 easier to handle exported data in external applications. (Poor creatures
 who are better to use Text::CSV. :)
 
+=item quote_empty
+X<quote_empty>
+
+=item quote-empty
+X<quote-empty>
+
+ my $csv = Text::CSV.new(:quote_empty);
+           $csv.quote_empty(False);
+ my $q-s = $csv.quote_empty;
+
+By default the generated fields are quoted only if they I<need> to be. An
+empty defined field does not need quotation. If you set this attribute to
+C<True> then empty defined fields will be quoted. See also
+L<C<always_quote>|/always_quote>.
+
 =item quote_space
 X<quote_space>
 
