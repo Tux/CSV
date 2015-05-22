@@ -166,33 +166,43 @@ sub crnlsp (Text::CSV $csv) {
     }
 
 ok (1, "Testing always_quote");
-{   my $csv = Text::CSV.new (:!always_quote);
-    ok ($csv.combine (1..3),                   "Combine");
-    is ($csv.string,           q{1,2,3},       "String");
-    is ($csv.always_quote,     False,          "Attr 0");
-    ok ($csv.always_quote (1),                 "Attr 1");
-    ok ($csv.combine (1..3),                   "Combine");
-    is ($csv.string,           q{"1","2","3"}, "String");
-    is ($csv.always_quote,     True,           "Attr 1");
-    is ($csv.always_quote (0), False,          "Attr 0");
-    ok ($csv.combine (1..3),                   "Combine");
-    is ($csv.string,           q{1,2,3},       "String");
-    is ($csv.always_quote,     False,          "Attr 0");
+{   ok (my $csv = Text::CSV.new (:!always-quote), "new (:always-quote)");
+    ok ($csv.combine (1..3),                      "Combine");
+    is ($csv.string,              q{1,2,3},       "String");
+    is ($csv.always_quote,        False,          "Attr 0");
+    ok ($csv.always_quote (1),                    "Attr 1");
+    ok ($csv.combine (1..3),                      "Combine");
+    is ($csv.string,              q{"1","2","3"}, "String");
+    is ($csv.always_quote,        True,           "Attr 1");
+    is ($csv.always_quote (0),    False,          "Attr 0");
+    ok ($csv.combine (1..3),                      "Combine");
+    is ($csv.string,              q{1,2,3},       "String");
+    is ($csv.always_quote,        False,          "Attr 0");
     }
 
 ok (1, "Testing quote_space");
-{   my $csv = Text::CSV.new (:quote_space);
-    ok ($csv.combine (1, " ", 3),          "Combine");
-    is ($csv.string,           q{1," ",3}, "String");
-    is ($csv.quote_space,      True,       "Attr 1");
-    is ($csv.quote_space (0),  False,      "Attr 0");
-    ok ($csv.combine (1, " ", 3),          "Combine");
-    is ($csv.string,           q{1, ,3},   "String");
-    is ($csv.quote_space,      False,      "Attr 0");
-    is ($csv.quote_space (1),  True,       "Attr 1");
-    ok ($csv.combine (1, " ", 3),          "Combine");
-    is ($csv.string,           q{1," ",3}, "String");
-    is ($csv.quote_space,      True,       "Attr 1");
+{   ok (my $csv = Text::CSV.new (:quote-space), "new (:quote-space)");
+    ok ($csv.combine (1, " ", 3),               "Combine");
+    is ($csv.string,                q{1," ",3}, "String");
+    is ($csv.quote_space,           True,       "Attr 1");
+    is ($csv.quote_space (0),       False,      "Attr 0");
+    ok ($csv.combine (1, " ", 3),               "Combine");
+    is ($csv.string,                q{1, ,3},   "String");
+    is ($csv.quote_space,           False,      "Attr 0");
+    is ($csv.quote_space (1),       True,       "Attr 1");
+    ok ($csv.combine (1, " ", 3),               "Combine");
+    is ($csv.string,                q{1," ",3}, "String");
+    is ($csv.quote_space,           True,       "Attr 1");
+    }
+
+ok (1, "Testing quote_empty");
+{   ok (my $csv = Text::CSV.new,               "new (default)");
+    is ($csv.quote_empty,     False,           "default = False");
+    ok ($csv.combine (1, Str, "", " ", 2),     "combine qe = False");
+    is ($csv.string,          qq{1,,," ",2},   "string");
+    is ($csv.quote-empty (1), True,            "enable quote_empty");
+    ok ($csv.combine (1, Str, "", " ", 2),     "combine qe = True");
+    is ($csv.string,          qq{1,,""," ",2}, "string");
     }
 
 done;
