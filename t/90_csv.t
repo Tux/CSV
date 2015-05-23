@@ -57,7 +57,7 @@ sub inok (@r, Str $diag) {
     #@r.perl.say;
     $io-in.seek (0, 0);
     is (@r.elems, 3, "AoA should have 3 rows");
-    is_deeply (@r, @expect, "Content");
+    is-deeply (@r, @expect, "Content");
     }
 
 # Test supported "in" formats
@@ -83,14 +83,14 @@ is (csv (in => $fni, out => Str, fragment => "cell=1,1"), "foo\r\n",          "F
 $io-in.seek (0, 0);
 for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    is_deeply (csv (in => $in, out => Array),
+    is-deeply (csv (in => $in, out => Array),
         [["foo", "bar", "baz"], ["1", "2", "3"], ["2", "a b", ""]], "csv => Array $s-in");
     }
 
 $io-in.seek (0, 0);
 for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    is_deeply ([csv (in => $in, out => Hash)],
+    is-deeply ([csv (in => $in, out => Hash)],
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash $s-in");
     }
 
@@ -99,7 +99,7 @@ for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
     ok ($csv.column_names (<foo bar baz>), "colnames");
-    is_deeply ([$csv.csv (in => $in, out => Hash, skip => 1)],
+    is-deeply ([$csv.csv (in => $in, out => Hash, skip => 1)],
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + skip $s-in");
     }
 
@@ -107,7 +107,7 @@ $io-in.seek (0, 0);
 for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
-    is_deeply ([$csv.csv (in => $in, headers => "auto")],
+    is-deeply ([$csv.csv (in => $in, headers => "auto")],
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + auto $s-in");
     }
 
@@ -115,7 +115,7 @@ $io-in.seek (0, 0);
 for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
-    is_deeply ([$csv.csv (in => $in, headers => [<foo bar baz>], frag => "row=2-*")],
+    is-deeply ([$csv.csv (in => $in, headers => [<foo bar baz>], frag => "row=2-*")],
         [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + hdrs $s-in");
     }
 
@@ -131,21 +131,21 @@ my $aoh = [
     ];
 
 my @aoa = @{$aoa}[1,2];
-is_deeply (csv (file => $file, headers  => "skip"),    \@aoa, "AOA skip");
-is_deeply (csv (file => $file, fragment => "row=2-3"), \@aoa, "AOA fragment");
+is-deeply (csv (file => $file, headers  => "skip"),    \@aoa, "AOA skip");
+is-deeply (csv (file => $file, fragment => "row=2-3"), \@aoa, "AOA fragment");
 
-is_deeply (csv (in => $file, encoding => "utf-8", headers => ["a", "b", "c"],
+is-deeply (csv (in => $file, encoding => "utf-8", headers => ["a", "b", "c"],
                 fragment => "row=2", sep_char => ","),
        [{ a => 1, b => 2, c => 3 }], "AOH headers fragment");
 
 ok (csv (in => $aoa, out => $file), "AOA out file");
-is_deeply (csv (in => $file), $aoa, "AOA parse out");
+is-deeply (csv (in => $file), $aoa, "AOA parse out");
 
 ok (csv (in => $aoh, out => $file, headers => "auto"), "AOH out file");
-is_deeply (csv (in => $file, headers => "auto"), $aoh, "AOH parse out");
+is-deeply (csv (in => $file, headers => "auto"), $aoh, "AOH parse out");
 
 ok (csv (in => $aoh, out => $file, headers => "skip"), "AOH out file no header");
-is_deeply (csv (in => $file, headers => [keys %{$aoh->[0]}]),
+is-deeply (csv (in => $file, headers => [keys %{$aoh->[0]}]),
     $aoh, "AOH parse out no header");
 
 my $idx = 0;
@@ -153,15 +153,15 @@ sub getrowa { return $aoa->[$idx++]; }
 sub getrowh { return $aoh->[$idx++]; }
 
 ok (csv (in => \&getrowa, out => $file), "out from CODE/AR");
-is_deeply (csv (in => $file), $aoa, "data from CODE/AR");
+is-deeply (csv (in => $file), $aoa, "data from CODE/AR");
 
 $idx = 0;
 ok (csv (in => \&getrowh, out => $file, headers => \@hdr), "out from CODE/HR");
-is_deeply (csv (in => $file, headers => "auto"), $aoh, "data from CODE/HR");
+is-deeply (csv (in => $file, headers => "auto"), $aoh, "data from CODE/HR");
 
 $idx = 0;
 ok (csv (in => \&getrowh, out => $file), "out from CODE/HR (auto headers)");
-is_deeply (csv (in => $file, headers => "auto"), $aoh, "data from CODE/HR");
+is-deeply (csv (in => $file, headers => "auto"), $aoh, "data from CODE/HR");
 
 unlink $file;
 

@@ -54,7 +54,7 @@ $csv = Text::CSV.new;
 
 $fh = open $tfn, :r;
 my @matrix = $csv.getline_all ($fh, :!meta);
-is_deeply (to-int (@matrix), @expect, "Whole matrix");
+is-deeply (to-int (@matrix), @expect, "Whole matrix");
 $fh.close;
 
 my @test =
@@ -119,13 +119,13 @@ for @test -> $t {
     my $expt = $t.value;
 
     $fh = open $tfn, :r;
-    is_deeply (to-int ($csv.fragment ($fh, $spec, :!meta)), $expt, "spec: $spec");
+    is-deeply (to-int ($csv.fragment ($fh, $spec, :!meta)), $expt, "spec: $spec");
     $fh.close;
     }
 
 $csv.column_names ("c1");
 $fh = open $tfn, :r;
-is_deeply ($csv.fragment ($fh, "row=3"),
+is-deeply ($csv.fragment ($fh, "row=3"),
     [{ :c1("31") }],            "Fragment to AoH (row)");
 $fh.close;
 
@@ -136,13 +136,13 @@ my @rx;
 # { c3 => ~(10 * $_ + 3) } is a closure generating a pair
 # @rx = (1..9).map ({ :c3(~(10 * $_ + 3)).hash.item });
 for (1..9) -> $x { @rx.push: { c3 => ~(10 * $x + 3) }};
-is_deeply ($csv.fragment ($fh, "col=3"),
+is-deeply ($csv.fragment ($fh, "col=3"),
     [ @rx ],                    "Fragment to AoH (col)");
 $fh.close;
 
 $csv.column_names ("c3","c4");
 $fh = open $tfn, :r;
-is_deeply ($csv.fragment ($fh, "cell=3,2-4,3"),
+is-deeply ($csv.fragment ($fh, "cell=3,2-4,3"),
     [{ :c3("32"), :c4("33") },
      { :c3("42"), :c4("43") }], "Fragment to AoH (cell)");
 $fh.close;

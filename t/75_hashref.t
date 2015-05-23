@@ -36,13 +36,13 @@ is   (+$e, 3002,           "3002 - _hr call before column_names");
 like (~$e, rx{^ "EHR" >>}, "3002 - EHR");
 
 ok ($csv.column_names (< name code >), "column_names (list)");
-is_deeply ([$csv.column_names], [< name code >], "well set");
+is-deeply ([$csv.column_names], [< name code >], "well set");
 
 my @hdr = < code name price description >;
-is_deeply ([$csv.getline ($fh, :!meta)], @hdr, "Header still not _hr");
+is-deeply ([$csv.getline ($fh, :!meta)], @hdr, "Header still not _hr");
 
 ok ($csv.column_names (@hdr), "Set whole header");
-is_deeply ([$csv.column_names], @hdr, "Inspect header");
+is-deeply ([$csv.column_names], @hdr, "Inspect header");
 
 while $csv.getline_hr ($fh) -> %row {
     ok (%row{$_}, "Has $_") for @hdr;
@@ -54,7 +54,7 @@ $fh.close;
 
 $fh = open $tfn, :r, :!chomp;
 $csv.colrange ([0, 2]);
-is_deeply ($csv.getline_hr ($fh, :!meta),
+is-deeply ($csv.getline_hr ($fh, :!meta),
     { :code("code"), :price("price") }, "selection");
 $fh.close;
 
@@ -75,15 +75,15 @@ ok ($csv.keep_meta (True),                             "keep meta info");
 $fh = open $tfn, :r;
 is ([$csv.column_names (False)], [],                   "reset column headers");
 ok ($csv.column_names ($csv.getline ($fh)),            "get column names");
-is_deeply ([$csv.column_names], [< c_foo foo zebra >], "column names");
+is-deeply ([$csv.column_names], [< c_foo foo zebra >], "column names");
 my %gth = $csv.getline_hr ($fh);
-is_deeply ([ sort keys %gth ],  [< c_foo foo zebra >], "keys");
-is_deeply ([%gth<c_foo foo zebra>».Str],
+is-deeply ([ sort keys %gth ],  [< c_foo foo zebra >], "keys");
+is-deeply ([%gth<c_foo foo zebra>».Str],
     [%hr<c_foo foo zebra>],                            "field values");
 is ($csv.keep_meta (False), False,                     "reset meta");
-is_deeply ($csv.getline_hr ($fh),
+is-deeply ($csv.getline_hr ($fh),
     {:c_foo(""), :foo(""), :zebra("")},                "empty record");
-is_deeply ($csv.getline_hr ($fh), {:c_foo("")},        "empty line");
+is-deeply ($csv.getline_hr ($fh), {:c_foo("")},        "empty line");
 # TODO: Test for missing columns 2 and 3
 $fh.close;
 

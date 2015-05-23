@@ -58,21 +58,21 @@ for ("\n", "\r") -> $eol {
             my $s_args = @args.join (", ");
 
             my $fh = open $tfn, :r or die "$tfn: $!";
-            # un-obj for is_deeply
+            # un-obj for is-deeply
             my @f = un-obj ($csv.getline_all ($fh, |@args));
-            is_deeply (@f, @exp, "getline_all ($s_args)");
+            is-deeply (@f, @exp, "getline_all ($s_args)");
             $fh.close;
 
             $fh = open $tfn, :r or die "$tfn: $!";
             @f = $csv.getline_all ($fh, |@args, :!meta);
-            is_deeply (@f, @exp, "getline_all ($s_args, no-meta)");
+            is-deeply (@f, @exp, "getline_all ($s_args, no-meta)");
             $fh.close;
             });
 
         my $fh = open $tfn, :r or die "$tfn: $!";
         ok ($csv.colrange ("1;4"),      "ColRange 1;4");
         ok ($csv.rowrange ("2;4"),      "RowRange 2;4");
-        is_deeply (un-obj ($csv.getline_all ($fh)),
+        is-deeply (un-obj ($csv.getline_all ($fh)),
             [["2","B"],["4","D"]],      "Selection");
         }
 
@@ -113,14 +113,14 @@ for ("\n", "\r") -> $eol {
 
             my $fh  = open $tfn, :r or die "$tfn: $!";
             my @f = $csv.getline_hr_all ($fh, :$meta, |@args);
-            is_deeply (@f, @exp, "getline_hr_all ($s_args)");
+            is-deeply (@f, @exp, "getline_hr_all ($s_args)");
             $fh.close;
             });
 
         my $fh = open $tfn, :r or die "$tfn: $!";
         ok ($csv.colrange ("1;4"),      "ColRange 1;4");
         ok ($csv.rowrange ("2;4"),      "RowRange 2;4");
-        is_deeply ($csv.getline_hr_all ($fh, :$meta),
+        is-deeply ($csv.getline_hr_all ($fh, :$meta),
             [{:A("2"), :D("B")},{:A("4"), :D("D")}], "Selection");
         }
 
@@ -129,26 +129,26 @@ for ("\n", "\r") -> $eol {
 
 {   ok (my $csv = Text::CSV.new, "new for sep=");
     my $fh = IO::String.new (qq{sep=;\n"a b";3\n});
-    is_deeply ($csv.getline_all ($fh), [["a b", "3"]], "valid sep=");
+    is-deeply ($csv.getline_all ($fh), [["a b", "3"]], "valid sep=");
     is (+$csv.error_diag, 2012, "EOF");
     }
 
 {   ok (my $csv = Text::CSV.new, "new for sep=");
     my $fh = IO::String.new (qq{sep=;\n"a b",3\n});
-    is_deeply ($csv.getline_all ($fh), [], "invalid sep=");
+    is-deeply ($csv.getline_all ($fh), [], "invalid sep=");
     is (+$csv.error_diag, 2023, "error");
     }
 
 {   ok (my $csv = Text::CSV.new, "new for sep=");
     my $fh = IO::String.new (qq{sep=XX\n"a b"XX3\n});
-    is_deeply ($csv.getline_all ($fh), [["a b", "3"]], "multibyte sep=");
+    is-deeply ($csv.getline_all ($fh), [["a b", "3"]], "multibyte sep=");
     is (+$csv.error_diag, 2012, "EOF");
     }
 
 {   ok (my $csv = Text::CSV.new, "new for sep=");
     # To check that it is *only* supported on the first line
     my $fh = IO::String.new (qq{sep=;\n"a b";3\nsep=,\n"a b",3\n});
-    is_deeply ($csv.getline_all ($fh),
+    is-deeply ($csv.getline_all ($fh),
 	[["a b","3"],["sep=,"]], "sep= not on 1st line");
     is (+$csv.error_diag, 2023, "error");
     }

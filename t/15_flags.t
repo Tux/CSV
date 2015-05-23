@@ -74,7 +74,7 @@ sub crnlsp (Text::CSV $csv) {
     is ( $csv.fields.elems, 1,                          "comma - fields () - count");
     is ( $csv.fields[0].text, ",",                      "comma - fields () - content");
     is ( $csv.fields[0].is_quoted, True,                "comma - fields () - quoted");
-    is_deeply ([$csv.list], [","],                      "As list");
+    is-deeply ([$csv.list], [","],                      "As list");
     ok ( $csv.parse (qq{,"I said,\t""Hi!""",""}),       "Hi! - parse ()");
     is ( $csv.fields.elems, 3,                          "Hi! - fields () - count");
     is ( $csv.fields[0].text, "",                       "comma - fields () - content");
@@ -83,7 +83,7 @@ sub crnlsp (Text::CSV $csv) {
     is ( $csv.fields[1].is_quoted, True,                "comma - fields () - quoted");
     is ( $csv.fields[2].text, "",                       "comma - fields () - content");
     is ( $csv.fields[2].is_quoted, True,                "comma - fields () - quoted");
-    is_deeply ([$csv.list], ["",qq{I said,\t"Hi!"},""], "As list");
+    is-deeply ([$csv.list], ["",qq{I said,\t"Hi!"},""], "As list");
     }
 
 {   my $csv = Text::CSV.new (eol => "\r", :!binary);

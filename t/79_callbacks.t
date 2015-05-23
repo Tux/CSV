@@ -36,17 +36,17 @@ sub Replc (CSV::Row $r) { $r.fields[1] =  CSV::Field.new; }
 sub Unshf (CSV::Row $r) { $r.fields.unshift (CSV::Field.new ("0")); }
 
 ok ($csv.meta (True), "Set meta again");
-is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"],     "Parse no cb");
+is-deeply ([$csv.getline ("1,2").map (~*)], ["1","2"],     "Parse no cb");
 ok ($csv.callbacks ("after_parse", &Empty), "Empty ap cb");
-is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"],     "Parse empty cb");
+is-deeply ([$csv.getline ("1,2").map (~*)], ["1","2"],     "Parse empty cb");
 ok ($csv.callbacks ("after_parse", &Drop),  "Drop ap cb");
-is_deeply ([$csv.getline ("1,2").map (~*)], ["1"],         "Parse dropping cb");
+is-deeply ([$csv.getline ("1,2").map (~*)], ["1"],         "Parse dropping cb");
 ok ($csv.callbacks ("after_parse", &Push),  "Push ap cb");
-is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2",Str], "Parse pushing cb");
+is-deeply ([$csv.getline ("1,2").map (~*)], ["1","2",Str], "Parse pushing cb");
 ok ($csv.callbacks ("after_parse", &Replc), "Replc ap cb");
-is_deeply ([$csv.getline ("1,2").map (~*)], ["1",Str],     "Parse pushing cb");
+is-deeply ([$csv.getline ("1,2").map (~*)], ["1",Str],     "Parse pushing cb");
 ok ($csv.callbacks ("after_parse", &Unshf), "Unshf ap cb");
-is_deeply ([$csv.getline ("1,2").map (~*)], ["0","1","2"], "Parse unshifting cb");
+is-deeply ([$csv.getline ("1,2").map (~*)], ["0","1","2"], "Parse unshifting cb");
 
 my $fh = open $tfn, :w;
 $fh.say ("1,a");
@@ -65,7 +65,7 @@ $csv = Text::CSV.new;
 ok ($csv.callbacks ("filter", &Filter), "Add filer");
 ok ((my @r = $csv.getline_all ($fh)), "Fetch all with filter");
 for @r -> @f { $_ = ~$_ for @f; }
-is_deeply (@r, [["1","a"],["3","c"]], "Filtered content");
+is-deeply (@r, [["1","a"],["3","c"]], "Filtered content");
 
 unlink $tfn;
 
@@ -146,7 +146,7 @@ is ($s, "bar",                          "value");
 
 $csv->bind_columns (undef);
 ok (my $row = $csv->getline (*DATA),    "get row");
-is_deeply ($row, [ 1, 2, 3, "NEW" ],    "fetch + value from hook");
+is-deeply ($row, [ 1, 2, 3, "NEW" ],    "fetch + value from hook");
 
 $error = 2012; # EOF
 ok ($csv->getline (*DATA),              "parse past eof");
@@ -167,14 +167,14 @@ close $fh;
 
 # Test the non-IO interface
 ok ($csv->parse ("10,blah,33\n"),                       "parse");
-is_deeply ([ $csv->fields ], [ 10, "blah", 33, "NEW" ], "fields");
+is-deeply ([ $csv->fields ], [ 10, "blah", 33, "NEW" ], "fields");
 
 ok ($csv->combine (11, "fri", 22, 18),                  "combine - no hook");
 is ($csv->string, qq{11,fri,22,18\n},                   "string");
 
 is ($csv->callbacks (undef), undef,                     "clear callbacks");
 
-is_deeply (Text::CSV_XS::csv (in => $fn, callbacks => $callbacks),
+is-deeply (Text::CSV_XS::csv (in => $fn, callbacks => $callbacks),
     [[1,"foo","NEW"],[2,"bar","NEW"],[3,"","NEW"]], "using getline_all");
 
 __END__

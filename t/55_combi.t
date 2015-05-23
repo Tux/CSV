@@ -120,14 +120,3 @@ for ( @special, "\0" ) -> $sc {
  }
 
 done;
-
-=finish
-
-foreach my $fail (sort keys %fail) {
-    print STDERR "Failed combi for $fail ():\n",
-                 "--     qc     ec     sc     ac\n";
-    foreach my $combi (sort keys %{$fail{$fail}}) {
-        printf STDERR "%-20s - %s\n", map { _readable $_ } $combi, $fail{$fail}{$combi};
-        }
-    }
-1;

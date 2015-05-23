@@ -20,7 +20,7 @@ my %err;
 my $csv = Text::CSV.new ();
 is (+$csv.error_diag,  0,       "initial state is no error");
 is (~$csv.error_diag, "",       "initial state is no error");
-is_deeply ([ $csv.error_diag ], [ 0, "", 0, 0, 0, ""], "OK in list context");
+is-deeply ([ $csv.error_diag ], [ 0, "", 0, 0, 0, ""], "OK in list context");
 
 my $recno = 1;
 
