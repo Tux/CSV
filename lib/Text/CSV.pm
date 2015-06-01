@@ -842,8 +842,8 @@ class Text::CSV {
             $!error_field   = $!csv-row.fields.elems + 1;
             $!error_message = %errors{$errno};
             $!error_input   = $buffer;
-            $!auto_diag and self.error_diag;
             $!eof           = $errno == 2012;
+            $!auto_diag && !($!io && $!eof) and self.error_diag;
             False;
             }
 
