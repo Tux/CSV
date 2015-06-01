@@ -68,7 +68,6 @@ sub MAIN (Bool :$help = False, Str :$s = "", Str :$q = '"', Str :$e = '"', *@f) 
 	    $rows++;
 	    %cols{@row.elems}++;
 	    @row.map (*.is_binary).any and $bin = True;
-	    $csv.error-diag.error and last;
 	    }
 
 	# Report findings

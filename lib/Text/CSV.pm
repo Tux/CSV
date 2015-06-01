@@ -1208,12 +1208,12 @@ class Text::CSV {
         my Str  $nl      = $io.nl;
         $!eol.defined  and $io.nl = $!eol;
         $io.chomp = False;
-        $!io = $io;
-        self.parse ($io.get);
-        $!io =  IO;
+        $!io      = $io;
+        my Bool $status  = self.parse ($io.get);
+        $!io      =  IO;
         $io.nl    = $nl;
         $io.chomp = $chomped;
-        $meta ?? self.fields !! self.list;
+        $status ?? $meta ?? self.fields !! self.list !! ();
         } # getline
 
     method getline_hr_all (IO:D  $io,
