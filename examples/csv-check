@@ -1,13 +1,13 @@
 #!perl6
 
 # csv-check: Check validity of CSV file and report
-#	   (m)'15 [01 Jun 2015] Copyright H.M.Brand 2007-2015
+#          (m)'15 [01 Jun 2015] Copyright H.M.Brand 2007-2015
 
 use v6;
 use Slang::Tuxic;
 use Text::CSV;
 
-our $VERSION = "6.0";	# 2015-06-01
+our $VERSION = "6.0";   # 2015-06-01
 
 sub usage (Bool $err = True, Str :$pn = "csv-check") {
     $err and temp $*OUT = $*ERR;
@@ -39,58 +39,58 @@ sub MAIN (Bool :$help = False, Str :$s = "", Str :$q = '"', Str :$e = '"', *@f) 
 
     @f.elems or @f.push: "-";
     for @f -> $fn {
-	my Str  $data = $fn eq "-" ?? $*IN.slurp-rest !! slurp $fn;	# Binary NYI
+        my Str  $data = $fn eq "-" ?? $*IN.slurp-rest !! slurp $fn;     # Binary NYI
 
-	my Str  $eol;
-	my Str  $sep = $s eq "tab"   ?? "\t" !! $s;
-	my Str  $quo = $q eq "undef" ?? Str  !! $q;
-	my Str  $esc = $e eq "undef" ?? Str  !! $e;
+        my Str  $eol;
+        my Str  $sep = $s eq "tab"   ?? "\t" !! $s;
+        my Str  $quo = $q eq "undef" ?? Str  !! $q;
+        my Str  $esc = $e eq "undef" ?? Str  !! $e;
 
-	my Bool $bin  = False;
-	my Int  $rows = 0;
-	my      %cols;
+        my Bool $bin  = False;
+        my Int  $rows = 0;
+        my      %cols;
 
-	unless ($sep) { # No sep char passed, try to auto-detect;
-	    $sep = $data ~~ m/<["\d]> ","  <["\d,]>/ ?? ","  !!
-		   $data ~~ m/<["\d]> ";"  <["\d;]>/ ?? ";"  !!
-		   $data ~~ m/<["\d]> "\t" <["\d]> / ?? "\t" !!
-		   # If neither, then for unquoted strings
-		   $data ~~ m/   \w   ","  <[\w,]> / ?? ","  !!
-		   $data ~~ m/   \w   ";"  <[\w;]> / ?? ";"  !!
-		   $data ~~ m/   \w   "\t" <[\w]>  / ?? "\t" !! ",";
-	    $data ~~ m/(<[\r\n]>+)$/ and $eol = $0.Str;
-	    }
+        unless ($sep) { # No sep char passed, try to auto-detect;
+            $sep = $data ~~ m/<["\d]> ","  <["\d,]>/ ?? ","  !!
+                   $data ~~ m/<["\d]> ";"  <["\d;]>/ ?? ";"  !!
+                   $data ~~ m/<["\d]> "\t" <["\d]> / ?? "\t" !!
+                   # If neither, then for unquoted strings
+                   $data ~~ m/   \w   ","  <[\w,]> / ?? ","  !!
+                   $data ~~ m/   \w   ";"  <[\w;]> / ?? ";"  !!
+                   $data ~~ m/   \w   "\t" <[\w]>  / ?? "\t" !! ",";
+            $data ~~ m/(<[\r\n]>+)$/ and $eol = $0.Str;
+            }
 
-	my $csv = Text::CSV.new (:$sep, :$quo, :$esc, :meta);
-	my $fh = IO::String.new ($data);
-	my CSV::Field @row;
-	while (@row = $csv.getline ($fh)) {
-	    $rows++;
-	    %cols{@row.elems}++;
-	    @row.map (*.is_binary).any and $bin = True;
-	    }
+        my $csv = Text::CSV.new (:$sep, :$quo, :$esc, :meta);
+        my $fh = IO::String.new ($data);
+        my CSV::Field @row;
+        while (@row = $csv.getline ($fh)) {
+            $rows++;
+            %cols{@row.elems}++;
+            @row.map (*.is_binary).any and $bin = True;
+            }
 
-	# Report findings
-	"Checked \e[35m$fn\e[0m with \e[34m$pn $VERSION\e[0m using \e[34mText::CSV {$csv.version}\e[0m".say;
-	my $diag = $csv.error-diag;
+        # Report findings
+        "Checked \e[35m$fn\e[0m with \e[34m$pn $VERSION\e[0m using \e[34mText::CSV {$csv.version}\e[0m".say;
+        my $diag = $csv.error-diag;
 
-	if ($diag.error == 2012 && $csv.eof) {
-	    my @coll = %cols.keys.sort: { $^a <=> $^b };
-	    my $cols = @coll.elems == 1 ?? @coll[0] !! "\e[31m({@coll.join (', ')})\e[0m";
-	    say "OK: rows: \e[32m$rows\e[0m, columns: \e[32m$cols\e[0m";
-	    say "    {to-str 'sep', $sep}, {to-str 'quo', $quo}, {to-str 'eol', $eol}, bin = $bin";
-	    if (@coll.elems > 1) {
-		"\e[33mWARN: multiple column lengths:\e[0m".say;
-		for @coll -> $c {
-		    printf " %6d line%s with %4d field%s\n",
-			%cols{$c}, %cols{$c} == 1 ?? " " !! "s",
-			$c,        $c        == 1 ?? ""  !! "s";
-		    }
-		}
-	    }
-	else {
-	    $csv.diag-verbose (9);
-	    $csv.error-diag.sink;
-	    }
-	}
+        if ($diag.error == 2012 && $csv.eof) {
+            my @coll = %cols.keys.sort: { $^a <=> $^b };
+            my $cols = @coll.elems == 1 ?? @coll[0] !! "\e[31m({@coll.join (', ')})\e[0m";
+            say "OK: rows: \e[32m$rows\e[0m, columns: \e[32m$cols\e[0m";
+            say "    {to-str 'sep', $sep}, {to-str 'quo', $quo}, {to-str 'eol', $eol}, bin = $bin";
+            if (@coll.elems > 1) {
+                "\e[33mWARN: multiple column lengths:\e[0m".say;
+                for @coll -> $c {
+                    printf " %6d line%s with %4d field%s\n",
+                        %cols{$c}, %cols{$c} == 1 ?? " " !! "s",
+                        $c,        $c        == 1 ?? ""  !! "s";
+                    }
+                }
+            }
+        else {
+            $csv.diag-verbose (9);
+            $csv.error-diag.sink;
+            }
+        }
     }
