@@ -43,7 +43,9 @@ sub combi (*%attr)
     if (%attr<sep_char> eq %attr<quote_char> ||
         %attr<sep_char> eq %attr<escape_char>) {
         ok (%state{1001}.defined, "Illegal combo sep == quo || sep == esc");
-        #ok (%state{1001} ~~ m{"sep_char is equal to"}, "Illegal combo 1001");
+        is (%state{1001}, "INI - separator is equal to quote- or escape sequence", "Illegal combo 1001");
+        #%state{1001} ~~ m{"separator is equal to"} or warn "HELP";
+        #%state{1001} ~~ m{"separator is equal to"} or die %state{1001};
         }
     else {
         ok (!%state{1001}.defined, "No char conflict");
