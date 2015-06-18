@@ -3,7 +3,7 @@
 use v6;
 use Slang::Tuxic;
 
-my $tfn = "_75in.csv";#END { unlink $tfn; }
+my $tfn = "_75in.csv"; END { unlink $tfn; }
 
 use Test;
 use Text::CSV;
