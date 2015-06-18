@@ -47,19 +47,19 @@ test.pl               41.505   39.047   40.162   38.633   39.618   40.937
 test-t.pl             40.628   37.194   36.658   35.000   35.903   37.067 
 csv-parser.pl          -        -        -        -      389.192   24.922
 
-                    20150426 
-------------------  -------- 
-Text::CSV::Easy_XS     0.016 
-Text::CSV::Easy_PP     0.017 
-Text::CSV_XS bindc     0.034 
-Text::CSV_XS           0.039 
-Text::CSV_PP           0.525 
-Pegex::CSV             1.340 
-csv.pl                 7.270 
-csv-ip5xs             17.267 
-csv-ip5xsio           17.243 
-csv-ip5pp             18.218 
-csv_gram.pl           14.226 
-test.pl               44.541 
-test-t.pl             39.887 
-csv-parser.pl         25.712 
+                    20150426 20150618 
+------------------  -------- -------- 
+Text::CSV::Easy_XS     0.016    0.017 
+Text::CSV::Easy_PP     0.017    0.016 
+Text::CSV_XS bindc     0.034    0.033 
+Text::CSV_XS           0.039    0.036 
+Text::CSV_PP           0.525    0.505 
+Pegex::CSV             1.340    1.311 
+csv.pl                 7.270    7.763 
+csv-ip5xs             17.267   16.728 
+csv-ip5xsio           17.243   16.742 
+csv-ip5pp             18.218   17.496 
+csv_gram.pl           14.226   14.541 
+test.pl               44.541   43.057 
+test-t.pl             39.887   41.265 
+csv-parser.pl         25.712   25.919 
