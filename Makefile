@@ -45,3 +45,4 @@ check:
 
 time:
 	perl time.pl
+	rm -rf /tmp/*-p5helper.so
