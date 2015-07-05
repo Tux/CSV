@@ -8,12 +8,17 @@ Text::CSV - comma-separated values manipulation routines
 
  use Text::CSV;
 
- # Read whole file in memory as array of arrays
- my @aoa = csv(in => "data.csv");
+ # Read whole file in memory
+ my @aoa = csv(in => "data.csv");  # as array of arrays
+ my @aoh = csv(in => "data.csv",
+               headers => "auto"); # as array of hashes
+
  # Write array of arrays as csv file
  csv(in => @aoa, out => "file.csv", sep => ";");
 
+
  my @rows;
+ # Read/parse CSV
  my $csv = Text::CSV.new;
  my $fh  = open "test.csv", :r, chomp => False;
  while (my @row = $csv.getline($fh)) {
@@ -22,9 +27,9 @@ Text::CSV - comma-separated values manipulation routines
      }
  $fh.close;
 
- $csv.eol("\r\n");
+ # and write as CSV
  $fh = open "new.csv", :w;
- $csv.print($fh, $_) for @rows;
+ $csv.say($fh, $_) for @rows;
  $fh.close;
 
 =head1 DESCRIPTION
