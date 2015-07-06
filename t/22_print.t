@@ -16,10 +16,10 @@ my @args = ("1", "foo", "a b", Str, "3", ""); # "1" instead of 1 for is-deeply
 my $fh = open $tfn, :w;
 ok ($csv.eol ("\r"), "EOL is CR for writing");
 ok ($csv.print ($fh, 1, "foo", "a b", Str, 3, ""), "combine (list)");
-ok ($csv.print ($fh,  @args),                      "combine (array)");
-ok ($csv.print ($fh, |@args),                      "combine (flattened array)");
-ok ($csv.print ($fh, [@args]),                     "combine (anon array)");
-ok ($csv.print ($fh, \@args),                      "combine (array ref)");
+ok ($csv.print ($fh,   @args),                     "combine (array)");
+ok ($csv.print ($fh,  |@args),                     "combine (flattened array)");
+ok ($csv.print ($fh,  [@args]),                    "combine (anon array)");
+ok ($csv.print ($fh, \(@args)),                    "combine (array ref)");
 $fh.close;
 
 $fh = open $tfn, :r;

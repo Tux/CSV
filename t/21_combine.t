@@ -19,7 +19,7 @@ ok ($csv.combine (|@args),                      "combine (flattened array)");
 is ($csv.string, $expect, "string");
 ok ($csv.combine ([@args]),                     "combine (anon array)");
 is ($csv.string, $expect, "string");
-ok ($csv.combine (\@args),                      "combine (array ref)");
+ok ($csv.combine (\(@args)),                    "combine (array ref)");
 is ($csv.string, $expect, "string");
 
 done;

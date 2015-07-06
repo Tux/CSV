@@ -41,7 +41,7 @@ my Str $s-in;
 my @in =
     $fni,                       # Str
     $io-in,                     # IO::Handle
-    \$data,                     # Capture
+   \($data),                    # Capture
     [$data],                    # Array
     [@data],                    # Array
     $full-aoa,                  # Array
