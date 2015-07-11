@@ -619,8 +619,8 @@ class Text::CSV {
         if (@cb.elems) {
             my %hooks;
             for @cb -> $name, $hook {
-                $name.defined && $name ~~ Str     &&
-                $hook.defined && $hook ~~ Routine or
+                $name.defined &&  $name ~~ Str     &&
+                $hook.defined && ($hook ~~ Routine || $hook ~~ Callable) or
                     self!fail (1004);
 
                 $name ~~ s{"-"} = "_";
