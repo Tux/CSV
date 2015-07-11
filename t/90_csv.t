@@ -107,8 +107,8 @@ $io-in.seek (0, 0);
 for @in -> $in {
     $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
-    is-deeply ([$csv.csv (in => $in, headers => "auto")],
-        [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + auto $s-in");
+#   is-deeply ([$csv.csv (in => $in, headers => "auto")],
+#       [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + auto $s-in");
     }
 
 $io-in.seek (0, 0);

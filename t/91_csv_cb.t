@@ -23,7 +23,7 @@ my @aoh =
     { foo => "1", bar => "2",   baz => "3" },
     { foo => "2", bar => "a b", baz => ""  };
 
-sub Empty (Text::CSV $c, CSV::Field @f) {}
+sub Empty (CSV::Row $r) {}
 
 for (< after_in on_in before_out >) -> $t {
     is-deeply (csv (in => $file,             |( $t => &Empty )), @aoa, "callback $t on AOA with empty sub");
@@ -39,7 +39,7 @@ for (< after_in on_in before_out >) -> $t {
 is-deeply ([csv (in => $file, headers => "auto", after_in => &Empty,
     callbacks => { on_in => &Empty })], @aoh, "callback after_in and on_in on AOH");
 
-sub Push (Text::CSV $c, CSV::Field @f is rw) { @f.push: "A"; }
+sub Push (CSV::Row $r) { $r.push: "A"; }
 
 done;
 
