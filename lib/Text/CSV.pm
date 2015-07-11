@@ -1509,7 +1509,11 @@ class Text::CSV {
             when Supply {
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
                 my int $i = 0;
-                @in = gather while ($in.tap) -> $r { !$!rrange || $!rrange.in ($i++) and take $r };
+               #@in = gather while ($in.tap) -> $r { !$!rrange || $!rrange.in ($i++) and take $r };
+                @in = gather {
+                    $in.act: { !$!rrange || $!rrange.in ($i++) and take $_ }
+                   #$in.wait;
+                    };
                 }
             when Routine {
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
