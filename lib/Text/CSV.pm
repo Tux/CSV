@@ -1511,14 +1511,14 @@ $hook.perl.say;
             when Supply {
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
                 my int $i = 0;
-                my \c= Channel.new;
-                $in.tap (
-                    -> \row { !$!rrange || $!rrange.in ($i++) and
-                        c.send (row ~~ Str ?? [ self.getline (row) ] !! row); },
-                    done => { c.close },
-                    quit => { c.quit ($^ex) },
+                $in.act (
+                    -> \row {
+                        !$!rrange || $!rrange.in ($i++) and @in.push:
+                          row ~~ Str ?? [ self.getline (row) ] !! row;
+                    },
                     );
-                @in = c.list;
+                $in.wait;
+                @in;
                 }
             when Routine {
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
