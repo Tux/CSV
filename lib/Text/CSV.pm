@@ -623,6 +623,7 @@ class Text::CSV {
                 $hook.defined && ($hook ~~ Routine || $hook ~~ Callable) or
                     self!fail (1004);
 
+$hook.perl.say;
                 $name ~~ s{"-"} = "_";
                 $name ~~ /^ after_parse
                           | before_print
@@ -1479,7 +1480,8 @@ class Text::CSV {
         #   generate
         #     [["a","b"][1,2],[3,4]]     AoA   Array
         #     [{a=>1,b=>2},{a=>3,b=>4}]  AoH   Array
-        #     sub { ... }                      Sub
+        #     sub { ... }                      Routine
+        #     { ... }                          Callable
         #     Supply.new                       Supply
         given ($in.WHAT) {
             when Str {
@@ -1509,16 +1511,20 @@ class Text::CSV {
             when Supply {
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
                 my int $i = 0;
-               #@in = gather while ($in.tap) -> $r { !$!rrange || $!rrange.in ($i++) and take $r };
-                @in = gather {
-                    $in.act: { !$!rrange || $!rrange.in ($i++) and take $_ }
-                   #$in.wait;
-                    };
+                my \c= Channel.new;
+                $in.tap (
+                    -> \row { !$!rrange || $!rrange.in ($i++) and
+                        c.send (row ~~ Str ?? [ self.getline (row) ] !! row); },
+                    done => { c.close },
+                    quit => { c.quit ($^ex) },
+                    );
+                @in = c.list;
                 }
             when Routine {
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
                 my int $i = 0;
-                @in = gather while  $in()    -> $r { !$!rrange || $!rrange.in ($i++) and take $r };
+                @in = gather while $in() -> $r {
+                    !$!rrange || $!rrange.in ($i++) and take $r };
                 }
             when Any {
                 $io-in = $*IN;
