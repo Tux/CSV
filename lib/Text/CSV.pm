@@ -1515,7 +1515,7 @@ $hook.perl.say;
                     -> \row {
                         !$!rrange || $!rrange.in ($i++) and @in.push:
                           row ~~ Str ?? [ self.getline (row) ] !! row;
-                    },
+                        },
                     );
                 $in.wait;
                 @in;
