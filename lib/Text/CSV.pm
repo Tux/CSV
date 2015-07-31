@@ -1632,5 +1632,3 @@ sub csv (*%args) is export {
     %args<meta> //= False;
     Text::CSV.csv (|%args);
     }
-
-1;
