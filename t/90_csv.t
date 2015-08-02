@@ -178,20 +178,6 @@ $idx = 0;
 ok (csv (in => &getrowh, out => $fno), "out from CODE/HR (auto headers)");
 is-deeply (csv (in => $fno, headers => "auto"), $full-aoh, "data from CODE/HR");
 
+is (csv (in => [[1,2,3]], out => Str), "1,2,3\r\n", "Out to Str");
+
 done;
-
-=finish
-
-eval {
-    exists  $Config{useperlio} &&
-    defined $Config{useperlio} &&
-    $] >= 5.008                &&
-    $Config{useperlio} eq "define" or skip "No scalar ref in this perl", 4;
-    my $out = "";
-    open my $fh, ">", \$out;
-    ok (csv (in => [[ 1, 2, 3 ]], out => $fh), "out to fh to scalar ref");
-    is ($out, "1,2,3\r\n",	"Scalar out");
-    $out = "";
-    ok (csv (in => [[ 1, 2, 3 ]], out => \$out), "out to scalar ref");
-    is ($out, "1,2,3\r\n",	"Scalar out");
-    };
