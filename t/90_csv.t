@@ -11,6 +11,8 @@ my $sup;
 
 my $fni    = "_90in.csv";
 my $fno    = "_90out.csv";
+END { unlink $fni, $fno; }
+
 
 my Str @hdr  = < bar baz foo >;
 my Str $hdr  = @hdr.join (",");
@@ -143,20 +145,13 @@ for in () -> $in {
         $full-aoh, "csv => Hash + hdrs { s-in ($in) }");
     }
 
-unlink $fni, $fno;
+my $aoa = [ $full-aoa.list[1,2] ];
+is-deeply (csv (file => $fni, headers  => "skip"),    $aoa, "AOA skip");
+is-deeply (csv (file => $fni, fragment => "row=2-3"), $aoa, "AOA fragment");
 
 done;
 
 =finish
-
-my $aoh = [
-    { foo => 1, bar => 2, baz => 3 },
-    { foo => 2, bar => "a b", baz => "" },
-    ];
-
-my @aoa = @{$aoa}[1,2];
-is-deeply (csv (file => $file, headers  => "skip"),    \@aoa, "AOA skip");
-is-deeply (csv (file => $file, fragment => "row=2-3"), \@aoa, "AOA fragment");
 
 is-deeply (csv (in => $file, encoding => "utf-8", headers => ["a", "b", "c"],
                 fragment => "row=2", sep_char => ","),

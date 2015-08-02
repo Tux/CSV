@@ -1623,8 +1623,8 @@ $hook.perl.say;
         True;
         }
 
-    method csv ( Any       :$in,
-                 Any       :$out,
+    method csv ( Any       :$in  is copy,
+                 Any       :$out is copy,
                  Any       :$headers,
                  Str       :$key,
                  Str       :$encoding,
@@ -1632,6 +1632,16 @@ $hook.perl.say;
                  Bool      :$meta = $!keep_meta,
                  Text::CSV :$csv  = self || Text::CSV.new,
                  *%args ) {
+
+        # file can be alias for in or for out
+        if (my $file = %args<file> :delete) {
+            if ($in.defined) {
+                $out //= $file;
+                }
+            else {
+                $in    = $file;
+                }
+            }
 
         $csv.CSV (:$in, :$out, :$headers, :$key, :$encoding, :$fragment, :$meta, |%args);
         }
