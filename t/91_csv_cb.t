@@ -33,11 +33,11 @@ is-deeply (csv (in => $file, after_in => &Empty,
     callbacks => { on_in => &Empty }), @aoa, "callback after_in and on_in on AOA");
 
 for (< after_in on_in before_out >) -> $t {
-    is-deeply ([csv (in => $file, headers => "auto",             |( $t => &Empty ))], @aoh, "callback $t on AOH with empty sub");
-    is-deeply ([csv (in => $file, headers => "auto", callbacks => { $t => &Empty })], @aoh, "callback $t on AOH with empty sub");
+    is-deeply (csv (in => $file, headers => "auto",             |( $t => &Empty )), @aoh, "callback $t on AOH with empty sub");
+    is-deeply (csv (in => $file, headers => "auto", callbacks => { $t => &Empty }), @aoh, "callback $t on AOH with empty sub");
     }
-is-deeply ([csv (in => $file, headers => "auto", after_in => &Empty,
-    callbacks => { on_in => &Empty })], @aoh, "callback after_in and on_in on AOH");
+is-deeply (csv (in => $file, headers => "auto", after_in => &Empty,
+    callbacks => { on_in => &Empty }), @aoh, "callback after_in and on_in on AOH");
 
 sub Push (CSV::Row $r) { $r.push: "A"; }
 
@@ -45,7 +45,7 @@ done;
 
 =finish
 
-is-deeply ([csv (in => $file, after_in => &Push)], [
+is-deeply (csv (in => $file, after_in => &Push), [
     [< foo bar    baz  A >],
     [  1,  2,     3,  "A" ],
     [  2,  "a b", "", "A" ],
