@@ -1577,6 +1577,14 @@ $hook.perl.say;
                     self.column_names (@in.shift);
                     }
                 }
+            when "skip" {
+                if ($io-in ~~ IO and $io-in.defined) {
+                    self.getline ($io-in, :!meta);
+                    }
+                elsif (@in.elems) {
+                    @in.shift;
+                    }
+                }
             }
 
         if ($io-in ~~ IO and $io-in.defined) {
