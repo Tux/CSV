@@ -12,7 +12,7 @@ my $sup;
 my $fni    = "_90in.csv";
 my $fno    = "_90out.csv";
 
-my Str @hdr  = < foo bar baz >;
+my Str @hdr  = < bar baz foo >;
 my Str $hdr  = @hdr.join (",");
 my Str @data = $hdr, "1,2,3", "2,a b,";
 my Str $data = @data.map (*~"\r\n").join ("");
@@ -36,16 +36,16 @@ sub provider {
     }
 
 my $full-aoa = [[@hdr],["1","2","3"],["2","a b",""]];
-my Str $s-in;
+my $full-aoh = [{:bar("1"),:baz("2"),:foo("3")},{:bar("2"),:baz("a b"),:foo("")}];
 
 my @in =
     $fni,                       # Str
     $io-in,                     # IO::Handle
    \($data),                    # Capture
-    [$data],                    # Array
-    [@data],                    # Array
-    $full-aoa,                  # Array
-#   [{a=>1,b=>2},{a=>3,b=>4}],
+    [$data],                    # Array of String
+    [@data],                    # Array of Strings
+    $full-aoa,                  # Array of Array
+    $full-aoh,                  # Array of Hash
 
     &provider,                  # Sub
     #                           # Callable
@@ -60,6 +60,17 @@ sub in {
     @i;
     }
 
+sub s-in (Any $in) {
+    my Str $type = $in.WHAT.gist;
+    if ($in ~~ Array && $in.elems > 0) {
+        $type ~= $in.list[0].WHAT.gist;
+        $type ~~ s{")("} = " of ";
+        }
+    my Str $s-in = sprintf "%-16s %s", $type, $in.gist;
+    $s-in ~~ s:g{\n} = "\\n";
+    $s-in;
+    }
+
 sub inok (@r, Str $diag) {
     ok (@r, $diag); # Expect Array.new (["a", "b"], ["1", "2"], ["3", "4"])
     #@r.perl.say;
@@ -70,69 +81,57 @@ sub inok (@r, Str $diag) {
 
 # Test supported "in" formats
 for in () -> $in {
-    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    inok (Text::CSV.csv (in => $in, meta => False), "Class   $s-in");
+    inok (Text::CSV.csv (in => $in, meta => False), "Class   { s-in ($in) }");
     }
 for in () -> $in {
-    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    inok (     $csv.csv (in => $in, meta => False), "Method  $s-in");
+    inok (     $csv.csv (in => $in, meta => False), "Method  { s-in ($in) }");
     }
 for in () -> $in {
-    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    inok (          csv (in => $in, meta => False), "Sub     $s-in");
+    inok (          csv (in => $in, meta => False), "Sub     { s-in ($in) }");
     }
 for in () -> $in {
-    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    inok (          csv (in => $in, csv  => $csv),  "Sub/Obj $s-in");
+    inok (          csv (in => $in, csv  => $csv),  "Sub/Obj { s-in ($in) }");
     }
 
 # Test supported "out" formats
 for in () -> $in {
-    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    is (csv (in => $in, out => Str, :!quote-space), $data, "csv => Str $s-in");
+    is (csv (in => $in, out => Str, :!quote-space), $data, "csv => Str   { s-in ($in) }");
     }
 
 is (csv (in => $fni, out => Str, fragment => "row=2"),    "1,2,3\r\n",        "Fragment, row");
-is (csv (in => $fni, out => Str, fragment => "col=3"),    "baz\r\n3\r\n\r\n", "Fragment, col");
-is (csv (in => $fni, out => Str, fragment => "cell=1,1"), "foo\r\n",          "Fragment, cell");
+is (csv (in => $fni, out => Str, fragment => "col=3"),    "foo\r\n3\r\n\r\n", "Fragment, col");
+is (csv (in => $fni, out => Str, fragment => "cell=1,1"), "bar\r\n",          "Fragment, cell");
 
 $io-in.seek (0, 0);
 for in () -> $in {
-    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    is-deeply (csv (in => $in, out => Array),
-        [["foo", "bar", "baz"], ["1", "2", "3"], ["2", "a b", ""]], "csv => Array $s-in");
+    is-deeply ( csv (in => $in, out => Array), $full-aoa, "csv => Array { s-in ($in) }");
     }
 
 $io-in.seek (0, 0);
 for in () -> $in {
-    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
-    is-deeply ([csv (in => $in, out => Hash)],
-        [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash $s-in");
+    is-deeply ([csv (in => $in, out => Hash)], $full-aoh, "csv => Hash  { s-in ($in) }");
     }
 
 $io-in.seek (0, 0);
 for in () -> $in {
-    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
-    ok ($csv.column_names (<foo bar baz>), "colnames");
+    ok ($csv.column_names (@hdr), "colnames");
     is-deeply ([$csv.csv (in => $in, out => Hash, skip => 1)],
-        [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + skip $s-in");
+        $full-aoh, "csv => Hash + skip { s-in ($in) }");
     }
 
 $io-in.seek (0, 0);
 for in () -> $in {
-    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
 #   is-deeply ([$csv.csv (in => $in, headers => "auto")],
-#       [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + auto $s-in");
+#       $full-aoh, "csv => Hash + auto { s-in ($in) }");
     }
 
 $io-in.seek (0, 0);
 for in () -> $in {
-    $s-in = $in.WHAT.gist~$in.gist; $s-in ~~ s:g{\n} = "\\n";
     ok (my $csv = Text::CSV.new,           "new");
-    is-deeply ([$csv.csv (in => $in, headers => [<foo bar baz>], frag => "row=2-*")],
-        [{foo=>"1",bar=>"2",baz=>"3"},{foo=>"2",bar=>"a b",baz=>""}], "csv => Hash + hdrs $s-in");
+    is-deeply ([$csv.csv (in => $in, headers => [@hdr], frag => "row=2-*")],
+        $full-aoh, "csv => Hash + hdrs { s-in ($in) }");
     }
 
 unlink $fni, $fno;

@@ -4,7 +4,7 @@ use v6;
 use Slang::Tuxic;
 use File::Temp;
 
-my $VERSION = "0.002";
+my $VERSION = "0.003";
 
 my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
 
@@ -1493,15 +1493,16 @@ $hook.perl.say;
             when Array {
                 $in.list.elems or return;
                 given ($in.list[0].WHAT) {
-                    when Str {
+                    when Str {  # AoS
                         $io-in = IO::String.new ($in.list.join ($!eol // "\n"));
                         }
-                    default {
+                    default {   # AoA, AoH
                         $fragment ~~ s:i{^ "row=" } = "" and
                             self.rowrange ($fragment);
-                        @in = $!rrange
-                            ?? $in.list[$!rrange.list ($in.list.elems)]
+                        my @i = $in.list[0] ~~ Hash
+                            ?? ([ $in.list[0].keys ], $in.list.map ({[ $_.values ]}))
                             !! $in.list;
+                        @in = $!rrange ?? @i[$!rrange.list (@i.elems)] !! @i;
                         }
                     }
                 }
