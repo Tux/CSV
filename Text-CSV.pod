@@ -1505,15 +1505,16 @@ which will be opened for reading and closed when finished, a file handle
 itself (e.g. C<*STDIN>), or a reference to a scalar (e.g. C<\q{1,2,"csv"}>).
 
 When used with L</out>, C<in> should be a reference to a CSV structure (AoA
-or AoH) or a CODE-ref that returns an array-reference or a hash-reference.
-The code-ref will be invoked with no arguments and .
+or AoH) or a Callable (Sub, Routine, Code, or Block) that returns an
+array-reference or a hash-reference.  The code-ref will be invoked with no
+arguments.
 
  my $aoa = csv(in => "file.csv");
 
  open my $fh, "<", "file.csv";
  my $aoa = csv(in => $fh);
 
- my $csv = [ [qw( Foo Bar )], [ 1, 2 ], [ 2, 3 ]];
+ my $csv = [[qw( Foo Bar )], [ 1, 2 ], [ 2, 3 ]];
  my $err = csv(in => $csv, out => "file.csv");
 
 =head3 out
@@ -1529,8 +1530,8 @@ C<out> can be a file name (e.g. C<"file.csv">), which will be opened for
 writing and closed when finished, a file handle (e.g. C<$fh> or C<FH>), a
 reference to a glob (e.g. C<\*STDOUT>), or the glob itself (e.g. C<*STDOUT>).
 
- csv(in => sub { $sth.fetch },            out => "dump.csv");
- csv(in => sub { $sth.fetchrow_hashref }, out => "dump.csv",
+ csv(in => sub { $sth.fetch },        out => "dump.csv");
+ csv(in => { $sth.fetchrow_hashref }, out => "dump.csv",
       headers => $sth.{NAME_lc});
 
 When a code-ref is used for C<in>, the output is generated per invocation,

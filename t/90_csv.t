@@ -32,7 +32,7 @@ sub provider {
         @dta = @data;
         return False;
         }
-    return [ @dta.shift.split (",") ];
+    [ @dta.shift.split (",") ];
     }
 
 my $full-aoa = [[@hdr],["1","2","3"],["2","a b",""]];
@@ -48,7 +48,16 @@ my @in =
     $full-aoh,                  # Array of Hash
 
     &provider,                  # Sub
-    #                           # Callable
+    {                           # Callable/Block
+        state Str @dta = @data; # (cannot have return's)
+        if (@dta.elems == 0) {
+            @dta = @data;
+            False;
+            }
+        else {
+            [ @dta.shift.split (",") ];
+            }
+        },
     # Supply push later         # Supply
     ;
 

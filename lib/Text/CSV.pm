@@ -1521,7 +1521,7 @@ $hook.perl.say;
                 $in.wait;
                 @in;
                 }
-            when Routine {
+            when Callable { # Sub, Routine, Callable, Block, Code
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
                 my int $i = 0;
                 @in = gather while $in() -> $r {
