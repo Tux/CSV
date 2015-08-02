@@ -163,24 +163,24 @@ ok (csv (in => $full-aoh, out => $fno, headers => "skip"), "AOH out file no head
 is-deeply (csv (in => $fno, headers => [ $full-aoh.list[0].keys ]),
     $full-aoh, "AOH parse out no header");
 
+my int $idx = 0;
+sub getrowa { return $full-aoa[$idx++]; }
+sub getrowh { return $full-aoh[$idx++]; }
+
+ok (csv (in => &getrowa, out => $fno), "out from CODE/AR");
+is-deeply (csv (in => $fno), $full-aoa, "data from CODE/AR");
+
+$idx = 0;
+ok (csv (in => &getrowh, out => $fno, headers => [ @hdr ]), "out from CODE/HR");
+is-deeply (csv (in => $fno, headers => "auto"), $full-aoh, "data from CODE/HR");
+
+$idx = 0;
+ok (csv (in => &getrowh, out => $fno), "out from CODE/HR (auto headers)");
+is-deeply (csv (in => $fno, headers => "auto"), $full-aoh, "data from CODE/HR");
+
 done;
 
 =finish
-
-my $idx = 0;
-sub getrowa { return $full-aoa->[$idx++]; }
-sub getrowh { return $full-aoh->[$idx++]; }
-
-ok (csv (in => \&getrowa, out => $fno), "out from CODE/AR");
-is-deeply (csv (in => $fni), $aoa, "data from CODE/AR");
-
-$idx = 0;
-ok (csv (in => \&getrowh, out => $fno, headers => \@hdr), "out from CODE/HR");
-is-deeply (csv (in => $fni, headers => "auto"), $full-aoh, "data from CODE/HR");
-
-$idx = 0;
-ok (csv (in => \&getrowh, out => $fno), "out from CODE/HR (auto headers)");
-is-deeply (csv (in => $fni, headers => "auto"), $full-aoh, "data from CODE/HR");
 
 eval {
     exists  $Config{useperlio} &&

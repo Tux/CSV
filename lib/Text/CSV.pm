@@ -1524,8 +1524,21 @@ $hook.perl.say;
             when Callable { # Sub, Routine, Callable, Block, Code
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
                 my int $i = 0;
+                my @hdr;
                 @in = gather while $in() -> $r {
-                    !$!rrange || $!rrange.in ($i++) and take $r };
+                    if (!$!rrange || $!rrange.in ($i++)) {
+                        if ($r ~~ Hash) {
+                            unless (@hdr.elems) {
+                                @hdr = @!cnames.elems ?? @!cnames !! $r.keys;
+                                take [ @hdr ];
+                                }
+                            take [ $r{@hdr} ];
+                            }
+                        else {
+                            take $r;
+                            }
+                        }
+                    };
                 }
             when Any {
                 $io-in = $*IN;
@@ -1607,10 +1620,10 @@ $hook.perl.say;
 
         {   my $eol = self.eol;
             $eol.defined or self.eol ("\r\n");
-            for @in -> @row {
-                $!csv-row.fields = @row[0] ~~ CSV::Field
-                    ?? @row
-                    !! @row.map ({ CSV::Field.new.add ($_.Str); });
+            for @in -> $row {
+                $!csv-row.fields = $row[0] ~~ CSV::Field
+                    ?? $row
+                    !! $row.map ({ CSV::Field.new.add ($_.Str); });
                 $io-out.print (self.string);
                 }
             self.eol ($eol);
