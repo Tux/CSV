@@ -1483,7 +1483,7 @@ $hook.perl.say;
         #     sub { ... }                      Routine
         #     { ... }                          Callable
         #     Supply.new                       Supply
-        given ($in.WHAT) {
+        given $in {
             when Str {
                 $io-in = open $in, :r, :!chomp;
                 }
@@ -1492,7 +1492,7 @@ $hook.perl.say;
                 }
             when Array {
                 $in.list.elems or return;
-                given ($in.list[0].WHAT) {
+                given $in.list[0] {
                     when Str {  # AoS
                         $io-in = IO::String.new ($in.list.join ($!eol // "\n"));
                         }
@@ -1545,7 +1545,7 @@ $hook.perl.say;
         #   $fh         - write to $fh
         #   Supply:D    - emit to Supply
         #   Routine:D   - pass row(s) to Routine
-        given ($out.WHAT) {
+        given $out {
             when Str {
                 ($tmpfn, $io-out) = $out.defined
                     ?? (Str, open $out, :w, :!chomp)
@@ -1564,7 +1564,7 @@ $hook.perl.say;
 
         # Find the correct spots to invoke $on-in and $before-out
 
-        given ($headers) {
+        given $headers {
             when Array {
                 self.column_names ($headers.list);
                 }
