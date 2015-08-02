@@ -115,19 +115,19 @@ is (csv (in => $fni, out => Str, fragment => "cell=1,1"), "bar\r\n",          "F
 
 $io-in.seek (0, 0);
 for in () -> $in {
-    is-deeply ( csv (in => $in, out => Array), $full-aoa, "csv => Array { s-in ($in) }");
+    is-deeply (csv (in => $in, out => Array), $full-aoa, "csv => Array { s-in ($in) }");
     }
 
 $io-in.seek (0, 0);
 for in () -> $in {
-    is-deeply ([csv (in => $in, out => Hash)], $full-aoh, "csv => Hash  { s-in ($in) }");
+    is-deeply (csv (in => $in, out => Hash),  $full-aoh, "csv => Hash  { s-in ($in) }");
     }
 
 $io-in.seek (0, 0);
 for in () -> $in {
     ok (my $csv = Text::CSV.new,           "new");
     ok ($csv.column_names (@hdr), "colnames");
-    is-deeply ([$csv.csv (in => $in, out => Hash, skip => 1)],
+    is-deeply ($csv.csv (in => $in, out => Hash, skip => 1),
         $full-aoh, "csv => Hash + skip { s-in ($in) }");
     }
 
@@ -141,7 +141,7 @@ for in () -> $in {
 $io-in.seek (0, 0);
 for in () -> $in {
     ok (my $csv = Text::CSV.new,           "new");
-    is-deeply ([$csv.csv (in => $in, headers => [@hdr], frag => "row=2-*")],
+    is-deeply ($csv.csv (in => $in, headers => [@hdr], frag => "row=2-*"),
         $full-aoh, "csv => Hash + hdrs { s-in ($in) }");
     }
 
@@ -149,40 +149,38 @@ my $aoa = [ $full-aoa.list[1,2] ];
 is-deeply (csv (file => $fni, headers  => "skip"),    $aoa, "AOA skip");
 is-deeply (csv (file => $fni, fragment => "row=2-3"), $aoa, "AOA fragment");
 
+is-deeply (csv (in => $fni, encoding => "utf-8", headers => ["a", "b", "c"],
+                fragment => "row=2", sep_char => ","),
+       [{ :a("1"), :b("2"), :c("3") }], "AOH headers fragment");
+
+ok (csv (in => $aoa, out => $fno), "AOA out file");
+is-deeply (csv (in => $fno), $aoa, "AOA parse out");
+
+ok (csv (in => $full-aoh, out => $fno, headers => "skip"), "AOH out file no header");
+is-deeply (csv (in => $fno, headers => [ $full-aoh.list[0].keys ]),
+    $full-aoh, "AOH parse out no header");
+
 done;
 
 =finish
 
-is-deeply (csv (in => $file, encoding => "utf-8", headers => ["a", "b", "c"],
-                fragment => "row=2", sep_char => ","),
-       [{ a => 1, b => 2, c => 3 }], "AOH headers fragment");
-
-ok (csv (in => $aoa, out => $file), "AOA out file");
-is-deeply (csv (in => $file), $aoa, "AOA parse out");
-
-ok (csv (in => $aoh, out => $file, headers => "auto"), "AOH out file");
-is-deeply (csv (in => $file, headers => "auto"), $aoh, "AOH parse out");
-
-ok (csv (in => $aoh, out => $file, headers => "skip"), "AOH out file no header");
-is-deeply (csv (in => $file, headers => [keys %{$aoh->[0]}]),
-    $aoh, "AOH parse out no header");
+ok (csv (in => $full-aoh, out => $fno, headers => "auto"), "AOH out file");
+is-deeply (csv (in => $fno, headers => "auto"), $full-aoh, "AOH parse out");
 
 my $idx = 0;
-sub getrowa { return $aoa->[$idx++]; }
-sub getrowh { return $aoh->[$idx++]; }
+sub getrowa { return $full-aoa->[$idx++]; }
+sub getrowh { return $full-aoh->[$idx++]; }
 
-ok (csv (in => \&getrowa, out => $file), "out from CODE/AR");
-is-deeply (csv (in => $file), $aoa, "data from CODE/AR");
-
-$idx = 0;
-ok (csv (in => \&getrowh, out => $file, headers => \@hdr), "out from CODE/HR");
-is-deeply (csv (in => $file, headers => "auto"), $aoh, "data from CODE/HR");
+ok (csv (in => \&getrowa, out => $fno), "out from CODE/AR");
+is-deeply (csv (in => $fni), $aoa, "data from CODE/AR");
 
 $idx = 0;
-ok (csv (in => \&getrowh, out => $file), "out from CODE/HR (auto headers)");
-is-deeply (csv (in => $file, headers => "auto"), $aoh, "data from CODE/HR");
+ok (csv (in => \&getrowh, out => $fno, headers => \@hdr), "out from CODE/HR");
+is-deeply (csv (in => $fni, headers => "auto"), $full-aoh, "data from CODE/HR");
 
-unlink $file;
+$idx = 0;
+ok (csv (in => \&getrowh, out => $fno), "out from CODE/HR (auto headers)");
+is-deeply (csv (in => $fni, headers => "auto"), $full-aoh, "data from CODE/HR");
 
 eval {
     exists  $Config{useperlio} &&

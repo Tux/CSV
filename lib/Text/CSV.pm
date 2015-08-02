@@ -1598,7 +1598,7 @@ $hook.perl.say;
                 my @h = @!cnames.elems ?? @!cnames !! @in.shift.list or return [];
                 @in.elems && @in[0] ~~ Hash and
                     return @in; # Headers already dealt with
-                return @in.map (-> @r { $%( @h Z=> @r ) });
+                return [ @in.map (-> @r { $%( @h Z=> @r ) }) ];
                 }
             return @in;
             }
