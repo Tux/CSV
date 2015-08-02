@@ -156,6 +156,9 @@ is-deeply (csv (in => $fni, encoding => "utf-8", headers => ["a", "b", "c"],
 ok (csv (in => $aoa, out => $fno), "AOA out file");
 is-deeply (csv (in => $fno), $aoa, "AOA parse out");
 
+ok (csv (in => $full-aoh, out => $fno, headers => "auto"), "AOH out file");
+is-deeply (csv (in => $fno, headers => "auto"), $full-aoh, "AOH parse out");
+
 ok (csv (in => $full-aoh, out => $fno, headers => "skip"), "AOH out file no header");
 is-deeply (csv (in => $fno, headers => [ $full-aoh.list[0].keys ]),
     $full-aoh, "AOH parse out no header");
@@ -163,9 +166,6 @@ is-deeply (csv (in => $fno, headers => [ $full-aoh.list[0].keys ]),
 done;
 
 =finish
-
-ok (csv (in => $full-aoh, out => $fno, headers => "auto"), "AOH out file");
-is-deeply (csv (in => $fno, headers => "auto"), $full-aoh, "AOH parse out");
 
 my $idx = 0;
 sub getrowa { return $full-aoa->[$idx++]; }

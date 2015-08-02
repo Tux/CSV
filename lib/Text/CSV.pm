@@ -1570,12 +1570,14 @@ $hook.perl.say;
                 }
             when "auto" {
                 if ($io-in ~~ IO and $io-in.defined) {
-                    self.column_names (self.getline ($io-in, :!meta));
+                    my $hdr = self.getline ($io-in, :!meta);
+                    self.column_names ($hdr.list);
                     }
                 elsif (@in.elems) {
-                    # 1st line is headers, modify rest
-                    self.column_names (@in.shift);
+                    my $hdr = @in.shift;
+                    self.column_names ($hdr.list);
                     }
+                $io-out.defined and self.say ($io-out, @!cnames);
                 }
             when "skip" {
                 if ($io-in ~~ IO and $io-in.defined) {
