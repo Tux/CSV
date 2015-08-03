@@ -7,7 +7,6 @@ use Test;
 use Text::CSV;
 
 my $csv    = Text::CSV.new;
-my $sup;
 
 my $fni    = "_90in.csv";
 my $fno    = "_90out.csv";
@@ -65,7 +64,7 @@ my @in =
 
 sub in {
     my @i = @in;
-    $sup = Supply.new;
+    my $sup = Supply.new;
     start { sleep (1); $sup.emit ($_) for @data; $sup.done; };
     @i.push: $sup;
     @i;
