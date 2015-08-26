@@ -780,7 +780,7 @@ $hook.perl.say;
         my Str $q = $!quo;
         my Str $e = $!esc;
         my Str @f;
-        for @fld -> $f {
+        for flat @fld -> $f {
             if (!$f.defined || $f.undefined) {
                 @f.push: "";
                 next;
@@ -815,7 +815,7 @@ $hook.perl.say;
     multi method combine (@f) returns Bool {
         $!csv-row.fields = ();
         my int $i = 0;
-        for @f -> $f {
+        for flat @f -> $f {
             $i++;
             my CSV::Field $cf;
             if ($f.isa (CSV::Field)) {
