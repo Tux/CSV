@@ -1798,6 +1798,10 @@ with L</csv>, you could do
 
  my @column = csv(in => "file.csv", fragment => "col=4").map(*[0]);
 
+or
+
+ my @column = csv(in => "file.csv", fragment => "col=4").map(*.flat);
+
 =head2 Parsing CSV strings:
 
  my $csv = Text::CSV.new(:keep_meta);
