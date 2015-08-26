@@ -286,7 +286,7 @@ class CSV::Field {
 
 class Text::CSV { ... }
 
-class CSV::Row is Iterable does Positional {
+class CSV::Row does Iterable does Positional {
     has Text::CSV  $.csv;
     has CSV::Field @.fields is rw;
 
@@ -353,7 +353,7 @@ class Text::CSV {
     has Str  $!error_input;
     has Str  $!error_message;
 
-    class CSV::Diag is Iterable does Positional is Exception {
+    class CSV::Diag does Iterable does Positional is Exception {
         has Int $.error   is readonly = 0;
         has Str $.message is readonly = %errors{$!error};
         has Int $.pos     is readonly;
