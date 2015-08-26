@@ -65,7 +65,7 @@ my @in =
 sub in {
     my @i = @in;
     my $sup = Supply.new;
-    start { sleep (0.5); $sup.emit ($_) for @data; $sup.done; };
+    start { sleep (0.7); $sup.emit ($_) for @data; $sup.done; };
     @i.push: $sup;
     @i;
     }
