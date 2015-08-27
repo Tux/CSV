@@ -99,10 +99,11 @@ class RangeSet {
         self.bless (:@ranges);
         }
 
-    multi method add (Pair:D $p)              { @!ranges.push: $p;               }
-    multi method add (Int:D $from)            { @!ranges.push: $from => $from;   }
-    multi method add (Int:D $from, Num:D $to) { @!ranges.push: $from => $to;     }
-    multi method add (Int:D $from, Any:D $to) { @!ranges.push: $from => $to.Num; }
+    multi method add (Pair:D $p)              { @!ranges.push: $p;                }
+    multi method add (Range:D $r)             { @!ranges.push: $r.min => $r.max;  }
+    multi method add (Int:D $from)            { @!ranges.push: $from  => $from;   }
+    multi method add (Int:D $from, Num:D $to) { @!ranges.push: $from  => $to;     }
+    multi method add (Int:D $from, Any:D $to) { @!ranges.push: $from  => $to.Num; }
 
     method min () { @!ranges>>.key.min   }
     method max () { @!ranges>>.value.max }
@@ -293,8 +294,8 @@ class CSV::Row is Iterable does Positional {
 
     method Str             { $!csv ?? $!csv.string (@!fields) !! Str; }
     method iterator        { [ @.fields ].iterator; }
-    method hash            { hash $!csv.column_names Z @!fields».Str; }
-    method AT-KEY (Str $k) { %($!csv.column_names Z @!fields){$k}; }
+    method hash            { hash $!csv.column_names Z=> @!fields».Str; }
+    method AT-KEY (Str $k) { %($!csv.column_names Z=> @!fields){$k}; }
     method list ()         { @!fields».Str; }
     method AT-POS (int $i) { @!fields[$i]; }
 
@@ -1191,7 +1192,7 @@ $hook.perl.say;
 
     method !row_hr (@row) {
         my @cn  = (@!crange ?? @!cnames[@!crange] !! @!cnames);
-        hash @cn Z @row;
+        hash @cn Z=> @row;
         }
 
     multi method getline_hr (Str $str, Bool :$meta = $!keep_meta) {
@@ -1235,7 +1236,7 @@ $hook.perl.say;
         $hr or return [ @row ];
 
         my @cn = (@!crange ?? @!cnames[@!crange] !! @!cnames);
-        my %hash = @cn Z @row;
+        my %hash = @cn Z=> @row;
         { %hash };
         }
 
@@ -1344,7 +1345,7 @@ $hook.perl.say;
 
             my @row = $meta ?? @f !! @f.map (*.Str);
             if (@!cnames.elems) {
-                my %h = @!cnames Z @row;
+                my %h = @!cnames Z=> @row;
                 @lines.push: { %h };
                 next;
                 }
