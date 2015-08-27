@@ -52,8 +52,7 @@ my $file = "files/utf8.csv";
 SKIP: {
     my $fh = open $file, :r;
 
-    my @row;
-    ok (@row = $csv.getline ($fh), "read/parse");
+    ok ((my @row = $csv.getline ($fh)), "read/parse");
 
     is (@row[0].is_quoted,  True,  "First  field is quoted");
     is (@row[1].is_quoted,  False, "Second field is not quoted");
@@ -96,15 +95,15 @@ $fh = open "_50test.csv", :r;
 
 ok ($csv.auto_diag (1),                     "auto diag");
 ok ($csv.binary (1),                        "set binary");
-ok (my @row = $csv.getline ($fh),           "parse");
+ok ((my @row = $csv.getline ($fh)),         "parse");
 is ($csv.is_binary (0),     False,          "not binary");
 is (@row[0].text,           "euro",         "euro");
 is ($csv.is_utf8 (1),       False,          "not utf8");
-ok (@row = $csv.getline ($fh),              "parse");
+ok ((@row = $csv.getline ($fh)),            "parse");
 is ($csv.is_binary (0),     True,           "is binary");
 is (@row[0].text,           "\x[20ac]",     "euro");
 is (@row[0].is_utf8,        True,           "is utf8");
-ok (@row = $csv.getline ($fh),              "parse");
+ok ((@row = $csv.getline ($fh)),            "parse");
 is ($csv.is_binary (0),     False,          "not binary");
 is (@row[0].text,           "euro",         "euro");
 is (@row[0].is_utf8,        False,          "not utf8");
