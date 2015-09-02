@@ -584,8 +584,7 @@ class Text::CSV {
         if (@s.elems == 1) {
             my $v = @s[0];
             $v.perl.say;
-            $attr = $v ~~ Bool ?? $v ?? 1 !! 0 !! $v.defined
-                ?? $v eq "" ?? 0 !! +$v !! 0;
+            $attr = $v ~~ Bool ?? +$v !! $v.defined ?? $v eq "" ?? 0 !! +$v !! 0;
             }
         $attr;
         }
