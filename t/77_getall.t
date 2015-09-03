@@ -59,7 +59,7 @@ for ("\n", "\r") -> $eol {
 
             my $fh = open $tfn, :r or die "$tfn: $!";
             # un-obj for is-deeply
-            my @f = un-obj ($csv.getline_all ($fh, |@args));
+            my @f = $csv.getline_all ($fh, |@args);
             is-deeply (@f, @exp, "getline_all ($s_args)");
             $fh.close;
 
