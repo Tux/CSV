@@ -30,4 +30,4 @@ use Text::CSV;
     is-deeply ($csv.list, @olist».text, "As list");
     }
 
-done;
+done-testing;

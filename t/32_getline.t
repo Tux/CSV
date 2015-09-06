@@ -36,4 +36,4 @@ while (@row = $csv.getline ($fh)) {
 is ($i, 2, "Number of correct lines");
 is (+$csv.error-diag, 2023, "Parse should have stopped on error");
 
-done;
+done-testing;

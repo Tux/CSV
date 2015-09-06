@@ -110,4 +110,4 @@ is (@row[0].is_utf8,        False,          "not utf8");
 $fh.close;
 unlink "_50test.csv";
 
-done;
+done-testing;

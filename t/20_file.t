@@ -158,4 +158,4 @@ sub esc_test (int $tst, int $err is copy, Str $str) {
 
 unlink $tf20;
 
-done;
+done-testing;

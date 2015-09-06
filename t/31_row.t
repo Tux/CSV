@@ -44,4 +44,4 @@ is-deeply ([$csv.getline ("foo,bar,zip")], [<foo bar zip>], "getline");
 ok (my $row = $csv.row, "Get last row");
 is-deeply ([$row.list], [<foo bar zip>], "list");
 
-done;
+done-testing;

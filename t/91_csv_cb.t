@@ -41,7 +41,7 @@ is-deeply (csv (in => $file, headers => "auto", after_in => &Empty,
 
 sub Push (CSV::Row $r) { $r.push: "A"; }
 
-done;
+done-testing;
 
 =finish
 

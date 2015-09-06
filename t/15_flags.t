@@ -205,4 +205,4 @@ ok (1, "Testing quote_empty");
     is ($csv.string,          qq{1,,""," ",2}, "string");
     }
 
-done;
+done-testing;

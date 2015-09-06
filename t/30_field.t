@@ -66,4 +66,4 @@ is ($s,           "\x[246e]", "'\"\x[246e]\"' in String  context value");
 is ($f.is_binary, True,       "'\"\x[246e]\"' in String  context binary");
 is ($f.gist, "QB8m:\"\x[246e]\"", "'\"\x[246e]\"' as gist");
 
-done;
+done-testing;
