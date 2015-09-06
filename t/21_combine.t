@@ -22,4 +22,4 @@ is ($csv.string, $expect, "string");
 ok ($csv.combine (\(@args)),                    "combine (array ref)");
 is ($csv.string, $expect, "string");
 
-done;
+done-testing;

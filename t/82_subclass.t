@@ -24,4 +24,4 @@ my $sc_csv;
     }
 is ($sc_csv.defined, False, "Unsupported attribute");
 
-done;
+done-testing;

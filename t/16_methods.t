@@ -61,7 +61,7 @@ is ($csv.column_names.elems,    0,      "column_names");
 # do we really want to support ...
 # types
 
-done;
+done-testing;
 
 =finish
 

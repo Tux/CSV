@@ -116,4 +116,4 @@ close $fh;
 
 unlink "__41test.csv";
 
-done;
+done-testing;

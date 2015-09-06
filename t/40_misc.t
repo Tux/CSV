@@ -55,4 +55,4 @@ ok ($csv2,                                                      "new ()");
 ok ($csv2.combine ("abc","def","ghi"),                          "combine ()");
 is ($csv2.string, '"abc","def","ghi"',                          "string ()");
 
-done;
+done-testing;

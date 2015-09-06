@@ -28,4 +28,4 @@ $fh.close;
 
 unlink $tfn;
 
-done;
+done-testing;

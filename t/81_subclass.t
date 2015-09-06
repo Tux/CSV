@@ -22,4 +22,4 @@ is ($csv.sep-char (), ",",           "Aliassed attribute");
 
 ok ($csv.new,                        "new () based on object");
 
-done;
+done-testing;

@@ -241,4 +241,4 @@ for (Str, "\r") -> $eol {
     is-deeply ([ $csv.list ], [ "1", "3", "\0" ], "Parse passed");
     }
 
-done;
+done-testing;

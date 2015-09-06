@@ -96,7 +96,7 @@ for  ([ 1                           ],
     is ($csv.callbacks.keys.elems, 0, "not set");
     }
 
-done;
+done-testing;
 
 =finish
 
@@ -176,6 +176,8 @@ is ($csv->callbacks (undef), undef,                     "clear callbacks");
 
 is-deeply (Text::CSV_XS::csv (in => $fn, callbacks => $callbacks),
     [[1,"foo","NEW"],[2,"bar","NEW"],[3,"","NEW"]], "using getline_all");
+
+done-testing;
 
 __END__
 1,foo

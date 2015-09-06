@@ -249,4 +249,4 @@ for <sep_char quote_char escape_char> -> $attr {
     is ($e, 1000, "Typo in attribute name");
     }
 
-done;
+done-testing;

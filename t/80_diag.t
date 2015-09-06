@@ -134,7 +134,7 @@ for    (Str,            # No spec at all
     is (@r, [], "Cannot do fragment with bad RFC7111 spec");
     is ($e.error, 2013, "Illegal RFC7111 spec ({$spec.perl})");
     }
-done;
+done-testing;
 
 =finish
 
@@ -161,4 +161,4 @@ $csv = Text::CSV.new (:auto_diag);
     is ($csv.{_RECNO}, 2, "Another record read");
     }
 
-done;
+done-testing;

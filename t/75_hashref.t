@@ -87,4 +87,4 @@ is-deeply ($csv.getline_hr ($fh), {:c_foo("")},        "empty line");
 # TODO: Test for missing columns 2 and 3
 $fh.close;
 
-done;
+done-testing;

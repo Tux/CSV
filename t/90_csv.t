@@ -179,4 +179,4 @@ is-deeply (csv (in => $fno, headers => "auto"), $full-aoh, "data from CODE/HR");
 
 is (csv (in => [[1,2,3]], out => Str), "1,2,3\r\n", "Out to Str");
 
-done;
+done-testing;

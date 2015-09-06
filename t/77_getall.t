@@ -153,4 +153,4 @@ for ("\n", "\r") -> $eol {
     is (+$csv.error_diag, 2023, "error");
     }
 
-done;
+done-testing;

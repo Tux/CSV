@@ -121,4 +121,4 @@ for ( @special, "\0" ) -> $sc {
   }
  }
 
-done;
+done-testing;

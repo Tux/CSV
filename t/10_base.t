@@ -101,4 +101,4 @@ is ($csv2.^name, "Text::CSV",        "Same object type");
 
 # Test context
 
-done;
+done-testing;

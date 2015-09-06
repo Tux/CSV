@@ -147,4 +147,4 @@ is-deeply ($csv.fragment ($fh, "cell=3,2-4,3"),
      { :c3("42"), :c4("43") }], "Fragment to AoH (cell)");
 $fh.close;
 
-done;
+done-testing;
