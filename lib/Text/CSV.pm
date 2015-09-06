@@ -286,7 +286,7 @@ class CSV::Field {
 
 class Text::CSV { ... }
 
-class CSV::Row does Iterable does Positional {
+class CSV::Row does Iterable does Positional does Associative {
     has Text::CSV  $.csv;
     has CSV::Field @.fields is rw;
 
@@ -295,6 +295,7 @@ class CSV::Row does Iterable does Positional {
     method Str             { $!csv ?? $!csv.string (@!fields) !! Str; }
     method iterator        { [ @.fields ].iterator; }
     method hash            { hash $!csv.column_names Z=> @!fields».Str; }
+    method of              { return CSV::Field }
     method AT-KEY (Str $k) { %($!csv.column_names Z=> @!fields){$k}; }
     method list ()         { @!fields».Str; }
     method AT-POS (int $i) { @!fields[$i]; }
@@ -655,18 +656,22 @@ $hook.perl.say;
         $range;
         }
 
-    multi method colrange (@cr) returns Array[Int] {
-        @cr.elems and @!crange = @cr;
+    multi method colrange (@cr) {
+        if (@cr.elems) {
+            my RangeSet $range = RangeSet.new;
+            $range.add ($_) for @cr;
+            @!crange = $range.to_list;
+            }
         @!crange;
         }
 
-    multi method colrange (Str $range) returns Array[Int] {
+    multi method colrange (Str $range) {
         @!crange = ();
-        $range.defined and @!crange = self!rfc7111ranges ($range).to_list;
+        $range.defined and @!crange = self!rfc7111ranges ($range).to_list.flat;
         @!crange;
         }
 
-    multi method colrange () returns Array[Int] {
+    multi method colrange () {
         @!crange;
         }
 
@@ -764,7 +769,7 @@ $hook.perl.say;
         }
 
     method list () {
-        self.fields».Str;
+        self.fields».Str.Array;
         }
 
     multi method string () returns Str {
@@ -782,7 +787,7 @@ $hook.perl.say;
         my Str $q = $!quo;
         my Str $e = $!esc;
         my Str @f;
-        for @fld -> $f {
+        for flat @fld -> $f {
             if (!$f.defined || $f.undefined) {
                 @f.push: "";
                 next;
@@ -817,7 +822,7 @@ $hook.perl.say;
     multi method combine (@f) returns Bool {
         $!csv-row.fields = ();
         my int $i = 0;
-        for @f -> $f {
+        for flat @f -> $f {
             $i++;
             my CSV::Field $cf;
             if ($f.isa (CSV::Field)) {
@@ -1267,7 +1272,7 @@ $hook.perl.say;
                 !%!callbacks<filter>.defined ||
                     %!callbacks<filter>.($!csv-row) or next;
 
-                @lines.push: self!row ($meta, $hr);
+                @lines.push: $[self!row ($meta, $hr)];
                 }
             }
         else {
@@ -1277,7 +1282,7 @@ $hook.perl.say;
                     %!callbacks<filter>.($!csv-row) or next;
 
                 @lines.elems == $offset and @lines.shift;
-                @lines.push: self!row ($meta, $hr);
+                @lines.push: $[self!row ($meta, $hr)];
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }
