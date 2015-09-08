@@ -6,10 +6,10 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-my @attrib  = ("quote_char", "escape_char", "sep_char");
-my @special = ('"', "'", ",", ";", "\t", "\\", "~");
-my @input   = ( "", 1, "1", 1.4, "1.4", " - 1,4", "1+2=3", "' ain't it great '",
-    Str, '"foo"! said the `bär', q{the ~ in "0 \0 this l'ne is \r ; or "'"} );
+my @attrib  = "quote_char", "escape_char", "sep_char";
+my @special = '"', "'", ",", ";", "\t", "\\", "~";
+my @input   = "", 1, "1", 1.4, "1.4", " - 1,4", "1+2=3", "' ain't it great '",
+    Str, '"foo"! said the `bär', q{the ~ in "0 \0 this l'ne is \r ; or "'"};
 my $ninput  = @input.elems;
 my $string  = join "=", "", @input.map ({$_//""}), "";
 my %fail;
@@ -103,11 +103,11 @@ sub combi (*%attr)
     is ($ret, $string,          "content");
     } # combi
 
-for ( False, True    ) -> $aw {
-for ( False, True    ) -> $aq {
-for ( @special       ) -> $qc {
-for ( @special, "+"  ) -> $ec {
-for ( @special, "\0" ) -> $sc {
+for ( False, True         ) -> $aw {
+for ( False, True         ) -> $aq {
+for ( flat @special       ) -> $qc {
+for ( flat @special, "+"  ) -> $ec {
+for ( flat @special, "\0" ) -> $sc {
     combi (
         sep_char         => $sc,
         quote_char       => $qc,
