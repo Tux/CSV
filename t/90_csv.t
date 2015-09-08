@@ -150,7 +150,7 @@ is-deeply (csv (file => $fni, fragment => "row=2-3"), $aoa, "AOA fragment");
 
 is-deeply (csv (in => $fni, encoding => "utf-8", headers => ["a", "b", "c"],
                 fragment => "row=2", sep_char => ","),
-       [{ :a("1"), :b("2"), :c("3") }], "AOH headers fragment");
+       [{ :a("1"), :b("2"), :c("3") },], "AOH headers fragment");
 
 ok (csv (in => $aoa, out => $fno), "AOA out file");
 is-deeply (csv (in => $fno), $aoa, "AOA parse out");
@@ -177,6 +177,6 @@ $idx = 0;
 ok (csv (in => &getrowh, out => $fno), "out from CODE/HR (auto headers)");
 is-deeply (csv (in => $fno, headers => "auto"), $full-aoh, "data from CODE/HR");
 
-is (csv (in => [[1,2,3]], out => Str), "1,2,3\r\n", "Out to Str");
+is (csv (in => [$[1,2,3]], out => Str), "1,2,3\r\n", "Out to Str");
 
 done-testing;

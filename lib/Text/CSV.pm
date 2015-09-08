@@ -293,7 +293,7 @@ class CSV::Row does Iterable does Positional does Associative {
     multi method new (@f)  { @!fields = @f.map ({ CSV::Field.new (*) }); }
 
     method Str             { $!csv ?? $!csv.string (@!fields) !! Str; }
-    method iterator        { [ @.fields ].iterator; }
+    method iterator        { @.fields.iterator; }
     method hash            { hash $!csv.column_names Z=> @!fields».Str; }
     method of              { return CSV::Field }
     method AT-KEY (Str $k) { %($!csv.column_names Z=> @!fields){$k}; }
@@ -381,7 +381,7 @@ class Text::CSV {
             }
         method Numeric  { $!error; }
         method Str      { $!message; }
-        method iterator { [ $!error, $!message, $!pos, $!field, $!record, $!buffer ].iterator; }
+        method iterator { $[ $!error, $!message, $!pos, $!field, $!record, $!buffer ].iterator; }
         method hash     { { errno  => $!error,
                             error  => $!message,
                             pos    => $!pos,
@@ -1507,8 +1507,8 @@ $hook.perl.say;
                         $fragment ~~ s:i{^ "row=" } = "" and
                             self.rowrange ($fragment);
                         my @i = $in.list[0] ~~ Hash
-                            ?? ([ $in.list[0].keys ], $in.list.map ({[ $_.values ]}))
-                            !! $in.list;
+                            ?? ([ $in.list[0].keys ], $in.map ({$[ $_.values ]}).Slip)
+                            !!    $in.list;
                         @in = $!rrange ?? @i[$!rrange.list (@i.elems)] !! @i;
                         }
                     }
@@ -1522,7 +1522,7 @@ $hook.perl.say;
                 $in.act (
                     -> \row {
                         !$!rrange || $!rrange.in ($i++) and @in.push:
-                          row ~~ Str ?? [ self.getline (row) ] !! row;
+                          row ~~ Str ?? $[ self.getline (row) ] !! row;
                         },
                     );
                 $in.wait;
