@@ -120,7 +120,7 @@ for ("\n", "\r") -> $eol {
 
 {   ok (my $csv = Text::CSV.new, "new for sep=");
     my $fh = IO::String.new (qq{sep=;\n"a b";3\n});
-    is-deeply ($csv.getline_all ($fh), [["a b", "3"]], "valid sep=");
+    is-deeply ($csv.getline_all ($fh), [["a b", "3"],], "valid sep=");
     is (+$csv.error_diag, 2012, "EOF");
     }
 
@@ -132,7 +132,7 @@ for ("\n", "\r") -> $eol {
 
 {   ok (my $csv = Text::CSV.new, "new for sep=");
     my $fh = IO::String.new (qq{sep=XX\n"a b"XX3\n});
-    is-deeply ($csv.getline_all ($fh), [["a b", "3"]], "multibyte sep=");
+    is-deeply ($csv.getline_all ($fh), [["a b", "3"],], "multibyte sep=");
     is (+$csv.error_diag, 2012, "EOF");
     }
 
