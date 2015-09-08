@@ -18,14 +18,6 @@ my @testlist = (
 
 my @list;
 
-sub un-obj (@aoo) {
-    my @aoa;
-    for @aoo -> @aof {
-        @aoa.push ([ @aof.map (~*) ]);
-        }
-    return @aoa;
-    } # un-obj
-
 sub do_tests (Sub $sub) {
     $sub.(@list);
     $sub.(@list,         0);
@@ -58,7 +50,6 @@ for ("\n", "\r") -> $eol {
             my $s_args = @args.join (", ");
 
             my $fh = open $tfn, :r or die "$tfn: $!";
-            # un-obj for is-deeply
             my @f = $csv.getline_all ($fh, |@args);
             is-deeply (@f, @exp, "getline_all ($s_args)");
             $fh.close;
@@ -72,7 +63,7 @@ for ("\n", "\r") -> $eol {
         my $fh = open $tfn, :r or die "$tfn: $!";
         ok ($csv.colrange ("1;4"),      "ColRange 1;4");
         ok ($csv.rowrange ("2;4"),      "RowRange 2;4");
-        is-deeply (un-obj ($csv.getline_all ($fh)),
+        is-deeply ($csv.getline_all ($fh),
             [["2","B"],["4","D"]],      "Selection");
         }
 
@@ -83,8 +74,8 @@ my Str @hdr = < A B C D >;
 sub expect_hr (@expect) {
     my @expect_hr;
     for @expect -> @r {
-        my %h = @hdr Z @r;
-        @expect_hr.push: { %h };
+        my %h = @hdr Z=> @r;
+        @expect_hr.push: $%h;
         }
     return @expect_hr;
     }

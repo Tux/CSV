@@ -1239,11 +1239,11 @@ $hook.perl.say;
 
     method !row (Bool:D $meta, Bool:D $hr) {
         my @row = $meta ?? self.fields !! self.list;
-        $hr or return [ @row ];
+        $hr or return $[ @row ];
 
         my @cn = (@!crange ?? @!cnames[@!crange] !! @!cnames);
         my %hash = @cn Z=> @row;
-        { %hash };
+        $%hash;
         }
 
     # @a = $csv.getline_all ($io);
@@ -1272,7 +1272,7 @@ $hook.perl.say;
                 !%!callbacks<filter>.defined ||
                     %!callbacks<filter>.($!csv-row) or next;
 
-                @lines.push: $[self!row ($meta, $hr)];
+                @lines.push: self!row ($meta, $hr);
                 }
             }
         else {
@@ -1282,7 +1282,7 @@ $hook.perl.say;
                     %!callbacks<filter>.($!csv-row) or next;
 
                 @lines.elems == $offset and @lines.shift;
-                @lines.push: $[self!row ($meta, $hr)];
+                @lines.push: self!row ($meta, $hr);
                 }
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }
