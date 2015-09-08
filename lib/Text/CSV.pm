@@ -584,7 +584,6 @@ class Text::CSV {
     method !a_bool_int ($attr is rw, *@s) returns Int {
         if (@s.elems == 1) {
             my $v = @s[0];
-            $v.perl.say;
             $attr = $v ~~ Bool ?? +$v !! $v.defined ?? $v eq "" ?? 0 !! +$v !! 0;
             }
         $attr;
@@ -626,7 +625,6 @@ class Text::CSV {
                 $hook.defined && ($hook ~~ Routine || $hook ~~ Callable) or
                     self!fail (1004);
 
-$hook.perl.say;
                 $name ~~ s{"-"} = "_";
                 $name ~~ /^ after_parse
                           | before_print
