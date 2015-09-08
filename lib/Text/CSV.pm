@@ -593,7 +593,7 @@ class Text::CSV {
 
     method column_names (*@c) returns Array[Str] {
         if (@c.elems == 1 and !@c[0].defined || (@c[0] ~~ Bool && !?@c[0])) {
-            @!cnames = @();
+            @!cnames = ();
             }
         elsif (@c.elems) {
             @!cnames = @c.map (*.Str);
