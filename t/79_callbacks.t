@@ -72,7 +72,7 @@ unlink $tfn;
 # These tests are for the method to fail
 ok ($csv = Text::CSV.new, "new for method fails");
 for  ([ 1                           ],
-      [ []                          ],
+      [ $[]                         ],
       [ sub {}                      ],
       [ 1,        2                 ],
       [ 1,        2, 3              ],
@@ -80,11 +80,11 @@ for  ([ 1                           ],
       [ Str,      "error"           ], # X::AdHoc.new
       [ "error",  Str               ],
       [ "%23bad", sub {}            ], # X::AdHoc.new
-      [ "error",  []                ],
+      [ "error",  $[]               ],
       [ "error",  "error"           ],
       [ "",       sub { 0; }        ],
       [ sub { 0; }, 0               ], # Code object coerced to string
-      [ [],       ""                ],
+      [ $[],      ""                ],
       [ "error",  sub {0; }, Str, 1 ],
       ) -> @args {
     my $e;
