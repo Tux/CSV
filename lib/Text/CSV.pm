@@ -120,7 +120,7 @@ class RangeSet {
             my Int $max = -1;
             for sort @!ranges -> $r {
                 my $from = ($r.key, $max + 1).max.Int;
-                take $from .. $r.value;
+                take (|($from .. $r.value));
                 $r.value == Inf and last;
                 $max = ($max, $r.value).max.Int;
                 }
