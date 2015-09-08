@@ -21,7 +21,7 @@ ok ($csv.parse ($string),                                       "parse ()");
 is ($csv.fields.elems, @binField.elems,                         "field count");
 
 my @field = $csv.fields ();
-for (0 .. @binField.elems - 1) {
+for (flat 0 .. @binField.elems - 1) {
     is (@field[$_].text, @binField[$_],                         "Field $_");
     }
 

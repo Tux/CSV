@@ -135,7 +135,7 @@ my @rx;
 # { c3 => 3 }              is a hash
 # { c3 => ~(10 * $_ + 3) } is a closure generating a pair
 # @rx = (1..9).map ({ :c3(~(10 * $_ + 3)).hash.item });
-for (1..9) -> $x { @rx.push: { c3 => ~(10 * $x + 3) }};
+for (flat 1..9) -> $x { @rx.push: { c3 => ~(10 * $x + 3) }};
 is-deeply ($csv.fragment ($fh, "col=3"),
     [ @rx ],                    "Fragment to AoH (col)");
 $fh.close;

@@ -120,12 +120,12 @@ sub crnlsp (Text::CSV $csv) {
                         "parse () - mixed quoted/binary");
     is ($csv.fields.elems, 11,                  "fields () - count");
     my @fflg;
-    is ($csv.fields[$_].is_quoted, False, "Field $_ is not quoted") for 0, 3, 5, 6, 10;
-    is ($csv.fields[$_].is_quoted, True,  "Field $_ is quoted")     for 1, 2, 4, 7, 8, 9;
-    is ($csv.fields[$_].is_binary, False, "Field $_ is not quoted") for 0, 1, 3, 5, 9, 10;
-    is ($csv.fields[$_].is_binary, True,  "Field $_ is quoted")     for 2, 4, 6, 7, 8;
-    is ($csv.fields[$_].is_utf8,   False, "Field $_ is not utf8")   for 0 .. 5, 7, 9, 10;
-    is ($csv.fields[$_].is_utf8,   True,  "Field $_ is utf8")       for 6, 8;
+    is ($csv.fields[$_].is_quoted, False, "Field $_ is not quoted") for      0, 3, 5, 6, 10;
+    is ($csv.fields[$_].is_quoted, True,  "Field $_ is quoted")     for      1, 2, 4, 7, 8, 9;
+    is ($csv.fields[$_].is_binary, False, "Field $_ is not quoted") for      0, 1, 3, 5, 9, 10;
+    is ($csv.fields[$_].is_binary, True,  "Field $_ is quoted")     for      2, 4, 6, 7, 8;
+    is ($csv.fields[$_].is_utf8,   False, "Field $_ is not utf8")   for flat 0 .. 5, 7, 9, 10;
+    is ($csv.fields[$_].is_utf8,   True,  "Field $_ is utf8")       for      6, 8;
     }
 
 {   my $csv = Text::CSV.new (escape_char => "+");
