@@ -120,7 +120,8 @@ class RangeSet {
             my Int $max = -1;
             for sort @!ranges -> $r {
                 my $from = ($r.key, $max + 1).max.Int;
-                take (|($from .. $r.value));
+                my $to   = $r.value == Inf ?? 65535 !! $r.value;
+                take (($from .. $to).Slip);
                 $r.value == Inf and last;
                 $max = ($max, $r.value).max.Int;
                 }
@@ -1350,10 +1351,10 @@ class Text::CSV {
             my @row = $meta ?? @f !! @f.map (*.Str);
             if (@!cnames.elems) {
                 my %h = @!cnames Z=> @row;
-                @lines.push: { %h };
+                @lines.push: $%h;
                 next;
                 }
-            @lines.push: [ @row ];
+            @lines.push: $[ @row ];
             }
 
         $!io =  IO;

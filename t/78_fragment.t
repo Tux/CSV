@@ -14,8 +14,10 @@ my $csv = Text::CSV.new;
 my Str $str = (1 .. 10).join (",");
 my Str @exp = (1 .. 10).map (~*);
 is ([$csv.getline ($str).map (~*)], @exp,                "no fragments");
-$csv.colrange ([1]);
+$csv.colrange ([1,]);
 is ([$csv.getline ($str).map (~*)], @exp[1],             "fragment [1]");
+$csv.colrange ([1, 4]);
+is ([$csv.getline ($str).map (~*)], @exp[1,4],           "fragment [1,4]");
 $csv.colrange ([1, 4..6]);
 is ([$csv.getline ($str).map (~*)], @exp[1,4..6],        "fragment [1,4..6]");
 $csv.colrange ([1, 4..6, 8..Inf]);
@@ -23,6 +25,8 @@ is ([$csv.getline ($str).map (~*)], @exp[1,4..6,8..Inf], "fragment [1,4..6,8..In
 
 $csv.colrange ("2");
 is ([$csv.getline ($str).map (~*)], @exp[1],             "fragment '2'");
+$csv.colrange ("2;5");
+is ([$csv.getline ($str).map (~*)], @exp[1,4],           "fragment '2;5'");
 $csv.colrange ("2;5-7");
 is ([$csv.getline ($str).map (~*)], @exp[1,4..6],        "fragment '2;5-7'");
 $csv.colrange ("2;5-7;9-*");
@@ -30,7 +34,7 @@ is ([$csv.getline ($str).map (~*)], @exp[1,4..6,8..Inf], "fragment '2;5-7;9-*'")
 $csv.colrange ("2;5-7;5-6;2-2;7-7;9-*;12-*");
 is ([$csv.getline ($str).map (~*)], @exp[1,4..6,8..Inf], "fragment '2;5-7;9-*' with overlaps");
 $csv.colrange ("12-24;14-*");
-is ([$csv.getline ($str).map (~*)], [[]], "out of bound fragment");
+is ([$csv.getline ($str).map (~*)], [[],], "out of bound fragment");
 
 # Tests on a matrix
 my @expect =
@@ -48,7 +52,7 @@ my $fh = open $tfn, :w;
 $fh.say ($_.join (",")) for @expect;
 $fh.close;
 
-sub to-int (@str) { [ @str.map ({[ $_.map (*.Int) ]}) ]; }
+sub to-int (@str) { [ @str.map ({$[ $_.map (*.Int) ]}) ]; }
 
 $csv = Text::CSV.new;
 
@@ -58,7 +62,7 @@ is-deeply (to-int (@matrix), @expect, "Whole matrix");
 $fh.close;
 
 my @test =
-    "row=1"         => [[ 11,12,13,14,15,16,17,18,19 ]],
+    "row=1"         => [[ 11,12,13,14,15,16,17,18,19 ],],
     "row=2-3"       => [[ 21,22,23,24,25,26,27,28,29 ],
 			[ 31,32,33,34,35,36,37,38,39 ]],
     "row=2;4;6"     => [[ 21,22,23,24,25,26,27,28,29 ],
@@ -71,7 +75,7 @@ my @test =
 			[ 71,72,73,74,75,76,77,78,79 ],
 			[ 81,82,83,84,85,86,87,88,89 ],
 			[ 91,92,93,94,95,96,97,98,99 ]],
-    "row=24"        => [],
+    "row=24"        => $[],
 
     "col=1"         => [[11],[21],[31],[41],[51],[61],[71],[81],[91]],
     "col=2-3"       => [[12,13],[22,23],[32,33],[42,43],[52,53],
@@ -86,7 +90,7 @@ my @test =
     "col=24"        => [[],[],[],[],[],[],[],[],[]],
 
     #cell=R,C
-    "cell=7,7"      => [[ 77 ]],
+    "cell=7,7"      => [[ 77 ],],
     "cell=7,7-8,8"  => [[ 77,78 ], [ 87,88 ]],
     "cell=7,7-*,8"  => [[ 77,78 ], [ 87,88 ], [ 97,98 ]],
     "cell=7,7-8,*"  => [[ 77,78,79 ], [ 87,88,89 ]],
@@ -126,7 +130,7 @@ for @test -> $t {
 $csv.column_names ("c1");
 $fh = open $tfn, :r;
 is-deeply ($csv.fragment ($fh, "row=3"),
-    [{ :c1("31") }],            "Fragment to AoH (row)");
+    [{ :c1("31") },],            "Fragment to AoH (row)");
 $fh.close;
 
 $csv.column_names (< x x c3 >);
@@ -135,7 +139,7 @@ my @rx;
 # { c3 => 3 }              is a hash
 # { c3 => ~(10 * $_ + 3) } is a closure generating a pair
 # @rx = (1..9).map ({ :c3(~(10 * $_ + 3)).hash.item });
-for (flat 1..9) -> $x { @rx.push: { c3 => ~(10 * $x + 3) }};
+for (flat 1..9) -> $x { @rx.push: ${ c3 => ~(10 * $x + 3) }};
 is-deeply ($csv.fragment ($fh, "col=3"),
     [ @rx ],                    "Fragment to AoH (col)");
 $fh.close;
