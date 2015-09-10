@@ -878,13 +878,16 @@ class Text::CSV {
 
         # A scoping bug in perl6 inhibits the use of $!eol inside the split
         # my Regex $chx = rx{ $!eol | $sep | $quo | $esc };
-        my            $eol = $!eol // rx{ \r\n | \r | \n };
+        my            $eol = $!eol // rx{ \r\n || \r || \n };
         my Str        $sep = $!sep;
         my Str        $quo = $!quo;
         my Str        $esc = $!esc;
+        my Bool       $noe = !$esc.defined || ($quo.defined && $esc eq $quo);
         my Regex      $chx = $!eol.defined
-                       ?? rx{ $eol           | $sep | $quo | $esc }
-                       !! rx{ \r\n | \r | \n | $sep | $quo | $esc };
+            ?? $noe ?? rx{ $eol             || $sep || $quo }
+                    !! rx{ $eol             || $sep || $quo || $esc }
+            !! $noe ?? rx{ \r\n || \r || \n || $sep || $quo }
+                    !! rx{ \r\n || \r || \n || $sep || $quo || $esc };
         my CSV::Field $f   = CSV::Field.new;
 
         $!csv-row.fields = ();
