@@ -863,7 +863,7 @@ class Text::CSV {
             $str.defined or  return ();
             $str eq ""   and return ("");
 
-            $str.split ($re, :all).flat.map: {
+            $str.split ($re, :all).map: {
                 if $_ ~~ Str {
                     $_   if .chars;
                     }
