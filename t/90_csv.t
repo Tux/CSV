@@ -64,8 +64,14 @@ my @in =
 
 sub in {
     my @i = @in;
+    my $sleep = do {
+        my $start = now;
+        for 1 .. 10000 -> $n { my $y = $n * ($n - 1) + ($n - 1) / $n; }
+        (max 0.7, now - $start).round (0.01);
+        };
+    #say "Zzz... = $sleep";
     my $sup = Supply.new;
-    start { sleep (0.7); $sup.emit ($_) for @data; $sup.done; };
+    start { sleep ($sleep); $sup.emit ($_) for @data; $sup.done; };
     @i.push: $sup;
     @i;
     }
