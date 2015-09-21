@@ -226,7 +226,7 @@ sub MAIN () {
     $opt_v and Qw { Expected: Str 1 ab cd e\0f g,h nl\nz\0i""3 Str }.say;
 
     my Int $sum = 0;
-    for lines() :eager {
+    for lines() {
         my @r = $csv_parser.parse($_);
         $sum += +@r;
         }

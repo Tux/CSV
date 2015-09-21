@@ -18,7 +18,7 @@ sub MAIN (:$getline, :$getline_all) {
             }
         }
     else {              # fastest, but unsafe
-        for lines () :eager {
+        for lines () {
             $csv.parse ($_);
             $sum += $csv.fields.elems;
             }
