@@ -626,13 +626,14 @@ class Text::CSV {
                 $hook.defined && ($hook ~~ Routine || $hook ~~ Callable) or
                     self!fail (1004);
 
-                $name ~~ s{"-"} = "_";
-                $name ~~ /^ after_parse
-                          | before_print
-                          | filter
-                          | error
-                          $/ or self!fail (3100, $name);
-                %hooks{$name} = $hook;
+                my Str $cb_name = $name;
+                $cb_name ~~ s{"-"} = "_";
+                $cb_name ~~ /^ after_parse
+                             | before_print
+                             | filter
+                             | error
+                             $/ or self!fail (3100, $name);
+                %hooks{$cb_name} = $hook;
                 }
             %!callbacks = %hooks;
             }
