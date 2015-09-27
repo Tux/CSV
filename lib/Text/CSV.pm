@@ -289,7 +289,7 @@ class Text::CSV { ... }
 
 class CSV::Row does Iterable does Positional does Associative {
     has Text::CSV  $.csv;
-    has CSV::Field @.fields is rw;
+    has CSV::Field @.fields;
 
     multi method new (@f)  { @!fields = @f.map ({ CSV::Field.new (*) }); }
 
