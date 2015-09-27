@@ -51,7 +51,7 @@ is-deeply (csv (in => $file, after_in => &Push), [
     [  2,  "a b", "", "A" ],
     ], "AOA ith after_in callback");
 
-sub Change (Text::CSV $c, CSV::Field %f is rw) { %f<baz> = "A"; }
+sub Change (Text::CSV $c, CSV::Field %f) { %f<baz> = "A"; }
 
 is-deeply (csv (in => $file, headers => "auto", after_in => &Change), [
     { foo => 1, bar => 2, baz => "A" },

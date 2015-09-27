@@ -29,10 +29,10 @@ is ($s, "bar",                          "value");
 perl6
 
 sub Empty (Text::CSV $c, CSV::Field @f) {}
-sub Drop  (Text::CSV $c, CSV::Field @f is rw) { @f.pop; }
-sub Push  (Text::CSV $c, CSV::Field @f is rw) { @f.push (CSV::Field.new); }
-sub Replc (Text::CSV $c, CSV::Field @f is rw) { @f[1] =  CSV::Field.new; }
-sub Unshf (Text::CSV $c, CSV::Field @f is rw) { @f.unshift (CSV::Field.new ("0")); }
+sub Drop  (Text::CSV $c, CSV::Field @f) { @f.pop; }
+sub Push  (Text::CSV $c, CSV::Field @f) { @f.push (CSV::Field.new); }
+sub Replc (Text::CSV $c, CSV::Field @f) { @f[1] =  CSV::Field.new; }
+sub Unshf (Text::CSV $c, CSV::Field @f) { @f.unshift (CSV::Field.new ("0")); }
 
 ok ($csv.meta (True), "Set meta again");
 is_deeply ([$csv.getline ("1,2").map (~*)], ["1","2"],     "Parse no cb");
