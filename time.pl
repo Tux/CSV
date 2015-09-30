@@ -7,6 +7,8 @@ use Time::HiRes qw( gettimeofday tv_interval );
 
 $| = 1;
 
+# cpupower frequency-set -g performance
+
 open  my $fh, "<", "/tmp/hello.csv";
 1 while <$fh>;
 close    $fh;
