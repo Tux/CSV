@@ -909,7 +909,7 @@ class Text::CSV {
         my @ch;
         $!io and @ch = @!ahead;
         @!ahead = ();
-        $buffer.defined and @ch.push: |chunks ($buffer, $chx);
+        $buffer.defined and @ch.append: chunks ($buffer, $chx);
         @ch or return parse_error (2012);
 
         $opt_v > 2 and progress (0, @ch.perl);
@@ -1132,7 +1132,7 @@ class Text::CSV {
 
                         if ($i == @ch.elems - 1 && $!io.defined) {
                             my $str = $!io.get or return parse_error (2012);
-                            @ch.push: |chunks ($str, $chx);
+                            @ch.append: chunks ($str, $chx);
                             }
 
                         next;
