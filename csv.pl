@@ -26,9 +26,9 @@ class Text::CSV {
 
         my State $state = State::Start;
         my State $saved_state;
-        my Str:D $field;
-        my Int:D $index;
-        my Str:D $input;
+        my Str   $field;
+        my Int   $index;
+        my Str   $input;
 
         my sub append(Str:D $char){
             $field ~= $char;
