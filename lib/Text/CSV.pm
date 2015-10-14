@@ -155,12 +155,13 @@ class RangeSet {
         @x.elems and return @x;
 
         # There's a more efficient way to do this... :-)
-        gather {
-            for $.min .. $.max -> $maybe {
-                take $maybe if $maybe ~~ self;
-                }
-            }
-        }
+        ($.min .. $.max).grep(self);
+#        gather {
+#            for $.min .. $.max -> $maybe {
+#                take $maybe if $maybe ~~ self;
+#                }
+#            }
+#        }
     }
 
 class CellSet {
