@@ -156,12 +156,7 @@ class RangeSet {
 
         # There's a more efficient way to do this... :-)
         ($.min .. $.max).grep(self);
-#        gather {
-#            for $.min .. $.max -> $maybe {
-#                take $maybe if $maybe ~~ self;
-#                }
-#            }
-#        }
+        }
     }
 
 class CellSet {
