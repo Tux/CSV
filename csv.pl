@@ -112,7 +112,7 @@ class Text::CSV {
         }
 
     method getline(){
-        return @!fields;
+        @!fields;
         }
     }
 
