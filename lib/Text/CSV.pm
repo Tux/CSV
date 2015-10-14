@@ -154,8 +154,7 @@ class RangeSet {
             }
         @x.elems and return @x;
 
-        # There's a more efficient way to do this... :-)
-        ($.min .. $.max).grep(self);
+        ($.min .. $.max).grep (self);
         }
     }
 
