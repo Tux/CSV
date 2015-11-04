@@ -1216,13 +1216,14 @@ class Text::CSV {
 
     multi method getline (IO:D $io, Bool :$meta = $!keep_meta) {
         my Bool $chomped = $io.chomp;
-        my Str  $nl      = $io.nl;
-        $!eol.defined  and $io.nl = $!eol;
+        $io.nl-in.perl.say;
+        my $nl    = $io.nl-in;
+        $!eol.defined  and $io.nl-in = $!eol;
         $io.chomp = False;
         $!io      = $io;
         my Bool $status  = self.parse ($io.get);
         $!io      =  IO;
-        $io.nl    = $nl;
+        $io.nl-in = $nl;
         $io.chomp = $chomped;
         $status ?? $meta ?? self.fields !! self.list !! ();
         } # getline
@@ -1253,8 +1254,8 @@ class Text::CSV {
                         Bool :$meta = $!keep_meta,
                         Bool :$hr   = False) {
         my Bool $chomped = $io.chomp;
-        my Str  $nl      = $io.nl;
-        $!eol.defined  and $io.nl = $!eol;
+        my $nl           = $io.nl-in;
+        $!eol.defined  and $io.nl-in = $!eol;
         $io.chomp        = False;
         $!io             = $io;
         $!record_number  = 0;
@@ -1286,7 +1287,7 @@ class Text::CSV {
             }
 
         $!io =  IO;
-        $io.nl    = $nl;
+        $io.nl-in = $nl;
         $io.chomp = $chomped;
         @lines;
         }
@@ -1331,8 +1332,8 @@ class Text::CSV {
             }
 
         my Bool $chomped = $io.chomp;
-        my Str  $nl      = $io.nl;
-        $!eol.defined  and $io.nl = $!eol;
+        my $nl           = $io.nl-in;
+        $!eol.defined  and $io.nl-in = $!eol;
         $io.chomp        = False;
         $!io             = $io;
         $!record_number  = 0;
@@ -1357,7 +1358,7 @@ class Text::CSV {
             }
 
         $!io =  IO;
-        $io.nl    = $nl;
+        $io.nl-in = $nl;
         $io.chomp = $chomped;
         @lines;
         }
