@@ -15,6 +15,7 @@ t-old/*
 xt/??_*
 ?.pl
 ?.csv
+logotype/comma*
 
 # Re-enable parts later
 sandbox/
