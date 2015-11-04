@@ -1216,7 +1216,6 @@ class Text::CSV {
 
     multi method getline (IO:D $io, Bool :$meta = $!keep_meta) {
         my Bool $chomped = $io.chomp;
-        $io.nl-in.perl.say;
         my $nl    = $io.nl-in;
         $!eol.defined  and $io.nl-in = $!eol;
         $io.chomp = False;
