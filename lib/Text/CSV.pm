@@ -855,36 +855,26 @@ class Text::CSV {
             False;
             }
 
-        my sub chunks (Str $str, Regex:D $re) {
+        my sub chunks (Str $str, @re) {
             $str.defined or  return ();
             $str eq ""   and return ("");
 
-            $str.split ($re, :all).map: {
-                if $_ ~~ Str {
-                    $_   if .chars;
-                    }
-                else {
-                    .Str if .Bool;
-                    };
-                };
+            $str.split (@re, :all).grep (* ne "");
             }
 
         $!record_number++;
         $opt_v > 4 and progress ($!record_number, $buffer.perl);
 
-        # A scoping bug in perl6 inhibits the use of $!eol inside the split
-        # my Regex $chx = rx{ $!eol | $sep | $quo | $esc };
+        my CSV::Field $f   = CSV::Field.new;
         my            $eol = $!eol // rx{ \r\n || \r || \n };
         my Str        $sep = $!sep;
         my Str        $quo = $!quo;
         my Str        $esc = $!esc;
         my Bool       $noe = !$esc.defined || ($quo.defined && $esc eq $quo);
-        my Regex      $chx = $!eol.defined
-            ?? $noe ?? rx{ $eol             || $sep || $quo }
-                    !! rx{ $eol             || $sep || $quo || $esc }
-            !! $noe ?? rx{ \r\n || \r || \n || $sep || $quo }
-                    !! rx{ \r\n || \r || \n || $sep || $quo || $esc };
-        my CSV::Field $f   = CSV::Field.new;
+        my            @chx = $!eol.defined ?? $eol !! ("\r\n", "\r", "\n");
+        defined $sep and @chx.push: $sep;
+        defined $quo and @chx.push: $quo;
+        $noe         or  @chx.push: $esc;
 
         $!csv-row.fields = ();
 
@@ -904,7 +894,7 @@ class Text::CSV {
         my @ch;
         $!io and @ch = @!ahead;
         @!ahead = ();
-        $buffer.defined and @ch.append: chunks ($buffer, $chx);
+        $buffer.defined and @ch.append: chunks ($buffer, @chx);
         @ch or return parse_error (2012);
 
         $opt_v > 2 and progress (0, @ch.perl);
@@ -1127,7 +1117,7 @@ class Text::CSV {
 
                         if ($i == @ch.elems - 1 && $!io.defined) {
                             my $str = $!io.get or return parse_error (2012);
-                            @ch.append: chunks ($str, $chx);
+                            @ch.append: chunks ($str, @chx);
                             }
 
                         next;
@@ -1182,7 +1172,7 @@ class Text::CSV {
                 return False;
                 }
 
-            @ch = chunks ($str, $chx);
+            @ch = chunks ($str, @chx);
             $i = 0;
             };
 
