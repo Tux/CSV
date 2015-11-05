@@ -859,7 +859,7 @@ class Text::CSV {
             $str.defined or  return ();
             $str eq ""   and return ("");
 
-            $str.split (@re, :all).grep (* ne "");
+            $str.split (@re, :all, :skip-empty);
             }
 
         $!record_number++;
