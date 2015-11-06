@@ -859,7 +859,7 @@ class Text::CSV {
             $str.defined or  return ();
             $str eq ""   and return ("");
 
-            $str.split (@re, :all, :skip-empty);
+            $str.split (@re, :v, :skip-empty);
             }
 
         $!record_number++;
