@@ -234,7 +234,8 @@ class CSV::Field {
         $s ~ ":" ~ $!text.perl;
         }
 
-    method add (Str $chunk) {
+    method add (Cool $chunk) {
+        $chunk ~~ Int and die;
         $!text ~= $chunk;
         self;
         }
@@ -335,7 +336,7 @@ class Text::CSV {
     has Int  $!record_number;
 
     has CSV::Row   $!csv-row;
-    has Str        @!ahead;
+    has Cool       @!ahead;
     has Str        @!cnames;
     has IO         $!io;
     has Bool       $!eof;
@@ -859,22 +860,20 @@ class Text::CSV {
             $str.defined or  return ();
             $str eq ""   and return ("");
 
-            $str.split (@re, :v, :skip-empty);
+            $str.split (@re, :k, :skip-empty);
             }
 
         $!record_number++;
         $opt_v > 4 and progress ($!record_number, $buffer.perl);
 
         my CSV::Field $f   = CSV::Field.new;
-        my            $eol = $!eol // rx{ \r\n || \r || \n };
         my Str        $sep = $!sep;
         my Str        $quo = $!quo;
         my Str        $esc = $!esc;
         my Bool       $noe = !$esc.defined || ($quo.defined && $esc eq $quo);
-        my            @chx = $!eol.defined ?? $eol !! ("\r\n", "\r", "\n");
-        defined $sep and @chx.push: $sep;
-        defined $quo and @chx.push: $quo;
-        $noe         or  @chx.push: $esc;
+        my            @chx = $!eol.defined
+            ?? ($!eol,  Str,  Str,  $sep, $quo, $esc)
+            !! ("\r\n", "\r", "\n", $sep, $quo, $esc);
 
         $!csv-row.fields = ();
 
@@ -891,7 +890,7 @@ class Text::CSV {
             True;
             }
 
-        my @ch;
+        my Cool @ch;
         $!io and @ch = @!ahead;
         @!ahead = ();
         $buffer.defined and @ch.append: chunks ($buffer, @chx);
@@ -903,8 +902,8 @@ class Text::CSV {
 
         loop {
             loop (my int $i = 0; $i < @ch.elems; $i = $i + 1) {
-                my Str $chunk = @ch[$i];
-                $ppos += $chunk.chars;
+                my Cool $chunk = @ch[$i];
+                $ppos += ($chunk ~~ Int ?? @chx[$chunk] !! $chunk).chars;
 
                 if ($skip) {
                     $skip--;
@@ -915,7 +914,7 @@ class Text::CSV {
 
                 $opt_v > 8 and progress ($i, "###", $chunk.perl~"\t", $f.gist);
 
-                if ($chunk eq $sep) {
+                if ($chunk === 3) {
                     $opt_v > 5 and progress ($i, "SEP - " ~ $f.gist);
 
                     # ,1,"foo, 3",,bar,
@@ -931,7 +930,7 @@ class Text::CSV {
                     #        ^
                     if ($f.is_quoted) {
                         $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
-                        $f.add ($chunk);
+                        $f.add ($sep);
                         next;
                         }
 
@@ -945,7 +944,7 @@ class Text::CSV {
                     next;
                     }
 
-                if ($quo.defined and $chunk eq $quo) {
+                if ($chunk === 4) {
                     $opt_v > 5 and progress ($i, "QUO -" ~ $f.gist);
 
                     # ,1,"foo, 3",,bar,\r\n
@@ -963,9 +962,9 @@ class Text::CSV {
                         #           ^
                         $i == @ch - 1 and return parse_done ();
 
-                        my Str $next   = @ch[$i + 1];
-                        my int $omit   = 1;
-                        my int $quoesc = 0;
+                        my Cool $next  = @ch[$i + 1];
+                        my int  $omit   = 1;
+                        my int  $quoesc = 0;
 
                         # , 1 , "foo, 3" , , bar , "" \r\n
                         #               ^            ^
@@ -979,7 +978,7 @@ class Text::CSV {
 
                         # ,1,"foo, 3",,bar,\r\n
                         #           ^
-                        if ($next eq $sep) {
+                        if ($next === 3) {
                             $opt_v > 7 and progress ($i, "SEP");
                             $skip = $omit;
                             keep () or return False;
@@ -988,12 +987,8 @@ class Text::CSV {
 
                         # ,1,"foo, 3"\r\n
                         #           ^
-                        # $next ~~ /^ $eol $/ and return parse_done ();
-                        if ($!eol.defined
-                                ?? $next eq $!eol
-                                !! $next ~~ /^ \r\n | \n | \r $/) {
+                        $next ~~ Int && $next < 3 and
                             return parse_done ();
-                            }
 
                         if (defined $esc and $esc eq $quo) {
                             $opt_v > 7 and progress ($i, "ESC", "($next)");
@@ -1012,9 +1007,9 @@ class Text::CSV {
 
                             # ,1,"foo, 3""56",,bar,\r\n
                             #            ^
-                            if ($next eq $quo) {
+                            if ($next === 4) {
                                 $skip = $omit;
-                                $f.add ($chunk);
+                                $f.add ($esc);
                                 next;
                                 }
 
@@ -1036,7 +1031,7 @@ class Text::CSV {
                         if ($!allow_loose_quotes) {
                             # ,1,"foo, 3"456",,bar,\r\n
                             #            ^
-                            $f.add ($chunk);
+                            $f.add ($quo);
                             next;
                             }
 
@@ -1047,24 +1042,24 @@ class Text::CSV {
                     # 1,foo "boo" d'uh,1
                     #       ^
                     if ($!allow_loose_quotes) {
-                        $f.add ($chunk);
+                        $f.add ($quo);
                         next;
                         }
                     return parse_error (2034);
                     }
 
-                if ($esc.defined and $chunk eq $esc) {
+                if ($chunk === 5) {
                     $opt_v > 5 and progress ($i, "ESC - " ~ $f.gist);
 
                     if ($i >= $@ch.elems - 1) {
                         if ($!allow_loose_escapes) {
-                            $f.add ($chunk);
+                            $f.add ($esc);
                             next;
                             }
                         return parse_error ($f.is_quoted ?? 2024 !! 2035);
                         }
 
-                    my $next = @ch[$i + 1];
+                    my Cool $next = @ch[$i + 1];
 
                     # ,1,"foo, 3\056",,bar,\r\n
                     #            ^
@@ -1078,7 +1073,7 @@ class Text::CSV {
 
                     # ,1,"foo, 3\"56",,bar,\r\n
                     #            ^
-                    if ($next eq $quo) {
+                    if ($next === 4) {
                         $skip = 1;
                         $f.add ($quo);
                         next;
@@ -1086,7 +1081,7 @@ class Text::CSV {
 
                     # ,1,"foo, 3\\56",,bar,\r\n
                     #            ^
-                    if ($next eq $esc) {
+                    if ($next === 5) {
                         $skip = 1;
                         $f.add ($esc);
                         next;
@@ -1101,19 +1096,17 @@ class Text::CSV {
                     return parse_error (2025);
                     }
 
-                #if ($chunk ~~ rx{^ $eol $}) {
-                if ($!eol.defined
-                        ?? $chunk eq $!eol
-                        !! $chunk ~~ /^ \r\n | \n | \r $/) {
+                if ($chunk ~~ Int && $chunk < 3) {
                     $opt_v > 5 and progress ($i, "EOL - " ~ $f.gist);
+                    my $chnl = @chx[$chunk];
                     if ($f.is_quoted) {     # 1,"2\n3"
                         $!binary or
                             return parse_error (
-                                $!eol.defined       ?? 2021 !!
-                                $chunk ~~ m{<[\r]>} ?? 2022 !!
-                                $chunk ~~ m{<[\n]>} ?? 2021 !!  2026);
+                                $!eol.defined      ?? 2021 !!
+                                $chnl ~~ m{<[\r]>} ?? 2022 !!
+                                $chnl ~~ m{<[\n]>} ?? 2021 !!  2026);
 
-                        $f.add ($chunk);
+                        $f.add ($chnl);
 
                         if ($i == @ch.elems - 1 && $!io.defined) {
                             my $str = $!io.get or return parse_error (2012);
