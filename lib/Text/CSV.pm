@@ -1134,7 +1134,7 @@ class Text::CSV {
                             !$f.undefined && $f.Str ~~ /^ "sep=" (.*) /) {
                         $!sep = $0.Str;
                         $!record_number = 0;
-                        return self.parse ($!io.get);
+                        return self.parse ($!io.get // Str);
                         }
 
                     return parse_done ();
@@ -1251,7 +1251,7 @@ class Text::CSV {
 
         my @lines;
         if ($offset >= 0) {
-            while (self.parse ($io.get)) {
+            while (self.parse ($io.get // Str)) {
                 !$!rrange || $!rrange.in ($!record_number - 1) or next;
 
                 $offset--  > 0 and next;
@@ -1265,7 +1265,7 @@ class Text::CSV {
             }
         else {
             $offset = -$offset;
-            while (self.parse ($io.get)) {
+            while (self.parse ($io.get // Str)) {
                 !%!callbacks<filter>.defined ||
                     %!callbacks<filter>.($!csv-row) or next;
 
@@ -1328,7 +1328,7 @@ class Text::CSV {
         $!record_number  = 0;
 
         my @lines;
-        while (self.parse ($io.get)) {
+        while (self.parse ($io.get // Str)) {
 
             my CSV::Field @f = $!csv-row.fields[
                 (^($!csv-row.fields.elems)).grep ({
