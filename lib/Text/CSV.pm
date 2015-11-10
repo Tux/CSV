@@ -1210,7 +1210,7 @@ class Text::CSV {
         $!eol.defined  and $io.nl-in = $!eol;
         $io.chomp = False;
         $!io      = $io;
-        my Bool $status  = self.parse ($io.get);
+        my Bool $status  = self.parse ($_) with $io.get;
         $!io      =  IO;
         $io.nl-in = $nl;
         $io.chomp = $chomped;
