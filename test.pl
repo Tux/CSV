@@ -107,7 +107,7 @@ class Text::CSV {
             $f = CSV::Field.new;
             } # add
 
-        my @ch = $buffer.split($regex,:all).flat.map: {
+        my @ch = $buffer.split($regex,:v).flat.map: {
             if $_ ~~ Str {
                 $_ if .chars;
                 }
