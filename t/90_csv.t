@@ -95,7 +95,7 @@ sub s-in (Any $in) {
 sub inok (@r, Str $diag) {
     ok (@r, $diag); # Expect Array.new (["a", "b"], ["1", "2"], ["3", "4"])
     #@r.perl.say;
-    $io-in.seek (0, 0);
+    $io-in.seek (0, SeekFromBeginning);
     is (@r.elems, 3, "AoA should have 3 rows");
     is-deeply (@r, @expect, "Content");
     }
@@ -123,17 +123,17 @@ is (csv (in => $fni, out => Str, fragment => "row=2"),    "1,2,3\r\n",        "F
 is (csv (in => $fni, out => Str, fragment => "col=3"),    "foo\r\n3\r\n\r\n", "Fragment, col");
 is (csv (in => $fni, out => Str, fragment => "cell=1,1"), "bar\r\n",          "Fragment, cell");
 
-$io-in.seek (0, 0);
+$io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
     is-deeply (csv (in => $in, out => Array), $full-aoa, "csv => Array { s-in ($in) }");
     }
 
-$io-in.seek (0, 0);
+$io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
     is-deeply (csv (in => $in, out => Hash),  $full-aoh, "csv => Hash  { s-in ($in) }");
     }
 
-$io-in.seek (0, 0);
+$io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
     ok (my $csv = Text::CSV.new,           "new");
     ok ($csv.column_names (@hdr), "colnames");
@@ -141,14 +141,14 @@ for in () -> $in {
         $full-aoh, "csv => Hash + skip { s-in ($in) }");
     }
 
-$io-in.seek (0, 0);
+$io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
     ok (my $csv = Text::CSV.new,           "new");
 #   is-deeply ([$csv.csv (in => $in, headers => "auto")],
 #       $full-aoh, "csv => Hash + auto { s-in ($in) }");
     }
 
-$io-in.seek (0, 0);
+$io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
     ok (my $csv = Text::CSV.new,           "new");
     is-deeply ($csv.csv (in => $in, headers => [@hdr], frag => "row=2-*"),
