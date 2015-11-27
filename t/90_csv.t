@@ -75,9 +75,7 @@ sub sleep-time {
 
 sub in {
     my @i = @in;
-    my $sup = Supply.new;
-    start { sleep (sleep-time); $sup.emit ($_) for @data; $sup.done; };
-    @i.push: $sup;
+    @i.push: Supply.from-list (@data);
     @i;
     }
 
