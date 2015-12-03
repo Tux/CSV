@@ -818,7 +818,7 @@ class Text::CSV {
         $!csv-row.fields = ();
         my int $i = 0;
         for flat @f -> $f {
-            $i++;
+            $i = $i + 1;
             my CSV::Field $cf;
             if ($f.isa (CSV::Field)) {
                 $cf = $f;
@@ -862,7 +862,7 @@ class Text::CSV {
             $str.split (@re, :v, :skip-empty);
             }
 
-        $!record_number++;
+        $!record_number = $!record_number + 1;
         $opt_v > 4 and progress ($!record_number, $buffer.perl);
 
         my CSV::Field $f   = CSV::Field.new;
@@ -972,7 +972,7 @@ class Text::CSV {
                         if ($!allow_whitespace && $next ~~ /^ <[\ \t]>+ $/) {
                             $i == @ch - 2 and return parse_done ();
                             $next = @ch[$i + 2];
-                            $omit++;
+                            $omit = $omit + 1;
                             }
 
                         $opt_v > 8 and progress ($i, "QUO", "next = $next");
@@ -1004,7 +1004,7 @@ class Text::CSV {
                             #            ^
                             if ($next ~~ /^ "0"/) {
                                 @ch[$i + 1] ~~ s{^ "0"} = "";
-                                $ppos++;
+                                $ppos = $ppos + 1;
                                 $opt_v > 8 and progress ($i, "Add NIL");
                                 $f.add ("\c0");
                                 next;
@@ -1070,7 +1070,7 @@ class Text::CSV {
                     #            ^
                     if ($next ~~ /^ "0"/) {
                         @ch[$i + 1] ~~ s{^ "0"} = "";
-                        $ppos++;
+                        $ppos = $ppos + 1;
                         $opt_v > 8 and progress ($i, "Add NIL");
                         $f.add ("\c0");
                         next;
