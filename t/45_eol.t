@@ -9,7 +9,7 @@ use Test;
 use Text::CSV;
 
 my @rs  = "\n", "\r\n", "\r";
-my @eol = "\r", "\n", "\r\n", "\n\r";#, "";
+my @eol = "\r", "\n", "\r\n", "\n\r", "";
 
 my $def_rs = $*IN.nl-in;
 
@@ -81,6 +81,9 @@ $*IN.nl-in = $def_rs;
     ok ($csv.allow_whitespace (1), "Allow whitespace");
     ok ($csv.parse (qq{"x" \r}),   "Trailing \\r with no escape char");
     }
+
+done-testing;
+
 =finish
 
 {   local $*OUT.nl = "#\r\n";
