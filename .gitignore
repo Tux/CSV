@@ -16,6 +16,8 @@ xt/??_*
 ?.pl
 ?.csv
 logotype/comma*
+.precomp
+lib/.precomp
 
 # Re-enable parts later
 sandbox/
