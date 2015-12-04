@@ -86,7 +86,7 @@ for (|@rs) -> $rs {
     close $fh;
     $fh = open "_eol.csv", :r;
     $fh.nl-in = "";
-    #is ($fh.get, "a,1#\r\n", "Strange \$\\");
+    #is ($fh.get, "a,1#\r\n", "Strange \$\\");  # TODO
     $fh.close;
     unlink "_eol.csv";
     }
@@ -97,7 +97,7 @@ for (|@rs) -> $rs {
     close $fh;
     $fh = open "_eol.csv", :r;
     $fh.nl-in = "";
-    #is ($fh.get, "a,1#\r\n", "Strange \$\\ + eol");
+    #is ($fh.get, "a,1#\r\n", "Strange \$\\ + eol");  # TODO
     $fh.close;
     unlink "_eol.csv";
     }
@@ -163,7 +163,7 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
     unlink "_eol.csv";
     }
 
-{   my $fh = open "files/macosx.csv", :r or die "Ouch $!";
+if (my $fh = open "files/macosx.csv", :r) {
     ok (True, "MacOSX exported file");
     ok ((my $csv = Text::CSV.new (:auto_diag, :!meta)), "new csv");
     #diag ();
