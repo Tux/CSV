@@ -543,7 +543,10 @@ class Text::CSV {
     method sep (*@s) returns Str { self!a_str ($!sep, @s); }
     method quo (*@s) returns Str { self!a_str ($!quo, @s); }
     method esc (*@s) returns Str { self!a_str ($!esc, @s); }
-    method eol (*@s) returns Str { self!a_str ($!eol, @s); }
+    method eol (*@s) returns Str {
+        @s[0] ~~ Array and @s = |@s[0]; # Allow *OUT.nl-out
+        self!a_str ($!eol, @s);
+        }
 
     # Boolean attributes
     method !a_bool ($attr is rw, *@s) returns Bool {
