@@ -8,6 +8,7 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
+my $efn = "_eol.csv";
 my @rs  = "\n", "\r\n", "\r";
 my @eol = "\r", "\n", "\r\n", "\n\r", "";
 
@@ -22,11 +23,11 @@ for (|@rs) -> $rs {
                 my IO $fh;
 
                 if ($pass) {
-                    $fh = open "_eol.csv", :r;
+                    $fh = open $efn, :r;
                     $fh.nl-in  = $rs;
                     }
                 else {
-                    $fh = open "_eol.csv", :w;
+                    $fh = open $efn, :w;
                     $fh.nl-out = $ors.defined ?? $ors !! "";
                     }
 
@@ -64,7 +65,7 @@ for (|@rs) -> $rs {
                 }
             }
 
-        unlink "_eol.csv";
+        unlink $efn;
         }
     }
 
@@ -80,26 +81,26 @@ for (|@rs) -> $rs {
     }
 
 {   my $csv = Text::CSV.new ();
-    my $fh = open "_eol.csv", :w;
+    my $fh = open $efn, :w;
     $fh.nl-out = "#\r\n";
     $csv.print ($fh, [ "a", 1 ]);
     close $fh;
-    $fh = open "_eol.csv", :r;
+    $fh = open $efn, :r;
     $fh.nl-in = "";
     #is ($fh.get, "a,1#\r\n", "Strange \$\\");  # TODO
     $fh.close;
-    unlink "_eol.csv";
+    unlink $efn;
     }
 {   my $csv = Text::CSV.new (eol => $*OUT.nl-out);
-    my $fh = open "_eol.csv", :w;
+    my $fh = open $efn, :w;
     $fh.nl-out = "#\r\n";
     $csv.print ($fh, [ "a", 1 ]);
     close $fh;
-    $fh = open "_eol.csv", :r;
+    $fh = open $efn, :r;
     $fh.nl-in = "";
     #is ($fh.get, "a,1#\r\n", "Strange \$\\ + eol");  # TODO
     $fh.close;
-    unlink "_eol.csv";
+    unlink $efn;
     }
 
 ok (True, "Auto-detecting \\r");
@@ -107,33 +108,33 @@ ok (True, "Auto-detecting \\r");
     my $row = @row.join (",");
     for ("\n", "\r\n", "\r") -> $eol {
         my $s_eol = $eol.perl;
-        my $fh = open "_eol.csv", :w;
+        my $fh = open $efn, :w;
         $fh.print: qq{$row$eol$row$eol$row$eol\x91};
         $fh.close;
-        $fh = open "_eol.csv", :r;
+        $fh = open $efn, :r;
         my $c = Text::CSV.new (:auto_diag);
         is ( $c.eol (),                  Str,       "default EOL");
         is ([$c.getline ($fh, :!meta)],  [ @row, ], "EOL 1 $s_eol");
         is ([$c.getline ($fh, :!meta)],  [ @row, ], "EOL 2 $s_eol");
         is ([$c.getline ($fh, :!meta)],  [ @row, ], "EOL 3 $s_eol");
         $fh.close;
-        unlink "_eol.csv";
+        unlink $efn;
         }
     }
 
 ok (True, "EOL undefined");
 {   ok (my $csv = Text::CSV.new (eol => Str), "new csv with eol => Str");
-    my $fh = open "_eol.csv", :w;
+    my $fh = open $efn, :w;
     ok ($csv.print ($fh, [1, 2, 3]), "print 1");
     ok ($csv.print ($fh, [4, 5, 6]), "print 2");
     close $fh;
 
-    $fh = open "_eol.csv", :r;
+    $fh = open $efn, :r;
     ok ((my @row = $csv.getline ($fh, :!meta)), "getline");
     is (@row.elems, 5,                          "# fields");
     is ([|@row], [ 1, 2, 34, 5, 6 ],            "fields 1+2");
     $fh.close;
-    unlink "_eol.csv";
+    unlink $efn;
     }
 
 for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
@@ -142,7 +143,7 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
     my $s_eol = $eol.perl;
     ok (True, "EOL $s_eol");
     ok ((my $csv = Text::CSV.new (:$eol)), "new csv with eol => $s_eol");
-    my $fh = open "_eol.csv", :w;
+    my $fh = open $efn, :w;
     ok ($csv.print ($fh, [1, 2, 3]), "print 1");
     ok ($csv.print ($fh, [4, 5, 6]), "print 2");
     $fh.close;
@@ -151,7 +152,7 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
         my $s_rs = $rs.perl;
         #(my $s_rs = defined $rs ? $rs : "-- undef --") =~ s/\n/\\n/g;
         ok (True, "with RS $s_rs");
-        my $fh = open "_eol.csv", :r;
+        my $fh = open $efn, :r;
         ok ((my @row = $csv.getline ($fh, :!meta)), "getline 1");
         is (@row.elems, 3,                          "field count");
         is ([|@row], [ 1, 2, 3 ],                   "fields 1");
@@ -160,7 +161,7 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
         is ([|@row], [ 4, 5, 6 ],                   "fields 2");
         $fh.close;
         }
-    unlink "_eol.csv";
+    unlink $efn;
     }
 
 if (my $fh = open "files/macosx.csv", :r) {
