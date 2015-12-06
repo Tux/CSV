@@ -83,11 +83,58 @@ sub progress (*@y) {
 # I don't want this inside Text::CSV
 class IO::String is IO::Handle {
 
-    multi method new (Str $str!) returns IO::Handle {
-        (my Str $filename, my $fh) = tempfile;
-        $fh.print ($str);
-        $fh.close;
-        open $filename, :r, :!chomp;
+    has     $.nl-in   is rw;
+    has Str $!str;
+    has Str @!content;
+
+    # my $fh = IO::String ($foo);
+    multi method new (Str $str! is rw) {
+        my \obj = self.bless;
+        obj.nl-in = $*IN.nl-in;
+        obj.print ($str);
+        obj.bind-str ($str);
+        obj;
+        }
+
+    # my $fh = IO::String ("foo");
+    multi method new (Str $str!) {
+        my \obj = self.bless;
+        obj.nl-in = $*IN.nl-in;
+        obj.print ($str);
+        obj;
+        }
+
+
+    method bind-str (Str $s is rw) {
+        $!str := $s;
+        }
+
+    method print (*@what) {
+        if (my Str $str = @what.join ("")) {
+            my Str @x = $str eq "" || !$.nl-in.defined
+                ??  $str
+                !! |$str.split ($.nl-in, :v).map (-> $a, $b? { $a ~ ($b // "") });
+            @x.elems > 1 && @x.tail eq "" and @x.pop;
+            @!content.push: |@x;
+            }
+        self;
+        }
+
+    method print-nl {
+        self.print ($.nl-out);
+        }
+
+    method get {
+        @!content or return Str;
+        shift @!content;
+        }
+
+    method close {
+        $!str.defined and $!str = ~ self;
+        }
+
+    method Str {
+        @!content.join ("");
         }
     }
 
