@@ -18,7 +18,8 @@ install:
     - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/panda/bin:$PATH
     - panda --notests install . # installs deps
 before_script:
-    - panda --installed --verbose list
+    - panda --installed --verbose list  || true
+    - perl6 -I. -Ilib t/81_subclass.t   || true
 script:
     - prove -v -e 'perl6 -Ilib' t
 notifications:
