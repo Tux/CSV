@@ -83,26 +83,27 @@ sub progress (*@y) {
 # I don't want this inside Text::CSV
 class IO::String is IO::Handle {
 
-    has     $.nl-in   is rw;
-    has     $.nl-out  is rw;
-    has Str $!str;
-    has Str @!content;
+    has      $.nl-in   is rw;
+    has      $.nl-out  is rw;
+    has Bool $.ro      is rw = False;
+    has Str  $!str;
+    has Str  @!content;
 
     # my $fh = IO::String ($foo);
-    multi method new (Str $str! is rw) {
-        my \obj = self.bless;
-        obj.nl-in  = $*IN.nl-in;
-        obj.nl-out = $*OUT.nl-out;
-        obj.print ($str);
+    multi method new (Str $str! is rw, *%init) {
+        my \obj = self.new ($str.Str, |%init);
         obj.bind-str ($str);
         obj;
         }
 
     # my $fh = IO::String ("foo");
-    multi method new (Str $str!) {
+    multi method new (Str $str!, *%init) {
         my \obj = self.bless;
         obj.nl-in  = $*IN.nl-in;
         obj.nl-out = $*OUT.nl-out;
+        obj.ro     = %init<ro>     if %init<ro>:exists;
+        obj.nl-in  = %init<nl-in>  if %init<nl-in>:exists;
+        obj.nl-out = %init<nl-out> if %init<nl-out>:exists;
         obj.print ($str);
         obj;
         }
@@ -132,7 +133,7 @@ class IO::String is IO::Handle {
         }
 
     method close {
-        $!str.defined and $!str = ~ self;
+        $!str.defined && !$.ro and $!str = ~ self;
         }
 
     method Str {
@@ -415,7 +416,8 @@ class Text::CSV {
             my $m =
                  "\e[34m" ~ $!message
                ~ "\e[0m"  ~ " : error $!error @ record $r, field $f, position $p\n";
-            $!buffer.defined && $!buffer.chars  && $!pos.defined and $m ~=
+            $!buffer.defined && $!buffer.chars  && $!pos.defined &&
+                $!pos >= 0 && $!pos < $!buffer.chars and $m ~=
                  "\e[32m" ~ substr ($!buffer, 0, $!pos - 1)
                ~ "\e[33m" ~ "\x[23CF]"
                ~ "\e[31m" ~ substr ($!buffer,    $!pos - 1)
@@ -527,7 +529,7 @@ class Text::CSV {
         alias ("callbacks",             < hooks >);
 
         alias ("column_names",          < column-names >);
-        alias ("error_diag",            < error-diag >);
+        alias ("error_diag",            < error-diag diag diag-error diag_error >);
         alias ("error_input",           < error-input >);
         alias ("getline_all",           < getline-all >);
         alias ("getline_hr_all",        < getline-hr-all >);

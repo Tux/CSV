@@ -103,24 +103,31 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
     my $s_eol = $eol.perl;
     ok (True, "EOL $s_eol");
     ok ((my $csv = Text::CSV.new (:$eol)), "new csv with eol => $s_eol");
+    $efn = "";
     my $fh = IO::String.new ($efn, nl-out => Str);
     ok ($csv.print ($fh, [1, 2, 3]), "print 1");
     ok ($csv.print ($fh, [4, 5, 6]), "print 2");
     $fh.close;
 
-    #for (Str, "", "\n", $eol, "!", "!\n", "\n!", "!\n!", "\n!\n") -> $rs {
-    for ("", "\n", $eol, "!", "!\n", "\n!", "!\n!", "\n!\n") -> $rs {
+    $csv.auto-diag (True);
+    for (Str, "", "\n", $eol, "!", "!\n", "\n!", "!\n!", "\n!\n") -> $rs {
         my $s_rs = $rs.perl;
-        #(my $s_rs = defined $rs ? $rs : "-- undef --") =~ s/\n/\\n/g;
-        ok (True, "with RS $s_rs");
-        my $s = $efn;
-        my $fh = IO::String.new ($s, nl-in => $rs);
-#       ok ((my @row = $csv.getline ($fh, :!meta)), "getline 1");
-#       is (@row.elems, 3,                          "field count");
-#       is ([|@row], [ 1, 2, 3 ],                   "fields 1");
-#       ok ((   @row = $csv.getline ($fh, :!meta)), "getline 2");
-#       is (@row.elems, 3,                          "field count");
-#       is ([|@row], [ 4, 5, 6 ],                   "fields 2");
+        ok (True, "with RS $s_rs / EOL $s_eol");
+        my $fh  = IO::String.new ($efn, :ro, nl-in => $rs);
+        my @row = $csv.getline ($fh, :!meta);
+        if (@row.elems == 3 && @row[2] eq "3") {
+            is (@row.elems, 3,                          "field count");
+            is ([|@row], [ 1, 2, 3 ],                   "fields 1");
+            ok ((   @row = $csv.getline ($fh, :!meta)), "getline 2");
+            is (@row.elems, 3,                          "field count");
+            is ([|@row], [ 4, 5, 6 ],                   "fields 2");
+            }
+        else { #TODO!
+            note "TODO: EOL = $s_eol, RS = $s_rs";
+            note "      ", $efn.perl;
+            note "  --> ", @row.perl;
+            #$csv.diag;
+            }
         $fh.close;
         }
     $efn = "";
