@@ -84,13 +84,15 @@ sub progress (*@y) {
 class IO::String is IO::Handle {
 
     has     $.nl-in   is rw;
+    has     $.nl-out  is rw;
     has Str $!str;
     has Str @!content;
 
     # my $fh = IO::String ($foo);
     multi method new (Str $str! is rw) {
         my \obj = self.bless;
-        obj.nl-in = $*IN.nl-in;
+        obj.nl-in  = $*IN.nl-in;
+        obj.nl-out = $*OUT.nl-out;
         obj.print ($str);
         obj.bind-str ($str);
         obj;
@@ -99,11 +101,11 @@ class IO::String is IO::Handle {
     # my $fh = IO::String ("foo");
     multi method new (Str $str!) {
         my \obj = self.bless;
-        obj.nl-in = $*IN.nl-in;
+        obj.nl-in  = $*IN.nl-in;
+        obj.nl-out = $*OUT.nl-out;
         obj.print ($str);
         obj;
         }
-
 
     method bind-str (Str $s is rw) {
         $!str := $s;
@@ -1257,7 +1259,7 @@ class Text::CSV {
     multi method getline (IO:D $io, Bool :$meta = $!keep_meta) {
         my Bool $chomped = $io.chomp;
         my $nl    = $io.nl-in;
-        $!eol.defined  and $io.nl-in = $!eol;
+        $!eol.defined and $io.nl-in = $!eol;
         $io.chomp = False;
         $!io      = $io;
         my Bool $status  = self.parse ($io.get // Str);
@@ -1418,7 +1420,10 @@ class Text::CSV {
 
     multi method print (IO:D $io,  @fld) returns Bool {
         self.combine (@fld) or return False;
+        my $nl = $io.nl-out;
+        $!eol.defined and $io.nl-out = $!eol;
         $io.print (self.string);
+        $io.nl-out = $nl;
         True;
         }
 
