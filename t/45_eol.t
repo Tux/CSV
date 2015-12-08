@@ -164,7 +164,8 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
     unlink $efn;
     }
 
-if (my $fh = open "files/macosx.csv", :r) {
+my Str $osxfn = "files/macosx.csv";
+if ($osxfn.IO.r && my $fh = open $osxfn, :r) {
     ok (True, "MacOSX exported file");
     ok ((my $csv = Text::CSV.new (:auto_diag, :!meta)), "new csv");
     #diag ();
