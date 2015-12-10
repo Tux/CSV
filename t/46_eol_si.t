@@ -1,7 +1,5 @@
 #!perl6
 
-# Cannot set $*OUT.nl-out to Str
-
 use v6;
 use Slang::Tuxic;
 
@@ -11,9 +9,6 @@ use Text::CSV;
 my Str $efn;
 my Str @rs  = "\n", "\r\n", "\r";
 my Str @eol = "\r", "\n", "\r\n", "\n\r", "";
-
-# The IO::String in Text::CSV is for reading only
-# These tests would need it for writing too
 
 for (|@rs) -> $rs {
     for (Str, $rs) -> $ors {
@@ -122,7 +117,7 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
             is (@row.elems, 3,                          "field count");
             is ([|@row], [ 4, 5, 6 ],                   "fields 2");
             }
-        else { #TODO!
+        else { #TODO? Or is this just too weird to try to support
             note "TODO: EOL = $s_eol, RS = $s_rs";
             note "      ", $efn.perl;
             note "  --> ", @row.perl;
