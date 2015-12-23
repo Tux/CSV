@@ -78,9 +78,9 @@ id,name\r
 5\r
 CONTENTS
 
-my $content = slurp $tf20;
-is ($content, $expected, "Content");
+is ((slurp $tf20, :bin).decode, $expected, "Content");
 
+$csv.eol (Str); # \r\n is translated to \n by perl6
 $fh = open  $tf20, :r or die "$tf20: $!";
 my @fields;
 ok (True, "# Retrieving data");
