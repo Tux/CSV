@@ -113,13 +113,14 @@ for in () -> $in {
     }
 
 # Test supported "out" formats
+my $datn = $data; $datn ~~ s:g{ "\r\n" } = "\n";
 for in () -> $in {
-    is (csv (in => $in, out => Str, :!quote-space), $data, "csv => Str   { s-in ($in) }");
+    is (csv (in => $in, out => Str, :!quote-space), $data|$datn, "csv => Str   { s-in ($in) }");
     }
 
-is (csv (in => $fni, out => Str, fragment => "row=2"),    "1,2,3\r\n",        "Fragment, row");
-is (csv (in => $fni, out => Str, fragment => "col=3"),    "foo\r\n3\r\n\r\n", "Fragment, col");
-is (csv (in => $fni, out => Str, fragment => "cell=1,1"), "bar\r\n",          "Fragment, cell");
+is (csv (in => $fni, out => Str, fragment => "row=2"),    "1,2,3\r\n"       |"1,2,3\n",    "Fragment, row");
+is (csv (in => $fni, out => Str, fragment => "col=3"),    "foo\r\n3\r\n\r\n"|"foo\n3\n\n", "Fragment, col");
+is (csv (in => $fni, out => Str, fragment => "cell=1,1"), "bar\r\n"         |"bar\n",      "Fragment, cell");
 
 $io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
@@ -186,6 +187,6 @@ $idx = 0;
 ok (csv (in => &getrowh, out => $fno), "out from CODE/HR (auto headers)");
 is-deeply (csv (in => $fno, headers => "auto"), $full-aoh, "data from CODE/HR");
 
-is (csv (in => [$[1,2,3]], out => Str), "1,2,3\r\n", "Out to Str");
+is (csv (in => [$[1,2,3]], out => Str), "1,2,3\r\n"|"1,2,3\n", "Out to Str");
 
 done-testing;
