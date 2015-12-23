@@ -25,6 +25,7 @@ for (|@rs) -> $rs {
                 if ($pass) {
                     $fh = open $efn, :r;
                     $fh.nl-in  = $rs;
+                    $rs eq "\r\n" and $csv.eol (Str);
                     }
                 else {
                     $fh = open $efn, :w;
@@ -59,7 +60,16 @@ for (|@rs) -> $rs {
                      @p = @row;
                      }
 
-                is (@p.perl, @f.perl,                    "result  |$s_eol|");
+                for (^@f.elems) -> $idx {
+                    my $expect = @f[$idx];
+                    if ($expect.defined && $expect ~~ m/ "\r\n" /) {
+                        my $r = $expect;
+                        my $n = $expect;
+                        $n ~~ s:g{ "\r\n" } = "\n";
+                        $expect = $r | $n;
+                        }
+                    is (@p[$idx], $expect,               "result  |$s_eol|$idx");
+                    }
 
                 $fh.close;
                 }
@@ -148,6 +158,7 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
     ok ($csv.print ($fh, [4, 5, 6]), "print 2");
     $fh.close;
 
+    $eol eq "\r\n" and $csv.eol (Str);
     for (Str, "", "\n", $eol, "!", "!\n", "\n!", "!\n!", "\n!\n") -> $rs {
         my $s_rs = $rs.perl;
         #(my $s_rs = defined $rs ? $rs : "-- undef --") =~ s/\n/\\n/g;
