@@ -956,7 +956,8 @@ class Text::CSV {
         @ch.elems or return parse_done ();       # An empty line
 
         loop {
-            loop (my int $i = 0; $i < @ch.elems; $i = $i + 1) {
+            # faster than @ch.kv, faster than my int $i
+            loop (my Int $i = 0; $i < @ch.elems; $i = $i + 1) {
                 my Str $chunk = @ch[$i];
                 $ppos += $chunk.chars;
 
