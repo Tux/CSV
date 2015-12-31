@@ -28,8 +28,12 @@ my @test = (
     [ 6, "test"        ],
     [ 6, "test-t"      ],
     [ 6, "csv-parser"  ],
+    [ 2, "csv-python2" ],
+    [ 3, "csv-python3" ],
     );
 my %perl = (
+    2 => "python2",
+    3 => "python3",
     5 => "perl",
     6 => "perl6",
     );
@@ -53,18 +57,30 @@ for (@test) {
 
     printf "%-11s ", $_->[1];
 
-    open my $ph, "|-", "$perl{$v} -Ilib $script.pl 2>&1 >/dev/null";
-    print   $ph "\n";
-    close   $ph;
+    my ($i, $t0) = (0);
+    if ($v >= 5) {
+        open my $ph, "|-", "$perl{$v} -Ilib $script.pl 2>&1 >/dev/null";
+        print   $ph "\n";
+        close   $ph;
 
-    my $t0 = [ gettimeofday ];
-    open my $th, "-|", "$perl{$v} -Ilib $script.pl 2>&1 </tmp/hello.csv";
-    my $i = 0;
-    while (<$th>) {
-        m/^(\d+)$/ and $i = $1;
+        $t0 = [ gettimeofday ];
+        open my $th, "-|", "$perl{$v} -Ilib $script.pl 2>&1 </tmp/hello.csv";
+        while (<$th>) {
+            m/^(\d+)$/ and $i = $1;
+            }
+        }
+    else {
+        open my $ph, "|-", "$perl{$v} $script.py 2>&1 >/dev/null";
+        print   $ph "\n";
+        close   $ph;
+
+        $t0 = [ gettimeofday ];
+        open my $th, "-|", "$perl{$v} $script.py 2>&1 </tmp/hello.csv";
+        while (<$th>) {
+            m/^(\d+)$/ and $i = $1;
+            }
         }
     my $elapsed = tv_interval ($t0);
-    close $th;
     printf "%s %6d %9.3f %9.3f\n", $i eq 50000 ? "   " : "***", $i,
         $elapsed, $elapsed - $start{$v};
     }
