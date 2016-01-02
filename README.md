@@ -21,7 +21,7 @@ and produce CSV data.
 ```
 Copying
 -------
-Copyright (c) 2015-2015 H.Merijn Brand.  All rights reserved.
+Copyright (c) 2015-2016 H.Merijn Brand.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
