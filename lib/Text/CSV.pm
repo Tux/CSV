@@ -1536,6 +1536,7 @@ class Text::CSV {
         #     sub { ... }                      Routine
         #     { ... }                          Callable
         #     Supply.new                       Supply
+        #     start { ...}                     Channel
         given $in {
             when Str {
                 $io-in = open $in, :r, :!chomp;
@@ -1568,11 +1569,22 @@ class Text::CSV {
                 $in.act (
                     -> \row {
                         !$!rrange || $!rrange.in ($i++) and @in.push:
-                          row ~~ Str ?? $[ self.getline (row) ] !! row;
+                            row ~~ Str ?? $[ self.getline (row) ] !! row;
                         },
                     );
                 $in.wait;
                 @in;
+                }
+            when Channel {
+                $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
+                my int $i = 0;
+                react {
+                    whenever $in -> \row {
+                        !$!rrange || $!rrange.in ($i++) and @in.push:
+                            row ~~ Str ?? $[ self.getline (row) ] !! row;
+                        LAST { done; }
+                        }
+                    }
                 }
             when Callable { # Sub, Routine, Callable, Block, Code
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
@@ -1610,6 +1622,7 @@ class Text::CSV {
         #   "file.csv"  - write to file
         #   $fh         - write to $fh
         #   Supply:D    - emit to Supply
+        #   Channel:D   - emit to Channel
         #   Routine:D   - pass row(s) to Routine
         given $out {
             when Str {

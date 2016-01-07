@@ -60,6 +60,7 @@ my @in =
             }
         },
     # Supply push later         # Supply
+    # Channel push later        # Channel
     ;
 
 sub sleep-time {
@@ -76,6 +77,12 @@ sub sleep-time {
 sub in {
     my @i = @in;
     @i.push: Supply.from-list (@data);
+    my $ch = Channel.new;
+    start {
+        $ch.send ($_) for @data;
+        $ch.close;
+        }
+    @i.push: $ch;
     @i;
     }
 
