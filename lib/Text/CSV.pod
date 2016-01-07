@@ -1996,6 +1996,13 @@ that line.
 
 =item Real binary data
 
+The solution would be a working C<utf8-c8> encoding. Work in progress
+
+=item csv (out => *)
+
+Provide all supported types of input also for output: Supply, Channel,
+Callable, ...
+
 =item Metadata and CSV for the web
 
 L<Metadata Vocabulary for Tabular Data|http://w3c.github.io/csvw/metadata/>
