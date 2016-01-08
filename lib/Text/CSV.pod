@@ -1532,7 +1532,7 @@ combined with the use of C<fragment>:
 
 A plain string is interpreted as a file name to be opened for parsing.
 
-=item IO::Handle
+=item IO
 
  my $io = open "file.csv", :r;
  csv(in => $io);
@@ -1595,6 +1595,14 @@ Fetch data rows from the supply.
 
 Fetch data from the Channel.
 
+=item Any
+
+ csv(in => Any);
+
+is a shortcut/fallback for
+
+ csv(in => $*IN);
+
 =back
 
 =head3 out
@@ -1618,6 +1626,68 @@ When a code-ref is used for C<in>, the output is generated per invocation,
 so no buffering is involved. This implies that there is no size restriction
 on the number of records. The C<csv> function ends when the coderef returns
 C<False>.
+
+=over 2
+
+=item Str:U
+
+ my $str = csv(in => $in, out => Str);
+
+Returns a single String of CSV data.
+
+=item Str:D
+
+ my $str = csv(in => $in, out => "out.csv");
+
+Writes the data as CSV to the named file.
+
+=item Array
+
+ my $aoa = csv(in => $in, out => Array);
+
+Returns an Array of Arrays.
+
+=item Hash
+
+ my $aoh = csv(in => $in, out => Hash);
+
+Returns an Array of Hashes
+
+=item IO
+
+ my $io = open "file.csv", :w;
+ csv(in => $in, out => $io);
+
+Writes the data as CSV to the IO handle.
+
+=item Callable, Block, Sub, Routine
+
+ my @d;
+ my $aoa = csv(in => $in, out => { @d.push: $_ });
+
+Passes the data rows to the Callable
+
+=item Channel
+
+ my $ch = Channel.new;
+ my $pr = start {
+     react {
+         whenever $ch -> \row {
+             @d.push: row;
+             LAST { done; }
+             }
+         }
+     }
+ my $aoa = csv(in => $in, out => $ch);
+ await $pr;
+
+Writes the data rows into the Channel.
+
+=item Supply
+
+NYI
+
+=back
 
 =head3 encoding
 X<encoding>

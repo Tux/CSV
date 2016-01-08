@@ -1621,9 +1621,9 @@ class Text::CSV {
         #   Str         - return output as Str
         #   "file.csv"  - write to file
         #   $fh         - write to $fh
+        #   Routine:D   - pass row(s) to Routine
         #   Supply:D    - emit to Supply
         #   Channel:D   - emit to Channel
-        #   Routine:D   - pass row(s) to Routine
         given $out {
             when Str {
                 ($tmpfn, $io-out) = $out.defined
@@ -1632,6 +1632,9 @@ class Text::CSV {
                 }
             when IO {
                 $io-out = $out;
+                }
+            when Array | Hash | Capture | Supply | Channel | Callable {
+                # No specific action required here
                 }
             when Any {
                 $in ~~ Array and $io-out = $*OUT;
@@ -1684,16 +1687,36 @@ class Text::CSV {
             return @in;
             }
 
-        {   my $eol = self.eol;
-            $eol.defined or self.eol ("\r\n");
-            for @in -> $row {
-                $!csv-row.fields = $row[0] ~~ CSV::Field
-                    ?? $row
-                    !! $row.map ({ CSV::Field.new.add ($_.Str); });
-                $io-out.print (self.string);
+        my $eol = self.eol;
+        $eol.defined or self.eol ("\r\n");
+        for @in -> $row {
+            $!csv-row.fields = $row[0] ~~ CSV::Field
+                ?? $row
+                !! $row.map ({ CSV::Field.new.add ($_.Str); });
+            given $out {
+                when Callable {
+                    $out($meta ?? self.fields !! self.list);
+                    }
+                when Supply {
+                    warn "OUT to Supply NYI\n";
+                    }
+                when Channel {
+                    $out.send ($meta ?? self.fields !! self.list);
+                    }
+                default {
+                    $io-out.print (self.string);
+                    }
                 }
-            self.eol ($eol);
             }
+        given $out {
+            when Supply {
+                }
+            when Channel {
+                say "Closing channel";
+                $out.close;
+                }
+            }
+        self.eol ($eol);
 
         if (?$tmpfn) {
             $io-out.close;
