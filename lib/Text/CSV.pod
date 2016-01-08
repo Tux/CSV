@@ -276,7 +276,8 @@ The escape sequence can not be equal to the separation sequence.
 =item binary
 X<binary>
 
-WIP: Default is True. Non-UTF-8 real binary (Blob) does not yet parse
+WIP: Default is True. Non-UTF-8 real binary (Blob) does not yet parse.
+Opening the resource with encoding utf8-c8 is most likely the way to go.
 
  my $csv = Text::CSV.new(:binary);
            $csv.binary(False);
@@ -1070,7 +1071,7 @@ X<is_binary>
 =head2 is-binary
 X<is-binary>
 
-NYI/WIP
+NYI/WIP: utf8-c8
 
  my $binary = $csv.is_binary($column_idx);
 
@@ -1370,7 +1371,7 @@ this a required method.
 
 =head2 is_binary
 
-WIP
+WIP: utf8-c8
 
  $f.is_binary and say "Do we need a Buf instead?";
 
@@ -1519,6 +1520,82 @@ arguments.
 
  my $csv = [[qw( Foo Bar )], [ 1, 2 ], [ 2, 3 ]];
  my $err = csv(in => $csv, out => "file.csv");
+
+The C<in> attribute supports a wide range of types, all of which can be
+combined with the use of C<fragment>:
+
+=over 2
+
+=item Str
+
+ csv(in => "file.csv")
+
+A plain string is interpreted as a file name to be opened for parsing.
+
+=item IO::Handle
+
+ my $io = open "file.csv", :r;
+ csv(in => $io);
+
+Parse from the already opened data stream.
+
+=item Capture
+
+ csv(in => \("str,ing"));
+
+Parse from a single string.
+
+=item Array of Strings
+
+ csv(in => ["a,b\n1,2\n3,4\n"]);
+ csv(in => ["a,b", "1,2", "3,4"]);
+
+Parse from the String(s)
+
+=item Array of Data
+
+ csv(in => [[<a b>], [1, 2], [3, 4]]);
+ csv(in => [{:a(1), :b(2)}, {:a(3), :b(4)}]);
+
+Use the data as provided
+
+=item Sub, Routine
+
+ sub provider {
+     @data.elems == 0 and return False;
+     return @data.pop;
+     }
+ csv(in => &provider);
+
+While the providing Routine returns a data row, use that as is. Stop when
+the provider returns C<False>.
+
+=item Callable, Block
+
+ csv(in => { $sth.fetch });
+
+While the providing Callable returns a data row, use that as is. Stop when
+the provider returns C<False>.
+
+=item Supply
+
+ my $supply = Supply.from-list(@data);
+ csv(in = $supply);
+
+Fetch data rows from the supply.
+
+=item Channel
+
+ my $ch = Channel.new;
+ start {
+     $ch.send($_) for @data;
+     $ch.close;
+     }
+ csv(in => $ch);
+
+Fetch data from the Channel.
+
+=back
 
 =head3 out
 X<out>
@@ -1990,13 +2067,13 @@ A lone first line with just
 will be recognized and honored: it will set L<C<sep>|/sep> to C<;> and skip
 that line.
 
-=head1 TODO
+=head1 TODO / WIP / NYI
 
 =over 2
 
 =item Real binary data
 
-The solution would be a working C<utf8-c8> encoding. Work in progress
+The solution would be a working C<utf8-c8> encoding.
 
 =item csv (out => *)
 
