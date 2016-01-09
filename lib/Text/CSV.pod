@@ -1683,9 +1683,13 @@ Passes the data rows to the Callable
 
 Writes the data rows into the Channel.
 
-=item Supply
+=item Supplier
 
-NYI
+ my $ch = Supplier.new;
+ $ch.Supply.tap (-> \row { @d.push: row; });
+ $csv.csv(in => $in, out => $ch, :!meta);
+
+Writes the data rows into the Supplier.
 
 =back
 
@@ -2144,11 +2148,6 @@ that line.
 =item Real binary data
 
 The solution would be a working C<utf8-c8> encoding.
-
-=item csv (out => *)
-
-Provide all supported types of input also for output: Supply, Channel,
-Callable, ...
 
 =item Metadata and CSV for the web
 

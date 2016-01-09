@@ -1537,6 +1537,9 @@ class Text::CSV {
         #     { ... }                          Callable
         #     Supply.new                       Supply
         #     start { ...}                     Channel
+        if $in ~~ Supplier {
+            $in = $in.Supply;
+            }
         given $in {
             when Str {
                 $io-in = open $in, :r, :!chomp;
@@ -1697,8 +1700,8 @@ class Text::CSV {
                 when Callable {
                     $out($meta ?? self.fields !! self.list);
                     }
-                when Supply {
-                    warn "OUT to Supply NYI\n";
+                when Supplier {
+                    $out.emit ($meta ?? self.fields !! self.list);
                     }
                 when Channel {
                     $out.send ($meta ?? self.fields !! self.list);
@@ -1709,10 +1712,10 @@ class Text::CSV {
                 }
             }
         given $out {
-            when Supply {
+            when Supplier {
+                $out.done;
                 }
             when Channel {
-                say "Closing channel";
                 $out.close;
                 }
             }
