@@ -1580,7 +1580,7 @@ the provider returns C<False>.
 =item Supply
 
  my $supply = Supply.from-list(@data);
- csv(in = $supply);
+ csv(in => $supply);
 
 Fetch data rows from the supply.
 
@@ -1641,19 +1641,19 @@ Returns a single String of CSV data.
 
 Writes the data as CSV to the named file.
 
-=item Array
+=item Array:U
 
  my $aoa = csv(in => $in, out => Array);
 
 Returns an Array of Arrays.
 
-=item Hash
+=item Hash:U
 
  my $aoh = csv(in => $in, out => Hash);
 
 Returns an Array of Hashes
 
-=item IO
+=item IO:D
 
  my $io = open "file.csv", :w;
  csv(in => $in, out => $io);
@@ -1667,7 +1667,7 @@ Writes the data as CSV to the IO handle.
 
 Passes the data rows to the Callable
 
-=item Channel
+=item Channel:D
 
  my $ch = Channel.new;
  my $pr = start {
@@ -1683,7 +1683,7 @@ Passes the data rows to the Callable
 
 Writes the data rows into the Channel.
 
-=item Supplier
+=item Supplier:D
 
  my $ch = Supplier.new;
  $ch.Supply.tap (-> \row { @d.push: row; });
