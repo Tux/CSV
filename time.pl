@@ -69,18 +69,25 @@ my @test = (
     [  1, 0, "csv-ruby"    ],
     [  8, 0, "csv-go"      ],
     );
-my %start;
-foreach my $v (keys %lang) {
-    my ($ext, $exe) = @{$lang{$v}};
-    my $t = 0;
-    for (1 .. 5) {
-        my $t0 = [ gettimeofday ];
-        open my $th, "-|", "$exe -e 1 2>&1 >/dev/null";
-        close $th;
-        $t += tv_interval ($t0);
+
+sub runfrom {
+    my ($v, $script, $file) = @_;
+    my ($ext, $exe, @arg) = @{$lang{$v}};
+
+    $exe eq "c" and $exe = "";
+    my $run = join " " => $exe, @arg;
+
+    $opt_v > 4 and say "$v / $ext / $exe\t/ $run";
+    my $i = 0;
+    my $cmd = "$run $script$ext <$file";
+    $opt_v > 2 and say $cmd;
+    my $t0 = [ gettimeofday ];
+    open my $th, "-|", $cmd;
+    while (<$th>) {
+        m/^(\d+)$/ and $i = $1;
         }
-    $start{$exe} = $t / 5;
-    }
+    return (scalar tv_interval ($t0), $i);
+    } # runfrom
 
 my $pat = shift // ".";
 
@@ -98,28 +105,20 @@ for (@test) {
     my $s_script = sprintf "%-11s ", $script;
     print $s_script;
 
-    $exe eq "c" and $exe = "";
-    my $run = join " " => $exe, @arg;
-
     local *STDERR;
     open STDERR, ">", "/dev/null";
 
-    $opt_v > 4 and say "$v / $ext / $exe\t/ $run";
-    my $i = 0;
-    open my $ph, "|-", "$run $script$ext >/dev/null";
-    print   $ph "\n";
-    close   $ph;
+    open my $eh, ">", "empty.csv";
+    print $eh  "\n";
+    close $eh; END { unlink "empty.csv"; }
 
-    my $cmd = "$run $script$ext </tmp/hello.csv";
-    $opt_v > 2 and say $cmd;
-    my $t0 = [ gettimeofday ];
-    open my $th, "-|", $cmd;
-    while (<$th>) {
-        m/^(\d+)$/ and $i = $1;
-        }
-    my $elapsed = tv_interval ($t0);
+                    runfrom ($v, $script, "empty.csv");
+                    runfrom ($v, $script, "empty.csv");
+    my ($start)   = runfrom ($v, $script, "empty.csv");
+    my ($run, $i) = runfrom ($v, $script, "/tmp/hello.csv");
+
     my $s = sprintf "%s %6d %9.3f %9.3f", $i eq 50000 ? "   " : "***", $i,
-        $elapsed, $elapsed - $start{$exe};
+        $run, $run - $start;
     say $s;
     $opt_i and next;
     $irc and push @irc, "$s_script\t$s";
