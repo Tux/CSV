@@ -21,6 +21,7 @@ lib/.precomp
 *.class
 *.jar
 csv-go
+csv-c
 
 # Re-enable parts later
 sandbox/

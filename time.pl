@@ -30,42 +30,44 @@ open  my $fh, "<", "/tmp/hello.csv";
 close    $fh;
 
 my %lang = (
-    #       ext     prog       args
-    0 => [ ".rb",  "ruby1.9",         ],
-    1 => [ ".rb",  "ruby2.0",         ],
-    2 => [ ".py",  "python2",         ],
-    3 => [ ".py",  "python3",         ],
-    4 => [ ".php", "php",     "-nq"   ],
-    5 => [ ".pl",  "perl",            ],
-    6 => [ ".pl",  "perl6",   "-Ilib" ],
-    7 => [ ".lua", "lua"              ],
-    8 => [ ".go",  "go",      "run"   ],
-    9 => [ "",     "java",    "-cp csvJava.jar:opencsv-2.3.jar csvJava" ],
+    ##       ext     prog       args
+     0 => [ ".rb",  "ruby1.9",         ],
+     1 => [ ".rb",  "ruby2.0",         ],
+     2 => [ ".py",  "python2",         ],
+     3 => [ ".py",  "python3",         ],
+     4 => [ ".php", "php",     "-nq"   ],
+     5 => [ ".pl",  "perl",            ],
+     6 => [ ".pl",  "perl6",   "-Ilib" ],
+     7 => [ ".lua", "lua"              ],
+     8 => [ ".go",  "go",      "run"   ],
+     9 => [ "",     "java",    "-cp csvJava.jar:opencsv-2.3.jar csvJava" ],
+    10 => [ "",     "c"                ],
     );
 my @test = (
     # lang irc script
-    [ 5, 0, "csv-easy-xs" ],
-    [ 5, 0, "csv-easy-pp" ],
-    [ 5, 0, "csv-xsbc"    ],
-    [ 5, 0, "csv-test-xs" ],
-    [ 5, 0, "csv-test-pp" ],
-    [ 5, 0, "csv-pegex"   ],
-    [ 6, 0, "csv"         ],
-    [ 6, 1, "csv-ip5xs"   ],
-    [ 6, 0, "csv-ip5xsio" ],
-    [ 6, 0, "csv-ip5pp"   ],
-    [ 6, 0, "csv_gram"    ],
-    [ 6, 1, "test"        ],
-    [ 6, 1, "test-t"      ],
-    [ 6, 1, "csv-parser"  ],
-    [ 0, 0, "csv-ruby"    ],
-    [ 1, 0, "csv-ruby"    ],
-    [ 2, 0, "csv-python2" ],
-    [ 3, 0, "csv-python3" ],
-    [ 7, 0, "csv-lua"     ],
-    [ 8, 0, "csv-go"      ],
-    [ 4, 0, "csv-php"     ],
-    [ 9, 0, "csvJava"     ],
+    [  5, 0, "csv-easy-xs" ],
+    [  5, 0, "csv-easy-pp" ],
+    [  5, 0, "csv-xsbc"    ],
+    [  5, 0, "csv-test-xs" ],
+    [  5, 0, "csv-test-pp" ],
+    [  5, 0, "csv-pegex"   ],
+    [  6, 0, "csv"         ],
+    [  6, 1, "csv-ip5xs"   ],
+    [  6, 0, "csv-ip5xsio" ],
+    [  6, 0, "csv-ip5pp"   ],
+    [  6, 0, "csv_gram"    ],
+    [  6, 1, "test"        ],
+    [  6, 1, "test-t"      ],
+    [  6, 1, "csv-parser"  ],
+    [ 10, 0, "csv-c"       ],
+    [  7, 0, "csv-lua"     ],
+    [  2, 0, "csv-python2" ],
+    [  3, 0, "csv-python3" ],
+    [  4, 0, "csv-php"     ],
+    [  9, 0, "csvJava"     ],
+    [  0, 0, "csv-ruby"    ],
+    [  1, 0, "csv-ruby"    ],
+    [  8, 0, "csv-go"      ],
     );
 my %start;
 foreach my $v (keys %lang) {
@@ -96,6 +98,7 @@ for (@test) {
     my $s_script = sprintf "%-11s ", $script;
     print $s_script;
 
+    $exe eq "c" and $exe = "";
     my $run = join " " => $exe, @arg;
 
     local *STDERR;
