@@ -30,15 +30,16 @@ open  my $fh, "<", "/tmp/hello.csv";
 close    $fh;
 
 my %lang = (
-    #      ext   prog       args
-    0 => [ ".rb", "ruby1.9",         ],
-    1 => [ ".rb", "ruby2.0",         ],
-    2 => [ ".py", "python2",         ],
-    3 => [ ".py", "python3",         ],
-    5 => [ ".pl", "perl",            ],
-    6 => [ ".pl", "perl6",   "-Ilib" ],
-    8 => [ ".go", "go",      "run"   ],
-    9 => [ "",    "java",    "-cp csvJava.jar:opencsv-2.3.jar csvJava" ],
+    #       ext     prog       args
+    0 => [ ".rb",  "ruby1.9",         ],
+    1 => [ ".rb",  "ruby2.0",         ],
+    2 => [ ".py",  "python2",         ],
+    3 => [ ".py",  "python3",         ],
+    5 => [ ".pl",  "perl",            ],
+    6 => [ ".pl",  "perl6",   "-Ilib" ],
+    7 => [ ".lua", "lua"              ],
+    8 => [ ".go",  "go",      "run"   ],
+    9 => [ "",     "java",    "-cp csvJava.jar:opencsv-2.3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
@@ -60,8 +61,9 @@ my @test = (
     [ 1, 0, "csv-ruby"    ],
     [ 2, 0, "csv-python2" ],
     [ 3, 0, "csv-python3" ],
-    [ 9, 0, "csvJava"     ],
+    [ 7, 0, "csv-lua"     ],
     [ 8, 0, "csv-go"      ],
+    [ 9, 0, "csvJava"     ],
     );
 my %start;
 foreach my $v (keys %lang) {
