@@ -46,3 +46,12 @@ check:
 time:
 	perl time.pl
 	rm -rf /tmp/*-p5helper.so
+
+opencsv-2.3.jar:
+	test -f opencsv-2.3.jar || wget -q http://www.java2s.com/Code/JarDownload/opencsv/opencsv-2.3.jar.zip
+	test -f opencsv-2.3.jar || unzip opencsv-2.3.jar.zip
+	-@rm opencsv-2.3.jar.zip
+
+csvJava.jar:	csvJava.java opencsv-2.3.jar
+	javac -cp opencsv-2.3.jar csvJava.java
+	zip -9 csvJava.jar csvJava.class

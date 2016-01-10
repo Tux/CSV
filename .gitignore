@@ -18,6 +18,8 @@ xt/??_*
 logotype/comma*
 .precomp
 lib/.precomp
+*.class
+*.jar
 
 # Re-enable parts later
 sandbox/
