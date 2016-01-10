@@ -35,6 +35,7 @@ my %lang = (
     1 => [ ".rb",  "ruby2.0",         ],
     2 => [ ".py",  "python2",         ],
     3 => [ ".py",  "python3",         ],
+    4 => [ ".php", "php",     "-nq"   ],
     5 => [ ".pl",  "perl",            ],
     6 => [ ".pl",  "perl6",   "-Ilib" ],
     7 => [ ".lua", "lua"              ],
@@ -63,6 +64,7 @@ my @test = (
     [ 3, 0, "csv-python3" ],
     [ 7, 0, "csv-lua"     ],
     [ 8, 0, "csv-go"      ],
+    [ 4, 0, "csv-php"     ],
     [ 9, 0, "csvJava"     ],
     );
 my %start;
@@ -96,14 +98,19 @@ for (@test) {
 
     my $run = join " " => $exe, @arg;
 
-    $opt_v > 2 and say "$v / $ext / $exe\t/ $run";
-    my ($i, $t0) = (0);
-    open my $ph, "|-", "$run $script$ext 2>&1 >/dev/null";
+    local *STDERR;
+    open STDERR, ">", "/dev/null";
+
+    $opt_v > 4 and say "$v / $ext / $exe\t/ $run";
+    my $i = 0;
+    open my $ph, "|-", "$run $script$ext >/dev/null";
     print   $ph "\n";
     close   $ph;
 
-    $t0 = [ gettimeofday ];
-    open my $th, "-|", "$run $script$ext 2>&1 </tmp/hello.csv";
+    my $cmd = "$run $script$ext </tmp/hello.csv";
+    $opt_v > 2 and say $cmd;
+    my $t0 = [ gettimeofday ];
+    open my $th, "-|", $cmd;
     while (<$th>) {
         m/^(\d+)$/ and $i = $1;
         }
