@@ -55,3 +55,6 @@ opencsv-2.3.jar:
 csvJava.jar:	csvJava.java opencsv-2.3.jar
 	javac -cp opencsv-2.3.jar csvJava.java
 	zip -9 csvJava.jar csvJava.class
+
+csv-go: csv-go.go
+	go build csv-go.go

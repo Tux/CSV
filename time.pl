@@ -16,6 +16,7 @@ GetOptions (
     "help|?"      => sub { usage (0); },
     "i|irc!"      => \my $opt_i,
     "p|perl6!"    =>    \$opt_6,
+    "f|fast"      => sub { $opt_6 = 0; },
     "v|verbose:1" => \my $opt_v,
     ) or usage (1);
 
@@ -30,13 +31,14 @@ close    $fh;
 
 my %lang = (
     #      ext   prog       args
-    0 => [ "rb", "ruby1.9",         ],
-    1 => [ "rb", "ruby2.0",         ],
-    2 => [ "py", "python2",         ],
-    3 => [ "py", "python3",         ],
-    5 => [ "pl", "perl",            ],
-    6 => [ "pl", "perl6",   "-Ilib" ],
-    9 => [ "",   "java",    "-cp csvJava.jar:opencsv-2.3.jar csvJava" ],
+    0 => [ ".rb", "ruby1.9",         ],
+    1 => [ ".rb", "ruby2.0",         ],
+    2 => [ ".py", "python2",         ],
+    3 => [ ".py", "python3",         ],
+    5 => [ ".pl", "perl",            ],
+    6 => [ ".pl", "perl6",   "-Ilib" ],
+    8 => [ ".go", "go",      "run"   ],
+    9 => [ "",    "java",    "-cp csvJava.jar:opencsv-2.3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
@@ -59,6 +61,7 @@ my @test = (
     [ 2, 0, "csv-python2" ],
     [ 3, 0, "csv-python3" ],
     [ 9, 0, "csvJava"     ],
+    [ 8, 0, "csv-go"      ],
     );
 my %start;
 foreach my $v (keys %lang) {
@@ -93,12 +96,12 @@ for (@test) {
 
     $opt_v > 2 and say "$v / $ext / $exe\t/ $run";
     my ($i, $t0) = (0);
-    open my $ph, "|-", "$run $script.$ext 2>&1 >/dev/null";
+    open my $ph, "|-", "$run $script$ext 2>&1 >/dev/null";
     print   $ph "\n";
     close   $ph;
 
     $t0 = [ gettimeofday ];
-    open my $th, "-|", "$run $script.$ext 2>&1 </tmp/hello.csv";
+    open my $th, "-|", "$run $script$ext 2>&1 </tmp/hello.csv";
     while (<$th>) {
         m/^(\d+)$/ and $i = $1;
         }
