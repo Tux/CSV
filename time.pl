@@ -43,6 +43,7 @@ my %lang = (
      9 => [ "",     "c"                ],
     10 => [ "",     "java7",   "-cp csv-java7.jar:opencsv-2.3.jar csvJava" ],
     11 => [ "",     "java8",   "-cp csv-java8.jar:opencsv-2.3.jar csvJava" ],
+    12 => [ "",     "java9",   "-cp csv-java9.jar:opencsv-2.3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
@@ -70,6 +71,7 @@ my @test = (
     [  0, 0, "csv-ruby"    ],
     [  1, 0, "csv-ruby"    ],
     [  8, 0, "csv-go"      ],
+    [ 12, 0, "csv-java9"   ],
     );
 
 sub runfrom {
