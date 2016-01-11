@@ -52,9 +52,10 @@ opencsv-2.3.jar:
 	test -f opencsv-2.3.jar || unzip opencsv-2.3.jar.zip
 	-@rm opencsv-2.3.jar.zip
 
-csvJava.jar:	csvJava.java opencsv-2.3.jar
+# If you have more than one java version, just use this as a guide
+csv-java.jar:	csvJava.java opencsv-2.3.jar
 	javac -cp opencsv-2.3.jar csvJava.java
-	zip -9 csvJava.jar csvJava.class
+	zip -9 csv-java.jar csvJava.class
 
 csv-c:	csv-c.c
 	cc -O3 -s -o csv-c csv-c.c -lcsv3

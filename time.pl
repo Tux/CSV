@@ -40,8 +40,9 @@ my %lang = (
      6 => [ ".pl",  "perl6",   "-Ilib" ],
      7 => [ ".lua", "lua"              ],
      8 => [ ".go",  "go",      "run"   ],
-     9 => [ "",     "java",    "-cp csvJava.jar:opencsv-2.3.jar csvJava" ],
-    10 => [ "",     "c"                ],
+     9 => [ "",     "c"                ],
+    10 => [ "",     "java7",   "-cp csv-java7.jar:opencsv-2.3.jar csvJava" ],
+    11 => [ "",     "java8",   "-cp csv-java8.jar:opencsv-2.3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
@@ -59,12 +60,13 @@ my @test = (
     [  6, 1, "test"        ],
     [  6, 1, "test-t"      ],
     [  6, 1, "csv-parser"  ],
-    [ 10, 0, "csv-c"       ],
+    [  9, 0, "csv-c"       ],
     [  7, 0, "csv-lua"     ],
     [  2, 0, "csv-python2" ],
     [  3, 0, "csv-python3" ],
     [  4, 0, "csv-php"     ],
-    [  9, 0, "csvJava"     ],
+    [ 11, 0, "csv-java8"   ],
+    [ 10, 0, "csv-java7"   ],
     [  0, 0, "csv-ruby"    ],
     [  1, 0, "csv-ruby"    ],
     [  8, 0, "csv-go"      ],
