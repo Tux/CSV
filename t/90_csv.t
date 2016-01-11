@@ -189,6 +189,20 @@ for in () -> $in {
 
 $io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
+    ok (my $csv = Text::CSV.new, "new for Channel");
+    my @d;
+    my $ch = $csv.csv (in => $in, out => Channel, :!meta);
+    react {
+        whenever $ch -> \row {
+            @d.push: row;
+            LAST { done; }
+            }
+        }
+    is-deeply ([@d], $full-aoa, "csv => Channel { s-in ($in) }");
+    }
+
+$io-in.seek (0, SeekFromBeginning);
+for in () -> $in {
     ok (my $csv = Text::CSV.new, "new for Supplier");
     my @d;
     my $ch = Supplier.new;

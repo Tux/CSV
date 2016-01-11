@@ -1663,9 +1663,21 @@ Writes the data as CSV to the IO handle.
 =item Callable, Block, Sub, Routine
 
  my @d;
- my $aoa = csv(in => $in, out => { @d.push: $_ });
+ csv(in => $in, out => { @d.push: $_ });
 
 Passes the data rows to the Callable
+
+=item Channel:U
+
+ my $ch = csv(in => $in, out => Channel, :!meta);
+ react {
+     whenever $ch -> \row {
+         @d.push: row;
+         LAST { done; }
+         }
+     }
+
+Writes the data rows into a new Channel, which is returned.
 
 =item Channel:D
 
@@ -1678,16 +1690,16 @@ Passes the data rows to the Callable
              }
          }
      }
- my $aoa = csv(in => $in, out => $ch);
+ csv(in => $in, out => $ch);
  await $pr;
 
-Writes the data rows into the Channel.
+Writes the data rows into the existing Channel.
 
 =item Supplier:D
 
  my $ch = Supplier.new;
  $ch.Supply.tap (-> \row { @d.push: row; });
- $csv.csv(in => $in, out => $ch, :!meta);
+ csv(in => $in, out => $ch, :!meta);
 
 Writes the data rows into the Supplier.
 

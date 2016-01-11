@@ -1453,7 +1453,7 @@ class Text::CSV {
 
     # Only as a method, both in and out are required
     method CSV ( Any    :$in!,
-                 Any    :$out!,
+                 Any    :$out!     is copy,
                  Any    :$headers  is copy,
                  Str    :$key,
                  Str    :$encoding is copy,
@@ -1636,7 +1636,11 @@ class Text::CSV {
             when IO {
                 $io-out = $out;
                 }
-            when Array | Hash | Capture | Supply | Channel | Callable {
+            when Channel:U {
+                $out = Channel.new;
+                }
+            when Array:U | Hash:U | Capture:U |
+                 Supplier:D | Callable:D | Channel:D {
                 # No specific action required here
                 }
             when Any {
@@ -1711,15 +1715,18 @@ class Text::CSV {
                     }
                 }
             }
+        self.eol ($eol);
+
         given $out {
             when Supplier {
                 $out.done;
+                return $out;
                 }
             when Channel {
                 $out.close;
+                return $out;
                 }
             }
-        self.eol ($eol);
 
         if (?$tmpfn) {
             $io-out.close;
