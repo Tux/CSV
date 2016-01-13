@@ -44,6 +44,7 @@ my %lang = (
     10 => [ "",     "java7",   "-cp csv-java7.jar:opencsv-2.3.jar csvJava" ],
     11 => [ "",     "java8",   "-cp csv-java8.jar:opencsv-2.3.jar csvJava" ],
     12 => [ "",     "java9",   "-cp csv-java9.jar:opencsv-2.3.jar csvJava" ],
+    13 => [ ".R",   "R",       "--slave -f" ],
     );
 my @test = (
     # lang irc script
@@ -71,6 +72,7 @@ my @test = (
     [  0, 0, "csv-ruby"    ],
     [  1, 0, "csv-ruby"    ],
     [  8, 0, "csv-go"      ],
+    [ 13, 0, "csv-R"       ],
     [ 12, 0, "csv-java9"   ],
     );
 
@@ -85,10 +87,11 @@ sub runfrom {
     my $i = 0;
     my $cmd = "$run $script$ext <$file";
     $opt_v > 2 and say $cmd;
+    $file eq "empty.csv" and $cmd .= " 2>/dev/null";
     my $t0 = [ gettimeofday ];
     open my $th, "-|", $cmd;
     while (<$th>) {
-        m/^(\d+)$/ and $i = $1;
+        m/^(?:\[\d+\]\s+)?(\d+)$/ and $i = $1;
         }
     return (scalar tv_interval ($t0), $i);
     } # runfrom
