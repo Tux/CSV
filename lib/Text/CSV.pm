@@ -1639,6 +1639,9 @@ class Text::CSV {
             when Channel:U {
                 $out = Channel.new;
                 }
+            when Supply:U {
+                $out = Supplier::Preserving.new;
+                }
             when Array:U | Hash:U | Capture:U |
                  Supplier:D | Callable:D | Channel:D {
                 # No specific action required here
@@ -1718,9 +1721,9 @@ class Text::CSV {
         self.eol ($eol);
 
         given $out {
-            when Supplier {
+            when Supplier::Preserving {
                 $out.done;
-                return $out;
+                return $out.Supply;
                 }
             when Channel {
                 $out.close;

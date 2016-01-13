@@ -211,6 +211,15 @@ for in () -> $in {
     is-deeply ([@d], $full-aoa, "csv => Supplier { s-in ($in) }");
     }
 
+$io-in.seek (0, SeekFromBeginning);
+for in () -> $in {
+    ok (my $csv = Text::CSV.new, "new for Supply");
+    my @d;
+    my $ch = $csv.csv (in => $in, out => Supply, :!meta);
+    $ch.tap (-> \row { @d.push: row; });
+    is-deeply ([@d], $full-aoa, "csv => Supplier { s-in ($in) }");
+    }
+
 # Additional attributes like headers and fragment
 
 $io-in.seek (0, SeekFromBeginning);

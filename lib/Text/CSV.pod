@@ -1697,11 +1697,18 @@ Writes the data rows into the existing Channel.
 
 =item Supplier:D
 
- my $ch = Supplier.new;
- $ch.Supply.tap (-> \row { @d.push: row; });
- csv(in => $in, out => $ch, :!meta);
+ my $sup = Supplier.new;
+ $sup.Supply.tap (-> \row { @d.push: row; });
+ csv(in => $in, out => $sup, :!meta);
 
 Writes the data rows into the Supplier.
+
+=item Supply:U
+
+ my $sup = csv(in => $in, out => Supply, :!meta);
+ $ch.tap (-> \row { @d.push: row; });
+
+Writes the data rows into a new Supply.
 
 =back
 
