@@ -12,7 +12,7 @@ before_install:
     - git config --global user.email $HOSTNAME":not-for-mail@travis-ci.org"
     - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
     - source ~/travis-perl-helpers/init
-    - git clone -b compat https://github.com/tadzik/rakudobrew ~/.rakudobrew
+    - git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
     - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/panda/bin:$PATH
     - rakudobrew build $BACKEND
     - perl6 -v
