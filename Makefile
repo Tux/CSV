@@ -1,6 +1,6 @@
 # ex:se inputtab=tab autotab:
 
-.PHONY:         test test-verbose profile time
+.PHONY:         test test-verbose profile time tt
 .PRECIOUS:      test-t.pl
 
 test:
@@ -8,6 +8,8 @@ test:
 	podchecker Text-CSV.pod 2>&1 | grep -v WARNING:
 	pod-spell-check --aspell --ispell Text-CSV.pod
 	prove -j4 -e 'perl6 -I. -Ilib' t
+
+tt:     test time
 
 test-verbose:	Text/CSV.pm
 	perl6 -Ilib t/10_base.t
