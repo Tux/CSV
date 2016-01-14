@@ -1,14 +1,18 @@
 language: perl
 perl:
-    - "5.18"
+    - "5.20"
 env:
     - BACKEND=moar
+    - BACKEND=jvm
+matrix:
+    allow_failures:
+        - env: BACKEND=jvm
 before_install:
     - git config --global user.name "TravisCI"
     - git config --global user.email $HOSTNAME":not-for-mail@travis-ci.org"
     - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
     - source ~/travis-perl-helpers/init
-    - git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
+    - git clone -b compat https://github.com/tadzik/rakudobrew ~/.rakudobrew
     - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/panda/bin:$PATH
     - rakudobrew build $BACKEND
     - perl6 -v
@@ -16,12 +20,15 @@ before_install:
     - panda install Slang::Tuxic File::Temp
 install:
     - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/panda/bin:$PATH
-    - panda --notests install . # installs deps
+    - panda installdeps .
 before_script:
     - panda --installed --verbose list  || true
     - perl6 -I. -Ilib t/81_subclass.t   || true
 script:
-    - prove -v -e 'perl6 -Ilib' t
+    - prove -v -j$(test-jobs) -e 'perl6 -ll-exception -Ilib' t
+    - PANDA_SUBMIT_TESTREPORTS=1 panda install .
+after_success:
+    - panda list --installed --verbose
 notifications:
   irc:
     channels:
