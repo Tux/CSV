@@ -2,15 +2,11 @@
 
 use v6;
 use Slang::Tuxic;
-use Inline::Perl5;
-
-my $p5 = Inline::Perl5.new;
-
-$p5.use ("Text::CSV_XS");
+use Text::CSV_XS:from<Perl5>;
 
 my @rows;
-my $csv = $p5.invoke ("Text::CSV_XS", "new")
-    or die "Cannot use CSV: ", $p5.invoke ("Text::CSV_XS", "error_diag");
+my $csv = Text::CSV_XS.new ()
+    or die "Cannot use CSV: ", Text::CSV_XS.error_diag ();
 $csv.binary (1);
 $csv.auto_diag (1);
 
