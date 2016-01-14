@@ -25,7 +25,7 @@ before_script:
     - panda --installed --verbose list  || true
     - perl6 -I. -Ilib t/81_subclass.t   || true
 script:
-    - prove -v -j$(test-jobs) -e 'perl6 -ll-exception -Ilib' t
+    - prove -v -e 'perl6 -ll-exception -Ilib' t
     - PANDA_SUBMIT_TESTREPORTS=1 panda install .
 after_success:
     - panda list --installed --verbose
