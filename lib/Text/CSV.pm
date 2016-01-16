@@ -1687,9 +1687,12 @@ class Text::CSV {
                 !! self.getline_all ($io-in, :$meta);
             }
 
+        my @h;
+        $out ~~ Hash || $headers ~~ Array || ($headers ~~ Str && $headers eq "auto") and
+            @h = @!cnames.elems ?? @!cnames !! @in.shift.list;
         unless (?$out || ?$tmpfn) {
-            if ($out ~~ Hash or $headers ~~ Array or $headers ~~ Str && $headers eq "auto") {
-                my @h = @!cnames.elems ?? @!cnames !! @in.shift.list or return [];
+            if ($out ~~ Hash or @h.elems) {
+                @h or return [];
                 @in.elems && @in[0] ~~ Hash and
                     return @in; # Headers already dealt with
                 return [ @in.map (-> @r { $%( @h Z=> @r ) }) ];
@@ -1703,15 +1706,19 @@ class Text::CSV {
             $!csv-row.fields = $row[0] ~~ CSV::Field
                 ?? $row
                 !! $row.map ({ CSV::Field.new.add ($_.Str); });
+            my @row = $meta ?? self.fields !! self.list;
+            my $r = (@h.elems == 0 || @row[0] ~~ Hash)
+                ?? @row
+                !! $%( @h Z=> @row );
             given $out {
                 when Callable {
-                    $out($meta ?? self.fields !! self.list);
+                    $out($r);
                     }
                 when Supplier {
-                    $out.emit ($meta ?? self.fields !! self.list);
+                    $out.emit ($r);
                     }
                 when Channel {
-                    $out.send ($meta ?? self.fields !! self.list);
+                    $out.send ($r);
                     }
                 default {
                     $io-out.print (self.string);

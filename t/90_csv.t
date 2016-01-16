@@ -143,7 +143,7 @@ $io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
     ok (my $csv = Text::CSV.new, "new for Hash + skip");
     ok ($csv.column_names (@hdr), "colnames");
-    is-deeply ($csv.csv (in => $in, out => Hash, skip => 1),
+    is-deeply ($csv.CSV (in => $in, out => Hash, skip => 1),
         $full-aoh, "csv => Hash + skip { s-in ($in) }");
     }
 
@@ -158,16 +158,16 @@ $io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
     ok (my $csv = Text::CSV.new, "new for Block");
     my @d;
-    $csv.csv (in => $in, out => { @d.push: $_ }, :!meta);
+    $csv.CSV (in => $in, out => { @d.push: $_ }, :!meta);
     is-deeply ([@d], $full-aoa, "csv => Block { s-in ($in) }");
     }
 
-#$io-in.seek (0, SeekFromBeginning);
-#for in () -> $in {
-#    my @d;
-#    Text::CSV.csv (in => $in, out => { @d.push: $_ }, :!meta, headers => "auto");
-#    is-deeply ([@d], $full-aoa, "csv => Block { s-in ($in) }");
-#    }
+$io-in.seek (0, SeekFromBeginning);
+for in () -> $in {
+    my @d;
+    Text::CSV.csv (in => $in, out => { @d.push: $_ }, headers => "auto", :!meta);
+    is-deeply ([@d], $full-aoh, "csv => Block { s-in ($in) }");
+    }
 
 $io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
@@ -182,7 +182,7 @@ for in () -> $in {
                 }
             }
         }
-    $csv.csv (in => $in, out => $ch, :!meta);
+    $csv.CSV (in => $in, out => $ch, :!meta);
     await $thr;
     is-deeply ([@d], $full-aoa, "csv => Channel { s-in ($in) }");
     }
@@ -191,7 +191,7 @@ $io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
     ok (my $csv = Text::CSV.new, "new for Channel");
     my @d;
-    my $ch = $csv.csv (in => $in, out => Channel, :!meta);
+    my $ch = $csv.CSV (in => $in, out => Channel, :!meta);
     react {
         whenever $ch -> \row {
             @d.push: row;
@@ -203,11 +203,25 @@ for in () -> $in {
 
 $io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
+    ok (my $csv = Text::CSV.new, "new for Channel + Hash");
+    my @d;
+    my $ch = $csv.CSV (in => $in, out => Channel, headers => "auto", :!meta);
+    react {
+        whenever $ch -> \row {
+            @d.push: row;
+            LAST { done; }
+            }
+        }
+    is-deeply ([@d], $full-aoh, "csv => Channel { s-in ($in) }");
+    }
+
+$io-in.seek (0, SeekFromBeginning);
+for in () -> $in {
     ok (my $csv = Text::CSV.new, "new for Supplier");
     my @d;
     my $ch = Supplier.new;
     $ch.Supply.tap (-> \row { @d.push: row; });
-    $csv.csv (in => $in, out => $ch, :!meta);
+    $csv.CSV (in => $in, out => $ch, :!meta);
     is-deeply ([@d], $full-aoa, "csv => Supplier { s-in ($in) }");
     }
 
@@ -215,9 +229,18 @@ $io-in.seek (0, SeekFromBeginning);
 for in () -> $in {
     ok (my $csv = Text::CSV.new, "new for Supply");
     my @d;
-    my $ch = $csv.csv (in => $in, out => Supply, :!meta);
+    my $ch = $csv.CSV (in => $in, out => Supply, :!meta);
     $ch.tap (-> \row { @d.push: row; });
     is-deeply ([@d], $full-aoa, "csv => Supplier { s-in ($in) }");
+    }
+
+$io-in.seek (0, SeekFromBeginning);
+for in () -> $in {
+    ok (my $csv = Text::CSV.new, "new for Supply + Hash");
+    my @d;
+    my $ch = $csv.CSV (in => $in, out => Supply, :!meta, headers => "auto");
+    $ch.tap (-> \row { @d.push: row; });
+    is-deeply ([@d], $full-aoh, "csv => Supplier { s-in ($in) }");
     }
 
 # Additional attributes like headers and fragment
