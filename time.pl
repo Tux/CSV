@@ -98,6 +98,7 @@ sub runfrom {
 
 my $pat = shift // ".";
 
+my $run_speed = 0;
 my @irc;
 for (@test) {
     my ($v, $irc, $script) = @$_;
@@ -127,8 +128,22 @@ for (@test) {
     my $s = sprintf "%s %6d %9.3f %9.3f", $i eq 50000 ? "   " : "***", $i,
         $run, $run - $start;
     say $s;
+
+    if ($script eq "test-t" and open my $fh, ">>", "../Talks/CSV6/speed.log") {
+        my @d = localtime;
+        printf $fh "%4d-%02d-%02d %02d:%02d:%02d test-t %.3f\n",
+            $d[5] + 1900, $d[4] + 1, @d[3,2,1,0], $run;
+        close $fh;
+        $run_speed++;
+        }
+
     $opt_i and next;
     $irc and push @irc, "$s_script\t$s";
     }
 
 say for @irc;
+
+if ($run_speed) {
+    chdir "../Talks/CSV6";
+    exec "perl speed.pl >/dev/null 2>&1";
+    }
