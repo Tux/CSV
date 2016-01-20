@@ -1,6 +1,6 @@
 #!perl6
 
-use v6;
+use v6.c;
 use Slang::Tuxic;
 use File::Temp;
 
