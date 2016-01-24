@@ -251,3 +251,8 @@ EOP
     test (qr{\+\+},
           q{my$fh=open "t.csv",:w;$fh.print("+");$fh.close;$fh=open "t.csv",:r;$fh.get.perl.say;});
     }
+
+{   title "IO", "Mangle CRNL", "RT#127358";
+    test (qr{\\\\r\\\\n\\n}, # should be \\\\r\\\\n\\r\\n
+          q{my$fh=open "crnl.csv",:r,:!chomp;$fh.get.perl.say;});
+    }
