@@ -259,3 +259,8 @@ EOP
     test (qr{\\\\r\\\\n\\n}, # should be \\\\r\\\\n\\r\\n
           q{my$fh=open "crnl.csv",:r,:!chomp;$fh.get.perl.say;});
     }
+
+{   title "Encoding", "utf8-c8", "-";
+    test (qr{^Exit [1-9]},
+          q{my Str$s=Buf.new(^2048 .map({256.rand.Int})).decode("utf8-c8") for 1..1024});
+    }
