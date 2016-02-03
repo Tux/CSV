@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Text::CSV::Easy_XS qw(csv_parse);
+use Text::CSV::Easy_PP qw(csv_parse);
 
 my $sum = 0;
 while (my $line = <>) {
