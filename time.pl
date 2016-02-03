@@ -49,20 +49,20 @@ my %lang = (
     );
 my @test = (
     # lang irc script
-    [  5, 0, "csv-easy-xs" ],
-    [  5, 0, "csv-easy-pp" ],
-    [  5, 0, "csv-xsbc"    ],
-    [  5, 0, "csv-test-xs" ],
-    [  5, 0, "csv-test-pp" ],
-    [  5, 0, "csv-pegex"   ],
+    [  5, 0, "csv-easy-xs" , "Text::CSV::Easy_XS" ],
+    [  5, 0, "csv-easy-pp" , "Text::CSV::Easy_PP" ],
+    [  5, 0, "csv-xsbc"    , "Text::CSV_XS" ],
+    [  5, 0, "csv-test-xs" , "Text::CSV_XS" ],
+    [  5, 0, "csv-test-pp" , "Text::CSV_XS" ],
+    [  5, 0, "csv-pegex"   , "Pegex::CSV" ],
     [  6, 0, "csv"         ],
-    [  6, 1, "csv-ip5xs"   ],
-    [  6, 0, "csv-ip5xsio" ],
-    [  6, 0, "csv-ip5pp"   ],
+    [  6, 1, "csv-ip5xs"   , "Inline::Perl5, Text::CSV_XS" ],
+    [  6, 0, "csv-ip5xsio" , "Inline::Perl5, Text::CSV_XS" ],
+    [  6, 0, "csv-ip5pp"   , "Inline::Perl5, Text::CSV_PP" ],
     [  6, 0, "csv_gram"    ],
-    [  6, 1, "test"        ],
-    [  6, 1, "test-t"      ],
-    [  6, 1, "csv-parser"  ],
+    [  6, 1, "test"        , "Text::CSV"    ],
+    [  6, 1, "test-t"      , "Text::CSV"    ],
+    [  6, 1, "csv-parser"  , "CSV::Parser"  ],
     [  9, 0, "csv-c"       ],
     [  7, 0, "csv-lua"     ],
     [  2, 0, "csv-python2" ],
@@ -93,8 +93,8 @@ sub runfrom {
     my $t0 = [ gettimeofday ];
     open my $th, "-|", $cmd;
     while (<$th>) {
-        m/^(?:\[\d+\]\s+)?(\d+)$/ and $i = $1;
-        }
+	m/^(?:\[\d+\]\s+)?(\d+)$/ and $i = $1;
+	}
     return (scalar tv_interval ($t0), $i);
     } # runfrom
 
@@ -104,7 +104,7 @@ my $run_speed = 0;
 my @time;
 my @irc;
 for (@test) {
-    my ($v, $irc, $script) = @$_;
+    my ($v, $irc, $script, $modules) = @$_;
     $script =~ m{$pat}i or  next;
     $opt_i && !$irc     and next;
 
@@ -123,23 +123,24 @@ for (@test) {
     print $eh  "\n";
     close $eh; END { unlink "empty.csv"; }
 
-                    runfrom ($v, $script, "empty.csv");
-                    runfrom ($v, $script, "empty.csv");
+		    runfrom ($v, $script, "empty.csv");
+		    runfrom ($v, $script, "empty.csv");
     my ($start)   = runfrom ($v, $script, "empty.csv");
     my ($run, $i) = runfrom ($v, $script, "/tmp/hello.csv");
 
     my $s = sprintf "%s %6d %9.3f %9.3f", $i eq 50000 ? "   " : "***", $i,
-        $run, $run - $start;
+	$run, $run - $start;
     say $s;
-    push @time, [ $script, $s_script, $i, $run, $start, $exe ];
+    $i or ($run, $start) = (999.999, 999.999); # sort at the end
+    push @time, [ $script, $s_script, $i, $run, $start, $exe, $modules // "-" ];
 
     if ($script eq "test-t" and open my $fh, ">>", "../Talks/CSV6/speed.log") {
-        my @d = localtime;
-        printf $fh "%4d-%02d-%02d %02d:%02d:%02d test-t %.3f\n",
-            $d[5] + 1900, $d[4] + 1, @d[3,2,1,0], $run;
-        close $fh;
-        $run_speed++;
-        }
+	my @d = localtime;
+	printf $fh "%4d-%02d-%02d %02d:%02d:%02d test-t %.3f\n",
+	    $d[5] + 1900, $d[4] + 1, @d[3,2,1,0], $run;
+	close $fh;
+	$run_speed++;
+	}
 
     $opt_i and next;
     $irc and push @irc, $time[-1];
@@ -174,25 +175,26 @@ if (!$opt_i and open my $fh, ">", "../Talks/CSV6/speed5.html") {
       <h1><a class="navF" href="attributes.html">Other languages</a></h1>
       <table>
 	<thead>
-	  <tr><td>language</td><td>script</td><td>check</td><td>count</td><td>time</td><td>runtime</td></tr>
+	  <tr><td>language</td><td>script</td><td>modules</td><td>count</td><td>time</td><td>runtime</td></tr>
 	  </thead>
 	<tbody>
 EOH
     foreach my $t (sort { $a->[3] <=> $b->[3] } @time) {
-        my ($script, $s_script, $i, $run, $start, $exe) = @$t;
-        my ($s_run, $s_run2) = map { sprintf "%.3f", $_ } $run, $run - $start;
-        $s_run2 =~ m/^-/ and $s_run2 = "0.000";
-        $exe =~ s/perl$/perl5/;
-        say $fh
-            qq{\t  <tr@{[$exe =~ m/^perl/ ? qq{ class="$exe"} : ""]}>},
-                qq{<td>$exe</td>},
-                qq{<td>$script</td>},
-                qq{<td>@{[$i == 50000 ? "&nbsp;" : "***"]}</td>},
-                qq{<td class="@{[$i == 50000 ? 'fixed'  : 'broken']}">$i</td>},
-                qq{<td class="time">$s_run</td>},
-                qq{<td class="time">$s_run2</td>},
-                qq{</tr>};
-        }
+	my ($script, $s_script, $i, $run, $start, $exe, $modules) = @$t;
+	$i == 0 and $i = "FAIL";
+	my ($s_run, $s_run2) = map { $i eq "FAIL" ? qq{<span class="broken">-</span>} : sprintf "%.3f", $_ } $run, $run - $start;
+	$s_run2 =~ m/^-/ and $s_run2 = "0.000";
+	$exe =~ s/perl$/perl5/;
+	say $fh
+	    qq{\t  <tr@{[$exe =~ m/^perl/ ? qq{ class="$exe"} : ""]}>},
+		qq{<td>$exe</td>},
+		qq{<td>$script</td>},
+		qq{<td>$modules</td>},
+		qq{<td class="@{[$i eq 50000 ? 'fixed'  : 'broken']}">$i</td>},
+		qq{<td class="time">$s_run</td>},
+		qq{<td class="time">$s_run2</td>},
+		qq{</tr>};
+	}
     my @d = localtime;
     print $fh <<"EOF";
 	  </tbody>
