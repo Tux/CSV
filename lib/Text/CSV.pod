@@ -948,6 +948,66 @@ passing just types will lead to fail later on.
  $csv.column_names(< code name count name >); # will drop the second column
  %hr = $csv.getline_hr($io);
 
+=head2 header
+
+Parse the CSV header and set C<sep> and encoding.
+
+  my @hdr = $csv.header($fh).column-names;
+  $csv.header($fh, [ ";", ",", "|", "\t" ]);
+  $csv.header($fh, fold => "lc");
+  $csv.header($fh, [ ",", ";" ], fold => "lc");
+
+The first argument should be a file handle.
+
+Assuming that the file opened for parsing has a header, and the header
+does not contain problematic characters like embedded newlines, read
+the first line from the open handle, auto-detect whether the header
+separates the column names with a character from the allowed separator
+list. That list defaults to C<[ ";", "," ]> and can be overruled with
+an optional argument of an anonymous list of allowed separator sequences.
+If any of the allowed separators matches, and none of the other allowed
+separators match, set C<sep_char> to that sequence for the current CSV_XS
+instance and use it to parse the first line, map those to lowercase, use
+that to set the instance column-names and return the instance:
+
+ my $csv = Text::CSV.new;
+ my $fh = open "file.csv";
+ $csv.header($fh);
+ while (my $row = $csv.getline_hr($fh)) {
+     ...
+     }
+
+If the header is empty, contains more than one unique separator out of the
+allowed set,  contains empty fields,  or contains identical fields  (after
+folding), it will trow an exception with error 1010, 1011, 1012, or 1013
+respectively.
+
+This method will return the instance on success or undefined on failure if
+it did not throw an exception.
+
+=head3 Options
+
+=over 2
+
+=item fold
+
+ $csv.header($fh, fold => "lc");
+
+The default is to fold the header to lower case. You can also choose to
+fold the headers to upper case with C<< fold => "uc" >> or to leave the
+fields as-is with C<< fold => "none" >>.
+
+=item columns
+
+ $csv.header($fh, :columns);
+
+The default is to set the instances column names using L</column_names> if
+the method is successful, so subsequent calls to L</getline_hr> can return
+a hash. Disable setting the header can be forced using a false value for
+this option like C<:!columns>.
+
+=back
+
 =head2 bind_columns
 =head2 bind-columns
 X<bind_columns>
@@ -2298,6 +2358,32 @@ X<1004>
 
 The L<C<callbacks>|/Callbacks> attribute only allows one to be undefined or
 a hash reference.
+
+=item *
+1010 "INI - the header is empty"
+X<1010>
+
+The header line parsed in the L</header> is empty.
+
+=item *
+1011 "INI - the header contains more than one valid separator"
+X<1011>
+
+The header line parsed in the L</header> contains more than one (unique)
+separator character out of the allowed set of separators.
+
+=item *
+1012 "INI - the header contains an empty field"
+X<1012>
+
+The header line parsed in the L</header> is contains an empty field.
+
+=item *
+1013 "INI - the header contains nun-unique fields"
+X<1013>
+
+The header line parsed in the L</header> contains at least two identical
+fields.
 
 =item *
 2010 "ECR - QUO char inside quotes followed by CR not part of EOL"
