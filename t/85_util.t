@@ -61,14 +61,19 @@ for ",", ";", "|", "\t" -> $sep {
 	}
     }
 
-for 1010, "", 1011, "a,b;c,d", 1012, "a,,b", 1013, "a,a,b" -> $err, $data {
+for   1010, "",
+      1011, "a,b;c,d",
+      1012, "a,,b",
+      1013, "a,a,b",
+      2027, "a,\"b\nc\",d"
+      -> $err, $data {
     my $fh = IO::String.new: $data;
     my $e;
     my $self;
     {   $self = $csv.header ($fh);
         CATCH { default { $e = $_; "" }}
         }
-    is ($self, Any, "FAIL for '$data'");
+    is ($self, Any, "FAIL for {$data.perl}");
     is ($e.error, $err, "Error code $err");
     }
 {   my $fh = IO::String.new: "bar,bAr,bAR,BAR\n1,2,3,4";
@@ -92,7 +97,7 @@ for < , ; > -> $sep {
 	}
     }
 
-for Str, "bar", "lc", "bar", "uc", "BAR", "none", "bAr" -> $fold, $hdr {
+for Str, "bar", "fc", "bar", "lc", "bar", "uc", "BAR", "none", "bAr" -> $fold, $hdr {
     my Str $data = "bAr,foo\n1,2\n3,4,5\n";
 
     $csv.column-names (False);

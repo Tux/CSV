@@ -645,7 +645,7 @@ class Text::CSV {
         }
     method diag_verbose (*@s) returns Int { self!a_bool_int ($!diag_verbose, @s); }
 
-    method header (IO $fh, Array $sep = [< , ; >], Str :$fold = "lc", Bool :$columns = True) {
+    method header (IO $fh, Array $sep = [< , ; >], Str :$fold = "fc", Bool :$columns = True) {
         my Str $hdr = $fh.get         or  self!fail (1010);
 
         # Determine separator conflicts
@@ -656,11 +656,13 @@ class Text::CSV {
 
         given $fold {
             when "none" {             }
+            when "lc"   { $hdr .= lc; }
             when "uc"   { $hdr .= uc; }
-            default     { $hdr .= lc; }
+            default     { $hdr .= fc; }
             }
 
-        my @row = self.getline ($hdr) or  self!fail (1010);
+        self.getline ($hdr)           or  self!fail ($!errno);
+        my @row = self.list           or  self!fail (1010);
         @row.grep ("")                and self!fail (1012);
         @row.Bag.elems == @row.elems  or  self!fail (1013);
         $columns and self.column-names: @row;

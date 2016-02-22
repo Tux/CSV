@@ -954,21 +954,22 @@ Parse the CSV header and set C<sep> and encoding.
 
   my @hdr = $csv.header($fh).column-names;
   $csv.header($fh, [ ";", ",", "|", "\t" ]);
-  $csv.header($fh, fold => "lc");
-  $csv.header($fh, [ ",", ";" ], fold => "lc");
+  $csv.header($fh, fold => "fc");
+  $csv.header($fh, [ ",", ";" ], fold => "fc");
 
 The first argument should be a file handle.
 
-Assuming that the file opened for parsing has a header, and the header
-does not contain problematic characters like embedded newlines, read
-the first line from the open handle, auto-detect whether the header
-separates the column names with a character from the allowed separator
-list. That list defaults to C<[ ";", "," ]> and can be overruled with
-an optional argument of an anonymous list of allowed separator sequences.
-If any of the allowed separators matches, and none of the other allowed
-separators match, set C<sep_char> to that sequence for the current CSV_XS
-instance and use it to parse the first line, map those to lowercase, use
-that to set the instance column-names and return the instance:
+Assuming that the file opened for parsing has a header, and the header does
+not contain problematic characters like embedded newlines, read the first
+line from the open handle then auto-detect whether the header separates the
+column names with a character from the allowed separator list.
+
+The legal separator list defaults to C<[ ";", "," ]> and can be overruled
+with an optional argument of an anonymous list of allowed separators. If
+any of the allowed separators matches, and none of the I<other> allowed
+separators match, set C<sep> to that sequence for the current CSV_XS
+instance and use it to parse the first line, map those to foldcase, use
+that to set the instance L</column_names> and return the instance:
 
  my $csv = Text::CSV.new;
  my $fh = open "file.csv";
@@ -978,12 +979,11 @@ that to set the instance column-names and return the instance:
      }
 
 If the header is empty, contains more than one unique separator out of the
-allowed set,  contains empty fields,  or contains identical fields  (after
-folding), it will trow an exception with error 1010, 1011, 1012, or 1013
-respectively.
+allowed set, contains empty fields, or contains identical fields (after
+folding), it will croak with error 1010, 1011, 1012, or 1013 respectively.
 
-This method will return the instance on success or undefined on failure if
-it did not throw an exception.
+If the header contains embedded newlines or is not valid CSV in any other
+way, this method will throw an exception.
 
 =head3 Options
 
@@ -991,11 +991,11 @@ it did not throw an exception.
 
 =item fold
 
- $csv.header($fh, fold => "lc");
+ $csv.header($fh, fold => "fc");
 
-The default is to fold the header to lower case. You can also choose to
-fold the headers to upper case with C<< fold => "uc" >> or to leave the
-fields as-is with C<< fold => "none" >>.
+The default is to fold the header using foldcase. You can also choose to
+fold the headers to lower case with C<< fold => "lc" >>, upper case with
+C<< fold => "uc" >> or to leave the fields as-is with C<< fold => "none" >>.
 
 =item columns
 
