@@ -183,6 +183,7 @@ for in () -> $in {
             }
         }
     $csv.CSV (in => $in, out => $ch, :!meta);
+    print ""; # Needed for await synchronization. Herd to reproduce bug?
     await $thr;
     is-deeply ([@d], $full-aoa, "csv => Channel { s-in ($in) }");
     }
