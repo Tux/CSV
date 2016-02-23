@@ -647,8 +647,8 @@ class Text::CSV {
 
     method header (IO     $fh,
                    Array :$sep-set            = [< , ; >],
-                   Any   :$munge_column_names = "fc",
-                   Bool  :$columns            = True) {
+                   Any   :$munge-column-names = "fc",
+                   Bool  :$set-column-names   = True) {
         my Str $hdr = $fh.get         or  self!fail (1010);
 
         # Determine separator conflicts
@@ -657,19 +657,19 @@ class Text::CSV {
 
         self.sep (%sep.keys);
 
-        given $munge_column_names {
+        given $munge-column-names {
             when Callable | "none" {             }
             when "lc"              { $hdr .= lc; }
             when "uc"              { $hdr .= uc; }
             default                { $hdr .= fc; }
             }
 
-        self.getline ($hdr)           or  self!fail ($!errno);
-        my @row = self.list           or  self!fail (1010);
-        $munge_column_names ~~ Callable and @row = @row.map ($munge_column_names);
-        @row.grep ("")                and self!fail (1012);
-        @row.Bag.elems == @row.elems  or  self!fail (1013);
-        $columns and self.column-names: @row;
+        self.getline ($hdr)             or  self!fail ($!errno);
+        my @row = self.list             or  self!fail (1010);
+        $munge-column-names ~~ Callable and @row = @row.map ($munge-column-names);
+        @row.grep ("")                  and self!fail (1012);
+        @row.Bag.elems == @row.elems    or  self!fail (1013);
+        $set-column-names               and self.column-names: @row;
         self;
         }
 

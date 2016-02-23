@@ -78,7 +78,7 @@ for   1010, "",
     }
 {   my $fh = IO::String.new: "bar,bAr,bAR,BAR\n1,2,3,4";
     $csv.column-names (False);
-    ok ($csv.header ($fh, munge_column_names => "none"), "non-unique unfolded headers");
+    ok ($csv.header ($fh, munge-column-names => "none"), "non-unique unfolded headers");
     is-deeply ([ $csv.column-names ], [< bar bAr bAR BAR >], "Headers");
     }
 
@@ -88,7 +88,7 @@ for < , ; > -> $sep {
 
     $csv.column-names (False);
     {   my $fh = IO::String.new: $data;
-	ok (my $slf = $csv.header ($fh, :!columns), "Header without column setting");
+	ok (my $slf = $csv.header ($fh, :!set-column-names), "Header without column setting");
 	is ($slf, $csv, "Return self");
 	is ($csv.sep, $sep, "Sep = $sep");
 	is-deeply ([ $csv.column-names ], [], "headers");
@@ -99,12 +99,12 @@ for < , ; > -> $sep {
 
 my $n = 0;
 for Str, "bar", "fc", "bar", "lc", "bar", "uc", "BAR", "none", "bAr",
-    { "column_{$n++}" }, "column_0" -> $munge_column_names, $hdr {
+    { "column_{$n++}" }, "column_0" -> $munge-column-names, $hdr {
     my Str $data = "bAr,foo\n1,2\n3,4,5\n";
 
     $csv.column-names (False);
     my $fh = IO::String.new: $data;
-    ok (my $slf = $csv.header ($fh, :$munge_column_names), "header with fold {$munge_column_names.perl}");
+    ok (my $slf = $csv.header ($fh, :$munge-column-names), "header with fold {$munge-column-names.perl}");
     is ($csv.column-names[0], $hdr, "folded header to $hdr");
     }
 

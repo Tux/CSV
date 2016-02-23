@@ -954,7 +954,7 @@ Parse the CSV header and set C<sep> and encoding.
 
  my @hdr = $csv.header($fh).column-names;
  $csv.header($fh, sep-set => [ ";", ",", "|", "\t" ]);
- $csv.header($fh, munge_column_names => "fc");
+ $csv.header($fh, munge-column-names => "fc");
 
 The first argument should be a file handle.
 
@@ -1005,13 +1005,13 @@ by this option.
 Multi-byte sequences are allowed, both multi-character and Unicode. See
 L<C<sep>|/sep>.
 
-=item munge_column_names
+=item munge-column-names
 
 This option offers the means to modify the column names into something that
 is most useful to the application. The default is to map all column names
 to fold case.
 
- $csv.header($fh, munge_column_names => "lc");
+ $csv.header($fh, munge-column-names => "lc");
 
 The following values are available:
 
@@ -1021,16 +1021,16 @@ The following values are available:
   none - do not change
   &cb  - supply a callback
 
- $csv.header($fh, munge_column_names => { "column_".$col++ });
+ $csv.header($fh, munge-column-names => { "column_".$col++ });
 
-=item columns
+=item set-column-names
 
- $csv.header($fh, :columns);
+ $csv.header($fh, :set-column-names);
 
 The default is to set the instances column names using L</column_names> if
 the method is successful, so subsequent calls to L</getline_hr> can return
 a hash. Disable setting the header can be forced using a false value for
-this option like C<:!columns>.
+this option like C<:!set-column-names>.
 
 =back
 
