@@ -23,6 +23,8 @@ EIQ
 eol
 EOL
 ESC
+fc
+foldcase
 FULLWIDTH
 getline
 grapheme

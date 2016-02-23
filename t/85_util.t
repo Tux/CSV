@@ -35,14 +35,14 @@ for < , ; > -> $sep {
 	}
     }
 
-my @sep-ok = "\t", "|", ",", ";";
+my $sep-set = [ "\t", "|", ",", ";" ];
 for ",", ";", "|", "\t" -> $sep {
     my Str $data = "bAr,foo\n1,2\n3,4,5\n";
     $data ~~ s:g{ "," } = $sep;
 
     $csv.column-names (False);
     {   my $fh = IO::String.new: $data;
-	ok (my $slf = $csv.header ($fh, @sep-ok), "header with specific sep set");
+	ok (my $slf = $csv.header ($fh, :$sep-set), "header with specific sep set");
 	is ($slf, $csv, "Return self");
 	is ($csv.sep, $sep, "Sep = $sep");
 	is-deeply ([ $csv.column-names ], [< bar foo >], "headers");
@@ -52,7 +52,7 @@ for ",", ";", "|", "\t" -> $sep {
 
     $csv.column-names (False);
     {   my $fh = IO::String.new: $data;
-	ok (my $slf = $csv.header ($fh, @sep-ok), "header with specific sep set");
+	ok (my $slf = $csv.header ($fh, :$sep-set), "header with specific sep set");
 	is ($slf, $csv, "Return self");
 	is ($csv.sep, $sep, "Sep = $sep");
 	is-deeply ([ $csv.column-names ], [< bar foo >], "headers");
@@ -78,7 +78,7 @@ for   1010, "",
     }
 {   my $fh = IO::String.new: "bar,bAr,bAR,BAR\n1,2,3,4";
     $csv.column-names (False);
-    ok ($csv.header ($fh, fold => "none"), "non-unique unfolded headers");
+    ok ($csv.header ($fh, munge_column_names => "none"), "non-unique unfolded headers");
     is-deeply ([ $csv.column-names ], [< bar bAr bAR BAR >], "Headers");
     }
 
@@ -97,12 +97,14 @@ for < , ; > -> $sep {
 	}
     }
 
-for Str, "bar", "fc", "bar", "lc", "bar", "uc", "BAR", "none", "bAr" -> $fold, $hdr {
+my $n = 0;
+for Str, "bar", "fc", "bar", "lc", "bar", "uc", "BAR", "none", "bAr",
+    { "column_{$n++}" }, "column_0" -> $munge_column_names, $hdr {
     my Str $data = "bAr,foo\n1,2\n3,4,5\n";
 
     $csv.column-names (False);
     my $fh = IO::String.new: $data;
-    ok (my $slf = $csv.header ($fh, :$fold), "header with fold {$fold.perl}");
+    ok (my $slf = $csv.header ($fh, :$munge_column_names), "header with fold {$munge_column_names.perl}");
     is ($csv.column-names[0], $hdr, "folded header to $hdr");
     }
 

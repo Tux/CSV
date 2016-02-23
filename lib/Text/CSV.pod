@@ -952,10 +952,9 @@ passing just types will lead to fail later on.
 
 Parse the CSV header and set C<sep> and encoding.
 
-  my @hdr = $csv.header($fh).column-names;
-  $csv.header($fh, [ ";", ",", "|", "\t" ]);
-  $csv.header($fh, fold => "fc");
-  $csv.header($fh, [ ",", ";" ], fold => "fc");
+ my @hdr = $csv.header($fh).column-names;
+ $csv.header($fh, sep-set => [ ";", ",", "|", "\t" ]);
+ $csv.header($fh, munge_column_names => "fc");
 
 The first argument should be a file handle.
 
@@ -964,12 +963,10 @@ not contain problematic characters like embedded newlines, read the first
 line from the open handle then auto-detect whether the header separates the
 column names with a character from the allowed separator list.
 
-The legal separator list defaults to C<[ ";", "," ]> and can be overruled
-with an optional argument of an anonymous list of allowed separators. If
-any of the allowed separators matches, and none of the I<other> allowed
-separators match, set C<sep> to that sequence for the current CSV_XS
-instance and use it to parse the first line, map those to foldcase, use
-that to set the instance L</column_names> and return the instance:
+If any of the allowed separators matches, and none of the I<other> allowed
+separators match, set L<C<sep>|/sep> to that separator for the current
+CSV_XS instance and use it to parse the first line, map those to lowercase,
+and use that to set the instance L</column_names>:
 
  my $csv = Text::CSV.new;
  my $fh = open "file.csv";
@@ -985,17 +982,46 @@ folding), it will croak with error 1010, 1011, 1012, or 1013 respectively.
 If the header contains embedded newlines or is not valid CSV in any other
 way, this method will throw an exception.
 
+A successful call to C<header> will always set the L<C<sep>|/sep> of the
+C<$csv> object. This behavior can not be disabled.
+
+=head3 return value
+
+On error this method will throw an exception.
+
+On success, this method will return the instance.
+
 =head3 Options
 
 =over 2
 
-=item fold
+=item sep-set
 
- $csv.header($fh, fold => "fc");
+ $csv.header($fh, sep_set => [ ";", ",", "|", "\t" ]);
 
-The default is to fold the header using foldcase. You can also choose to
-fold the headers to lower case with C<< fold => "lc" >>, upper case with
-C<< fold => "uc" >> or to leave the fields as-is with C<< fold => "none" >>.
+The list of legal separators defaults to C<[ ";", "," ]> and can be changed
+by this option.
+
+Multi-byte sequences are allowed, both multi-character and Unicode. See
+L<C<sep>|/sep>.
+
+=item munge_column_names
+
+This option offers the means to modify the column names into something that
+is most useful to the application. The default is to map all column names
+to fold case.
+
+ $csv.header($fh, munge_column_names => "lc");
+
+The following values are available:
+
+  fc   - fold case
+  lc   - lower case
+  uc   - upper case
+  none - do not change
+  &cb  - supply a callback
+
+ $csv.header($fh, munge_column_names => { "column_".$col++ });
 
 =item columns
 
@@ -1819,25 +1845,25 @@ with test.csv like
 
 will return
 
-  { 1   => {
-        code    => 1,
-        color   => 'gray',
-        price   => 850,
-        product => 'pc'
-        },
-    2   => {
-        code    => 2,
-        color   => 'white',
-        price   => 12,
-        product => 'keyboard'
-        },
-    3   => {
-        code    => 3,
-        color   => 'black',
-        price   => 5,
-        product => 'mouse'
-        }
-    }
+ { 1   => {
+       code    => 1,
+       color   => 'gray',
+       price   => 850,
+       product => 'pc'
+       },
+   2   => {
+       code    => 2,
+       color   => 'white',
+       price   => 12,
+       product => 'keyboard'
+       },
+   3   => {
+       code    => 3,
+       color   => 'black',
+       price   => 5,
+       product => 'mouse'
+       }
+   }
 
 =head3 fragment
 X<fragment>
@@ -1956,22 +1982,22 @@ This callback is not active for L</combine>.
 The L</csv> allows for some callbacks that do not integrate in XS internals
 but only feature the L</csv> function.
 
-  csv(in        => "file.csv",
-       callbacks => {
-           after_parse  => sub { say "AFTER PARSE";  }, # first
-           after_in     => sub { say "AFTER IN";     }, # second
-           on_in        => sub { say "ON IN";        }, # third
-           },
-       );
+ csv(in        => "file.csv",
+      callbacks => {
+          after_parse  => sub { say "AFTER PARSE";  }, # first
+          after_in     => sub { say "AFTER IN";     }, # second
+          on_in        => sub { say "ON IN";        }, # third
+          },
+      );
 
-  csv(in        => $aoh,
-       out       => "file.csv",
-       callbacks => {
-           on_in        => sub { say "ON IN";        }, # first
-           before_out   => sub { say "BEFORE OUT";   }, # second
-           before_print => sub { say "BEFORE PRINT"; }, # third
-           },
-       );
+ csv(in        => $aoh,
+      out       => "file.csv",
+      callbacks => {
+          on_in        => sub { say "ON IN";        }, # first
+          before_out   => sub { say "BEFORE OUT";   }, # second
+          before_print => sub { say "BEFORE PRINT"; }, # third
+          },
+      );
 
 =over 2
 
