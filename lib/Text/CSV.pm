@@ -94,14 +94,14 @@ class IO::String is IO::Handle {
     has Str  $!str;
     has Str  @!content;
 
-    # my $fh = IO::String ($foo);
+    # my $fh = IO::String.new ($foo);
     multi method new (Str $str! is rw, *%init) {
         my \obj = self.new ($str.Str, |%init);
         obj.bind-str ($str);
         obj;
         }
 
-    # my $fh = IO::String ("foo");
+    # my $fh = IO::String.new ("foo");
     multi method new (Str $str!, *%init) {
         my \obj = self.bless;
         obj.nl-in  = $*IN.nl-in;
