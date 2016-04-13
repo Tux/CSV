@@ -5,6 +5,7 @@ ASV
 attr
 bc
 BOM
+Buf
 ChangeLog
 colrange
 csvdiff

@@ -265,6 +265,10 @@ class CSV::Field {
         $!text;
         }
 
+    method Buf {
+        Buf.new ($!text.encode ("utf8-c8").list);
+        }
+
     method Numeric {
         $!text.defined
             ?? $!text ~~ m{^ <[0..9]> } ?? +$!text

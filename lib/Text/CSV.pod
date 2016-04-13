@@ -1405,6 +1405,12 @@ will also return C<False> for C<"0">, where perl6 sees C<"0"> as C<True>.
 
 Return the string representation of the field.
 
+=head2 Buf
+
+ $buf = $f.Buf;
+
+Return the field data as "utf8-c8" encoded Buf.
+
 =head2 Numeric
 
  $i = +$f;
