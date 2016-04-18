@@ -146,6 +146,7 @@ for (@test) {
     $irc and push @irc, $time[-1];
     }
 
+system "perl6", "-v";
 printf "%s %9.3f\n", $_->[1], $_->[3] for @irc;
 
 if (!$opt_i and open my $fh, ">", "../Talks/CSV6/speed5.html") {
