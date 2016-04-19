@@ -146,8 +146,8 @@ for (@test) {
     $irc and push @irc, $time[-1];
     }
 
-system "perl6", "-v";
-printf "%s %9.3f\n", $_->[1], $_->[3] for @irc;
+print qx{perl6 -v} =~ s{\nimplementing.*\n}{\n}r;
+printf "%s %9.3f\n", $_->[1], $_->[3] for grep { $_->[3] < 100 } @irc;
 
 if (!$opt_i and open my $fh, ">", "../Talks/CSV6/speed5.html") {
     print $fh <<'EOH';
