@@ -344,25 +344,16 @@ class Text::CSV { ... }
 class CSV::Row does Iterable does Positional does Associative {
     has Text::CSV  $.csv;
     has CSV::Field @.fields;
-    has $!hash;
 
     multi method new (@f)  { @!fields = @f.map ({ CSV::Field.new (*) }); }
 
-    method Str ()          { $!csv ?? $!csv.string (@!fields) !! Str; }
+    method Str             { $!csv ?? $!csv.string (@!fields) !! Str; }
     method iterator        { @.fields.iterator; }
-    method hash ()         {
-        unless ($!hash.defined) {
-            my $hash   := $!hash = Hash.new;
-            my @fields := @!fields;
-            my int $i   = -1;
-            $hash.BIND-KEY ($_,@fields.AT-POS (++$i).Str) for $!csv.column_names;
-            }
-        $!hash;
-        }
-    method of ()           { CSV::Field; }
-    method AT-KEY (Str $k) { self.hash.AT-KEY ($k); }
+    method hash            { hash $!csv.column_names Z=> @!fields».Str; }
+    method of              { return CSV::Field }
+    method AT-KEY (Str $k) { %($!csv.column_names Z=> @!fields){$k}; }
     method list ()         { @!fields».Str; }
-    method AT-POS (int $i) { @!fields.AT-POS ($i); }
+    method AT-POS (int $i) { @!fields[$i]; }
 
     multi method push (CSV::Field $f) { @!fields.push: $f; }
     multi method push (Cool       $f) { @!fields.push: CSV::Field.new ($f); }
