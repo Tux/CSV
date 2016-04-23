@@ -789,9 +789,9 @@ X<parse>
 
 This method decomposes a C<CSV> string into fields, returning success or
 failure. Failure can result from a lack of argument or improper format in
-the given C<CSV> string. Upon success, invoke L</fields> or L</list> to get
-the decomposed fields. Upon failure these methods shall not be trusted to
-return reliable data.
+the given C<CSV> string. Upon success, invoke L</fields> or L</strings> to
+get the decomposed fields. Upon failure these methods shall not be trusted
+to return reliable data.
 
 NYI: You may use the L</types> method for setting column types. See
 L</types>' description below.
@@ -1108,10 +1108,10 @@ fields of a successful L</parse> or L</getline>, whichever was called more
 recently. The fields are still of type L<C<CSV::Field>|/CSV::Field> and
 thus feature attributes.
 
-=head2 list
-X<list>
+=head2 strings
+X<strings>
 
- @fields = $csv.list;
+ @fields = $csv.strings;
 
 This method returns the input to L</combine> or the resultant decomposed
 fields of a successful L</parse> or L</getline>, whichever was called more
@@ -1545,9 +1545,9 @@ object known to the CSV::Row instance.
 Returns the hash with C<.csv>'s L<C<column_names>|/column_names> as keys
 and the C<.text> of each matching C<fields> entry as values.
 
-=item list
+=item strings
 
- my @l = $row.list;
+ my @l = $row.strings;
 
 Returns the C<.text> part of each entry in C<.fields>.
 
