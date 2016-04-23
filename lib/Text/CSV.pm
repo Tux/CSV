@@ -133,8 +133,7 @@ class IO::String is IO::Handle {
         }
 
     method get {
-        @!content or return Str;
-        shift @!content;
+        @!content ?? @!content.shift !! Str;
         }
 
     method close {
@@ -207,9 +206,7 @@ class RangeSet {
             $r.value == Inf and last;
             $max = ($max, $r.value).max.Int;
             }
-        @x.elems and return @x;
-
-        ($.min .. $.max).grep (self);
+        @x.elems ?? @x !! ($.min .. $.max).grep (self);
         }
     }
 
@@ -776,8 +773,7 @@ class Text::CSV {
         }
 
     method error_input () returns Str {
-        $!errno or return Str;
-        $!error_input;
+        $!errno ?? $!error_input !! Str
         }
 
     method error_diag () returns CSV::Diag {
@@ -943,10 +939,11 @@ class Text::CSV {
             }
 
         my sub chunks (Str $str, @re) {
-            $str.defined or  return ();
-            $str eq ""   and return ("");
-
-            $str.split (@re, :v, :skip-empty);
+            $str.defined
+              ?? $str.chars
+                ?? $str.split (@re, :v, :skip-empty)
+                !! ("")
+              !! ()
             }
 
         $!record_number = $!record_number + 1;
@@ -965,16 +962,17 @@ class Text::CSV {
 
         $!csv-row.fields = ();
 
-        my sub keep () {
-            self!ready (1, $f) or return False;
-            $f = CSV::Field.new;
-            True;
+        my sub keep () returns Bool {
+            self!ready (1, $f)
+              ?? !($f = CSV::Field.new)
+              !! False
             } # add
 
         my sub parse_done () {
             self!ready (1, $f) or return False;
-            %!callbacks<after_parse>.defined and
-                %!callbacks<after_parse>.($!csv-row);
+#            %!callbacks<after_parse>.defined and
+#                %!callbacks<after_parse>.($!csv-row);
+            .($!csv-row) with %!callbacks<after_parse>;
             True;
             }
 
@@ -1288,8 +1286,11 @@ class Text::CSV {
         } # getline_hr
 
     multi method getline (Str $str, Bool :$meta = $!keep_meta) {
-        self.parse ($str) or return ();
-        $meta ?? self.fields !! self.list;
+        self.parse ($str)
+          ?? $meta
+            ?? self.fields
+            !! self.list
+          !! ()
         } # getline
 
     multi method getline (IO:D $io, Bool :$meta = $!keep_meta) {
