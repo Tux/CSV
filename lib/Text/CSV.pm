@@ -1286,7 +1286,7 @@ class Text::CSV {
           ?? $meta
             ?? self.fields
             !! self.list
-          !! ()
+          !! Nil;
         } # getline
 
     multi method getline (IO:D $io, Bool :$meta = $!keep_meta) {
