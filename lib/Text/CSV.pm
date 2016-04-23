@@ -963,15 +963,11 @@ class Text::CSV {
         $!csv-row.fields = ();
 
         my sub keep () returns Bool {
-            self!ready (1, $f)
-              ?? !($f = CSV::Field.new)
-              !! False
+            self!ready (1, $f) ?? !($f = CSV::Field.new) !! False;
             } # add
 
         my sub parse_done () {
             self!ready (1, $f) or return False;
-#            %!callbacks<after_parse>.defined and
-#                %!callbacks<after_parse>.($!csv-row);
             .($!csv-row) with %!callbacks<after_parse>;
             True;
             }

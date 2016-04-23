@@ -1,2 +1,2 @@
 #!/bin/sh
-exec perl6 -I. -Ilib "$@"
+exec perl6 -Ilib "$@"
