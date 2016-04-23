@@ -347,13 +347,13 @@ class CSV::Row does Iterable does Positional does Associative {
 
     multi method new (@f)  { @!fields = @f.map ({ CSV::Field.new (*) }); }
 
-    method Str             { $!csv ?? $!csv.string (@!fields) !! Str; }
-    method iterator        { @.fields.iterator; }
-    method hash            { hash $!csv.column_names Z=> @!fields».Str; }
-    method of              { return CSV::Field }
+    method Str ()          { $!csv ?? $!csv.string (@!fields) !! Str; }
+    method iterator ()     { @.fields.iterator; }
+    method hash ()         { hash $!csv.column_names Z=> @!fields».Str; }
+    method of ()           { CSV::Field; }
     method AT-KEY (Str $k) { %($!csv.column_names Z=> @!fields){$k}; }
     method list ()         { @!fields».Str; }
-    method AT-POS (int $i) { @!fields[$i]; }
+    method AT-POS (int $i) { @!fields.AT-POS ($i); }
 
     multi method push (CSV::Field $f) { @!fields.push: $f; }
     multi method push (Cool       $f) { @!fields.push: CSV::Field.new ($f); }
