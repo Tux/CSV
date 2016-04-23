@@ -349,7 +349,7 @@ class CSV::Row does Iterable does Positional does Associative {
     method hash ()         { hash $!csv.column_names Z=> @!fields».Str; }
     method of ()           { CSV::Field; }
     method AT-KEY (Str $k) { %($!csv.column_names Z=> @!fields){$k}; }
-    method list ()         { @!fields».Str; }
+    method strings ()      { @!fields».Str; }
     method AT-POS (int $i) { @!fields.AT-POS ($i); }
 
     multi method push (CSV::Field $f) { @!fields.push: $f; }
@@ -664,7 +664,7 @@ class Text::CSV {
             }
 
         self.getline ($hdr)             or  self!fail ($!errno);
-        my @row = self.list             or  self!fail (1010);
+        my @row = self.strings          or  self!fail (1010);
         $munge-column-names ~~ Callable and @row = @row.map ($munge-column-names);
         @row.grep ("")                  and self!fail (1012);
         @row.Bag.elems == @row.elems    or  self!fail (1013);
@@ -846,7 +846,7 @@ class Text::CSV {
         @!crange ?? ($!csv-row.fields[@!crange]:v) !! $!csv-row.fields;
         }
 
-    method list () {
+    method strings () {
         self.fields».Str.Array;
         }
 
@@ -1285,7 +1285,7 @@ class Text::CSV {
         self.parse ($str)
           ?? $meta
             ?? self.fields
-            !! self.list
+            !! self.strings
           !! Nil;
         } # getline
 
@@ -1299,7 +1299,7 @@ class Text::CSV {
         $!io      =  IO;
         $io.nl-in = $nl;
         $io.chomp = $chomped;
-        $status ?? $meta ?? self.fields !! self.list !! ();
+        $status ?? $meta ?? self.fields !! self.strings !! ();
         } # getline
 
     method getline_hr_all (IO:D  $io,
@@ -1311,7 +1311,7 @@ class Text::CSV {
         }
 
     method !row (Bool:D $meta, Bool:D $hr) {
-        my @row = $meta ?? self.fields !! self.list;
+        my @row = $meta ?? self.fields !! self.strings;
         $hr or return $[ @row ];
 
         my @cn = (@!crange ?? @!cnames[@!crange] !! @!cnames);
@@ -1736,7 +1736,7 @@ class Text::CSV {
             $!csv-row.fields = $row[0] ~~ CSV::Field
                 ?? $row
                 !! $row.map ({ CSV::Field.new.add ($_.Str); });
-            my @row = $meta ?? self.fields !! self.list;
+            my @row = $meta ?? self.fields !! self.strings;
             my $r = (@h.elems == 0 || @row[0] ~~ Hash)
                 ?? @row
                 !! $%( @h Z=> @row );

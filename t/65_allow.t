@@ -238,7 +238,7 @@ for (Str, "\r") -> $eol {
 
     $str ~= "0";
     is ($csv.parse ($str),    True,               "Parse trailing ESC");
-    is-deeply ([ $csv.list ], [ "1", "3", "\0" ], "Parse passed");
+    is-deeply ([ $csv.strings ], [ "1", "3", "\0" ], "Parse passed");
     }
 
 done-testing;

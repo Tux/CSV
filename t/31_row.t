@@ -37,11 +37,11 @@ is (+$t[2],     2,     "Num indexed access");
 is (~$t<D>,     "bar", "Str hash    access");
 
 is-deeply ( $t.hash,  { :A("1"), :B("foo"), :C("2"), :D("bar") }, "hash");
-is-deeply ([$t.list], [    "1",     "foo",     "2",     "bar"  ], "list");
+is-deeply ([$t.strings], [    "1",     "foo",     "2",     "bar"  ], "strings");
 
 my $csv = Text::CSV.new (:!keep_meta);
 is-deeply ([$csv.getline ("foo,bar,zip")], [<foo bar zip>], "getline");
 ok (my $row = $csv.row, "Get last row");
-is-deeply ([$row.list], [<foo bar zip>], "list");
+is-deeply ([$row.strings], [<foo bar zip>], "strings");
 
 done-testing;

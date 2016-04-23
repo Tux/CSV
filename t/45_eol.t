@@ -45,7 +45,7 @@ for (|@rs) -> $rs {
                      my $state = $csv.parse ($str);
                      ok ($state,                         "parse   |$s_eol|");
                      if ($state) {
-                         @p = $csv.list;
+                         @p = $csv.strings;
                          ok (@p.elems,                   "fields  |$s_eol|");
                          }
                      else{

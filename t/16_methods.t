@@ -41,7 +41,7 @@ is ($csv.error_diag,            "",     "error_diag");
 is ($csv.record_number,         0,      "record_number");
 is ($csv.string,                Str,    "string");
 is ($csv.fields.elems,          0,      "fields");
-is ($csv.list.elems,            0,      "list");
+is ($csv.strings.elems,         0,      "strings");
 is ($csv.is_quoted (0),         False,  "is_quoted");
 is ($csv.is_binary (0),         False,  "is_binary");
 is ($csv.is_missing (0),        False,  "is_missing");
