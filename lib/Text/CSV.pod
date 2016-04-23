@@ -1519,6 +1519,12 @@ The fields (CSV::Field items) this row consist of.
  $row.push("foo");
  $row.push($another-row);
 
+Pushing simple things onto the row will extend the row by converting these
+to CSV::Field objects.
+
+Pushing a CSV::Row onto the row will extend that row with the fields of the
+row being pushed.
+
 =item pop
 
  my CSV::Field $f = $row.pop;

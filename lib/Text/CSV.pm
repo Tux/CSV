@@ -357,8 +357,7 @@ class CSV::Row does Iterable does Positional does Associative {
 
     multi method push (CSV::Field $f) { @!fields.push: $f; }
     multi method push (Cool       $f) { @!fields.push: CSV::Field.new ($f); }
-    multi method push (CSV::Row   $r) { for ($r.fields) -> $f { @!fields.push: $f; }}
-#   multi method push (CSV::Row   $r) { @!fields.push: @($r.fields); }}
+    multi method push (CSV::Row   $r) { @!fields.append: $r.fields; }
 
     method pop returns CSV::Field { @!fields.pop; }
     }
@@ -513,8 +512,7 @@ class Text::CSV {
     CHECK {
         sub alias (Str:D $m, *@aka) {
             my $r := Text::CSV.^find_method ($m);
-            my $p := $r.package;
-            $p.^add_method ($_, $r) for @aka;
+            Text::CSV.^add_method ($_, $r) for @aka;
             }
 
         alias ("sep",                   < sep_char sep-char separator >);
@@ -677,13 +675,11 @@ class Text::CSV {
         self;
         }
 
-    method column_names (*@c) returns Array[Str] {
-        if (@c.elems == 1 and !@c[0].defined || (@c[0] ~~ Bool && !?@c[0])) {
-            @!cnames = ();
-            }
-        elsif (@c.elems) {
-            @!cnames = @c.map (*.Str);
-            }
+    multi method column_names (False) returns Array[Str] { @!cnames = (); }
+    multi method column_names (Any:U) returns Array[Str] { @!cnames = (); }
+    multi method column_names (0)     returns Array[Str] { @!cnames = (); }
+    multi method column_names (*@c)   returns Array[Str] {
+        @c.elems and @!cnames = @c.map (*.Str);
         @!cnames;
         }
 
@@ -824,18 +820,18 @@ class Text::CSV {
             if ($direction) {
                 $!blank_is_undef || $!empty_is_undef or $f.add ("");
                 }
-            return self!accept-field ($f);
+            #return self!accept-field ($f);
             }
 
-        if ($f.Str eq "") {
+        elsif ($f.Str eq "") {
             $!empty_is_undef and $f.text = Str;
-            return self!accept-field ($f);
+            #return self!accept-field ($f);
             }
 
         # Postpone all other field attributes like is_binary and is_utf8
         # till it is actually asked for unless it is required right now
         # to fail
-        if (!$!binary and $f.Str ~~ m{ <[ \x00..\x08 \x0A..\x1F ]> }) {
+        elsif (!$!binary and $f.Str ~~ m{ <[ \x00..\x08 \x0A..\x1F ]> }) {
             $!error_pos     = $/.from + 1 + $f.is_quoted;
             $!errno         = $f.is_quoted ??
                  $f.Str ~~ m{<[ \r ]>} ?? 2022 !!
