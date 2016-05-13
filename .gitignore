@@ -20,8 +20,9 @@ logotype/comma*
 lib/.precomp
 *.class
 *.jar
-csv-go
 csv-c
+csv-cc
+csv-go
 
 # Re-enable parts later
 sandbox/

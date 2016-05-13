@@ -46,6 +46,7 @@ my %lang = (
     11 => [ "",     "java8",   "-cp csv-java8.jar:opencsv-2.3.jar csvJava" ],
     12 => [ "",     "java9",   "-cp csv-java9.jar:opencsv-2.3.jar csvJava" ],
     13 => [ ".R",   "R",       "--slave -f" ],
+    15 => [ "",     "C++"              ],
     );
 my @test = (
     # lang irc script
@@ -64,6 +65,7 @@ my @test = (
     [  6, 1, "test-t"      , "Text::CSV"    ],
     [  6, 1, "csv-parser"  , "CSV::Parser"  ],
     [  9, 0, "csv-c"       ],
+    [ 15, 0, "csv-cc"      ],
     [  7, 0, "csv-lua"     ],
     [  2, 0, "csv-python2" ],
     [  3, 0, "csv-python3" ],
@@ -82,7 +84,7 @@ sub runfrom {
     my ($v, $script, $file) = @_;
     my ($ext, $exe, @arg) = @{$lang{$v}};
 
-    $exe eq "C" and $exe = "";
+    $exe eq "C" || $exe eq "C++" and $exe = "";
     my $run = join " " => $exe, @arg;
 
     $opt_v > 4 and say "$v / $ext / $exe\t/ $run";

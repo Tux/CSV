@@ -62,5 +62,8 @@ csv-java.jar:	csvJava.java opencsv-2.3.jar
 csv-c:	csv-c.c
 	cc -O3 -s -o csv-c csv-c.c -lcsv3
 
+csv-cc: csv-cc.cc
+	g++ -Werror -Wall -pedantic -std=c++11 -s -O2 -fpic -march=native csv-cc.cc -o csv-cc
+
 csv-go: csv-go.go
 	go build csv-go.go
