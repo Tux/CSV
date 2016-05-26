@@ -895,7 +895,7 @@ class Text::CSV {
         self.combine ($c.list);
         }
     multi method combine (*@f) returns Bool {
-        self.combine ([@f]);
+        self.combine (@f);
         }
     multi method combine (@f) returns Bool {
         $!csv-row.fields = ();
