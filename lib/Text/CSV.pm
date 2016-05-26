@@ -865,7 +865,7 @@ class Text::CSV {
         my Str $q = $!quo;
         my Str $e = $!esc;
         my Str @f;
-        for flat @fld -> $f {
+        for @fld -> $f {
             if (!$f.defined || $f.undefined) {
                 @f.push: "";
                 next;
