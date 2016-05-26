@@ -47,6 +47,7 @@ my %lang = (
     12 => [ "",     "java9",   "-cp csv-java9.jar:opencsv-2.3.jar csvJava" ],
     13 => [ ".R",   "R",       "--slave -f" ],
     15 => [ "",     "C++"              ],
+    16 => [ "",     "java8",   "-cp csv-pi-easy-pp.jar Main /tmp/hello.csv" ],
     );
 my @test = (
     # lang irc script
@@ -54,7 +55,7 @@ my @test = (
     [  5, 0, "csv-easy-pp" , "Text::CSV::Easy_PP" ],
     [  5, 0, "csv-xsbc"    , "Text::CSV_XS" ],
     [  5, 0, "csv-test-xs" , "Text::CSV_XS" ],
-    [  5, 0, "csv-test-pp" , "Text::CSV_XS" ],
+    [  5, 0, "csv-test-pp" , "Text::CSV_PP" ],
     [  5, 0, "csv-pegex"   , "Pegex::CSV" ],
     [  6, 0, "csv"         ],
     [  6, 1, "csv-ip5xs"   , "Inline::Perl5, Text::CSV_XS" ],
@@ -78,6 +79,7 @@ my @test = (
     [  8, 0, "csv-go"      ],
     [ 13, 0, "csv-R"       ],
     [ 12, 0, "csv-java9"   ],
+    [ 16, 0, "csv-easy-pp-pi", "Text::CSV::Easy_PP, Perlito" ],
     );
 
 sub runfrom {
@@ -188,8 +190,9 @@ EOH
 	my ($s_run, $s_run2) = map { $i eq "FAIL" ? qq{<span class="broken">-</span>} : sprintf "%.3f", $_ } $run, $run - $start;
 	$s_run2 =~ m/^-/ and $s_run2 = "0.000";
 	$exe =~ s/perl$/perl5/;
+	my $class = $script =~ m/-pi\b/ ? "perlito" : $exe =~ m/^perl/ ? $exe : "";
 	say $fh
-	    qq{\t  <tr@{[$exe =~ m/^perl/ ? qq{ class="$exe"} : ""]}>},
+	    qq{\t  <tr@{[$class ? qq{ class="$class"} : ""]}>},
 		qq{<td>$exe</td>},
 		qq{<td>$script</td>},
 		qq{<td>$modules</td>},
