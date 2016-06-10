@@ -54,7 +54,7 @@ class Text::CSV {
         }
 
     method getline(){
-        return $!ast;
+        $!ast;
         }
     }
 
