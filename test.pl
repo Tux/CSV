@@ -6,13 +6,13 @@ my @rslt  = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
 
 sub progress (*@y) {
     my Str $x;
-    @y[0] = @y[0].Str;  # Still a bug
+    my @x = @y.map(*.Str);
     my $line = callframe(1).annotations<line>;
-    for (@y) {
+    for (@x) {
         s{^(\d+)$}   = sprintf "%3d -", $_;
         s:g{"True,"} = "True, ";
         s:g{"new("}  = "new (";
-        $x ~= .Str ~ " ";
+        $x ~= $_ ~ " ";
         }
     $x.say;
     } # progress

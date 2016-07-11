@@ -73,14 +73,13 @@ my %errors =
 
 sub progress (*@y) {
     my Str $x;
-    @y[0] = @y[0].Str;  # Still a bug
+    my @x = @y.map (*.Str);
     my $line = callframe (1).annotations<line>;
-    for (@y) {
-        #$opt_v > 9 and .say;
-        s{^(\d+)$}   = sprintf "@%3d %3d -", $line, $_;
+    for (@x) {
+        s{^(\d+)$}   = sprintf "%3d -", $_;
         s:g{"True,"} = "True, ";
         s:g{"new("}  = "new (";
-        $x ~= .Str ~ " ";
+        $x ~= $_ ~ " ";
         }
     $x.say;
     } # progress
