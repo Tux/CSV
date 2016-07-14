@@ -721,7 +721,7 @@ class Text::CSV {
     method !rfc7111ranges (Str:D $spec) returns RangeSet {
         $spec eq "" and self!fail (2013);
         my RangeSet $range = RangeSet.new;
-        for $spec.split (/ ";" /) -> $r {
+        for $spec.split (";") -> $r {
             $r ~~ /^ (<[0..9]>+)["-"[(<[0..9]>+)||("*")]]? $/ or self!fail (2013);
             my Int $from = +$0;
                    $from ==  0  and self!fail (2013);
@@ -1388,7 +1388,7 @@ class Text::CSV {
 
         my CellSet $cs = CellSet.new;
         # cell=1,1-2,2;3,3-4,4;1,4;4,1
-        for $spec.split (/ ";" /) -> $r {
+        for $spec.split (";") -> $r {
             $r ~~ /^     (<[0..9]>+)         ","  (<[0..9]>+)
                    ["-" [(<[0..9]>+)||("*")] "," [(<[0..9]>+)||("*") ]]?
                    $/ or self!fail (2013);
