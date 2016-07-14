@@ -1187,7 +1187,7 @@ class Text::CSV {
                 #if ($chunk ~~ rx{^ $eol $}) {
                 if ($!eol.defined
                         ?? $chunk eq $!eol
-                        !! $chunk ~~ /^ \r\n | \n | \r $/) {
+                        !! ($chunk eq "\r\n" || $chunk eq "\n" || $chunk eq "\r")) {
                     $opt_v > 5 and progress ($i, "EOL - " ~ $f.gist);
                     if ($f.is_quoted) {     # 1,"2\n3"
                         $!binary or
