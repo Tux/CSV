@@ -1151,7 +1151,7 @@ class Text::CSV {
 
                     # ,1,"foo, 3\056",,bar,\r\n
                     #            ^
-                    if ($next ~~ /^ "0"/) {
+                    if ($next.starts-with("0")) {
                         @ch[$i + 1] ~~ s{^ "0"} = "";
                         $ppos = $ppos + 1;
                         $opt_v > 8 and progress ($i, "Add NIL");
