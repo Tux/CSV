@@ -1072,7 +1072,9 @@ class Text::CSV {
                         # $next ~~ /^ $eol $/ and return parse_done ();
                         if ($!eol.defined
                                 ?? $next eq $!eol
-                                !! $next ~~ /^ \r\n | \n | \r $/) {
+                                !! ( $next eq "\r\n"
+                                  || $next eq "\n"
+                                  || $next eq "\r")) {
                             return parse_done ();
                             }
 
