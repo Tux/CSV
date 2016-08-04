@@ -1,5 +1,11 @@
 =encoding utf-8
 
+=head1 DISCLAIMER
+
+Note that updating these docs is an ongoing process and some perl5 idioms
+might not have been translated yet into correct perl6 idiom. My bad. Sorry.
+(Feedback welcome)
+
 =head1 NAME
 
 Text::CSV - comma-separated values manipulation routines
@@ -1508,6 +1514,10 @@ L<C<meta_info>|/meta_info> is C<False>.
 
 The current Text::CSV object related to this row.
 
+=item elems
+
+Return the number of fields in the row.
+
 =item fields
 
 The fields (CSV::Field items) this row consist of.
@@ -1906,25 +1916,26 @@ the previous row will cause the parser to throw an error;
 Callbacks enable actions triggered from the I<inside> of Text::CSV.
 
 While most of what this enables can easily be done in an unrolled loop as
-described in the L</SYNOPSIS> callbacks can be used to meet special demands
-or enhance the L</csv> function.
+described in the L</SYNOPSIS> callbacks, can be used to meet special
+demands or enhance the L</csv> function.
+
+All callbacks except C<error> are called with just one argument: the
+current L<CSV::Row>.
 
 =over 2
 
 =item error
 X<error>
 
- $csv.callbacks(error => sub { $csv.SetDiag(0) });
+ $csv.callbacks(error => { $csv.SetDiag(0) });
 
 the C<error> callback is invoked when an error occurs, but I<only> when
-L</auto_diag> is set to a true value. A callback is invoked with the values
-returned by L</error_diag>:
+L</auto_diag> is set to a true value. This callback is invoked with the
+values returned by L</error_diag>:
 
  my ($c, $s);
 
- sub ignore3006
- {
-     my ($err, $msg, $pos, $recno, $fldno) = @_;
+ sub ignore3006 (Int $err, Str $msg, Int $pos, Int $recno, Int $fldno) {
      if ($err == 3006) {
          # ignore this error
          ($c, $s) = (Str, Str);
@@ -1950,8 +1961,7 @@ X<after_parse>
      }
 
 This callback is invoked after parsing with L</getline> only if no error
-occurred. The callback is invoked with two arguments:  the current C<CSV>
-parser object and an array reference to the fields parsed.
+occurred.
 
 The return code of the callback is ignored.
 
@@ -1963,27 +1973,30 @@ The return code of the callback is ignored.
  my $aoa = csv(in => "file.csv", callbacks => {
      after_parse => &add_from_db });
 
+ my $aoa = csv(in => "file.csv", after_parse => {
+     $sth.execute($^row[4]); $^row.fields.push: $sth.fetchrow_array; });
+
 =item before_print
 X<before_print>
 
  my $idx = 1;
- $csv.callbacks(before_print => sub { $_[1][0] = $idx++ });
+ $csv.callbacks(before_print => { $^row[0] = $idx++ });
  $csv.print(*STDOUT, [ 0, $_ ]) for @members;
 
 This callback is invoked before printing with L</print> only if no error
-occurred. The callback is invoked with two arguments: the current C<CSV>
-parser object and an array reference to the fields passed.
+occurred.
 
 The return code of the callback is ignored.
 
- sub max_4_fields
- {
-     my ($csv, $row) = @_;
-     @$row > 4 and splice @$row, 4;
+ sub max_4_fields (CSV::Row $r) {
+     $r.elems > 4 and $r.splice (4);
      } # max_4_fields
 
  csv(in => csv(in => "file.csv"), out => *STDOUT,
      callbacks => { before print => \&max_4_fields });
+
+ csv(in => csv(in => "file.csv"), out => *STDOUT,
+     before print => { $^row.elems > 4 and $^row.splice(4) });
 
 This callback is not active for L</combine>.
 
@@ -1991,58 +2004,136 @@ This callback is not active for L</combine>.
 
 =head3 Callbacks for csv
 
-The L</csv> allows for some callbacks that do not integrate in XS internals
-but only feature the L</csv> function.
+The L</csv> allows for some callbacks that do not integrate in internals
+but only feature the L</csv> function. XXX: Is this still true?
 
  csv(in        => "file.csv",
-      callbacks => {
-          after_parse  => sub { say "AFTER PARSE";  }, # first
-          after_in     => sub { say "AFTER IN";     }, # second
-          on_in        => sub { say "ON IN";        }, # third
-          },
-      );
+     callbacks => {
+         after_parse  => { say "AFTER PARSE";  }, # first
+         after_in     => { say "AFTER IN";     }, # second
+         on_in        => { say "ON IN";        }, # third
+         },
+     );
 
  csv(in        => $aoh,
-      out       => "file.csv",
-      callbacks => {
-          on_in        => sub { say "ON IN";        }, # first
-          before_out   => sub { say "BEFORE OUT";   }, # second
-          before_print => sub { say "BEFORE PRINT"; }, # third
-          },
-      );
+     out       => "file.csv",
+     callbacks => {
+         on_in        => { say "ON IN";        }, # first
+         before_out   => { say "BEFORE OUT";   }, # second
+         before_print => { say "BEFORE PRINT"; }, # third
+         },
+     );
 
 =over 2
+
+=item filter
+X<filter>
+
+This callback can be used to filter records. It is called just after a new
+record has been scanned. The callback will be invoked with the current
+L</CSV::Row> and should return C<True> for records to accept and C<False>
+for records to reject.
+
+ csv (in => "file.csv", filter => {
+            $^row[2] ~~ /a/ &&  # third field should contain an "a"
+            $^row[4].chars > 4  # length of the 5th field minimal 5
+            });
+
+ csv (in => "file.csv", filter => "not_blank");
+ csv (in => "file.csv", filter => "not_empty");
+ csv (in => "file.csv", filter => "filled");
+
+If the filter is used to I<alter> the content of a field, make sure that
+the sub, block or callable returns true in order not to have that record
+skipped:
+
+ filter => { $^row[1].text .= uc }
+
+will upper-case the second field, and then skip it if the resulting content
+evaluates to false. To always accept, end with truth:
+
+ filter => { $^row[1].text .= uc; 1 }}
+
+B<Predefined filters>
+
+Given a file like (line numbers prefixed for doc purpose only):
+
+ 1:1,2,3
+ 2:
+ 3:,
+ 4:""
+ 5:,,
+ 6:, ,
+ 7:"",
+ 8:" "
+ 9:4,5,6
+
+=over 2
+
+=item not_blank
+=item not-blank
+
+Filter out the blank lines
+
+This filter is a shortcut for
+
+ filter => { $^row.elems > 1 or
+             $^row[0].defined && $^row[0] ne "" or
+             $^row[0].is-quoted }
+
+With the given example, line 2 will be skipped.
+
+=item not_empty
+=item not-empty
+
+Filter out lines where all the fields are empty.
+
+This filter is a shortcut for
+
+ filter => { $^row.first: *.defined && * ne "" }
+
+A space is not regarded being empty, so given the example data, lines 2, 3,
+4, 5, and 7 are skipped.
+
+=item filled
+
+Filter out lines that have no visible data
+
+This filter is a shortcut for
+
+ filter => { $^row.first: *.defined && * ~~ /\S/ }
+
+This filter rejects all lines that I<not> have at least one field that does
+not evaluate to the empty string.
+
+With the given example data, this filter would skip lines 2 through 8.
+
+=back
 
 =item after_in
 X<after_in>
 
 This callback is invoked for each record after all records have been parsed
-but before returning the reference to the caller. The hook is invoked with
-two arguments: the current C<CSV> parser object and a reference to the
-record. The reference can be a reference to a HASH or a reference to an
-ARRAY as determined by the arguments.
+but before returning the reference to the caller.
 
-This callback can also be passed as an attribute without the C<callbacks>
-wrapper.
+This callback can also be passed as an attribute to L</csv> without the
+C<callbacks> wrapper.
 
 =item before_out
 X<before_out>
 
-This callback is invoked for each record before the record is printed. The
-hook is invoked with two arguments: the current C<CSV> parser object and a
-reference to the record. The reference can be a reference to a HASH or a
-reference to an ARRAY as determined by the arguments.
+This callback is invoked for each record before the record is printed.
 
-This callback can also be passed as an attribute without the C<callbacks>
-wrapper.
+This callback can also be passed as an attribute to L</csv> without the
+C<callbacks> wrapper.
 
 =item on_in
 X<on_in>
 
 This callback acts exactly as the L</after_in> or the L</before_out> hooks.
 
-This callback can also be passed as an attribute without the C<callbacks>
-wrapper.
+This callback can also be passed as an attribute to L</csv> without the
+C<callbacks> wrapper.
 
 =back
 
@@ -2153,21 +2244,21 @@ Dumping a database table can be simple as this (TIMTOWTDI):
 
  # using the csv function, streaming with callbacks
  my $sth = $dbh.prepare($sql); $sth.execute;
- csv(out => "foo.csv", in => sub { $sth.fetch            });
- csv(out => "foo.csv", in => sub { $sth.fetchrow_hashref });
+ csv(out => "foo.csv", in => { $sth.fetch            });
+ csv(out => "foo.csv", in => { $sth.fetchrow_hashref });
 
 Note that this does not discriminate between "empty" values and NULL-values
 from the database, as both will be the same empty field in CSV. To enable
 distinction between the two, use L<C<quote_empty>|/quote_empty>.
 
- csv(out => "foo.csv", in => sub { $sth.fetch }, :quote_empty);
+ csv(out => "foo.csv", in => { $sth.fetch }, :quote_empty);
 
 If the database import utility supports special sequences to insert C<NULL>
 values into the database, like MySQL/MariaDB supports C<\N>, use a filter
 or a map
 
- csv(out => "foo.csv", in => sub { $sth.fetch },
-                    on_in => sub { $_ //= "\\N" for @$_[1] }); # WIP
+ csv(out => "foo.csv", in => { $sth.fetch },
+                    on_in => { $_ //= "\\N" for @$_[1] }); # WIP
 
  while (my @row = $sth.fetch) {
      $csv.print($fh, @row.map({ * // "\\N" }));
@@ -2180,7 +2271,7 @@ CSV generated like this, but map and filter are your friends again
      $sth.execute(@row.map({ $_ eq "\\N" ?? Nil !! $_ }));
      }
 
- csv(in => "foo.csv", filter => { 1 => sub {
+ csv(in => "foo.csv", filter => { 1 => {
      $sth.execute(@{$_[1]}.map({ $_ eq "\\N" ?? Nil !! $_ }); False; }});
 
 =head2 The examples folder

@@ -4,7 +4,7 @@ use v6.c;
 use Slang::Tuxic;
 use File::Temp;
 
-my $VERSION = "0.004";
+my $VERSION = "0.005";
 
 my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
 
@@ -261,6 +261,10 @@ class CSV::Field {
         $!text;
         }
 
+    method chars {
+        $!text.chars;
+        }
+
     method Buf {
         Buf.new ($!text.encode ("utf8-c8").list);
         }
@@ -333,6 +337,12 @@ class CSV::Field {
         $!is_missing;
         }
 
+    method is-quoted ()  returns Bool { $.is_quoted; }
+    method is-binary ()  returns Bool { self.is_binary; }
+    method is-utf8 ()    returns Bool { self.is_utf8; }
+    method is-missing () returns Bool { self.is_missing; }
+
+    method set-quoted ()              { self.set_quoted; }
     } # CSV::Field
 
 class Text::CSV { ... }
@@ -350,6 +360,8 @@ class CSV::Row does Iterable does Positional does Associative {
     method AT-KEY (Str $k) { %($!csv.column_names Z=> @!fields){$k}; }
     method strings ()      { @!fields».Str; }
     method AT-POS (int $i) { @!fields.AT-POS ($i); }
+    method elems           { @!fields.elems; }
+    method splice (*@args) { @!fields.splice (@args); }
 
     multi method push (CSV::Field $f) { @!fields.push: $f; }
     multi method push (Cool       $f) { @!fields.push: CSV::Field.new ($f); }
@@ -679,6 +691,13 @@ class Text::CSV {
         @!cnames;
         }
 
+    my %predef-hooks =
+        not_blank => { $^row.elems > 1 or $^row[0].defined && $^row[0] ne "" or $^row[0].is-quoted },
+        not_empty => { $^row.first: *.defined && * ne ""   },
+        filled    => { $^row.first: *.defined && * ~~ /\S/ };
+    %predef-hooks<not-blank> = %predef-hooks<not_blank>;
+    %predef-hooks<not-empty> = %predef-hooks<not_empty>;
+
     method callbacks (*@cb is copy) {
         if (@cb.elems == 1) {
             my $b = @cb[0];
@@ -699,7 +718,11 @@ class Text::CSV {
             }
         if (@cb.elems) {
             my %hooks;
-            for @cb -> $name, $hook {
+            for @cb -> $name, $callback {
+                my $hook = $callback;
+                $hook.defined && $hook ~~ Str && %predef-hooks{$hook}.defined and
+                    $hook = %predef-hooks{$hook};
+
                 $name.defined &&  $name ~~ Str     &&
                 $hook.defined && ($hook ~~ Routine || $hook ~~ Callable) or
                     self!fail (1004);

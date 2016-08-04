@@ -49,23 +49,69 @@ ok ($csv.callbacks ("after_parse", &Unshf), "Unshf ap cb");
 is-deeply ([$csv.getline ("1,2").map (~*)], ["0","1","2"], "Parse unshifting cb");
 
 my $fh = open $tfn, :w;
-$fh.say ("1,a");
-$fh.say ("2,b");
-$fh.say ("3,c");
-$fh.say ("4,d");
-$fh.say ("5,e");
-$fh.say ("6,f");
-$fh.say ("7,g");
+$fh.say: "1,a";
+$fh.say: "2,b";
+$fh.say: "3,c";
+$fh.say: "4,d";
+$fh.say: "5,e";
+$fh.say: "6,f";
+$fh.say: "7,g";
 $fh.close;
 
 $fh = open $tfn, :r;
-
 sub Filter (CSV::Row $r) returns Bool { +$r[0] % 2 && $r[1] ~~ /^ <[abcd]> / ?? True !! False };
 $csv = Text::CSV.new;
 ok ($csv.callbacks ("filter", &Filter), "Add filer");
 ok ((my @r = $csv.getline_all ($fh)), "Fetch all with filter");
 for @r -> @f { $_ = ~$_ for @f; }
 is-deeply (@r, [["1","a"],["3","c"]], "Filtered content");
+$fh.close;
+
+$fh = open $tfn, :w;
+$fh.say: '1,2,3';  # 1
+$fh.say: '';       # 2
+$fh.say: ',';      # 3
+$fh.say: '""';     # 4
+$fh.say: ',,';     # 5
+$fh.say: ', ,';    # 6
+$fh.say: '"",';    # 7
+$fh.say: '" "';    # 8
+$fh.say: '4,5,6';  # 9
+$fh.close;
+
+$fh = open $tfn, :r;
+$csv = Text::CSV.new;
+ok ($csv.callbacks ("filter", "not_blank"), "Add filer not_blank");
+ok ((@r = $csv.getline_all ($fh)), "Fetch all with filter");
+for @r -> @f { $_ = ~$_ for @f; }
+is-deeply (@r, [["1", "2", "3"], ["", ""], [""], ["", "", ""], ["", " ", ""],
+                ["", ""], [" "], ["4", "5", "6"]], "Filtered content");
+$fh.close;
+
+$fh = open $tfn, :r;
+$csv = Text::CSV.new;
+ok ($csv.callbacks ("filter", "not_empty"), "Add filer not_empty");
+ok ((@r = $csv.getline_all ($fh)), "Fetch all with filter");
+for @r -> @f { $_ = ~$_ for @f; }
+is-deeply (@r, [["1", "2", "3"], ["", " ", ""], [" "],
+                ["4", "5", "6"]], "Filtered content");
+$fh.close;
+$fh = open $tfn, :r;
+$csv = Text::CSV.new;
+ok ($csv.callbacks ("filter", "not-empty"), "Add filer not-empty");
+ok ((@r = $csv.getline_all ($fh)), "Fetch all with filter");
+for @r -> @f { $_ = ~$_ for @f; }
+is-deeply (@r, [["1", "2", "3"], ["", " ", ""], [" "],
+                ["4", "5", "6"]], "Filtered content");
+$fh.close;
+
+$fh = open $tfn, :r;
+$csv = Text::CSV.new;
+ok ($csv.callbacks ("filter", "filled"), "Add filer filled");
+ok ((@r = $csv.getline_all ($fh)), "Fetch all with filter");
+for @r -> @f { $_ = ~$_ for @f; }
+is-deeply (@r, [["1", "2", "3"], ["4", "5", "6"]], "Filtered content");
+$fh.close;
 
 unlink $tfn;
 
