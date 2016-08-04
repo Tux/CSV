@@ -1848,7 +1848,7 @@ If C<headers> is an anonymous list, the entries in the list will be used
 instead
 
  my $aoh = csv(in => $fh, headers => [qw( Foo Bar )]);
- csv(in => $aoa, out => $fh, headers => [qw( code description price }]);
+ csv(in => $aoa, out => $fh, headers => [< code description price >]);
 
 =head3 key
 X<key>
