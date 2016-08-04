@@ -2090,7 +2090,7 @@ Filter out lines where all the fields are empty.
 
 This filter is a shortcut for
 
- filter => { $^row.first: *.defined && * ne "" }
+ filter => { $^row.first: { .defined && $_ ne ""   }}
 
 A space is not regarded being empty, so given the example data, lines 2, 3,
 4, 5, and 7 are skipped.
@@ -2101,7 +2101,7 @@ Filter out lines that have no visible data
 
 This filter is a shortcut for
 
- filter => { $^row.first: *.defined && * ~~ /\S/ }
+ filter => { $^row.first: { .defined && $_ ~~ /\S/ }}
 
 This filter rejects all lines that I<not> have at least one field that does
 not evaluate to the empty string.
