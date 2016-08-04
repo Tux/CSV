@@ -693,8 +693,8 @@ class Text::CSV {
 
     my %predef-hooks =
         not_blank => { $^row.elems > 1 or $^row[0].defined && $^row[0] ne "" or $^row[0].is-quoted },
-        not_empty => { $^row.first: *.defined && * ne ""   },
-        filled    => { $^row.first: *.defined && * ~~ /\S/ };
+        not_empty => { $^row.first: { .defined && $_ ne ""   }},
+        filled    => { $^row.first: { .defined && $_ ~~ /\S/ }};
     %predef-hooks<not-blank> = %predef-hooks<not_blank>;
     %predef-hooks<not-empty> = %predef-hooks<not_empty>;
 
