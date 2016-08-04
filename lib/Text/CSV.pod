@@ -59,7 +59,7 @@ But you still have the problem that you have to pass a correct line to the
 L</parse> method, which is more complicated from the usual point of usage:
 
  my $csv = Text::CSV.new;
- for lines() : eager {		#  WRONG!
+ for lines() : eager {          #  WRONG!
      $csv.parse($_);
      my @fields = $csv.fields;
      }
@@ -614,7 +614,7 @@ is equivalent to
      allow_unquoted_escape => False,
      always_quote          => False,
      quote_space           => True,
-     quote_null	           => True,
+     quote_null            => True,
      quote_binary          => True,
      keep_meta             => False,
      verbatim              => False,
@@ -1833,22 +1833,82 @@ X<headers>
 If this attribute is not given, the default behavior is to produce an array
 of arrays.
 
-If C<headers> is supplied, it should be either an anonymous list of column
-names or a flag: C<auto> or C<skip>. When C<skip> is used, the header will
-not be included in the output.
+If C<headers> is supplied, it should be an Array of column names, a Hash, a
+Callable, or a literal flag: C<auto>, C<lc>, C<uc>, or C<skip>.
+
+=over 2
+
+=item skip
+
+When C<skip> is used, the header will not be included in the output.
 
  my $aoa = csv(in => $fh, headers => "skip");
+
+=item auto
 
 If C<auto> is used, the first line of the C<CSV> source will be read as the
 list of field headers and used to produce an array of hashes.
 
  my $aoh = csv(in => $fh, headers => "auto");
 
-If C<headers> is an anonymous list, the entries in the list will be used
-instead
+=item lc
 
- my $aoh = csv(in => $fh, headers => [qw( Foo Bar )]);
- csv(in => $aoa, out => $fh, headers => [< code description price >]);
+If C<lc> is used, the first line of the C<CSV> source will be read as the
+list of field headers mapped to lower case and used to produce an array of
+hashes. This is a variation of C<auto>.
+
+ my $aoh = csv(in => $fh, headers => "lc");
+
+=item uc
+
+If C<uc> is used, the first line of the C<CSV> source will be read as the
+list of field headers mapped to upper case and used to produce an array of
+hashes. This is a variation of C<auto>.
+
+ my $aoh = csv(in => $fh, headers => "uc");
+
+=item Callable
+
+If a Callable is used, the first line of the C<CSV> source will be read as
+the list of mangled field headers in which each field is passed as the only
+argument to the coderef. This list is used to produce an array of hashes.
+
+ my $i = 0;
+ my $aoh = csv(in => $fh, headers => { $^h.lc ~ $i++ });
+
+this example is a variation of using C<lc> where all headers are forced to
+be unique by adding an index.
+
+=item ARRAY
+
+If  C<headers> is an Array, the entries in the list will be used as field
+names. The first line is considered data instead of headers.
+
+ my $aoh = csv(in => $fh, headers => [< Foo Bar >]);
+
+=item HASH
+
+If C<headers> is a Hash, this implies C<auto>, but header fields for that
+exist as key in the Hash will be replaced by the value for that key. Given
+a CSV file like
+
+ post-kode,city,name,id number,fubble
+ 1234AA,Duckstad,Donald,13,"X313DF"
+
+using
+
+ csv (headers => %{ "post-kode" => "pc", "id number" => "ID" }, ...
+
+will return an entry like
+
+ { pc     => "1234AA",
+   city   => "Duckstad",
+   name   => "Donald",
+   ID     => "13",
+   fubble => "X313DF",
+   }
+
+=back
 
 =head3 key
 X<key>

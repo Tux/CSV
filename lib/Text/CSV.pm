@@ -659,7 +659,7 @@ class Text::CSV {
                    Array :$sep-set            = [< , ; >],
                    Any   :$munge-column-names = "fc",
                    Bool  :$set-column-names   = True) {
-        my Str $hdr = $fh.get         or  self!fail (1010);
+        my Str $hdr = $fh.get           or  self!fail (1010);
 
         # Determine separator conflicts
         my %sep = $hdr.comb.Bag{$sep-set.list}:kv;
@@ -1711,26 +1711,26 @@ class Text::CSV {
         # Find the correct spots to invoke $on-in and $before-out
 
         given $headers {
-            when Array {
+            when Array:D {
                 self.column_names ($headers.list);
                 }
-            when "auto" {
+            when Callable:D | Hash:D | Str:D {
+                my $hdr;
                 if ($io-in ~~ IO and $io-in.defined) {
-                    my $hdr = self.getline ($io-in, :!meta);
-                    self.column_names ($hdr.list);
+                    $hdr = self.getline ($io-in, :!meta);
                     }
                 elsif (@in.elems) {
-                    my $hdr = @in.shift;
-                    self.column_names ($hdr.list);
+                    $hdr = @in.shift;
                     }
-                $io-out.defined and self.say ($io-out, @!cnames);
-                }
-            when "skip" {
-                if ($io-in ~~ IO and $io-in.defined) {
-                    self.getline ($io-in, :!meta);
-                    }
-                elsif (@in.elems) {
-                    @in.shift;
+                unless ($headers ~~ Str && $headers eq "skip") {
+                    if ($hdr.defined) {
+                           if $headers ~~ Callable { $_  = $headers($_)       for @$hdr }
+                        elsif $headers ~~ Hash     { $_  = $headers{$_} // $_ for @$hdr }
+                        elsif $headers eq "uc"     { $_ .= uc                 for @$hdr }
+                        elsif $headers eq "lc"     { $_ .= lc                 for @$hdr }
+                        self.column_names ($hdr.list);
+                        }
+                    $io-out.defined and self.say ($io-out, @!cnames);
                     }
                 }
             }
