@@ -1079,6 +1079,20 @@ of file.
 If the last L</parse> or L</getline> finished just before end of file, the
 B<next> L</parse> or L</getline> will fail and set C<eof>.
 
+That implies that if you are I<not> using L</auto-diag>, an idiom like
+
+ while (my @row = $csv.getline ($fh)) {
+     # ...
+     }
+ $csv.eof or $csv.error_diag;
+
+will I<not> report the error. You would have to change that to
+
+ while (my @row = $csv.getline ($fh)) {
+     # ...
+     }
+ $csv.error_diag.error and $csv.error_diag;
+
 =head2 types
 X<types>
 
