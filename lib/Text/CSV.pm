@@ -4,7 +4,7 @@ use v6.c;
 use Slang::Tuxic;
 use File::Temp;
 
-my $VERSION = "0.005";
+my $VERSION = "0.006";
 
 my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
 
@@ -362,6 +362,7 @@ class CSV::Row does Iterable does Positional does Associative {
     method AT-POS (int $i) { @!fields.AT-POS ($i); }
     method elems           { @!fields.elems; }
     method splice (*@args) { @!fields.splice (@args); }
+    method keys ()         { $!csv.column_names; }
 
     multi method push (CSV::Field $f) { @!fields.push: $f; }
     multi method push (Cool       $f) { @!fields.push: CSV::Field.new ($f); }
@@ -658,7 +659,8 @@ class Text::CSV {
     method header (IO     $fh,
                    Array :$sep-set            = [< , ; >],
                    Any   :$munge-column-names = "fc",
-                   Bool  :$set-column-names   = True) {
+                   Bool  :$set-column-names   = True,
+                   Bool  :$detect-bom         = True) { # unused for now
         my Str $hdr = $fh.get           or  self!fail (1010);
 
         # Determine separator conflicts
@@ -1523,6 +1525,11 @@ class Text::CSV {
         %args<enc >.defined and $encoding ||= %args<enc>  :delete;
         $fragment //= "";
 
+        if ($encoding.defined && $encoding eq "auto") {
+            %args<detect-bom> = True;
+            $encoding = Str;
+            }
+
         my $skip = %args<skip> :delete || 0 and
             self.rowrange (++$skip ~ "-*");
 
@@ -1533,9 +1540,10 @@ class Text::CSV {
         #   filter
         #   error
         #   on_in       on-in
-        my Routine $on-in;
-        my Routine $before-out;
+        my Callable $on-in;
+        my Callable $before-out;
         my %hooks;
+        my %hdrargs;
         if (my $c = %args<callbacks> :delete) {
             if ($c.defined) {
                 $c ~~ Hash or self!fail (1004);
@@ -1568,6 +1576,23 @@ class Text::CSV {
                 }
             if ($k.lc eq "error") {
                 %hooks<error>        = %args{$k} :delete;
+                next;
+                }
+
+            if ($k.lc ~~ m{^ [ "detect" <[-_]> ]? "bom"         $}) {
+                %hdrargs<detect-bom>         = %args{$k} :delete;
+                next;
+                }
+            if ($k.lc ~~ m{^ "sep" [ <[-_]> "set" || "s" ]      $}) {
+                %hdrargs<sep-set>            = %args{$k} :delete;
+                next;
+                }
+            if ($k.lc ~~ m{^ "munge" [ <[-_]> "column" <[-_]> "names" ]? $}) {
+                %hdrargs<munge-column-names> = %args{$k} :delete;
+                next;
+                }
+            if ($k.lc ~~ m{^ "set" <[-_]> "column" <[-_]> "names" $}) {
+                %hdrargs<set-column-names>   = %args{$k} :delete;
                 next;
                 }
             }
@@ -1670,6 +1695,15 @@ class Text::CSV {
                 }
             }
 
+        if (%hdrargs and $io-in) {
+            if ($headers.defined) {
+                %hdrargs<munge-column-names> = "none";
+                %hdrargs<set-column-names>   = False;
+                }
+            self.header ($io-in, |%hdrargs);
+            @!cnames.elems and $headers = @!cnames;
+            }
+
         my IO  $io-out;
         my Str $tmpfn;
         # out
@@ -1746,11 +1780,14 @@ class Text::CSV {
             @h = @!cnames.elems ?? @!cnames !! @in.shift.list;
         unless (?$out || ?$tmpfn) {
             if ($out ~~ Hash or @h.elems) {
+                # AOH
                 @h or return [];
-                @in.elems && @in[0] ~~ Hash and
-                    return @in; # Headers already dealt with
-                return [ @in.map (-> @r { $%( @h Z=> @r ) }) ];
+                @in.elems && @in[0] ~~ Hash or @in = @in.map (-> @r { $%( @h Z=> @r ) });
+                $key && @in[0]{$key}.defined and
+                    return $%( @in.map ({ %^h{$key} => %^h }) );
+                return @in;
                 }
+            # AOA
             return @in;
             }
 
