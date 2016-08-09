@@ -1596,6 +1596,10 @@ class Text::CSV {
                 next;
                 }
             }
+        if ($on-in && !%hooks<after_parse>) {
+            %hooks<after_parse> = $on-in;
+            $on-in = Callable;
+            }
         %hooks.keys and self.callbacks (|%hooks.list);
 
         # Rest is for Text::CSV
