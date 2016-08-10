@@ -1525,9 +1525,14 @@ class Text::CSV {
         %args<enc >.defined and $encoding ||= %args<enc>  :delete;
         $fragment //= "";
 
+        # Indirect options to invoke headers
         if ($encoding.defined && $encoding eq "auto") {
             %args<detect-bom> = True;
             $encoding = Str;
+            }
+        if ($headers ~~ Bool && ?$headers) {
+            %args<detect-bom> //= True;
+            $headers = Any;
             }
 
         my $skip = %args<skip> :delete || 0 and
