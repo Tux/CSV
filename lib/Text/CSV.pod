@@ -1849,7 +1849,7 @@ L<C<detect-bom>|/detect-bom>.
 X<detect-bom>
 X<detect_bom>
 
-NYI for vaious reasons. Also see L</is-binary>
+NYI for various reasons. Also see L</is-binary>
 
 If C<detect-bom> is given, the method L</header> will be invoked on the
 opened stream to check if there is a BOM and set the encoding accordingly.
