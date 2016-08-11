@@ -127,10 +127,13 @@ for (@test) {
     print $eh  "\n";
     close $eh; END { unlink "empty.csv"; }
 
+    my $PATH = $ENV{PATH};
+    $modules =~ m/Inline::Perl5/ and substr $ENV{PATH}, 0, 0, "/usr/bin:";
 		    runfrom ($v, $script, "empty.csv");
 		    runfrom ($v, $script, "empty.csv");
     my ($start)   = runfrom ($v, $script, "empty.csv");
     my ($run, $i) = runfrom ($v, $script, "/tmp/hello.csv");
+    $ENV{PATH} = $PATH;
 
     my $s = sprintf "%s %6d %9.3f %9.3f", $i eq 50000 ? "   " : "***", $i,
 	$run, $run - $start;
