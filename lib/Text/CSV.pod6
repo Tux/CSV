@@ -2085,6 +2085,7 @@ values returned by L</error_diag>:
 
 =item after_parse
 X<after_parse>
+X<after-parse>
 
  sub add-new (CSV::Row $r) { $r.fields.push: "NEW"; }
  $csv.callbacks(after_parse => &add-new);
@@ -2110,6 +2111,7 @@ The return code of the callback is ignored.
 
 =item before_print
 X<before_print>
+X<before-print>
 
  my $idx = 1;
  $csv.callbacks(before_print => { $^row[0] = $idx++ });
@@ -2244,6 +2246,7 @@ With the given example data, this filter would skip lines 2 through 8.
 
 =item after_in
 X<after_in>
+X<after-in>
 
 This callback is invoked for each record after all records have been parsed
 but before returning the reference to the caller.
@@ -2253,6 +2256,7 @@ C<callbacks> wrapper.
 
 =item before_out
 X<before_out>
+X<before-out>
 
 This callback is invoked for each record before the record is printed.
 
@@ -2261,6 +2265,7 @@ C<callbacks> wrapper.
 
 =item on_in
 X<on_in>
+X<on-in>
 
 This callback acts exactly as the L</after_in> or the L</before_out> hooks.
 
@@ -2483,7 +2488,7 @@ method. Besides that, not all encodings are supported in perl6.
 The L</on-in> callback currently is an alias for L</after-parse> if the
 latter is not specified.
 
-=item Exmaples
+=item Examples
 
 Convert the perl5 example/tool files to perl6 versions
 
