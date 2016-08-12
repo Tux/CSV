@@ -9,7 +9,7 @@ test:
 	pod-spell-check --aspell --ispell Text-CSV.pod
 	prove -j4 -e 'perl6 -I. -Ilib' t
 
-tt:     test time
+tt:     test time html
 
 test-verbose:	Text/CSV.pm
 	perl6 -Ilib t/10_base.t
@@ -48,6 +48,9 @@ check:
 time:
 	perl time.pl
 	rm -rf /tmp/*-p5helper.so
+
+html:
+	test -d ../Talks/CSVh && pod2html Text-CSV.pod >../Talks/CSVh/pod6.html 2>/dev/null
 
 opencsv-2.3.jar:
 	test -f opencsv-2.3.jar || wget -q http://www.java2s.com/Code/JarDownload/opencsv/opencsv-2.3.jar.zip

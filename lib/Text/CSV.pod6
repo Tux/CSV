@@ -2418,31 +2418,20 @@ The following files can be found there:
 
 =over 2
 
-=item parser-xs.pl
-X<parser-xs.pl>
-
-This can be used as a boilerplate to parse invalid C<CSV> and parse beyond
-(expected) errors alternative to using the L</error> callback.
-
- $ perl examples/parser-xs.pl bad.csv >good.csv
-
 =item csv-check
 X<csv-check>
 
-This is a command-line tool that uses parser-xs.pl techniques to check the
-C<CSV> file and report on its content.
+This is a command-line tool to check the C<CSV> file and report on its
+content.
 
- $ csv-check files/utf8.csv
- Checked with examples/csv-check 1.5 using Text::CSV 0.81
- OK: rows: 1, columns: 2
-     sep = <,>, quo = <">, bin = <1>
+TODO
 
 =item csv2xls
 X<csv2xls>
 
-A script to convert C<CSV> to Microsoft Excel. This requires L<Date::Calc>
-and L<Spreadsheet::WriteExcel>. The converter accepts various options and
-can produce UTF-8 Excel files.
+A script to convert C<CSV> to Microsoft Excel.
+
+TODO
 
 =item csvdiff
 X<csvdiff>
@@ -2451,18 +2440,13 @@ A script that provides colorized diff on sorted CSV files, assuming first
 line is header and first field is the key. Output options include colorized
 ANSI escape codes or HTML.
 
- $ csvdiff --html --output=diff.html file1.csv file2.csv
+TODO
 
 =back
 
 ################################################################################
 
 =head1 CAVEATS
-
-Text::CSV is I<not> designed to detect the characters used to quote and
-separate fields. The parsing is done using predefined (default) settings.
-In the examples sub-directory you can find scripts that demonstrate how
-you could try to detect these characters yourself.
 
 =head2 Microsoft Excel
 
@@ -2498,6 +2482,10 @@ method. Besides that, not all encodings are supported in perl6.
 
 The L</on-in> callback currently is an alias for L</after-parse> if the
 latter is not specified.
+
+=item Exmaples
+
+Convert the perl5 example/tool files to perl6 versions
 
 =item Metadata and CSV for the web
 
@@ -2837,6 +2825,8 @@ L<Text::CSV::Slurp>, L<Spreadsheet::CSV> and L<Spreadsheet::Read>;
 
 H.Merijn Brand F<E<lt>h.m.brand@xs4all.nlE<gt>> wrote this based on the
 features provided by perl5's Text::CSV_XS.
+
+Liz Mattijsen helped in getting the best out of perl6.
 
 =head1 COPYRIGHT AND LICENSE
 
