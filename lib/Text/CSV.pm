@@ -315,10 +315,10 @@ class CSV::Field {
         !$!text.defined || $!text eq "" and
             return; # Default is False for both
 
-        $!text ~~ m{^ <[ \x09, \x20 .. \x7E ]>+ $} or
+        $!text ~~ m:m{^ <[ \x09, \x20 .. \x7E ]>+ $} or
             $!is_binary = True;
 
-        $!text ~~ m{^ <[ \x00       .. \x7F ]>+ $} or
+        $!text ~~ m:m{^ <[ \x00       .. \x7F ]>+ $} or
             $!is_utf8   = True;
         }
 
