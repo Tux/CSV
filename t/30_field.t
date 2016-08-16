@@ -9,10 +9,10 @@ use Text::CSV;
 my CSV::Field $f .= new;      # Undefined
 is (?$f,          False,      "Undefined in Boolean context");
 my $n = +$f;
-is ($n.WHICH,     "Num",      "Undefined in Numeric context type");
+ok ($n ~~ Num,                "Undefined in Numeric context type");
 is ($n.defined,   False,      "Undefined in Numeric context defined");
 my $s = ~$f;
-is ($s.WHICH,     "Str",      "Undefined in String  context type");
+ok ($s ~~ Str,                "Undefined in String  context type");
 is ($s.defined,   False,      "Undefined in String  context defined");
 is ($f.gist,      "<undef>",  "Undefined as gist");
 
