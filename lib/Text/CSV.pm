@@ -73,7 +73,7 @@ my %errors =
 
 sub progress (*@y) {
     my Str $x;
-    my @x = @y.map (*.Str);
+    my @x = @y.map ( -> \x --> Str { x.Str } );
     my $line = callframe (1).annotations<line>;
     for (@x) {
         s{^(\d+)$}   = sprintf "%3d -", $_;
@@ -120,7 +120,7 @@ class IO::String is IO::Handle {
         if (my Str $str = @what.join ("")) {
             my Str @x = $str eq "" || !$.nl-in.defined
                 ??  $str
-                !! |$str.split ($.nl-in, :v).map (-> $a, $b? { $a ~ ($b // "") });
+                !! |$str.split ($.nl-in, :v).map (-> $a, $b? --> Str { $a ~ ($b // "") });
             @x.elems > 1 && @x.tail eq "" and @x.pop;
             @!content.push: |@x;
             }
@@ -351,7 +351,7 @@ class CSV::Row does Iterable does Positional does Associative {
     has Text::CSV  $.csv;
     has CSV::Field @.fields;
 
-    multi method new (@f)  { @!fields = @f.map ({ CSV::Field.new (*) }); }
+    multi method new (@f)  { @!fields = @f.map ( -> \x --> CSV::Field { CSV::Field.new (x) }); }
 
     method Str ()          { $!csv ?? $!csv.string (@!fields) !! Str; }
     method iterator ()     { @.fields.iterator; }
@@ -689,7 +689,7 @@ class Text::CSV {
     multi method column_names (Any:U) returns Array[Str] { @!cnames = (); }
     multi method column_names (0)     returns Array[Str] { @!cnames = (); }
     multi method column_names (*@c)   returns Array[Str] {
-        @c.elems and @!cnames = @c.map (*.Str);
+        @c.elems and @!cnames = @c.map ( *.Str );
         @!cnames;
         }
 
@@ -1448,7 +1448,7 @@ class Text::CSV {
             !%!callbacks<filter>.defined ||
                 %!callbacks<filter>.(CSV::Row.new (csv => self, @f)) or next;
 
-            my @row = $meta ?? @f !! @f.map (*.Str);
+                my @row = $meta ?? @f !! @f.map ( -> \x --> Str { x.Str });
             if (@!cnames.elems) {
                 my %h = @!cnames Z=> @row;
                 @lines.push: $%h;
@@ -1652,7 +1652,7 @@ class Text::CSV {
                     }
                 }
             when Capture {
-                $io-in = IO::String.new ($in.list.map (*.Str).join ($!eol // "\n"));
+                $io-in = IO::String.new ($in.list.map ( -> \x --> Str { x.Str }).join ($!eol // "\n"));
                 }
             when Supply {
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
@@ -1793,7 +1793,7 @@ class Text::CSV {
                 @h or return [];
                 @in.elems && @in[0] ~~ Hash or @in = @in.map (-> @r { $%( @h Z=> @r ) });
                 $key && @in[0]{$key}.defined and
-                    return $%( @in.map ({ %^h{$key} => %^h }) );
+                    return $%( @in.map ( -> \h --> Pair { h{$key} => h }) );
                 return @in;
                 }
             # AOA
@@ -1805,7 +1805,7 @@ class Text::CSV {
         for @in -> $row {
             $!csv-row.fields = $row[0] ~~ CSV::Field
                 ?? $row
-                !! $row.map ({ CSV::Field.new.add ($_.Str); });
+                !! $row.map ( -> \x --> CSV::Field { CSV::Field.new.add (x.Str); });
             my @row = $meta ?? self.fields !! self.strings;
             my $r = (@h.elems == 0 || @row[0] ~~ Hash)
                 ?? @row
