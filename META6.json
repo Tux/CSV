@@ -6,7 +6,7 @@
   "authors"      : [ "H.Merijn Brand (Tux)"       ],
   "tags"         : [ "CSV"                        ],
   "depends"      : [ "Slang::Tuxic", "File::Temp" ],
-  "test-depends" : [ "Test"                       ],
+  "test-depends" : [ "Test", "Test::META"         ],
   "provides"     : {
     "Text::CSV"  : "lib/Text/CSV.pm"
     },
