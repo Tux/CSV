@@ -47,7 +47,6 @@ check:
 
 time:
 	perl time.pl
-	rm -rf /tmp/*-p5helper.so
 
 html:
 	test -d ../Talks/CSVh && pod2html Text-CSV.pod >../Talks/CSVh/pod6.html 2>/dev/null

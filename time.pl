@@ -222,6 +222,10 @@ EOF
     close $fh;
     }
 
+if (my @so = glob "/tmp/*-p5helper.so") {
+    unlink @so;
+    }
+
 if ($run_speed) {
     chdir "../Talks/CSV6";
     exec "perl speed.pl >/dev/null 2>&1";
