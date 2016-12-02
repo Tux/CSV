@@ -689,7 +689,7 @@ class Text::CSV {
     multi method column_names (Any:U) returns Array[Str] { @!cnames = (); }
     multi method column_names (0)     returns Array[Str] { @!cnames = (); }
     multi method column_names (*@c)   returns Array[Str] {
-        @c.elems and @!cnames = @c.map ( *.Str );
+        @c.elems and @!cnames = @c.map (*.Str);
         @!cnames;
         }
 
@@ -1448,7 +1448,7 @@ class Text::CSV {
             !%!callbacks<filter>.defined ||
                 %!callbacks<filter>.(CSV::Row.new (csv => self, @f)) or next;
 
-                my @row = $meta ?? @f !! @f.map ( -> \x --> Str { x.Str });
+            my @row = $meta ?? @f !! @f.map ( -> \x --> Str { x.Str });
             if (@!cnames.elems) {
                 my %h = @!cnames Z=> @row;
                 @lines.push: $%h;
