@@ -489,7 +489,7 @@ class Text::CSV {
         $!always_quote          = False;
         $!quote_empty           = False;
         $!quote_space           = True;
-        $!quote_null            = True;
+        $!quote_null            = False;
         $!quote_binary          = True;
 
         $!errno                 = 0;

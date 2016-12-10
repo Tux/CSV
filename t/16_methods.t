@@ -21,7 +21,7 @@ is ($csv.sep,                   ",",    "sep");
 is ($csv.eol,                   Str,    "eol");
 is ($csv.always_quote,          False,  "always_quote");
 is ($csv.quote_space,           True,   "quote_space");
-is ($csv.escape_null,           True,   "escape_null");
+is ($csv.escape_null,           False,  "escape_null");
 is ($csv.quote_binary,          True,   "quote_binary");
 is ($csv.binary,                True,   "binary");
 is ($csv.allow_loose_quotes,    False,  "allow_loose_quotes");
