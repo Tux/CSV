@@ -182,12 +182,20 @@ ok ($csv.parse ("foo,foo\0bar"),        "parse (foo)");
     {   $csv = Text::CSV.new (Sep => Str);
         CATCH { default { $e = .error; }}
         }
-    is ($e, 1001, "Sanity check");
+    is ($e, 1008, "Sanity check");
+    {   $csv = Text::CSV.new (Sep => "");
+        CATCH { default { $e = .error; }}
+        }
+    is ($e, 1008, "Sanity check");
     ok ($csv = Text::CSV.new (), "New for undefined Sep");
     {   $csv.sep (Str);
         CATCH { default { $e = .error; }}
         }
-    is ($e, 1001, "Sanity check");
+    is ($e, 1008, "Sanity check");
+    {   $csv.sep ("");
+        CATCH { default { $e = .error; }}
+        }
+    is ($e, 1008, "Sanity check");
     }
 for (" ", "\t") -> $ws {
     my Int $e = 0;

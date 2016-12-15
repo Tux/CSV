@@ -18,6 +18,7 @@ my %errors =
     1002 => "INI - allow_whitespace with escape or quoter SP or TAB",
     1003 => "INI - \r or \n in main attr not allowed",
     1004 => "INI - callbacks should be Hash or undefined",
+    1008 => "INI - SEP undefined",
 
     1010 => "INI - the header is empty",
     1011 => "INI - the header contains more than one valid separator",
@@ -582,7 +583,8 @@ class Text::CSV {
         $!build and return;
 
         #say "Sanity check: S:"~$!sep~" Q:"~($!quo//"<undef>")~" E:"~($!esc//"<undef>")~" WS:"~$!allow_whitespace;
-        $!sep.defined                            or  self!fail (1001);
+        $!sep.defined                            or  self!fail (1008);
+        $!sep eq ""                              and self!fail (1008);
         $!quo.defined and $!quo eq $!sep         and self!fail (1001);
         $!esc.defined and $!esc eq $!sep         and self!fail (1001);
 
