@@ -1,0 +1,23 @@
+[root]
+name = "quick-reader"
+version = "0.0.1"
+dependencies = [
+ "quick-csv 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "quick-csv"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "rustc-serialize"
+version = "0.3.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum quick-csv 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "303d7a32ce9f90979607dc564f4c151c55591926df33e77d0e235d41744b647e"
+"checksum rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)" = "1a48546a64cae47d06885e9bccadb99d0547d877a94c5167fa451ea33a484456"

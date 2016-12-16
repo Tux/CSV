@@ -1,0 +1,15 @@
+[package]
+
+name = "quick-reader"
+version = "0.0.1"
+authors = [ "Johann Tuffe <tafia973@gmail.com>" ]
+
+[[bin]]
+name = "quick-reader"
+
+[dependencies]
+quick-csv = "0.1"
+
+[profile.release]
+opt-level = 3
+lto = true

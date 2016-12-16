@@ -48,6 +48,7 @@ my %lang = (
     13 => [ ".R",   "R",       "--slave -f" ],
     15 => [ "",     "C++"              ],
     16 => [ "",     "java8",   "-cp csv-pi-easy-pp.jar Main /tmp/hello.csv" ],
+    17 => [ "",     "Rust",    "/tmp/hello.csv" ],
     );
 my @test = (
     # lang irc script
@@ -80,13 +81,17 @@ my @test = (
     [ 13, 0, "csv-R"       ],
     [ 12, 0, "csv-java9"   ],
     [ 16, 0, "csv-easy-pp-pi", "Text::CSV::Easy_PP, Perlito" ],
+    [ 17, 0, "csv-rust-csvrdr" ],
+    [ 17, 0, "csv-rust-libcsv" ],
+    [ 17, 0, "csv-rust-qckrdr" ],
     );
 
 sub runfrom {
     my ($v, $script, $file) = @_;
     my ($ext, $exe, @arg) = @{$lang{$v}};
 
-    $exe eq "C" || $exe eq "C++" and $exe = "";
+    $exe eq "Rust" and $exe = $script;
+    $exe eq "C" || $exe eq "C++" || $exe eq "Rust" and $exe = "";
     my $run = join " " => $exe, @arg;
 
     $opt_v > 4 and say "$v / $ext / $exe\t/ $run";

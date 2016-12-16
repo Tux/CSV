@@ -23,6 +23,7 @@ lib/.precomp
 csv-c
 csv-cc
 csv-go
+rust*/target
 
 # Re-enable parts later
 sandbox/
