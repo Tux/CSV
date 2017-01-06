@@ -1,4 +1,24 @@
-https://bitbucket.org/ewanhiggs/csv-game
+In the reports I daily send/sent to the perl6 development channel on IRC,
+the lines I show like
+
+   This is Rakudo version 2016.12-226-gb120ac401 built on MoarVM version 2016.12-68-g1994c6ee
+   csv-ip5xs        3.162
+   test            13.790
+   test-t           5.411
+   csv-parser      14.403
+
+The first line obviously shows the version of Rakudo these tests were run under
+Then there are 4 lines with the method tested followed by the runtime of that
+method in seconds (lower is better)
+
+ csv-ip5xs  : perl6 + Inline::Perl5 + Text::CSV_XS            (perl5 XS)
+ test       : perl6 + an unoptimized early draft of Text::CSV (pure perl6)
+ test-t     : perl6 + the full-featured current Text::CSV     (pure perl6)
+ csv-parser : perl6 + Tony-O's CSV::Parser                    (pure perl6)
+
+The graphs just show the history of test-t
+
+For the speedtests, see https://bitbucket.org/ewanhiggs/csv-game
 
 sh$ for i in $(seq 1 1000000); do echo 'hello,","," ",world,"!"'; done > /tmp/hello.csv
 sh$ time perl csv.pl < /tmp/hello.csv
