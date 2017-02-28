@@ -2835,7 +2835,7 @@ Liz Mattijsen helped in getting the best out of perl6.
 
 =head1 COPYRIGHT AND LICENSE
 
- Copyright (C) 2014-2016 H.Merijn Brand. All rights reserved.
+ Copyright (C) 2014-2017 H.Merijn Brand. All rights reserved.
 
 This library is free software; you can redistribute and/or modify it under
 the same terms as Perl itself.
