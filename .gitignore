@@ -24,6 +24,7 @@ csv-c
 csv-cc
 csv-go
 rust*/target
+.panda-work/*
 
 # Re-enable parts later
 sandbox/
