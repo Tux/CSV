@@ -31,8 +31,8 @@ close    $fh;
 
 my %lang = (
     ##       ext     prog       args
-     0 => [ ".rb",  "ruby1.9",         ],
-     1 => [ ".rb",  "ruby2.0",         ],
+     0 => [ ".rb",  "ruby2.1",         ],
+     1 => [ ".rb",  "ruby2.2",         ],
      2 => [ ".py",  "python2",         ],
      3 => [ ".py",  "python3",         ],
      4 => [ ".php", "php",     "-nq"   ],
