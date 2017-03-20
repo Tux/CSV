@@ -220,6 +220,11 @@ class CellSet {
         method in (Int $row, Int $col) {
             $!row && $!col && $!row.in ($row) && $!col.in ($col);
             }
+
+        method show {
+            say "Row: ", $.row.to_list.perl;
+            say "Col: ", $.col.to_list.perl;
+            }
         }
 
     has CellRange @!cr;
@@ -237,6 +242,12 @@ class CellSet {
             $c.in ($row, $col) and return True;
             }
         False;
+        }
+
+    method show {
+        say "This CellSet contains there ranges:";
+        .show for @!cr;
+        say "-----------------------------------";
         }
     }
 
