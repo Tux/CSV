@@ -698,10 +698,10 @@ class Text::CSV {
         self;
         }
 
-    multi method column_names (False) returns Array[Str] { @!cnames = (); }
-    multi method column_names (Any:U) returns Array[Str] { @!cnames = (); }
-    multi method column_names (0)     returns Array[Str] { @!cnames = (); }
-    multi method column_names (*@c)   returns Array[Str] {
+    multi method column_names (Bool:D $ where *.not) returns Array[Str] { @!cnames = (); }
+    multi method column_names (Any:U)                returns Array[Str] { @!cnames = (); }
+    multi method column_names (0)                    returns Array[Str] { @!cnames = (); }
+    multi method column_names (*@c)                  returns Array[Str] {
         @c.elems and @!cnames = @c.map (*.Str);
         @!cnames;
         }
