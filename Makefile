@@ -11,7 +11,7 @@ test:
 
 tt:     test time html
 
-test-verbose:	Text/CSV.pm
+test-verbose:	lib/Text/CSV.pm
 	perl6 -Ilib t/10_base.t
 	perl6 -Ilib t/12_acc.t
 	perl6 -Ilib t/15_flags.t
