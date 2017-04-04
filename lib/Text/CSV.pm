@@ -416,7 +416,7 @@ class Text::CSV {
     has CSV::Row   $!csv-row;
     has Str        @!ahead;
     has Str        @!cnames;
-    has IO         $!io;
+    has IO::Handle $!io;
     has Bool       $!eof;
     has Int        @!types;
     has Int        @!crange;
@@ -511,7 +511,7 @@ class Text::CSV {
         $!error_message         = "";
         $!record_number         = 0;
 
-        $!io                    = IO;
+        $!io                    = IO::Handle;
         $!eof                   = False;
 
         $!csv-row               = CSV::Row.new (csv => self);
@@ -669,11 +669,11 @@ class Text::CSV {
         }
     method diag_verbose (*@s) returns Int { self!a_bool_int ($!diag_verbose, @s); }
 
-    method header (IO     $fh,
-                   Array :$sep-set            = [< , ; >],
-                   Any   :$munge-column-names = "fc",
-                   Bool  :$set-column-names   = True,
-                   Bool  :$detect-bom         = True) { # unused for now
+    method header (IO::Handle $fh,
+                   Array     :$sep-set            = [< , ; >],
+                   Any       :$munge-column-names = "fc",
+                   Bool      :$set-column-names   = True,
+                   Bool      :$detect-bom         = True) { # unused for now
         my Str $hdr = $fh.get           or  self!fail (1010);
 
         # Determine separator conflicts
@@ -1315,7 +1315,7 @@ class Text::CSV {
         self!row_hr (self.getline ($str, :$meta));
         } # getline_hr
 
-    multi method getline_hr (IO:D $io, Bool :$meta = $!keep_meta) {
+    multi method getline_hr (IO::Handle:D $io, Bool :$meta = $!keep_meta) {
         @!cnames.elems or self!fail (3002);
         self!row_hr (self.getline ($io,  :$meta));
         } # getline_hr
@@ -1328,20 +1328,20 @@ class Text::CSV {
           !! Nil;
         } # getline
 
-    multi method getline (IO:D $io, Bool :$meta = $!keep_meta) {
+    multi method getline (IO::Handle:D $io, Bool :$meta = $!keep_meta) {
         my Bool $chomped = $io.chomp;
         my $nl    = $io.nl-in;
         $!eol.defined and $io.nl-in = $!eol;
         $io.chomp = False;
         $!io      = $io;
         my Bool $status  = self.parse ($io.get // Str);
-        $!io      =  IO;
+        $!io      = IO::Handle;
         $io.nl-in = $nl;
         $io.chomp = $chomped;
         $status ?? $meta ?? self.fields !! self.strings !! ();
         } # getline
 
-    method getline_hr_all (IO:D  $io,
+    method getline_hr_all (IO::Handle:D  $io,
                            Int   $offset =  0,
                            Int   $length = -1,
                            Bool :$meta   = False) {
@@ -1361,11 +1361,11 @@ class Text::CSV {
     # @a = $csv.getline_all ($io);
     # @a = $csv.getline_all ($io, $offset);
     # @a = $csv.getline_all ($io, $offset, $length);
-    method getline_all (IO:D  $io,
-                        Int   $offset is copy =  0,
-                        Int   $length is copy = -1,
-                        Bool :$meta = $!keep_meta,
-                        Bool :$hr   = False) {
+    method getline_all (IO::Handle:D  $io,
+                        Int           $offset is copy =  0,
+                        Int           $length is copy = -1,
+                        Bool         :$meta = $!keep_meta,
+                        Bool         :$hr   = False) {
         my Bool $chomped = $io.chomp;
         my $nl           = $io.nl-in;
         $!eol.defined  and $io.nl-in = $!eol;
@@ -1399,13 +1399,13 @@ class Text::CSV {
             $length >= 0 && @lines.elems > $length and @lines.splice ($length);
             }
 
-        $!io =  IO;
+        $!io      = IO::Handle;
         $io.nl-in = $nl;
         $io.chomp = $chomped;
         @lines;
         }
 
-    method fragment (IO:D $io, Str $spec is copy, Bool :$meta = $!keep_meta) {
+    method fragment (IO::Handle:D $io, Str $spec is copy, Bool :$meta = $!keep_meta) {
 
         $spec.defined && $spec.chars or self!fail (2013);
 
@@ -1470,27 +1470,27 @@ class Text::CSV {
             @lines.push: $[ @row ];
             }
 
-        $!io =  IO;
+        $!io      = IO::Handle;
         $io.nl-in = $nl;
         $io.chomp = $chomped;
         @lines;
         }
 
-    multi method print (IO:D $io, *%p) returns Bool {
+    multi method print (IO::Handle:D $io, *%p) returns Bool {
         @!cnames.elems or self!fail (3009);
         self.print ($io, %p{@!cnames});
         }
 
-    multi method print (IO:D $io,  %c) returns Bool {
+    multi method print (IO::Handle:D $io,  %c) returns Bool {
         @!cnames.elems or self!fail (3009);
         self.print ($io, [ %c{@!cnames} ]);
         }
 
-    multi method print (IO:D $io, Capture $c) returns Bool {
+    multi method print (IO::Handle:D $io, Capture $c) returns Bool {
         self.print ($io, $c.list);
         }
 
-    multi method print (IO:D $io,  @fld) returns Bool {
+    multi method print (IO::Handle:D $io,  @fld) returns Bool {
         self.combine (@fld) or return False;
         my $nl = $io.nl-out;
         $!eol.defined and $io.nl-out = $!eol;
@@ -1499,7 +1499,7 @@ class Text::CSV {
         True;
         }
 
-    multi method print (IO:D $io, *@fld) returns Bool {
+    multi method print (IO::Handle:D $io, *@fld) returns Bool {
         # Temp guard ... I expected *%p sig to be called
         if (@fld[0] ~~ Pair) {
             @!cnames.elems or self!fail (3009);
@@ -1512,7 +1512,7 @@ class Text::CSV {
         self.print ($io, [@fld]);
         }
 
-    method say (IO:D $io, |f) returns Bool {
+    method say (IO::Handle:D $io, |f) returns Bool {
         my $eol = $!eol;
         $!eol ||= "\r\n";
         my Bool $state = self.print ($io, |f);
@@ -1625,7 +1625,7 @@ class Text::CSV {
 
         my @in; # Either AoA or AoH
 
-        my IO $io-in;
+        my IO::Handle $io-in;
         # in
         #   parse
         #     "file.csv"                       Str
@@ -1645,7 +1645,7 @@ class Text::CSV {
             when Str {
                 $io-in = open $in, :r, :!chomp;
                 }
-            when IO {
+            when IO::Handle {
                 $io-in = $in;
                 }
             when Array {
@@ -1726,8 +1726,8 @@ class Text::CSV {
             @!cnames.elems and $headers = @!cnames;
             }
 
-        my IO  $io-out;
-        my Str $tmpfn;
+        my IO::Handle $io-out;
+        my Str        $tmpfn;
         # out
         #   Array       - return AoA (default)
         #   Hash        - return AoH (headers required)
@@ -1743,7 +1743,7 @@ class Text::CSV {
                     ?? (Str, open $out, :w, :!chomp)
                     !! tempfile;
                 }
-            when IO {
+            when IO::Handle {
                 $io-out = $out;
                 }
             when Channel:U {
@@ -1772,7 +1772,7 @@ class Text::CSV {
                 }
             when Callable:D | Hash:D | Str:D {
                 my $hdr;
-                if ($io-in ~~ IO and $io-in.defined) {
+                if ($io-in ~~ IO::Handle and $io-in.defined) {
                     $hdr = self.getline ($io-in, :!meta);
                     }
                 elsif (@in.elems) {
@@ -1791,7 +1791,7 @@ class Text::CSV {
                 }
             }
 
-        if ($io-in ~~ IO and $io-in.defined) {
+        if ($io-in ~~ IO::Handle and $io-in.defined) {
             @in = $fragment
                 ?? self.fragment    ($io-in, :$meta, $fragment)
                 !! self.getline_all ($io-in, :$meta);

@@ -20,7 +20,7 @@ for (|@rs) -> $rs {
 
         for (|@eol) -> $eol {
             for (0, 1) -> $pass {
-                my IO $fh;
+                my IO::Handle $fh;
 
                 if ($pass) {
                     $fh = open $efn, :r;

@@ -19,7 +19,7 @@ for (|@rs) -> $rs {
         for (|@eol) -> $eol {
             $efn = "";
             for (0, 1) -> $pass {
-                my IO $fh;
+                my IO::Handle $fh;
 
                 $fh = IO::String.new ($efn, nl-in => $rs);
                 $fh.nl-out = $ors.defined ?? $ors !! "";
