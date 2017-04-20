@@ -12,7 +12,7 @@
     },
   "repo-type"    : "git",
   "source-url"   : "git://github.com/Tux/CSV.git",
-  "license"      : "http://www.perlfoundation.org/artistic_license_2_0",
+  "license"      : "Artistic-2.0",
   "support"      : {
     "irc"        : "irc://irc.perl.org/#csv"
     }
