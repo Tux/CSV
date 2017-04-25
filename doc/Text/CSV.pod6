@@ -295,6 +295,16 @@ be escaped as C<"0>.) By default this feature is on.
 
 Note that valid Unicode (UTF-8) is not considered binary.
 
+=head3 strict
+X<strict>
+
+ my $csv = Text::CSV.new(:strict);
+           $csv.strict(False);
+ my $flg = $csv.strict;
+
+If set to True, any row that parses to a different number of columns than
+the previous row will cause the parser to throw error 2014.
+
 =item auto_diag
 X<auto_diag>
 
@@ -2016,14 +2026,6 @@ Combining all of them could give something like
      fragment => "row=3;6-9;15-*",
      );
  say @aoh[15]{Foo};
-
-=head3 strict
-X<strict>
-
-NYI
-
-If set to True, any row that parses to a different number of columns than
-the previous row will cause the parser to throw an error;
 
 =head3 sep-set
 X<sep-set>

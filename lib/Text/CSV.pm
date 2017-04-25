@@ -4,7 +4,7 @@ use v6.c;
 use Slang::Tuxic;
 use File::Temp;
 
-my $VERSION = "0.006";
+my $VERSION = "0.007";
 
 my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
 
@@ -30,6 +30,7 @@ my %errors =
     2011 => "ECR - Characters after end of quoted field",
     2012 => "EOF - End of data in parsing input stream",
     2013 => "ESP - Specification error for fragments RFC7111",
+    2014 => "ENF - Inconsistent number of fields",
 
     #  EIQ - Error Inside Quotes
     2021 => "EIQ - NL or EOL inside quotes, binary off",
@@ -392,6 +393,7 @@ class Text::CSV {
     has Str  $!esc;
 
     has Bool $!binary;
+    has Bool $!strict;
     has Bool $!decode_utf8;
     has Bool $!auto_diag;
     has Int  $!diag_verbose;
@@ -421,6 +423,7 @@ class Text::CSV {
     has Int        @!types;
     has Int        @!crange;
     has RangeSet   $!rrange;
+    has Int        $!strict_n;
     has            %!callbacks;
 
     has Int  $!errno;
@@ -488,6 +491,7 @@ class Text::CSV {
         $!binary                = True;
         $!decode_utf8           = True;
         $!auto_diag             = False;
+        $!strict                = False;
         $!diag_verbose          = 0;
         $!keep_meta             = False;
 
@@ -650,6 +654,7 @@ class Text::CSV {
     method empty_is_undef        (*@s) returns Bool { self!a_bool ($!empty_is_undef,        @s); }
     method keep_meta             (*@s) returns Bool { self!a_bool ($!keep_meta,             @s); }
     method auto_diag             (*@s) returns Bool { self!a_bool ($!auto_diag,             @s); }
+    method strict                (*@s) returns Bool { self!a_bool ($!strict,                @s); }
     method eof                   ()    returns Bool { $!eof || $!errno == 2012; }
 
     # Numeric attributes
@@ -1006,6 +1011,11 @@ class Text::CSV {
         my sub parse_done () {
             self!ready (1, $f) or return False;
             .($!csv-row) with %!callbacks<after_parse>;
+            if ($!strict) {
+                $!strict_n //= $!csv-row.fields.elems;
+                $!strict_n  == $!csv-row.fields.elems or
+                    return parse_error (2014);
+                }
             True;
             }
 

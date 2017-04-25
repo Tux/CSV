@@ -134,6 +134,19 @@ for    (Str,            # No spec at all
     is (@r, [], "Cannot do fragment with bad RFC7111 spec");
     is ($e.error, 2013, "Illegal RFC7111 spec ({$spec.perl})");
     }
+
+{   my $csv = Text::CSV.new (:strict);
+    ok ($csv.parse ("1,2,3"), "Set strict to 3 columns");
+    ok ($csv.parse ("a,b,c"), "3 columns should be correct");
+    is ($csv.parse ("3,4"), False, "Not enough columns");
+    is (+$csv.error_diag, 2014, "Diag as expected");
+    }
+{   my $csv = Text::CSV.new (:strict);
+    ok ($csv.parse ("1,2,3"), "Set strict to 3 columns");
+    is ($csv.parse ("3,4,5,6"), False, "Too many columns");
+    is (+$csv.error_diag, 2014, "Diag as expected");
+    }
+
 done-testing;
 
 =finish
