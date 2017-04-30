@@ -295,7 +295,7 @@ be escaped as C<"0>.) By default this feature is on.
 
 Note that valid Unicode (UTF-8) is not considered binary.
 
-=head3 strict
+=item strict
 X<strict>
 
  my $csv = Text::CSV.new(:strict);
