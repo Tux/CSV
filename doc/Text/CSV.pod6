@@ -1727,6 +1727,12 @@ Fetch data rows from the supply.
 
 Fetch data from the Channel.
 
+=item Iterator
+
+ csv(in => @data.iterator);
+
+Fetch data rows from the iterator.
+
 =item Any
 
  csv(in => Any);

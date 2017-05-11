@@ -1721,6 +1721,26 @@ class Text::CSV {
                         }
                     };
                 }
+            when Iterator {
+                $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
+                my int $i = 0;
+                my @hdr;
+                @in = gather while $in.pull-one () -> \r {
+                    r =:= IterationEnd and last;
+                    if (!$!rrange || $!rrange.in ($i++)) {
+                        if (r ~~ Hash) {
+                            unless (@hdr.elems) {
+                                @hdr = @!cnames.elems ?? @!cnames !! r.keys;
+                                take [ @hdr ];
+                                }
+                            take [ r{@hdr} ];
+                            }
+                        else {
+                            take r;
+                            }
+                        }
+                    };
+                }
             when Any {
                 $io-in = $*IN;
                 }
