@@ -284,15 +284,33 @@ class CSV::Field {
 
     method Numeric {
         $!text.defined
-            ?? $!text ~~ m{^ <[0..9]> } ?? +$!text
-            !!                              $!text.unival.Int
+            ?? ($!text.starts-with ("0") ||
+                $!text.starts-with ("1") ||
+                $!text.starts-with ("2") ||
+                $!text.starts-with ("3") ||
+                $!text.starts-with ("4") ||
+                $!text.starts-with ("5") ||
+                $!text.starts-with ("6") ||
+                $!text.starts-with ("7") ||
+                $!text.starts-with ("8") ||
+                $!text.starts-with ("9")) ?? +$!text
+            !!                                $!text.unival.Int
             !! Num;
         }
 
     method Real {
         $!text.defined
-            ?? $!text ~~ m{^ <[0..9]> } ?? +$!text
-            !!                              $!text.unival.Int
+            ?? ($!text.starts-with ("0") ||
+                $!text.starts-with ("1") ||
+                $!text.starts-with ("2") ||
+                $!text.starts-with ("3") ||
+                $!text.starts-with ("4") ||
+                $!text.starts-with ("5") ||
+                $!text.starts-with ("6") ||
+                $!text.starts-with ("7") ||
+                $!text.starts-with ("8") ||
+                $!text.starts-with ("9")) ?? +$!text
+            !!                                $!text.unival.Int
             !! Real;
         }
 
@@ -727,7 +745,10 @@ class Text::CSV {
             else {
                 !$b.defined or
                    ($b ~~ Bool || $b ~~ Int and !?$b) or
-                   ($b ~~ Str  && $b ~~ m:i/^( reset | clear | none | 0 )$/) or
+                   ($b ~~ Str  && ($b eq "reset"
+                                || $b eq "clear"
+                                || $b eq "none"
+                                || $b eq "0")) or
                     self!fail (1004);
                 %!callbacks = %();
                 @cb = ();
@@ -749,11 +770,11 @@ class Text::CSV {
 
                 my Str $cb_name = $name;
                 $cb_name ~~ s{"-"} = "_";
-                $cb_name ~~ /^ after_parse
-                             | before_print
-                             | filter
-                             | error
-                             $/ or self!fail (3100, $name);
+                ($cb_name eq "after_parse"  ||
+                 $cb_name eq "before_print" ||
+                 $cb_name eq "filter"       ||
+                 $cb_name eq "error")
+                             or self!fail (3100, $name);
                 %hooks{$cb_name} = $hook;
                 }
             %!callbacks = %hooks;
@@ -1119,7 +1140,7 @@ class Text::CSV {
                         #           ^
                         # $next ~~ /^ $eol $/ and return parse_done ();
                         if ($!eol.defined
-                                ?? $next eq $!eol
+                                ??   $next eq $!eol
                                 !! ( $next eq "\r\n"
                                   || $next eq "\n"
                                   || $next eq "\r")) {
@@ -1133,7 +1154,7 @@ class Text::CSV {
 
                             # ,1,"foo, 3"056",,bar,\r\n
                             #            ^
-                            if ($next ~~ /^ "0"/) {
+                            if ($next .starts-with ("0")) {
                                 @ch[$i + 1] ~~ s{^ "0"} = "";
                                 $ppos = $ppos + 1;
                                 $opt_v > 8 and progress ($i, "Add NIL");
