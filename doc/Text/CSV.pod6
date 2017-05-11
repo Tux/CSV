@@ -1748,7 +1748,7 @@ The L</fragment> attribute is ignored in output mode.
 
 C<out> can be a file name (e.g. C<"file.csv">), which will be opened for
 writing and closed when finished, a file handle (e.g. C<$fh> or C<FH>), a
-reference to a glob (e.g. C<\*STDOUT>), or the glob itself (e.g. C<*STDOUT>).
+Channel, or a Supply.
 
  csv(in => sub { $sth.fetch },        out => "dump.csv");
  csv(in => { $sth.fetchrow_hashref }, out => "dump.csv",
