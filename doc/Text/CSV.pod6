@@ -540,15 +540,15 @@ this to be forced in C<CSV>, nor any for the opposite, the default is
 C<True> for safety. You can exclude the space from this trigger by setting
 this attribute to C<False>.
 
-=item quote_null
-X<quote_null>
+=item escape_null
+X<escape_null>
 
 =item quote-null
 X<quote-null>
 
- my $csv = Text::CSV.new(:quote_null);
-           $csv.quote_null(False);
- my $q-n = $csv.quote_null;
+ my $csv = Text::CSV.new(:escape_null);
+           $csv.escape_null(False);
+ my $q-n = $csv.escape_null;
 
 By default, a C<NULL> byte in a field would be escaped. This option enables
 you to treat the C<NULL> byte as a simple binary character in binary mode
@@ -624,7 +624,7 @@ is equivalent to
      allow_unquoted_escape => False,
      always_quote          => False,
      quote_space           => True,
-     quote_null            => True,
+     escape_null           => True,
      quote_binary          => True,
      keep_meta             => False,
      verbatim              => False,

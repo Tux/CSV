@@ -408,7 +408,7 @@ class Text::CSV {
 
     has Bool $!always_quote;
     has Bool $!quote_space;
-    has Bool $!quote_null;
+    has Bool $!escape_null;
     has Bool $!quote_empty;
     has Bool $!quote_binary;
 
@@ -505,7 +505,7 @@ class Text::CSV {
         $!always_quote          = False;
         $!quote_empty           = False;
         $!quote_space           = True;
-        $!quote_null            = False;
+        $!escape_null           = False;
         $!quote_binary          = True;
 
         $!errno                 = 0;
@@ -546,7 +546,7 @@ class Text::CSV {
         alias ("always_quote",          < always-quote quote_always quote-always >);
         alias ("quote_empty",           < quote-empty >);
         alias ("quote_space",           < quote-space >);
-        alias ("quote_null",            < quote-null escape_null escape-null >);
+        alias ("escape_null",           < escape-null quote_null quote-null >);
         alias ("quote_binary",          < quote-binary >);
         alias ("allow_loose_quotes",    < allow-loose-quotes allow_loose_quote allow-loose-quote >);
         alias ("allow_loose_escapes",   < allow-loose-escapes allow_loose_escape allow-loose-escape >);
@@ -612,6 +612,8 @@ class Text::CSV {
                           $!sep ~~ m{ <[\ \t]> } and self!fail (1002);
         $!quo.defined and $!quo ~~ m{ <[\ \t]> } and self!fail (1002);
         $!esc.defined and $!esc ~~ m{ <[\ \t]> } and self!fail (1002);
+
+        $!esc.defined or $!escape_null = False;
         }
 
     # String attributes
@@ -644,7 +646,7 @@ class Text::CSV {
     method always_quote          (*@s) returns Bool { self!a_bool ($!always_quote,          @s); }
     method quote_empty           (*@s) returns Bool { self!a_bool ($!quote_empty,           @s); }
     method quote_space           (*@s) returns Bool { self!a_bool ($!quote_space,           @s); }
-    method quote_null            (*@s) returns Bool { self!a_bool ($!quote_null,            @s); }
+    method escape_null           (*@s) returns Bool { self!a_bool ($!escape_null,            @s); }
     method quote_binary          (*@s) returns Bool { self!a_bool ($!quote_binary,          @s); }
     method allow_loose_quotes    (*@s) returns Bool { self!a_bool ($!allow_loose_quotes,    @s); }
     method allow_loose_escapes   (*@s) returns Bool { self!a_bool ($!allow_loose_escapes,   @s); }
@@ -918,7 +920,7 @@ class Text::CSV {
                 next;
                 }
             $t .= subst (/( $q | $e )/, { "$e$0" }, :g);
-            $t .= subst (/ \x[0] /,     { $e ~ 0 }, :g) if $!quote_null;
+            $t .= subst (/ \x[0] /,     { $e ~ 0 }, :g) if $!escape_null;
             $!always_quote
             ||                    $t ~~ / $e  | $s | \r | \n /
             || ($!quote_space  && $t ~~ / " " | \t /)
