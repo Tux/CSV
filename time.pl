@@ -9,7 +9,8 @@ sub usage {
     exit $err;
     } # usage
 
-use Time::HiRes qw( gettimeofday tv_interval );
+use List::Util   qw( max );
+use Time::HiRes  qw( gettimeofday tv_interval );
 use Getopt::Long qw(:config bundling);
 my $opt_6 = 1;
 GetOptions (
@@ -31,8 +32,6 @@ close    $fh;
 
 my %lang = (
     ##       ext     prog       args
-     0 => [ ".rb",  "ruby2.1",         ],
-     1 => [ ".rb",  "ruby2.2",         ],
      2 => [ ".py",  "python2",         ],
      3 => [ ".py",  "python3",         ],
      4 => [ ".php", "php",     "-nq"   ],
@@ -75,8 +74,6 @@ my @test = (
     [ 11, 0, "csv-java8"   ],
     [ 14, 0, "csv-java6"   ],
     [ 10, 0, "csv-java7"   ],
-    [  0, 0, "csv-ruby"    ],
-    [  1, 0, "csv-ruby"    ],
     [  8, 0, "csv-go"      ],
     [ 13, 0, "csv-R"       ],
     [ 12, 0, "csv-java9"   ],
@@ -85,6 +82,12 @@ my @test = (
     [ 17, 0, "csv-rust-libcsv" ],
     [ 17, 0, "csv-rust-qckrdr" ],
     );
+my $li = max keys %lang;
+foreach my $re (grep { -x } sort glob "/usr/bin/ruby[0-9]*") {
+    $re =~ s{.*/}{};
+    $lang{++$li} = [ ".rb", $re, ];
+    push @test, [ $li, 0, "csv-ruby" ];
+    }
 
 sub runfrom {
     my ($v, $script, $file) = @_;
