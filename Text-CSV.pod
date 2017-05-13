@@ -1,1 +1,1 @@
-doc/Text/CSV.pod6
+lib/Text/Text-CSV.pod
