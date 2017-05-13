@@ -9,6 +9,8 @@ sandbox/print-*.png
 sandbox/rfc7111.odt
 sandbox/test.*
 profile*.html
+Text-CSV*.tgz
+Text-CSV*.tar.gz
 
 # And for CSV6
 t-old/*
