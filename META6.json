@@ -1,19 +1,21 @@
-{ "name"         : "Text::CSV",
-  "version"      : "0.006",
-  "perl"         : "6.c",
-  "description"  : "Handle CSV data. API based on Text::CSV_XS",
-  "auth"         : "github:Tux",
-  "authors"      : [ "H.Merijn Brand (Tux)"       ],
-  "tags"         : [ "CSV"                        ],
-  "depends"      : [ "Slang::Tuxic", "File::Temp" ],
-  "test-depends" : [ "Test", "Test::META"         ],
-  "provides"     : {
-    "Text::CSV"  : "lib/Text/CSV.pm"
+{ "name"          : "Text::CSV",
+  "version"       : "0.006",
+  "perl"          : "6.c",
+  "description"   : "Handle CSV data. API based on Text::CSV_XS",
+  "auth"          : "github:Tux",
+  "authors"       : [ "H.Merijn Brand (Tux)"       ],
+  "tags"          : [ "CSV"                        ],
+  "depends"       : [ "Slang::Tuxic", "File::Temp" ],
+  "test-depends"  : [ "Test", "Test::META"         ],
+  "provides"      : {
+    "Text::CSV"   : "lib/Text/CSV.pm"
     },
-  "repo-type"    : "git",
-  "source-url"   : "git://github.com/Tux/CSV.git",
-  "license"      : "Artistic-2.0",
-  "support"      : {
-    "irc"        : "irc://irc.perl.org/#csv"
-    }
+  "repo-type"     : "git",
+  "source-url"    : "git://github.com/Tux/CSV.git",
+  "license"       : "Artistic-2.0",
+  "support"       : {
+    "irc"         : "irc://irc.perl.org/#csv"
+    },
+  "build-depends" : [ ],
+  "resources"     : [ ]
   } 
