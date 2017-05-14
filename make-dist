@@ -1,0 +1,35 @@
+#!/pro/bin/perl
+
+use 5.18.2;
+use warnings;
+use autodie;
+
+use JSON;
+use Archive::Tar;
+
+local $/;
+
+open my $fh, "<", "META6.json";
+my $vsn = decode_json (<$fh>)->{version};
+my $pfx = "Text-CSV-$vsn";
+close $fh;
+
+my $tar = Archive::Tar->new;
+
+open my $mh, "<", "MANIFEST";
+for (split m/\n/ => <$mh>) {
+    open my $dh, "<", $_;
+    substr $_, 0, 0, "$pfx/";
+    $tar->add_data ($_, <$dh>);
+    close $dh;
+    }
+close $mh;
+
+my $tgz = "$pfx.tgz";
+unlink $tgz if -f $tgz;
+$tar->write ($tgz, COMPRESS_GZIP);
+
+my @s = stat $tgz;
+my @d = localtime $s[9];
+printf "%9d %4d-%02d-%02d %02d:%02d:%02d %s\n",
+    $s[7], $d[5] + 1900, ++$d[4], @d[3,2,1,0], $tgz;
