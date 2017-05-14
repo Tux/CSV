@@ -1,5 +1,5 @@
 { "name"          : "Text::CSV",
-  "version"       : "0.006",
+  "version"       : "0.008",
   "perl"          : "6.c",
   "description"   : "Handle CSV data. API based on Text::CSV_XS",
   "auth"          : "github:Tux",

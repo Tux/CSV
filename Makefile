@@ -3,8 +3,6 @@
 .PHONY:         test test-verbose profile time tt
 .PRECIOUS:      test-t.pl
 
-VERSION = $(shell perl -MJSON -0e'print decode_json (<>)->{version}' META6.json)
-
 test:
 	@perl bugs.pl -s
 	podchecker Text-CSV.pod 2>&1 | grep -v WARNING:
@@ -51,7 +49,7 @@ time:
 	perl time.pl
 
 dist:
-	tgz T Text-CSV-${VERSION} MANIFEST
+	perl make-dist
 
 html:
 	test -d ../Talks/CSVh && pod2html Text-CSV.pod >../Talks/CSVh/pod6.html 2>/dev/null
