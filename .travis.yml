@@ -13,22 +13,22 @@ before_install:
     - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
     - source ~/travis-perl-helpers/init
     - git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/panda/bin:$PATH
+    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/zef/bin:$PATH
     - rakudobrew build $BACKEND
     - perl6 -v
-    - rakudobrew build-panda  
-    - panda install Slang::Tuxic File::Temp
+    - rakudobrew build-zef  
+    - zef install Slang::Tuxic File::Temp
 install:
-    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/panda/bin:$PATH
-    - panda installdeps .
+    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-nom/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/zef/bin:$PATH
+    - zef install --depsonly .        || true
 before_script:
-    - panda --installed --verbose list  || true
-    - perl6 -I. -Ilib t/81_subclass.t   || true
+    - zef --installed --verbose list  || true
+    - perl6 -I. -Ilib t/81_subclass.t || true
 script:
     - prove -v -e 'perl6 -Ilib' t
-    - PANDA_SUBMIT_TESTREPORTS=1 panda install .
+    - ZEF_SUBMIT_TESTREPORTS=1 zef install .
 after_success:
-    - panda list --installed --verbose
+    - zef list --installed --verbose
 notifications:
   irc:
     channels:
