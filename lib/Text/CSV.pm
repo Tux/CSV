@@ -929,10 +929,11 @@ class Text::CSV {
             @f.push: $t;
             }
         #progress (0, @f);
-        my Str $x = join $!sep, @f;
-        defined $!eol and $x ~= $!eol;
-        #progress (1, $x);
-        $x;
+        #progress (1, my $x =
+        defined ($!eol)
+          ?? join ( $!sep, @f ) ~ $!eol
+          !! join ( $!sep, @f )
+        #); $x
         } # string
 
     multi method combine (Capture $c) returns Bool {
