@@ -91,7 +91,7 @@ class IO::String is IO::Handle {
 
     has      $.nl-in   is rw;
     has      $.nl-out  is rw;
-    has Bool $.ro      is rw = False;
+    has Bool $.ro      is rw is default(False);
     has Str  $!str;
     has Str  @!content;
 
@@ -254,13 +254,13 @@ class CellSet {
 
 class CSV::Field {
 
-    has Bool $.is_quoted  is rw = False;
-    has Str  $.text       is rw = Str;
+    has Bool $.is_quoted  is rw is default(False);
+    has Str  $.text       is rw;
 
-    has Bool $!is_binary  = False;
-    has Bool $!is_utf8    = False;
-    has Bool $!is_missing = False;
-    has Bool $!analysed   = False;
+    has Bool $!is_binary  is default(False);
+    has Bool $!is_utf8    is default(False);
+    has Bool $!is_missing is default(False);
+    has Bool $!analysed   is default(False);
 
     multi method new (Str(Cool) $str) {
         $str.defined ?? self.bless.add ($str) !! self.bless;
