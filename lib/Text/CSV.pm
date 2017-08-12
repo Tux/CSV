@@ -854,7 +854,7 @@ class Text::CSV {
 
     # combine : direction = 0
     # parse   : direction = 1
-    method !ready (int $direction, CSV::Field $f) returns Bool {
+    method !ready (Int:D $direction, CSV::Field $f) returns Bool {
 
         if ($f.undefined) {
             if ($direction) {
