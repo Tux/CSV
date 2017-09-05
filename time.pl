@@ -197,6 +197,15 @@ EOH
 	$i == 0 and $i = "FAIL";
 	my ($s_run, $s_run2) = map { $i eq "FAIL" ? qq{<span class="broken">-</span>} : sprintf "%.3f", $_ } $run, $run - $start;
 	$s_run2 =~ m/^-/ and $s_run2 = "0.000";
+	$t->[7] = +($s_run2 || 0);
+	}
+    foreach my $t (sort { $a->[3] <=> $b->[3]
+                       || $a->[7] <=> $b->[7]
+                        } @time) {
+	my ($script, $s_script, $i, $run, $start, $exe, $modules) = @$t;
+	$i == 0 and $i = "FAIL";
+	my ($s_run, $s_run2) = map { $i eq "FAIL" ? qq{<span class="broken">-</span>} : sprintf "%.3f", $_ } $run, $run - $start;
+	$s_run2 =~ m/^-/ and $s_run2 = "0.000";
 	$exe =~ s/perl$/perl5/;
 	my $class = $script =~ m/-pi\b/ ? "perlito" : $exe =~ m/^perl/ ? $exe : "";
 	say $fh
