@@ -1759,8 +1759,9 @@ class Text::CSV {
             @!cnames.elems and $headers = @!cnames;
             }
 
-        my IO::Handle $io-out;
         my Str        $tmpfn;
+        my IO::Handle $io-out;
+        LEAVE if $out ~~ Str { .close with $io-out }
         # out
         #   Array       - return AoA (default)
         #   Hash        - return AoH (headers required)
