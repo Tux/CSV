@@ -4,7 +4,7 @@ use v6;
 
 use Test;
 
-for ^1024 {
+for ^2048 {
 
     #say "";
     #say $_;
