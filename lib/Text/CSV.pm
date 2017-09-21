@@ -18,6 +18,9 @@ my %errors =
     1002 => "INI - allow_whitespace with escape or quoter SP or TAB",
     1003 => "INI - \r or \n in main attr not allowed",
     1004 => "INI - callbacks should be Hash or undefined",
+#   1005 => "INI - EOL too long",
+#   1006 => "INI - SEP too long",
+#   1007 => "INI - QUOTE too long",
     1008 => "INI - SEP undefined",
 
     1010 => "INI - the header is empty",
@@ -25,6 +28,11 @@ my %errors =
     1012 => "INI - the header contains an empty field",
     1013 => "INI - the header contains nun-unique fields",
 #   1014 => "INI - header called on undefined stream",
+
+    # Syntax errors
+    # For perl5 compatability. Due to strict typing, these do not apply
+#   1500 => "PRM - Invalid/unsupported argument(s)",
+#   1501 => "PRM - The key attribute is passed as an unsupported type",
 
     # Parse errors
     2010 => "ECR - QUO char inside quotes followed by CR not part of EOL", # 5
@@ -43,6 +51,7 @@ my %errors =
     2027 => "EIQ - Quoted field not terminated",
 
     # EIF - Error Inside Field
+#   2030 => "EIF - NL char inside unquoted verbatim, binary off",
     2031 => "EIF - CR char is first char of field, not part of EOL",
     2032 => "EIF - CR char inside unquoted, not part of EOL",
     2034 => "EIF - Loose unescaped quote",
