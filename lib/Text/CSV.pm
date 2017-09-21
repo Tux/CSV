@@ -24,6 +24,7 @@ my %errors =
     1011 => "INI - the header contains more than one valid separator",
     1012 => "INI - the header contains an empty field",
     1013 => "INI - the header contains nun-unique fields",
+#   1014 => "INI - header called on undefined stream",
 
     # Parse errors
     2010 => "ECR - QUO char inside quotes followed by CR not part of EOL", # 5
@@ -676,11 +677,11 @@ class Text::CSV {
         }
     method diag_verbose (*@s) returns Int { self!a_bool_int ($!diag_verbose, @s); }
 
-    method header (IO::Handle $fh,
-                   Array     :$sep-set            = [< , ; >],
-                   Any       :$munge-column-names = "fc",
-                   Bool      :$set-column-names   = True,
-                   Bool      :$detect-bom         = True) { # unused for now
+    method header (IO::Handle:D $fh,
+                   Array       :$sep-set            = [< , ; >],
+                   Any         :$munge-column-names = "fc",
+                   Bool        :$set-column-names   = True,
+                   Bool        :$detect-bom         = True) { # unused for now
         my Str $hdr = $fh.get           or  self!fail (1010);
 
         # Determine separator conflicts
