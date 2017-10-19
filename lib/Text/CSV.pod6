@@ -306,6 +306,84 @@ X<strict>
 If set to True, any row that parses to a different number of columns than
 the previous row will cause the parser to throw error 2014.
 
+=item formula-handling
+X<formula-handling>
+
+=item formula_handling
+X<formula_handling>
+
+=item formula
+X<formula>
+
+ my $csv = Text::CSV.new(formula => "none");
+         $csv.formula("none");
+ my $f = $csv.formula;
+
+This defines the behavior of fields containing I<formulas>. As formulas are
+considered dangerous in spreadsheets, this attribute can define an optional
+action to be taken if a field starts with an equal sign (C<=>).
+
+For purpose of code-readability, this can also be written as
+
+ my $csv = Text::CSV_XS.new(formula-handling => "none"});
+         $csv.formula-handling("none");
+ my $f = $csv.formula-handling;
+
+or
+
+ my $csv = Text::CSV_XS.new(formula_handling => "none"});
+         $csv.formula_handling("none");
+ my $f = $csv.formula_handling;
+
+Possible values for this attribute are
+
+=over 2
+
+=item none
+
+Take no specific action. This is the default.
+
+ $csv.formula("none");
+
+=item die
+
+Cause the process to C<die> whenever a leading C<=> is encountered.
+
+ $csv.formula("die");
+
+=item croak
+
+Cause the process to C<die> whenever a leading C<=> is encountered.
+
+ $csv.formula("croak");
+
+This option just exists for perl5 compatibility.
+
+=item diag
+
+Report position and content of the field whenever a leading C<=> is found.
+The value of the field is unchanged.
+
+ $csv.formula("diag");
+
+=item empty
+
+Replace the content of fields that start with a C<=> with the empty string.
+
+ $csv.formula("empty");
+ $csv.formula("");
+
+=item undef
+
+Replace the content of fields that start with a C<=> with C<Str>.
+
+ $csv.formula("undef");
+ $csv.formula(Str);
+
+=back
+
+All other values will throw an exception with error code 1500.
+
 =item auto_diag
 X<auto_diag>
 
@@ -1875,7 +1953,8 @@ C<detect_bom> can be abbreviated to C<bom>.
 
 This is the same as setting L<C<encoding>|/encoding> to C<"auto">.
 
-Note that as L</header> is invoked, its default is to also set the headers.
+Note that as the method L</header> is invoked, its default is to also set
+the headers.
 
 =head3 headers
 X<headers>
@@ -2044,7 +2123,8 @@ to detect and set L<C<sep>|/sep> with the given set.
 
 C<sep-set> can be abbreviated to C<seps>.
 
-Note that as L</header> is invoked, its default is to also set the headers.
+Note that as the method L</header> is invoked, its default is to also set
+the headers.
 
 =head3 set_column_names
 X<set_column_names>
@@ -2425,8 +2505,8 @@ CSV generated like this, but map and filter are your friends again
 For more extended examples, see the F<examples/> C<1>) sub-directory in the
 original distribution or the git repository C<2>).
 
- 1. http://repo.or.cz/w/Text-CSV.git?a=tree;f=examples
- 2. http://repo.or.cz/w/Text-CSV.git
+ 1. https://github.com/Tux/Text-CSV_XS/tree/master/examples/
+ 2. https://github.com/Tux/Text-CSV_XS/
 
 The following files can be found there:
 

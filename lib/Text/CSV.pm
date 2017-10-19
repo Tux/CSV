@@ -4,7 +4,7 @@ use v6.c;
 use Slang::Tuxic;
 use File::Temp;
 
-my $VERSION = "0.007";
+my $VERSION = "0.008";
 
 my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
 
@@ -30,8 +30,8 @@ my %errors =
 #   1014 => "INI - header called on undefined stream",
 
     # Syntax errors
+    1500 => "PRM - Invalid/unsupported argument(s)",
     # For perl5 compatability. Due to strict typing, these do not apply
-#   1500 => "PRM - Invalid/unsupported argument(s)",
 #   1501 => "PRM - The key attribute is passed as an unsupported type",
 
     # Parse errors
@@ -270,6 +270,7 @@ class CSV::Field {
     has Bool $!is_binary  = False;
     has Bool $!is_utf8    = False;
     has Bool $!is_missing = False;
+    has Bool $!is_formula = False;
     has Bool $!analysed   = False;
 
     multi method new (Str(Cool) $str) {
@@ -308,11 +309,12 @@ class CSV::Field {
 
     method gist {
         $!text.defined or return "<undef>";
-        $!analysed or self!analyse;
+        $!analysed or self.analyse;
         my $s  = $!is_quoted  ?? "Q" !! "q";
            $s ~= $!is_binary  ?? "B" !! "b";
            $s ~= $!is_utf8    ?? "8" !! "7";
            $s ~= $!is_missing ?? "M" !! "m";
+           $s ~= $!is_formula ?? "=" !! "-";
         $s ~ ":" ~ $!text.perl;
         }
 
@@ -330,40 +332,49 @@ class CSV::Field {
         !$!text.defined;
         }
 
-    method !analyse () {
-        $!analysed and return;
+    method analyse (Bool $force = !$!analysed) {
+        $force or return;
 
         $!analysed = True;
 
         !$!text.defined || $!text eq "" and
-            return; # Default is False for both
+            return; # Default is False for the rest
+
+        $!text.starts-with ("=") and
+            $!is_formula = True;
 
         $!text ~~ m:m{^ <[ \x09, \x20 .. \x7E ]>+ $} or
-            $!is_binary = True;
+            $!is_binary  = True;
 
         $!text ~~ m:m{^ <[ \x00       .. \x7F ]>+ $} or
-            $!is_utf8   = True;
+            $!is_utf8    = True;
         }
 
     method is_binary () returns Bool {
-        $!analysed or self!analyse;
+        $!analysed or self.analyse;
         $!is_binary;
         }
 
     method is_utf8 () returns Bool {
-        $!analysed or self!analyse;
+        $!analysed or self.analyse;
         $!is_utf8;
         }
 
     method is_missing () returns Bool {
-        $!analysed or self!analyse;
+        $!analysed or self.analyse;
         $!is_missing;
+        }
+
+    method is_formula () returns Bool {
+        $!analysed or self.analyse;
+        $!is_formula;
         }
 
     method is-quoted ()  returns Bool { $.is_quoted; }
     method is-binary ()  returns Bool { self.is_binary; }
     method is-utf8 ()    returns Bool { self.is_utf8; }
     method is-missing () returns Bool { self.is_missing; }
+    method is-formula () returns Bool { self.is_formula; }
 
     method set-quoted ()              { self.set_quoted; }
     } # CSV::Field
@@ -424,6 +435,7 @@ class Text::CSV {
 
     has Bool $!build;
     has Int  $!record_number;
+    has Str  $!formula;
 
     has CSV::Row   $!csv-row;
     has Str        @!ahead;
@@ -517,6 +529,7 @@ class Text::CSV {
         $!quote_space           = True;
         $!escape_null           = False;
         $!quote_binary          = True;
+        $!formula               = "none";
 
         $!errno                 = 0;
         $!error_pos             = 0;
@@ -569,6 +582,7 @@ class Text::CSV {
         alias ("keep_meta",             < keep-meta meta>);
         alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
         alias ("callbacks",             < hooks >);
+        alias ("formula",               < formula-handling formula_handling >);
 
         alias ("column_names",          < column-names >);
         alias ("error_diag",            < error-diag diag diag-error diag_error >);
@@ -714,6 +728,15 @@ class Text::CSV {
         $set-column-names               and self.column-names: @row;
         self;
         }
+
+    multi method formula ()         returns Str { $!formula;           };
+    multi method formula (Str:U)    returns Str { $!formula = "undef"; };
+    multi method formula (Str:D $x) returns Str {
+        my Str $f = $x.lc;
+        $f eq "" and $f = "empty";
+        $f ~~ "none" | "die" | "croak" | "diag" | "empty" | "undef" or self!fail (1500);
+        $!formula = $f;
+        };
 
     multi method column_names (Bool:D $ where *.not) returns Array[Str] { @!cnames = (); }
     multi method column_names (Any:U)                returns Array[Str] { @!cnames = (); }
@@ -876,6 +899,21 @@ class Text::CSV {
         elsif ($f.Str eq "") {
             $!empty_is_undef and $f.text = Str;
             #return self!accept-field ($f);
+            }
+
+        elsif ($!formula ne "none" && $f.is-formula) {
+            given $!formula {
+                when "die"   { die "Formulas are forbidden"; }
+                when "croak" { die "Formulas are forbidden"; }
+                when "empty" { $f.text = "";                 }
+                when "undef" { $f.text = Str;                }
+                when "diag"  {
+                    my $fnum = $!csv-row.fields.elems + 1;
+                    my $recn = $direction ?? " in record $!record_number" !! "";
+                    warn "Field $fnum$recn contains formula '$f'\n";
+                    }
+                }
+            $f.analyse (True);
             }
 
         # Postpone all other field attributes like is_binary and is_utf8
