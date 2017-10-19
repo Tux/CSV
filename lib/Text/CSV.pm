@@ -909,6 +909,7 @@ class Text::CSV {
                 when "undef" { $f.text = Str;                }
                 when "diag"  {
                     my $fnum = $!csv-row.fields.elems + 1;
+                    @!cnames.elems and $fnum ~= " (column: '@!cnames[$fnum - 1]')";
                     my $recn = $direction ?? " in record $!record_number" !! "";
                     warn "Field $fnum$recn contains formula '$f'\n";
                     }

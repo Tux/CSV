@@ -141,15 +141,14 @@ is ($e, "Formulas are forbidden", "Combine formula with croak");
   }
 is-deeply (@e, ["Field 2 contains formula '=2+3'\n"], "Got a warning");
 
-done-testing;
-
-=finish
-
-{   @m = ();
-    ok (my $csv = Text::CSV.new ({ formula => 3 }), "new 3 hr");
+{   @e = ();
+    ok (my $csv = Text::CSV.new (formula => "diag"), "new diag hr");
     ok ($csv.column_names ("code", "value", "desc"), "Set column names");
     ok ($csv.parse ("1,=2+3,4"), "Parse");
-    is_deeply (\@m,
-	[ qq{Field 2 (column: 'value') contains formula '=2+3'\n} ],
-	"Warning for HR");
+    CONTROL { when CX::Warn { @e.push: $_.Str; .resume } };
     }
+is-deeply (@e,
+    ["Field 2 (column: 'value') in record 1 contains formula '=2+3'\n"],
+    "Warning for HR");
+
+done-testing;
