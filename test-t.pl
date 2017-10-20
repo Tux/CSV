@@ -23,7 +23,7 @@ sub MAIN (Bool :$getline, Bool :$getline_all, Bool :$hyper) {
         @*ARGS.pop;
 
         lines.hyper.map: {
-            my $csv = Text::CSV.new;
+            my $csv = once Text::CSV.new;
             $csv.parse($_);
             $sum ⚛+= $csv.fields.elems;
             }
