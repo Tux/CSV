@@ -3,20 +3,34 @@
 use v6;
 use Text::CSV;
 
-sub MAIN (:$getline, :$getline_all) {
+sub MAIN (Bool :$getline, Bool :$getline_all, Bool :$hyper) {
 
-    my $csv = Text::CSV.new;
-
-    my Int $sum = 0;
-    if $getline_all { # slowest
+    my atomicint $sum = 0;
+    if $getline_all {
+        my $csv = Text::CSV.new;
         $sum = [+] $csv.getline_all($*IN)».map(*.elems);
         }
-    elsif $getline {  # middle, but safe
+
+    elsif $getline {
+        my $csv = Text::CSV.new;
         while $csv.getline($*IN) {
             $sum += $csv.fields.elems;
             }
         }
-    else {              # fastest, but unsafe
+
+    elsif $hyper {
+        # see https://irclog.perlgeek.de/perl6-dev/2017-10-20#i_15329645
+        @*ARGS.pop;
+
+        lines.hyper.map: {
+            my $csv = Text::CSV.new;
+            $csv.parse($_);
+            $sum ⚛+= $csv.fields.elems;
+            }
+        }
+
+    else {
+        my $csv = Text::CSV.new;
         for lines() {
             $csv.parse($_);
             $sum += $csv.fields.elems;
