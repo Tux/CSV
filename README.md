@@ -42,7 +42,7 @@ Prerequisites
 Build/Installation
 ------------------
 ```
- $ panda install Text::CSV
+ $ zef install Text::CSV
 ```
 
 Author
