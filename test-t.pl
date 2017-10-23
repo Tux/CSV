@@ -3,7 +3,7 @@
 use v6;
 use Text::CSV;
 
-sub MAIN (Bool :$getline, Bool :$getline_all, Bool :$hyper) {
+sub MAIN (Bool :$getline, Bool :$getline_all, Bool :$hyper, Bool :$race) {
 
     my atomicint $sum = 0;
     if $getline_all {
@@ -23,6 +23,17 @@ sub MAIN (Bool :$getline, Bool :$getline_all, Bool :$hyper) {
         @*ARGS.pop;
 
         lines.hyper.map: {
+            my $csv = once Text::CSV.new;
+            $csv.parse($_);
+            $sum ⚛+= $csv.fields.elems;
+            }
+        }
+
+    elsif $race {
+        # see https://irclog.perlgeek.de/perl6-dev/2017-10-20#i_15329645
+        @*ARGS.pop;
+
+        lines.race.map: {
             my $csv = once Text::CSV.new;
             $csv.parse($_);
             $sum ⚛+= $csv.fields.elems;
