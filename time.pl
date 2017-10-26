@@ -9,7 +9,7 @@ sub usage {
     exit $err;
     } # usage
 
-use List::Util   qw( max );
+use List::Util   qw( max min );
 use Time::HiRes  qw( gettimeofday tv_interval );
 use Getopt::Long qw(:config bundling);
 my $opt_6 = 1;
@@ -20,6 +20,8 @@ GetOptions (
     "f|fast"      => sub { $opt_6 = 0; },
     "v|verbose:1" => \my $opt_v,
     ) or usage (1);
+
+binmode STDOUT, ":encoding(utf-8)";
 
 $| = 1;
 $opt_v //= $opt_i ? 0 : 1;
@@ -51,32 +53,36 @@ my %lang = (
     );
 my @test = (
     # lang irc script
-    [  5, 0, "csv-easy-xs" , "Text::CSV::Easy_XS" ],
-    [  5, 0, "csv-easy-pp" , "Text::CSV::Easy_PP" ],
-    [  5, 0, "csv-xsbc"    , "Text::CSV_XS" ],
-    [  5, 0, "csv-test-xs" , "Text::CSV_XS" ],
-    [  5, 0, "csv-test-pp" , "Text::CSV_PP" ],
-    [  5, 0, "csv-pegex"   , "Pegex::CSV" ],
-    [  6, 0, "csv"         ],
-    [  6, 1, "csv-ip5xs"   , "Inline::Perl5, Text::CSV_XS" ],
-    [  6, 0, "csv-ip5xsio" , "Inline::Perl5, Text::CSV_XS" ],
-    [  6, 0, "csv-ip5pp"   , "Inline::Perl5, Text::CSV_PP" ],
-    [  6, 0, "csv_gram"    ],
-    [  6, 1, "test"        , "Text::CSV"    ],
-    [  6, 1, "test-t"      , "Text::CSV"    ],
-    [  6, 1, "csv-parser"  , "CSV::Parser"  ],
-    [  9, 0, "csv-c"       ],
-    [ 15, 0, "csv-cc"      ],
-    [  7, 0, "csv-lua"     ],
-    [  2, 0, "csv-python2" ],
-    [  3, 0, "csv-python3" ],
-    [  4, 0, "csv-php"     ],
-    [ 11, 0, "csv-java8"   ],
-    [ 14, 0, "csv-java6"   ],
-    [ 10, 0, "csv-java7"   ],
-    [  8, 0, "csv-go"      ],
-    [ 13, 0, "csv-R"       ],
-    [ 12, 0, "csv-java9"   ],
+    [  5, 0, "csv-easy-xs"      , "Text::CSV::Easy_XS" ],
+    [  5, 0, "csv-easy-pp"      , "Text::CSV::Easy_PP" ],
+    [  5, 0, "csv-xsbc"         , "Text::CSV_XS" ],
+    [  5, 0, "csv-test-xs"      , "Text::CSV_XS" ],
+    [  5, 1, "csv-test-xs-20"   , "Text::CSV_XS" ],
+    [  5, 0, "csv-test-pp"      , "Text::CSV_PP" ],
+    [  5, 0, "csv-pegex"        , "Pegex::CSV" ],
+    [  6, 0, "csv"             ],
+    [  6, 1, "csv-ip5xs"        , "Inline::Perl5, Text::CSV_XS" ],
+    [  6, 1, "csv-ip5xs-20"     , "Inline::Perl5, Text::CSV_XS" ],
+    [  6, 0, "csv-ip5xsio"      , "Inline::Perl5, Text::CSV_XS" ],
+    [  6, 0, "csv-ip5pp"        , "Inline::Perl5, Text::CSV_PP" ],
+    [  6, 0, "csv_gram"        ],
+    [  6, 1, "test"             , "Text::CSV"    ],
+    [  6, 1, "test-t"           , "Text::CSV"    ],
+    [  6, 1, "test-t-20"        , "Text::CSV"    ],
+    [  6, 1, "test-t-20"        , "Text::CSV"     , "--race"    ],
+    [  6, 1, "csv-parser"       , "CSV::Parser"  ],
+    [  9, 0, "csv-c"           ],
+    [ 15, 0, "csv-cc"          ],
+    [  7, 0, "csv-lua"         ],
+    [  2, 0, "csv-python2"     ],
+    [  3, 0, "csv-python3"     ],
+    [  4, 0, "csv-php"         ],
+    [ 11, 0, "csv-java8"       ],
+    [ 14, 0, "csv-java6"       ],
+    [ 10, 0, "csv-java7"       ],
+    [  8, 0, "csv-go"          ],
+    [ 13, 0, "csv-R"           ],
+    [ 12, 0, "csv-java9"       ],
     [ 16, 0, "csv-easy-pp-pi", "Text::CSV::Easy_PP, Perlito" ],
     [ 17, 0, "csv-rust-csvrdr" ],
     [ 17, 0, "csv-rust-libcsv" ],
@@ -90,16 +96,16 @@ foreach my $re (grep { -x } sort glob "/usr/bin/ruby[0-9]*") {
     }
 
 sub runfrom {
-    my ($v, $script, $file) = @_;
+    my ($v, $script, $file, @args) = @_;
     my ($ext, $exe, @arg) = @{$lang{$v}};
 
     $exe eq "Rust" and $exe = $script;
     $exe eq "C" || $exe eq "C++" || $exe eq "Rust" and $exe = "";
     my $run = join " " => $exe, @arg;
 
-    $opt_v > 4 and say "$v / $ext / $exe\t/ $run";
+    $opt_v > 4 and say "$v / $ext / $exe\t/ $run / @args";
     my $i = 0;
-    my $cmd = "$run $script$ext <$file";
+    my $cmd = "$run $script$ext @args <$file";
     $opt_v > 2 and say $cmd;
     $file eq "empty.csv" and $cmd .= " 2>/dev/null";
     my $t0 = [ gettimeofday ];
@@ -116,7 +122,9 @@ my $run_speed = 0;
 my @time;
 my @irc;
 for (@test) {
-    my ($v, $irc, $script, $modules) = @$_;
+    my ($v, $irc, $script, $modules, @args) = @$_;
+
+    $opt_v > 3 and say "Processing ($v, $irc, $script, @args)";
     $script =~ m{$pat}i or  next;
     $opt_i && !$irc     and next;
 
@@ -125,26 +133,35 @@ for (@test) {
     $exe eq "perl6" && !$opt_6 and next;
 
     $opt_v and printf "%-8s ", $exe;
-    my $s_script = sprintf "%-11s ", $script;
+    my $s_script = sprintf "%-17s ", join "\x{00a0}" => $script, @args;
     print $s_script;
 
     local *STDERR;
-    open STDERR, ">", "/dev/null";
+    open   STDERR, ">", "/dev/null";
 
     open my $eh, ">", "empty.csv";
-    print $eh  "\n";
-    close $eh; END { unlink "empty.csv"; }
+    print   $eh  "\n";
+    close   $eh; END { unlink "empty.csv"; }
 
-		    runfrom ($v, $script, "empty.csv");
-		    runfrom ($v, $script, "empty.csv");
-    my ($start)   = runfrom ($v, $script, "empty.csv");
-    my ($run, $i) = runfrom ($v, $script, "/tmp/hello.csv");
+    my $rs = $script;
+    my $fn = "/tmp/hello.csv";
+    my $ec = 50000;
+    if ($rs =~ s/-(\d+)$//) {
+        my $fc = $1;
+        $fn =~ s/\./$fc./;
+        $ec *= $fc;
+        }
 
-    my $s = sprintf "%s %6d %9.3f %9.3f", $i eq 50000 ? "   " : "***", $i,
+		    runfrom ($v, $rs, "empty.csv");
+		    runfrom ($v, $rs, "empty.csv");
+    my ($start)   = runfrom ($v, $rs, "empty.csv");
+    my ($run, $i) = runfrom ($v, $rs, $fn, @args);
+
+    my $s = sprintf "%s %7d %9.3f %9.3f", $i eq $ec ? "   " : "***", $i,
 	$run, $run - $start;
     say $s;
     $i or ($run, $start) = (999.999, 999.999); # sort at the end
-    push @time, [ $script, $s_script, $i, $run, $start, $exe, $modules // "-" ];
+    push @time, [ $script, $s_script, $i, $run, $start, $exe, $modules // "-", @args ];
 
     if ($script eq "test-t" and open my $fh, ">>", "../Talks/CSV6/speed.log") {
 	my @d = localtime;

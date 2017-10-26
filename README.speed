@@ -1,20 +1,33 @@
 In the reports I daily send/sent to the perl6 development channel on IRC,
 the lines I show like
 
-   This is Rakudo version 2016.12-226-gb120ac401 built on MoarVM version 2016.12-68-g1994c6ee
-   csv-ip5xs        3.162
-   test            13.790
-   test-t           5.411
-   csv-parser      14.403
+  Rakudo version 2017.09-513-g2c4868b85 - MoarVM version 2017.09.1-622-g6e9e89ee
+  csv-test-xs-20      0.441 -  0.450
+  csv-ip5xs           1.155 -  1.166
+  test-t              3.067 -  3.094
+  test               11.436 - 11.599
+  csv-parser         11.566 - 11.789
+  csv-ip5xs-20       13.860 - 14.259
+  test-t-20 --race   19.341 - 19.486
+  test-t-20          56.192 - 57.096
 
-The first line obviously shows the version of Rakudo these tests were run under
-Then there are 4 lines with the method tested followed by the runtime of that
-method in seconds (lower is better)
+The first line obviously shows the version of Rakudo the perl6 tests were run
+under. Then there are several lines with the test combination tested followed
+by the runtime of that case in seconds (lower is better). Each line reports
+two timings: the fastest and the slowest of multiple runs (currently 2).
 
- csv-ip5xs  : perl6 + Inline::Perl5 + Text::CSV_XS            (perl5 XS)
+See time.pl and time-twice.pl
+
+ csv-test-xs: perl5 + Text::CSV_XS                            (perl5 XS)
+ csv-ip5xs  : perl6 + Inline::Perl5 + Text::CSV_XS            (perl6 + perl5 XS)
  test       : perl6 + an unoptimized early draft of Text::CSV (pure perl6)
  test-t     : perl6 + the full-featured current Text::CSV     (pure perl6)
  csv-parser : perl6 + Tony-O's CSV::Parser                    (pure perl6)
+
+If a case has -20 in the name, it is the same test methos as without, but it
+runs the test on a CSV file that is 20 times bigger than the default test file.
+The default test file has 10000 lines of CSV with 5 fields each, the big one
+has 200000 lines.
 
 The graphs just show the history of test-t
 
