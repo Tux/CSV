@@ -13,13 +13,13 @@ before_install:
     - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
     - source ~/travis-perl-helpers/init
     - git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-master/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/zef/bin:$PATH
+    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-master/install/share/perl6/site/bin:~/.rakudobrew/moar-master/zef/bin:$PATH
     - rakudobrew build $BACKEND
     - perl6 -v
     - rakudobrew build-zef
     - zef install Slang::Tuxic File::Temp
 install:
-    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-master/install/share/perl6/site/bin:~/.rakudobrew/moar-nom/zef/bin:$PATH
+    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-master/install/share/perl6/site/bin:~/.rakudobrew/moar-master/zef/bin:$PATH
     - zef install --depsonly .        || true
 before_script:
     - zef --installed --verbose list  || true
