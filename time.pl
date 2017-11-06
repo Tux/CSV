@@ -167,12 +167,19 @@ for (@test) {
     $i or ($run, $start) = (999.999, 999.999); # sort at the end
     push @time, [ $script, $s_script, $i, $run, $start, $exe, $modules // "-", @args ];
 
+    my @d = localtime;
+    my $s = join " " => grep m/\S/ => $script, @args;
+    my $stamp = sprintf "%4d-%02d-%02d %02d:%02d:%02d $s %.3f\n",
+        $d[5] + 1900, $d[4] + 1, @d[3,2,1,0], $run;
     if ($script eq "test-t" and open my $fh, ">>", "../Talks/CSV6/speed.log") {
-	my @d = localtime;
-	printf $fh "%4d-%02d-%02d %02d:%02d:%02d test-t %.3f\n",
-	    $d[5] + 1900, $d[4] + 1, @d[3,2,1,0], $run;
+        print $fh $stamp;
 	close $fh;
 	$run_speed++;
+	}
+
+    if (open my $fh, ">>", "../Talks/CSV6/speed-all.log") {
+        print $fh $stamp;
+	close $fh;
 	}
 
     $opt_i and next;
