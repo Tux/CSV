@@ -168,9 +168,9 @@ for (@test) {
     push @time, [ $script, $s_script, $i, $run, $start, $exe, $modules // "-", @args ];
 
     my @d = localtime;
-    my $s = join " " => grep m/\S/ => $script, @args;
-    my $stamp = sprintf "%4d-%02d-%02d %02d:%02d:%02d $s %.3f\n",
-        $d[5] + 1900, $d[4] + 1, @d[3,2,1,0], $run;
+    my $r = join " " => grep m/\S/ => $script, @args;
+    my $stamp = sprintf "%4d-%02d-%02d %02d:%02d:%02d %s %.3f\n",
+        $d[5] + 1900, $d[4] + 1, @d[3,2,1,0], $r, $run;
     if ($script eq "test-t" and open my $fh, ">>", "../Talks/CSV6/speed.log") {
         print $fh $stamp;
 	close $fh;
