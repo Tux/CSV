@@ -70,6 +70,7 @@ my @test = (
     [  6, 0, "csv_gram"        ],
     [  6, 1, "test"             , "Text::CSV"    ],
     [  6, 1, "test-t"           , "Text::CSV"    ],
+    [  6, 1, "test-t"           , "Text::CSV",    , "--race"    ],
     [  6, 1, "test-t-20"        , "Text::CSV"    ],
     [  6, 1, "test-t-20"        , "Text::CSV"     , "--race"    ],
     [  6, 1, "csv-parser"       , "CSV::Parser"  ],
