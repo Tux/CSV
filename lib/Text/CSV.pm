@@ -1084,7 +1084,7 @@ class Text::CSV {
         loop {
             # faster than @ch.kv, faster than my int $i
             loop (my Int $i = 0; $i < @ch.elems; $i = $i + 1) {
-                my Str $chunk = @ch[$i];
+                my Str $chunk := @ch[$i];
                 $ppos += $chunk.chars;
 
                 if ($skip) {
@@ -1247,7 +1247,7 @@ class Text::CSV {
                         return parse_error ($f.is_quoted ?? 2024 !! 2035);
                         }
 
-                    my $next = @ch[$i + 1];
+                    my $next := @ch[$i + 1];
 
                     # ,1,"foo, 3\056",,bar,\r\n
                     #            ^
@@ -1299,7 +1299,7 @@ class Text::CSV {
                         $f.add ($chunk);
 
                         if ($i == @ch.elems - 1 && $!io.defined) {
-                            my $str = $!io.get or return parse_error (2012);
+                            my $str := $!io.get or return parse_error (2012);
                             @ch.append: chunks ($str, @chx);
                             }
 
