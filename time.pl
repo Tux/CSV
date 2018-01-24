@@ -255,7 +255,7 @@ EOH
                        || $a->{run2} <=> $b->{run2}
                         } @r) {
 	my $i = $t->{i};
-	$i == 0 and $i = "FAIL";
+	$i =~ m/fail/i || $i == 0 and $i = "FAIL";
 	$t->{exe} =~ s/perl$/perl5/;
 	my $class = $t->{script} =~ m/-pi\b/ ? "perlito" : $t->{exe} =~ m/^perl/ ? $t->{exe} : "";
 	my $scrpt = join " " => grep m/\S/ => $t->{s_script}, $t->{args};

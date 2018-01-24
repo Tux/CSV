@@ -10,7 +10,7 @@ my $v;
 my %t;
 my %seen;
 foreach my $i (1, 2) {
-    open my $th, "-|", "time.pl";
+    open my $th, "-|", "time.pl", @ARGV;
     binmode $th, ":encoding(utf-8)";
     while (<$th>) {
         if (m/^([^ ]+[ ]+[^ ]+)[ ]+(?:\**[ ]+)?[0-9]/) {
