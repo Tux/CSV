@@ -6,15 +6,21 @@ use warnings;
 $| = 1;
 binmode STDOUT, ":encoding(utf-8)";
 
+use Getopt::Long qw(:config bundling passthrough);
+GetOptions (
+    "s|silent!" => \my $opt_s,
+    ) or die "usage: $0 [--silent] [options to time.pl]\n";
+
 my $v;
 my %t;
 my %seen;
 foreach my $i (1, 2) {
+    print "\r";
     open my $th, "-|", "time.pl", @ARGV;
     binmode $th, ":encoding(utf-8)";
     while (<$th>) {
         if (m/^([^ ]+[ ]+[^ ]+)[ ]+(?:\**[ ]+)?[0-9]/) {
-            print $seen{$1}++ ? "." : $_;
+            print $seen{$1}++ || $opt_s ? "." : $_;
             next;
             }
         # print;
