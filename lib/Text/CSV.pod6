@@ -22,15 +22,14 @@ Text::CSV - comma-separated values manipulation routines
  # Write array of arrays as csv file
  csv(in => @aoa, out => "file.csv", sep => ";");
 
-
  my @rows;
  # Read/parse CSV
  my $csv = Text::CSV.new;
- my $fh  = open "test.csv", :r, chomp => False;
+ my $fh  = open "test.csv", :r, :!chomp;
  while (my @row = $csv.getline($fh)) {
      @row[2] ~~ m/pattern/ or next; # 3rd field should match
      @rows.push: @row;
-     }
+ }
  $fh.close;
 
  # and write as CSV
@@ -72,7 +71,7 @@ the way to go is to B<not> pass L<C<eol>|/eol> in the parser (it accepts
 C<\n>, C<\r>, B<and> C<\r\n> by default) and then
 
  my $csv = Text::CSV.new;
- my $io = open $file, :r, chomp => False;
+ my $io = open $file, :r, :!chomp;
  while (my $row = $csv.getline($io)) {
      my @fields = @$row;
      }
@@ -2368,7 +2367,7 @@ C<callbacks> wrapper.
 =head2 Reading a CSV file line by line:
 
  my $csv = Text::CSV.new(:auto_diag);
- my $fh = open "file.csv", :r, chomp => False;
+ my $fh = open "file.csv", :r, :!chomp;
  while (my @row = $csv.getline($fh)) {
      # do something with @$row
      }
