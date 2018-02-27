@@ -1,3 +1,5 @@
+=begin pod
+
 =encoding utf-8
 
 =head1 DISCLAIMER
@@ -2932,3 +2934,5 @@ the same terms as Perl itself.
 
 =for elvis
 :ex:se gw=75|color guide #ff0000:
+
+=end pod
