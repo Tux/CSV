@@ -6,7 +6,7 @@ use Slang::Tuxic;
 use Text::CSV;
 use Test;
 
-for (^32) {
+for (^64) {
 
     my $b = Buf.new (61, ^2048 .map ({ 256.rand.Int }));
 
@@ -20,5 +20,5 @@ for (^32) {
 
     ok ($csv.parse ($s), "Parse");
 
-    is ($csv.fields[1].encode ("utf-c8"), $b, "Data");
+    is ($csv.fields[1].text.encode ("utf8-c8"), $b, "Data");
     }
