@@ -4,7 +4,7 @@
   "description"   : "Handle CSV data. API based on Text::CSV_XS",
   "auth"          : "github:Tux",
   "authors"       : [ "H.Merijn Brand (Tux)"       ],
-  "tags"          : [ "CSV"                        ],
+  "tags"          : [ "CSV","CPAN5"                ],
   "depends"       : [ "Slang::Tuxic", "File::Temp" ],
   "test-depends"  : [ "Test", "Test::META"         ],
   "provides"      : {
