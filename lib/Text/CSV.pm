@@ -557,46 +557,6 @@ class Text::CSV {
         self!check_sanity;
         }
 
-    CHECK {
-        sub alias (Str:D $m, *@aka) {
-            my $r := Text::CSV.^find_method ($m);
-            Text::CSV.^add_method ($_, $r) for @aka;
-            }
-
-        alias ("sep",                   < sep_char sep-char separator >);
-        alias ("quo",                   < quote quote_char quote-char >);
-        alias ("esc",                   < escape escape_char escape-char >);
-        alias ("always_quote",          < always-quote quote_always quote-always >);
-        alias ("quote_empty",           < quote-empty >);
-        alias ("quote_space",           < quote-space >);
-        alias ("escape_null",           < escape-null quote_null quote-null >);
-        alias ("quote_binary",          < quote-binary >);
-        alias ("allow_loose_quotes",    < allow-loose-quotes allow_loose_quote allow-loose-quote >);
-        alias ("allow_loose_escapes",   < allow-loose-escapes allow_loose_escape allow-loose-escape >);
-        alias ("allow_unquoted_escape", < allow-unquoted-escape allow_unquoted_escapes allow-unquoted-escapes >);
-        alias ("allow_whitespace",      < allow-whitespace >);
-        alias ("blank_is_undef",        < blank-is-undef >);
-        alias ("empty_is_undef",        < empty-is-undef >);
-        alias ("record_number",         < record-number >);
-        alias ("auto_diag",             < auto-diag >);
-        alias ("keep_meta",             < keep-meta meta>);
-        alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
-        alias ("callbacks",             < hooks >);
-        alias ("formula",               < formula-handling formula_handling >);
-
-        alias ("column_names",          < column-names >);
-        alias ("error_diag",            < error-diag diag diag-error diag_error >);
-        alias ("error_input",           < error-input >);
-        alias ("getline_all",           < getline-all >);
-        alias ("getline_hr_all",        < getline-hr-all >);
-        alias ("getline_hr",            < getline-hr >);
-        alias ("is_binary",             < is-binary >);
-        alias ("is_missing",            < is-missing >);
-        alias ("is_quoted",             < is-quoted >);
-        alias ("is_utf8",               < is-utf8 >);
-        alias ("set_diag",              < SetDiag set-diag >);
-        }
-
     method !fail (Int:D $errno, Int :$field, Str :$input, *@s) {
         $!errno          = $errno;
         $!error_pos      = 0;
@@ -1965,6 +1925,46 @@ class Text::CSV {
 
         $csv.CSV (:$in, :$out, :$headers, :$key, :$encoding, :$fragment, :$meta, |%args);
         }
+    }
+
+BEGIN {
+    sub alias (Str:D $m, *@aka) {
+        my $r := Text::CSV.^find_method ($m);
+        Text::CSV.^add_method ($_, $r) for @aka;
+        }
+
+    alias ("sep",                   < sep_char sep-char separator >);
+    alias ("quo",                   < quote quote_char quote-char >);
+    alias ("esc",                   < escape escape_char escape-char >);
+    alias ("always_quote",          < always-quote quote_always quote-always >);
+    alias ("quote_empty",           < quote-empty >);
+    alias ("quote_space",           < quote-space >);
+    alias ("escape_null",           < escape-null quote_null quote-null >);
+    alias ("quote_binary",          < quote-binary >);
+    alias ("allow_loose_quotes",    < allow-loose-quotes allow_loose_quote allow-loose-quote >);
+    alias ("allow_loose_escapes",   < allow-loose-escapes allow_loose_escape allow-loose-escape >);
+    alias ("allow_unquoted_escape", < allow-unquoted-escape allow_unquoted_escapes allow-unquoted-escapes >);
+    alias ("allow_whitespace",      < allow-whitespace >);
+    alias ("blank_is_undef",        < blank-is-undef >);
+    alias ("empty_is_undef",        < empty-is-undef >);
+    alias ("record_number",         < record-number >);
+    alias ("auto_diag",             < auto-diag >);
+    alias ("keep_meta",             < keep-meta meta>);
+    alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
+    alias ("callbacks",             < hooks >);
+    alias ("formula",               < formula-handling formula_handling >);
+
+    alias ("column_names",          < column-names >);
+    alias ("error_diag",            < error-diag diag diag-error diag_error >);
+    alias ("error_input",           < error-input >);
+    alias ("getline_all",           < getline-all >);
+    alias ("getline_hr_all",        < getline-hr-all >);
+    alias ("getline_hr",            < getline-hr >);
+    alias ("is_binary",             < is-binary >);
+    alias ("is_missing",            < is-missing >);
+    alias ("is_quoted",             < is-quoted >);
+    alias ("is_utf8",               < is-utf8 >);
+    alias ("set_diag",              < SetDiag set-diag >);
     }
 
 sub csv (*%args) is export {
