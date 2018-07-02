@@ -262,13 +262,14 @@ EOH
 	my $class = $t->{script} =~ m/-pi\b/ ? "perlito" : $t->{exe} =~ m/^perl/ ? $t->{exe} : "";
 	my $scrpt = join " " => grep m/\S/ => $t->{s_script}, $t->{args};
 	#DDumper { t => $t, class => $class, script => $scrpt };
+	my $b = $scrpt =~ m/^(csv-xsbc|test-t)$/ ? q{ style="font-weight:bold"} : "";
 	say $fh
 	    qq{\t  <tr@{[$class ? qq{ class="$class"} : ""]}>},
 		qq{<td>$t->{exe}</td>},
-		qq{<td>$scrpt</td>},
-		qq{<td>$t->{modules}</td>},
+		qq{<td$b>$scrpt</td>},
+		qq{<td$b>$t->{modules}</td>},
 		qq{<td class="@{[$i eq $t->{n} ? 'fixed'  : 'broken']}">$i</td>},
-		qq{<td class="time">$t->{s_runn}</td>},
+		qq{<td class="time"$b>$t->{s_runn}</td>},
 		qq{<td class="time">$t->{s_run}</td>},
 		qq{<td class="time">$t->{s_run2}</td>},
 		qq{</tr>};
