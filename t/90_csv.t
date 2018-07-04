@@ -46,6 +46,8 @@ for 0 .. 2 -> $i {
     @h-expect[1][$i] = $full-aoh[0]{$k};
     @h-expect[2][$i] = $full-aoh[1]{$k};
     }
+my Str $dath;
+for @h-expect -> $r { $dath ~= $r.join (",") ~ "\r\n"; }
 
 my @in =
     $fni,                       # Str
@@ -134,9 +136,9 @@ for in () -> $in {
 
 # Test supported "out" formats
 my $datn = $data; $datn ~~ s:g{ "\r\n" } = "\n";
+my $datr = $dath; $datr ~~ s:g{ "\r\n" } = "\n";
 for in () -> $in {
-    # lizmat: fix jij deze: ?
-#   is (csv (in => $in, out => Str, :!quote-space), $data|$datn, "csv => Str   { s-in ($in) }");
+    is (csv (in => $in, out => Str, :!quote-space), $data|$datn|$dath|$datr, "csv => Str   { s-in ($in) }");
     }
 
 is (csv (in => $fni, out => Str, fragment => "row=2"),    "1,2,3\r\n"       |"1,2,3\n",    "Fragment, row");
