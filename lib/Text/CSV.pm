@@ -1843,7 +1843,7 @@ class Text::CSV {
         my @h;
         $out ~~ Hash || $headers ~~ Array || ($headers ~~ Str && $headers eq "auto") and
             @h = @!cnames.elems ?? @!cnames !! @in.shift.list;
-        unless (?$out || ?$tmpfn) {
+        unless (?$out || ?$tmpfn || ?$io-out) {
             if ($out ~~ Hash or @h.elems) {
                 # AOH
                 @h or return [];
