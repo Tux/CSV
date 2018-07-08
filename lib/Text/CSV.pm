@@ -1799,6 +1799,9 @@ class Text::CSV {
                  Supplier:D | Callable:D | Channel:D {
                 # No specific action required here
                 }
+            when Nil {
+                $io-out = Nil;
+                }
             when Any {
                 $in ~~ Array and $io-out = $*OUT;
                 }
@@ -1877,7 +1880,7 @@ class Text::CSV {
                     $out.send ($r);
                     }
                 default {
-                    $io-out.print (self.string);
+                    defined $io-out and $io-out.print (self.string);
                     }
                 }
             }

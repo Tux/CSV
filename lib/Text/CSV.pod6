@@ -1833,8 +1833,8 @@ In output mode, the default CSV options when producing CSV are
 The L</fragment> attribute is ignored in output mode.
 
 C<out> can be a file name (e.g. C<"file.csv">), which will be opened for
-writing and closed when finished, a file handle (e.g. C<$fh> or C<FH>), a
-Channel, or a Supply.
+writing and closed when finished, a file handle (e.g. C<$fh> or
+C<IO::Handle>), a C<Channel>, a C<Supply>, a C<Callable>, or C<Nil>.
 
  csv(in => sub { $sth.fetch },        out => "dump.csv");
  csv(in => { $sth.fetchrow_hashref }, out => "dump.csv",
@@ -1844,6 +1844,13 @@ When a code-ref is used for C<in>, the output is generated per invocation,
 so no buffering is involved. This implies that there is no size restriction
 on the number of records. The C<csv> function ends when the coderef returns
 C<False>.
+
+When a Callable is used for out, it is called on each row with the row as
+only argument.
+
+When C<Nil> is used for out, the output is completely suppressed. This can
+be useful when streaming, and the output is not required, but the
+side-effects of e.g. an C<on-in> hook is dealing with the data.
 
 =over 2
 
