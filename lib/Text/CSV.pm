@@ -995,7 +995,7 @@ class Text::CSV {
         my sub chunks (Str $str, @re) {
             $str.defined
               ?? $str.chars
-                ?? $str.split (@re, :v, :skip-empty)
+                ?? $str.split (@re, :v, :skip-empty) # :ignoremark
                 !! ("")
               !! ()
             }
@@ -1679,9 +1679,14 @@ class Text::CSV {
                     default {   # AoA, AoH
                         $fragment ~~ s:i{^ "row=" } = "" and
                             self.rowrange ($fragment);
-                        my @i = $in.list[0] ~~ Hash
-                            ?? ([ $in.list[0].keys ], $in.map ({$[ $_.values ]}).Slip)
-                            !!    $in.list;
+                        my @i;
+                        if $in.list[0] ~~ Hash {
+                            my @hdr = $in.list[0].keys.sort;
+                            @i = [ @hdr ], $in.map ({$[ $_{@hdr} ]}).Slip;
+                            }
+                        else {
+                            @i = $in.list;
+                            }
                         @in = $!rrange ?? @i[$!rrange.list (@i.elems)] !! @i;
                         }
                     }
@@ -1720,7 +1725,7 @@ class Text::CSV {
                     if (!$!rrange || $!rrange.in ($i++)) {
                         if ($r ~~ Hash) {
                             unless (@hdr.elems) {
-                                @hdr = @!cnames.elems ?? @!cnames !! $r.keys;
+                                @hdr = @!cnames.elems ?? @!cnames !! $r.keys.sort;
                                 take [ @hdr ];
                                 }
                             take [ $r{@hdr} ];
@@ -1740,7 +1745,7 @@ class Text::CSV {
                     if (!$!rrange || $!rrange.in ($i++)) {
                         if (r ~~ Hash) {
                             unless (@hdr.elems) {
-                                @hdr = @!cnames.elems ?? @!cnames !! r.keys;
+                                @hdr = @!cnames.elems ?? @!cnames !! r.keys.sort;
                                 take [ @hdr ];
                                 }
                             take [ r{@hdr} ];
@@ -1846,7 +1851,8 @@ class Text::CSV {
         my @h;
         $out ~~ Hash || $headers ~~ Array || ($headers ~~ Str && $headers eq "auto") and
             @h = @!cnames.elems ?? @!cnames !! @in.shift.list;
-        unless (?$out || ?$tmpfn || ?$io-out) {
+      # unless (?$out || ?$tmpfn || ?$io-out) { # TODO: Fix for csv () in void context!
+        unless (?$out || ?$tmpfn) {
             if ($out ~~ Hash or @h.elems) {
                 # AOH
                 @h or return [];
@@ -1906,13 +1912,13 @@ class Text::CSV {
         True;
         }
 
-    method csv ( Any       :$in  is copy,
-                 Any       :$out is copy,
+    method csv ( Any       :$in   is copy,
+                 Any       :$out  is copy,
                  Any       :$headers,
                  Str       :$key,
                  Str       :$encoding,
                  Str       :$fragment,
-                 Bool      :$meta = $!keep_meta,
+                 Bool      :$meta is copy,
                  Text::CSV :$csv  = self || Text::CSV.new,
                  *%args ) {
 
@@ -1925,6 +1931,7 @@ class Text::CSV {
                 $in    = $file;
                 }
             }
+        $meta //= $csv.keep_meta;
 
         $csv.CSV (:$in, :$out, :$headers, :$key, :$encoding, :$fragment, :$meta, |%args);
         }
