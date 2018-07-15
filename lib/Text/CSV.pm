@@ -1627,6 +1627,10 @@ class Text::CSV {
                 %hdrargs<sep-set>            = %args{$k} :delete;
                 next;
                 }
+            if ($k.lc eq "munge") {
+                %hdrargs<munge-column-names> = %args{$k} :delete;
+                next;
+                }
             if ($k.lc ~~ m{^ "munge" [ <[-_]> "column" <[-_]> "names" ]? $}) {
                 %hdrargs<munge-column-names> = %args{$k} :delete;
                 next;
