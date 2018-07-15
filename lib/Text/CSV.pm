@@ -282,6 +282,7 @@ class CSV::Field {
         }
 
     method Str {
+        # ?$!text ?? $!text !! $Text::CSV::undef_str
         $!text;
         }
 
@@ -436,6 +437,7 @@ class Text::CSV {
     has Bool $!build;
     has Int  $!record_number;
     has Str  $!formula;
+    has Str  $!undef_str;
 
     has CSV::Row   $!csv-row;
     has Str        @!ahead;
@@ -697,6 +699,10 @@ class Text::CSV {
         $f ~~ "none" | "die" | "croak" | "diag" | "empty" | "undef" or self!fail (1500);
         $!formula = $f;
         };
+
+    multi method undef_str ()         returns Str { $!undef_str;       };
+    multi method undef_str (Any:U)    returns Str { $!undef_str = Str; };
+    multi method undef_str (Str:D $x) returns Str { $!undef_str = $x   };
 
     multi method column_names (Bool:D $ where *.not) returns Array[Str] { @!cnames = (); }
     multi method column_names (Any:U)                returns Array[Str] { @!cnames = (); }
@@ -1967,6 +1973,7 @@ BEGIN {
     alias ("diag_verbose",          < diag-verbose verbose_diag verbose-diag >);
     alias ("callbacks",             < hooks >);
     alias ("formula",               < formula-handling formula_handling >);
+    alias ("undef_str",             < undef-str >);
 
     alias ("column_names",          < column-names >);
     alias ("error_diag",            < error-diag diag diag-error diag_error >);
