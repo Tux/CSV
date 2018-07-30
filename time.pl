@@ -52,6 +52,7 @@ my %lang = (
     17 => [ "",     "Rust",    "/tmp/hello.csv" ],
     18 => [ "",     "java10",  "-cp csv-java10.jar:opencsv-2.3.jar csvJava" ],
     19 => [ "",     "java11",  "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
+    20 => [ "",     "java12",  "-cp csv-java12.jar:opencsv-2.3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
@@ -82,6 +83,7 @@ my @test = (
     [  2, 0, "csv-python2"     ],
     [  3, 0, "csv-python3"     ],
     [  4, 0, "csv-php"         ],
+    [ 20, 0, "csv-java12"      ],
     [ 19, 0, "csv-java11"      ],
     [ 18, 0, "csv-java10"      ],
     [ 12, 0, "csv-java9"       ],
