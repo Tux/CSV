@@ -254,7 +254,8 @@ EOH
 	    };
 	} @time;
 #use DP;DDumper \@r;
-    foreach my $t (sort { $a->{runn} <=> $b->{runn}
+    foreach my $t (sort { no warnings "numeric";
+                          $a->{runn} <=> $b->{runn}
                        || $a->{run}  <=> $b->{run}
                        || $a->{run2} <=> $b->{run2}
                         } @r) {
