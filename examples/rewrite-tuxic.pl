@@ -3,9 +3,8 @@
 # rewrite.pl: Convert SSV to CSV
 #          (m)'18 Copyright H.M.Brand 2007-2018
 
-# Check rewrite-tuxic.pl for a version with the original style
-
 use v6;
+use Slang::Tuxic;
 use Text::CSV;
 
 @*ARGS.elems or @*ARGS.push: [ q:to/EOD/;
@@ -17,4 +16,4 @@ use Text::CSV;
     EOD
     ];
 
-csv(in => csv(in => $_, sep_char => ";"), out => $*OUT) for @*ARGS;
+csv (in => csv (in => $_, sep_char => ";"), out => $*OUT) for @*ARGS;

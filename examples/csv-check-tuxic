@@ -3,12 +3,11 @@
 # csv-check: Check validity of CSV file and report
 #          (m)'18 Copyright H.M.Brand 2007-2018
 
-# Check csv-check-tuxic for a version with the original style
-
 use v6;
+use Slang::Tuxic;
 use Text::CSV;
 
-our $VERSION = "6.1-ugly";   # 2018-09-06
+our $VERSION = "6.1";   # 2018-09-06
 
 sub usage (Bool $err = True, Str :$pn = "csv-check") {
     $err and temp $*OUT = $*ERR;
@@ -62,13 +61,13 @@ sub MAIN (Bool :$help = False, Str :$s = "", Str :$q = '"', Str :$e = '"', *@f) 
             $data ~~ m/(<[\r\n]>+)$/ and $eol = $0.Str;
             }
 
-        my $csv = Text::CSV.new(:$sep, :$quo, :$esc, :meta);
-        my $fh = IO::String.new($data);
+        my $csv = Text::CSV.new (:$sep, :$quo, :$esc, :meta);
+        my $fh = IO::String.new ($data);
         my CSV::Field @row;
-        while (@row = $csv.getline($fh)) {
+        while (@row = $csv.getline ($fh)) {
             $rows++;
             %cols{@row.elems}++;
-            @row.map(*.is_binary).any and $bin = True;
+            @row.map (*.is_binary).any and $bin = True;
             }
 
         # Report findings
@@ -77,7 +76,7 @@ sub MAIN (Bool :$help = False, Str :$s = "", Str :$q = '"', Str :$e = '"', *@f) 
 
         if ($diag.error == 2012 && $csv.eof) {
             my @coll = %cols.keys.sort: { $^a <=> $^b };
-            my $cols = @coll.elems == 1 ?? @coll[0] !! "\e[31m({@coll.join(', ')})\e[0m";
+            my $cols = @coll.elems == 1 ?? @coll[0] !! "\e[31m({@coll.join (', ')})\e[0m";
             say "OK: rows: \e[32m$rows\e[0m, columns: \e[32m$cols\e[0m";
             say "    {to-str 'sep', $sep}, {to-str 'quo', $quo}, {to-str 'eol', $eol}, bin = $bin";
             if (@coll.elems > 1) {
@@ -90,7 +89,7 @@ sub MAIN (Bool :$help = False, Str :$s = "", Str :$q = '"', Str :$e = '"', *@f) 
                 }
             }
         else {
-            $csv.diag-verbose(9);
+            $csv.diag-verbose (9);
             $csv.error-diag.sink;
             }
         }
