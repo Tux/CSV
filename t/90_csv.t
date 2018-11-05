@@ -308,5 +308,37 @@ is-deeply (csv (in => $fno), $aoa, "AOA parse out");
     is ($x,        Any, "Bad args should cause fail");
     is ($e.error, 1501, "Unsupported parameter type");
     }
+{   my $x;
+    my $e;
+    {   $x = $csv.csv (in => $fni, key => "frox");
+        CATCH { default { $e = $_ }}
+        }
+    is ($x,        Any, "Bad args should cause fail");
+    is ($e.error, 4001, "key does not exist");
+    }
+{   my $x;
+    my $e;
+    {   $x = $csv.csv (in => $fni, key => [ "frox" ]);
+        CATCH { default { $e = $_ }}
+        }
+    is ($x,        Any, "Bad args should cause fail");
+    is ($e.error, 1501, "Unsupported parameter type");
+    }
+{   my $x;
+    my $e;
+    {   $x = $csv.csv (in => $fni, key => [ ":", "frox" ]);
+        CATCH { default { $e = $_ }}
+        }
+    is ($x,        Any, "Bad args should cause fail");
+    is ($e.error, 4001, "(part of) key does not exist");
+    }
+{   my $x;
+    my $e;
+    {   $x = $csv.csv (in => $fni, key => [ ":", "bar", "frox" ]);
+        CATCH { default { $e = $_ }}
+        }
+    is ($x,        Any, "Bad args should cause fail");
+    is ($e.error, 4001, "(part of) key does not exist");
+    }
 
 done-testing;

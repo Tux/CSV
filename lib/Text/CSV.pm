@@ -78,6 +78,9 @@ my %errors =
 
     3100 => "EHK - Unsupported callback",
 
+    # Content errors
+    4001 => "PRM - The key does not exist as field in the data",
+
     # csv CI
     5000 => "CSV - Unsupported type for in",
     5001 => "CSV - Unsupported type for out",
@@ -1874,12 +1877,14 @@ class Text::CSV {
                 @h or return [];
                 @in.elems && @in[0] ~~ Hash or @in = @in.map (-> @r { $%( @h Z=> @r ) });
                 if ($key) {
-                    if ($key ~~ Cool  &&                   @in[0]{$key   }.defined) {
+                    if ($key ~~ Str) {
+                        @in[0]{$key }:exists or self!fail (4001);
                         return $%( @in.map ( -> \h --> Pair { h{$key} => h }) );
                         }
-                    if ($key ~~ Array && $key.elems > 1 && @in[0]{$key[1]}.defined) {
+                    if ($key ~~ Array && $key.elems > 1) {
                         my @k   = @$key;
                         my $sep = @k.shift;
+                        @k.map ({@in[0]{$_}:exists}).all or self!fail (4001);
                         return $%( @in.map ( -> \h --> Pair {
                             (@k.map ({h{$_}}).join: $sep) => h }));
                         }

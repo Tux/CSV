@@ -2072,9 +2072,12 @@ C<munge-column-names> can be abbreviated to C<munge>.
 X<key>
 
 If passed, will default L<C<headers>|/headers> to C<"auto"> and return a
-hashref instead of an array of hashes.
+hashref instead of an array of hashes. Allowed values are simple strings
+or arrays where the first element is the joiner and the rest are the fields
+to join to combine the key
 
- my $ref = csv(in => "test.csv", key => "code");
+ my $ref = csv(in => "test.csv", key =>        "code");
+ my $ref = csv(in => "test.csv", key => [ ":", "code", "color" ]);
 
 with test.csv like
 
@@ -2083,7 +2086,7 @@ with test.csv like
  2,keyboard,12,white
  3,mouse,5,black
 
-will return
+the first example will return
 
  { 1   => {
        code    => 1,
@@ -2098,6 +2101,28 @@ will return
        product => 'keyboard'
        },
    3   => {
+       code    => 3,
+       color   => 'black',
+       price   => 5,
+       product => 'mouse'
+       }
+   }
+
+the second example will return
+
+ { "1:gray"    => {
+       code    => 1,
+       color   => 'gray',
+       price   => 850,
+       product => 'pc'
+       },
+   "2:white"   => {
+       code    => 2,
+       color   => 'white',
+       price   => 12,
+       product => 'keyboard'
+       },
+   "3:black"   => {
        code    => 3,
        color   => 'black',
        price   => 5,
@@ -2906,6 +2931,14 @@ X<3010>
 =item *
 3100 "EHK - Unsupported callback"
 X<3100>
+
+=item *
+4001 "PRM - The key does not exist as field in the data",
+X<4001>
+
+You cannot set the key from a non-existing column.
+
+If you were using a key list, I<all> keys should exist.
 
 =item *
 5000 "CSV - Unsupported type for in"
