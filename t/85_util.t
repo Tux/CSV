@@ -75,6 +75,7 @@ for   1010, "",
         }
     is ($self, Any, "FAIL for {$data.perl}");
     is ($e.error, $err, "Error code $err");
+    $err == 1013 and ok ($e.message.contains (< a(2)>), "Duplicate fields are reported");
     }
 {   my $fh = IO::String.new: "bar,bAr,bAR,BAR\n1,2,3,4";
     $csv.column-names (False);
