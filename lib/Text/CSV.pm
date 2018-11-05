@@ -32,7 +32,7 @@ my %errors =
     # Syntax errors
     1500 => "PRM - Invalid/unsupported argument(s)",
     # For perl5 compatability. Due to strict typing, these do not apply
-#   1501 => "PRM - The key attribute is passed as an unsupported type",
+    1501 => "PRM - The key attribute is passed as an unsupported type",
 
     # Parse errors
     2010 => "ECR - QUO char inside quotes followed by CR not part of EOL", # 5
@@ -1553,7 +1553,7 @@ class Text::CSV {
     method CSV ( Any    :$in!,
                  Any    :$out!     is copy,
                  Any    :$headers  is copy,
-                 Str    :$key,
+                 Any    :$key,
                  Str    :$encoding is copy,
                  Str    :$fragment is copy,
                  Bool   :$strict = False,
@@ -1655,6 +1655,11 @@ class Text::CSV {
 
         # Rest is for Text::CSV
         self!set-attributes (%args);
+
+        if ($key.defined) {
+            $out     //= Hash if $out === Any;
+            $headers //= "auto";
+            }
 
         my @in; # Either AoA or AoH
 
@@ -1868,8 +1873,18 @@ class Text::CSV {
                 # AOH
                 @h or return [];
                 @in.elems && @in[0] ~~ Hash or @in = @in.map (-> @r { $%( @h Z=> @r ) });
-                $key && @in[0]{$key}.defined and
-                    return $%( @in.map ( -> \h --> Pair { h{$key} => h }) );
+                if ($key) {
+                    if ($key ~~ Cool  &&                   @in[0]{$key   }.defined) {
+                        return $%( @in.map ( -> \h --> Pair { h{$key} => h }) );
+                        }
+                    if ($key ~~ Array && $key.elems > 1 && @in[0]{$key[1]}.defined) {
+                        my @k   = @$key;
+                        my $sep = @k.shift;
+                        return $%( @in.map ( -> \h --> Pair {
+                            (@k.map ({h{$_}}).join: $sep) => h }));
+                        }
+                    self!fail (1501);
+                    }
                 return @in;
                 }
             # AOA
@@ -1926,7 +1941,7 @@ class Text::CSV {
     method csv ( Any       :$in   is copy,
                  Any       :$out  is copy,
                  Any       :$headers,
-                 Str       :$key,
+                 Any       :$key,
                  Str       :$encoding,
                  Str       :$fragment,
                  Bool      :$meta is copy,

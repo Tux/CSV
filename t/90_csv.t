@@ -291,4 +291,22 @@ is (csv (in => [$[1,2,3]], out => Str), "1,2,3\r\n"|"1,2,3\n", "Out to Str");
 ok (csv (in => $aoa.iterator, out => $fno), "AOA out file");
 is-deeply (csv (in => $fno), $aoa, "AOA parse out");
 
+{   ok (my $h = csv (file => $fni, key =>          "bar"         ), "HoH with Cool key");
+    is-deeply ($h<1>,   { :bar("1"), :baz("2"), :foo("3") }, "Entry 1");
+    }
+{   ok (my $h = csv (file => $fni, key => [ ":" ,  "bar"        ]), "HoH with List-2 key");
+    is-deeply ($h<1>,   { :bar("1"), :baz("2"), :foo("3") }, "Entry 1");
+    }
+{   ok (my $h = csv (file => $fni, key => [ ":" ,  "bar", "baz" ]), "HoH with List-3 key");
+    is-deeply ($h<1:2>, { :bar("1"), :baz("2"), :foo("3") }, "Entry 1:2");
+    }
+{   my $x;
+    my $e;
+    {   $x = $csv.csv (in => $fni, key => { 42 });
+        CATCH { default { $e = $_ }}
+        }
+    is ($x,        Any, "Bad args should cause fail");
+    is ($e.error, 1501, "Unsupported parameter type");
+    }
+
 done-testing;
