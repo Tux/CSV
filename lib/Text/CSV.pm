@@ -689,8 +689,7 @@ class Text::CSV {
         my @row = self.strings          or  self!fail (1010);
         $munge-column-names ~~ Callable and @row = @row.map ($munge-column-names);
         @row.grep ("")                  and self!fail (1012);
-        @row.unique.elems == @row.elems or  self!fail (1013, @row.Bag.grep (*.value > 1)
-                                            .map({ "{$_.key}({$_.value})"  }).join: ", ");
+        if (my @dup = @row.repeated) {      self!fail (1013, @dup.Bag.map ({ "{$_.key}({$_.value+1})" }).join: ", "); }
         $set-column-names               and self.column-names: @row;
         self;
         }
