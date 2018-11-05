@@ -322,7 +322,7 @@ is-deeply (csv (in => $fno), $aoa, "AOA parse out");
         CATCH { default { $e = $_ }}
         }
     is ($x,        Any, "Bad args should cause fail");
-    is ($e.error, 1501, "Unsupported parameter type");
+    is ($e.error, 1501, "Unsupported parameter type: need sep and key(s)");
     }
 {   my $x;
     my $e;
@@ -330,7 +330,7 @@ is-deeply (csv (in => $fno), $aoa, "AOA parse out");
         CATCH { default { $e = $_ }}
         }
     is ($x,        Any, "Bad args should cause fail");
-    is ($e.error, 4001, "(part of) key does not exist");
+    is ($e.error, 4001, "key does not exist");
     }
 {   my $x;
     my $e;
