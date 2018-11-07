@@ -1874,6 +1874,9 @@ class Text::CSV {
             if ($out ~~ Hash or @h.elems) {
                 # AOH
                 @h or return [];
+                if (my @dup = @h.repeated) {
+                    self!fail (1013, @dup.Bag.map ({ "{$_.key}({$_.value+1})" }).join: ", ");
+                    }
                 @in.elems && @in[0] ~~ Hash or @in = @in.map (-> @r { $%( @h Z=> @r ) });
                 if ($key) {
                     if ($key ~~ Str) {
