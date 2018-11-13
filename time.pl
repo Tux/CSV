@@ -266,6 +266,7 @@ EOH
 	$t->{exe} =~ s/perl$/perl5/;
 	my $class = $t->{script} =~ m/-pi\b/ ? "perlito" : $t->{exe} =~ m/^perl/ ? $t->{exe} : "";
 	my $scrpt = join " " => grep m/\S/ => $t->{s_script}, $t->{args};
+	$scrpt =~ s/--race\K(?:\s+--race)+//;
 	#DDumper { t => $t, class => $class, script => $scrpt };
 	my $b = $scrpt =~ m/^(csv-xsbc|test-t)$/ ? q{ style="font-weight:bold"} : "";
 	say $fh
