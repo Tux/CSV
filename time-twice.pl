@@ -24,7 +24,10 @@ foreach my $i (1, 2) {
             next;
             }
         # print;
-        m/^This is/ and $v //= $_;
+        if (m/^This is/) {
+            $v //= $_;
+            next;
+            }
         my ($s, $t) = m/^(.+?)\s+([0-9][.0-9]+)$/ or next;
         push @{$t{$s =~ s/(?:\s+|\xa0|\x{00a0})+/ /gr}}, $t;
         }
