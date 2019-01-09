@@ -402,6 +402,14 @@ class CSV::Row does Iterable does Positional does Associative {
     method splice (*@args) { @!fields.splice (@args); }
     method keys ()         { $!csv.column_names; }
 
+    method ASSIGN-POS (int $i, $v) {
+        @!fields.AT-POS ($i).text = $v;
+        }
+    method ASSIGN-KEY (Str $k, $v) {
+        $!csv.column_names and
+            %($!csv.column_names Z=> @!fields){$k}.text = $v;
+        }
+
     multi method push (CSV::Field $f) { @!fields.push: $f; }
     multi method push (Cool       $f) { @!fields.push: CSV::Field.new ($f); }
     multi method push (CSV::Row   $r) { @!fields.append: $r.fields; }

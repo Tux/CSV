@@ -45,13 +45,41 @@ is-deeply (csv (in => $file, after_in => &Push), [
     [< foo  bar   baz   A >],
     [  "1", "2",  "3", "A" ],
     [  "2", "a b", "", "A" ],
-    ], "AOA ith after_in callback");
+    ], "AOA ith after_in callback function");
 
 sub Change (CSV::Row $r) { $r.csv.column-names and $r<baz>.text = "A"; }
 
 is-deeply (csv (in => $file, headers => "auto", after_in => &Change), [
     { foo => "1", bar => "2",   baz => "A" },
     { foo => "2", bar => "a b", baz => "A" },
-    ], "AOH with after_in callback");
+    ], "AOH with after_in callback function");
+
+is-deeply (csv (in => $file, key => "foo"), {
+    "1" => { foo => "1", bar => "2",   baz => "3" },
+    "2" => { foo => "2", bar => "a b", baz => ""  },
+    }, "Simple key");
+
+is-deeply (csv (in => $file, key => "foo", on_in => -> CSV::Row $r {
+        $r.csv.column_names and $r<bar>.text = "" }), {
+    "1" => { foo => "1", bar => "", baz => "3" },
+    "2" => { foo => "2", bar => "", baz => ""  },
+    }, "Simple key with in-line on_in");
+
+is-deeply (csv (in => $file, key => "foo", on_in => {
+        $^r.csv.column_names and $^r<bar>.text = "" }), {
+    "1" => { foo => "1", bar => "", baz => "3" },
+    "2" => { foo => "2", bar => "", baz => ""  },
+    }, "Simple key with in-line typeless on_in");
+
+is-deeply (csv (in => $file, key => "foo", on_in => { $^r<bar> = "" }), {
+    "1" => { foo => "1", bar => "", baz => "3" },
+    "2" => { foo => "2", bar => "", baz => ""  },
+    }, "Simple key with in-line on_in with direct key assignment");
+
+is-deeply (csv (in => $file, on_in => { $^r[1] = "x" }), [
+    [< foo   x   baz >],
+    [  "1", "x", "3"  ],
+    [  "2", "x", ""   ],
+    ], "on-in with direct index assignment");
 
 done-testing;
