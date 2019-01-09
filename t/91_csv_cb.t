@@ -47,13 +47,11 @@ is-deeply (csv (in => $file, after_in => &Push), [
     [  "2", "a b", "", "A" ],
     ], "AOA ith after_in callback");
 
-done-testing;
-
-=finish
-
-sub Change (CSV::Row $r) { dd $r; $r<baz> = "A"; }
+sub Change (CSV::Row $r) { $r.csv.column-names and $r<baz>.text = "A"; }
 
 is-deeply (csv (in => $file, headers => "auto", after_in => &Change), [
     { foo => "1", bar => "2",   baz => "A" },
     { foo => "2", bar => "a b", baz => "A" },
     ], "AOH with after_in callback");
+
+done-testing;
