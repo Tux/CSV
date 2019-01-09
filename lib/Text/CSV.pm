@@ -403,11 +403,11 @@ class CSV::Row does Iterable does Positional does Associative {
     method keys ()         { $!csv.column_names; }
 
     method ASSIGN-POS (int $i, $v) {
-        @!fields.AT-POS ($i).text = $v;
+        @!fields.AT-POS ($i).text = $v.Str;
         }
-    method ASSIGN-KEY (Str $k, $v) {
+    method ASSIGN-KEY (Str:D $k, $v) {
         $!csv.column_names and
-            %($!csv.column_names Z=> @!fields){$k}.text = $v;
+            %($!csv.column_names Z=> @!fields){$k}.text = $v.Str;
         }
 
     multi method push (CSV::Field $f) { @!fields.push: $f; }
