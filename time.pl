@@ -33,28 +33,30 @@ open  my $fh, "<", "/tmp/hello.csv";
 close    $fh;
 
 my %lang = (
-    ##       ext     prog       args
-     2 => [ ".py",  "python2",         ],
-     3 => [ ".py",  "python3",         ],
-     4 => [ ".php", "php",     "-nq"   ],
-     5 => [ ".pl",  "perl",            ],
-     6 => [ ".pl",  "perl6",   "-Ilib" ],
-     7 => [ ".lua", "lua5.1"           ],
-    21 => [ ".lua", "lua5.3"           ],
-     8 => [ ".go",  "go",      "run"   ],
-     9 => [ "",     "C"                ],
-    14 => [ "",     "java6",   "-cp csv-java6.jar:opencsv-2.3.jar csvJava" ],
-    10 => [ "",     "java7",   "-cp csv-java7.jar:opencsv-2.3.jar csvJava" ],
-    11 => [ "",     "java8",   "-cp csv-java8.jar:opencsv-2.3.jar csvJava" ],
-    12 => [ "",     "java9",   "-cp csv-java9.jar:opencsv-2.3.jar csvJava" ],
-    13 => [ ".R",   "R",       "--slave -f" ],
-    15 => [ "",     "C++"              ],
-    16 => [ "",     "java8",   "-cp csv-pi-easy-pp.jar Main /tmp/hello.csv" ],
-    17 => [ "",     "Rust",    "/tmp/hello.csv" ],
-    18 => [ "",     "java10",  "-cp csv-java10.jar:opencsv-2.3.jar csvJava" ],
-    19 => [ "",     "java11",  "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
-    20 => [ "",     "java12",  "-cp csv-java12.jar:opencsv-2.3.jar csvJava" ],
-    22 => [ "",     "java13",  "-cp csv-java13.jar:opencsv-2.3.jar csvJava" ],
+    ##       ext     prog         args
+     2 => [ ".py",  "python2",                                                ],
+     3 => [ ".py",  "python3",                                                ],
+     4 => [ ".php", "php",       "-nq"                                        ],
+     5 => [ ".pl",  "perl",                                                   ],
+     6 => [ ".pl",  "perl6",     "-Ilib"                                      ],
+     7 => [ ".lua", "lua5.1"                                                  ],
+    21 => [ ".lua", "lua5.3"                                                  ],
+     8 => [ ".go",  "go",        "run"                                        ],
+     9 => [ "",     "C"                                                       ],
+    14 => [ "",     "java6",     "-cp csv-java6.jar:opencsv-2.3.jar csvJava"  ],
+    10 => [ "",     "java7",     "-cp csv-java7.jar:opencsv-2.3.jar csvJava"  ],
+    11 => [ "",     "java8",     "-cp csv-java8.jar:opencsv-2.3.jar csvJava"  ],
+    12 => [ "",     "java9",     "-cp csv-java9.jar:opencsv-2.3.jar csvJava"  ],
+    18 => [ "",     "java10",    "-cp csv-java10.jar:opencsv-2.3.jar csvJava" ],
+    19 => [ "",     "java11",    "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
+    20 => [ "",     "java12",    "-cp csv-java12.jar:opencsv-2.3.jar csvJava" ],
+    22 => [ "",     "java13",    "-cp csv-java13.jar:opencsv-2.3.jar csvJava" ],
+    23 => [ "",     "ac_java8",  "-cp csv-java8.jar:opencsv-2.3.jar csvJava"  ],
+    24 => [ "",     "ac_java11", "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
+    13 => [ ".R",   "R",         "--slave -f"                                 ],
+    15 => [ "",     "C++"                                                     ],
+    17 => [ "",     "Rust",      "/tmp/hello.csv"                             ],
+    16 => [ "",     "java8",     "-cp csv-pi-easy-pp.jar Main /tmp/hello.csv" ],
     );
 my @test = (
     # lang irc script
@@ -92,8 +94,10 @@ my @test = (
     [ 18, 0, "csv-java10"      ],
     [ 12, 0, "csv-java9"       ],
     [ 11, 0, "csv-java8"       ],
-    [ 14, 0, "csv-java6"       ],
     [ 10, 0, "csv-java7"       ],
+    [ 14, 0, "csv-java6"       ],
+    [ 24, 0, "csv-java11"      ],
+    [ 23, 0, "csv-java8"       ],
     [  8, 0, "csv-go"          ],
     [ 13, 0, "csv-R"           ],
     [ 16, 0, "csv-easy-pp-pi", "Text::CSV::Easy_PP, Perlito" ],
@@ -145,7 +149,7 @@ for (@test) {
 
     $exe eq "perl6" && !$opt_6 and next;
 
-    $opt_v and printf "%-8s ", $exe;
+    $opt_v and printf "%-9s ", $exe;
     my $s_script = sprintf "%-17s ", join "\x{00a0}" => $script, @args;
     print $s_script;
 
@@ -296,6 +300,7 @@ EOH
 	<tr><td><strong>norm</strong></td><td>the time taken to parse normalized to parsing 10000 lines</td></tr>
 	<tr><td><strong>time</strong></td><td>the time taken to parse</td></tr>
 	<tr><td><strong>runtime</strong></td><td>time minus time taken to run script from an empty stream</td></tr>
+	<tr><td>java</td><td><tt>java</tt> is Oracle java, <tt>ac_java</tt> is Amazon Corretto</td></tr>
 	</table>
       <br />
       See also <a href="https://bitbucket.org/ewanhiggs/csv-game">the CSV game</a>.
