@@ -9,18 +9,11 @@ use Text::CSV;
 my $csv    = Text::CSV.new;
 
 my $fni    = "_92in.csv";
+END { unlink $fni; }
 
-END { unlink $fni }
-
-my $handle = $fni.IO.open( :enc("latin1"), :w );
-say $handle.perl;
-
-my $latin1-str = 'ID;Gerät;Nr'.encode('latin1');
-say $latin1-str.perl;
-$handle.write( $latin1-str);
-$handle.close;
+spurt $fni, 'ID;Gerät;Nr', :enc<latin1>;
 
 my $csv-in = csv :in($fni), :encoding('latin1'), :sep_char<;>;
-say $csv-in;
+ok $csv-in, "No problems with encoding";
 
 done-testing;

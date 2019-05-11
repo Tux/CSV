@@ -1691,7 +1691,7 @@ class Text::CSV {
             }
         given $in {
             when Str {
-                $io-in = open $in, :r, :!chomp;
+                $io-in = open $in, :r, :!chomp, :enc($encoding);
                 }
             when IO::Handle {
                 $io-in = $in;

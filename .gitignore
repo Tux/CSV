@@ -31,3 +31,4 @@ rust*/target
 # Re-enable parts later
 sandbox/
 files/
+*~
