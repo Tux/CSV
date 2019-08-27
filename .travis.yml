@@ -1,6 +1,8 @@
-language: perl
-perl:
-    - "5.20"
+language: perl6
+dist: trusty
+perl6:
+    - latest
+    - "2019.07"
 env:
     - BACKEND=moar
     - BACKEND=jvm
@@ -18,6 +20,7 @@ before_install:
     - perl6 -v
     - rakudobrew build-zef
     - zef install Slang::Tuxic File::Temp
+    - zef --depsonly install .
 install:
     - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-master/install/share/perl6/site/bin:~/.rakudobrew/moar-master/zef/bin:$PATH
     - zef install --depsonly .        || true
