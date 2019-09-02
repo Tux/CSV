@@ -1,37 +1,17 @@
-language: perl6
-dist: trusty
-perl6:
-    - latest
-    - "2019.07"
-env:
-    - BACKEND=moar
-    - BACKEND=jvm
-matrix:
-    allow_failures:
-        - env: BACKEND=jvm
-before_install:
-    - git config --global user.name "TravisCI"
-    - git config --global user.email $HOSTNAME":not-for-mail@travis-ci.org"
-    - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
-    - source ~/travis-perl-helpers/init
-    - git clone https://github.com/tadzik/rakudobrew ~/.rakudobrew
-    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-master/install/share/perl6/site/bin:~/.rakudobrew/moar-master/zef/bin:$PATH
-    - rakudobrew build $BACKEND
-    - perl6 -v
-    - rakudobrew build-zef
-    - zef install Slang::Tuxic File::Temp
-    - zef --depsonly install .
+language: minimal
+
+services:
+  - docker
+
 install:
-    - export PATH=~/.rakudobrew/bin:~/.rakudobrew/moar-master/install/share/perl6/site/bin:~/.rakudobrew/moar-master/zef/bin:$PATH
-    - zef install --depsonly .        || true
-before_script:
-    - zef --installed --verbose list  || true
-    - perl6 -I. -Ilib t/81_subclass.t || true
-script:
-    - prove -v -e 'perl6 -Ilib' t
-    - ZEF_SUBMIT_TESTREPORTS=1 zef install .
+  - docker pull jjmerelo/test-perl6
+  - docker run -t  --entrypoint="/bin/sh" -v  $TRAVIS_BUILD_DIR:/test jjmerelo/test-perl6 -c "zef install Slang::Tuxic && perl6 -I. -Ilib t/81_subclass.t || true"
+
+script: docker run -t -v  $TRAVIS_BUILD_DIR:/test -e ZEF_SUBMIT_TESTREPORTS=1  jjmerelo/test-perl6
+
 after_success:
-    - zef list --installed --verbose
+    -  docker run -t  --entrypoint="/bin/sh" -v  $TRAVIS_BUILD_DIR:/test jjmerelo/test-perl6 -c "zef list --installed --verbose"
+
 notifications:
   irc:
     channels:
