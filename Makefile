@@ -1,6 +1,6 @@
 # ex:se inputtab=tab autotab:
 
-.PHONY:         test test-verbose profile time tt
+.PHONY:         test test-verbose profile time tt doc
 .PRECIOUS:      test-t.pl
 
 test:
@@ -53,6 +53,16 @@ dist:
 
 html:
 	test -d ../Talks/CSVh && pod2html Text-CSV.pod >../Talks/CSVh/pod6.html 2>/dev/null
+
+doc:
+	perl -ne'/^=(begin|end) pod/ or print' lib/Text/CSV.pod6 > xx.pod
+	pod2markdown  < xx.pod > doc/Text-CSV.md
+	pod2html      < xx.pod 2>&1 |\
+		   grep -v "^Cannot find" > doc/Text-CSV.html
+	html2pdf.pl -f -o doc/Text-CSV.pdf  doc/Text-CSV.html
+	pod2man	      < xx.pod > doc/Text-CSV.3
+	nroff -mandoc < doc/Text-CSV.3	  > doc/Text-CSV.man
+	rm xx.pod
 
 opencsv-2.3.jar:
 	test -f opencsv-2.3.jar || wget -q http://www.java2s.com/Code/JarDownload/opencsv/opencsv-2.3.jar.zip
