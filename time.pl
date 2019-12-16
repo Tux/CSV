@@ -38,7 +38,7 @@ my %lang = (
      3 => [ ".py",  "python3",                                                ],
      4 => [ ".php", "php",       "-nq"                                        ],
      5 => [ ".pl",  "perl",                                                   ],
-     6 => [ ".pl",  "perl6",     "-Ilib"                                      ],
+     6 => [ ".pl",  "raku",      "-Ilib"                                      ],
      7 => [ ".lua", "lua5.1"                                                  ],
     21 => [ ".lua", "lua5.3"                                                  ],
      8 => [ ".go",  "go",        "run"                                        ],
@@ -149,7 +149,7 @@ for (@test) {
 
     my ($ext, $exe, @arg) = @{$lang{$v}};
 
-    $exe eq "perl6" && !$opt_6 and next;
+    $exe eq "raku" && !$opt_6 and next;
 
     $opt_v and printf "%-9s ", $exe;
     my $s_script = sprintf "%-17s ", join "\x{00a0}" => $script, @args;
@@ -201,7 +201,7 @@ for (@test) {
     $irc and push @irc, $time[-1];
     }
 
-print qx{perl6 -v} =~ s{\nimplementing.*\n}{\n}r;
+print qx{raku -v} =~ s{\nimplementing.*\n}{\n}r;
 printf "%s %9.3f\n", $_->[1], $_->[3] for grep { $_->[3] < 100 } @irc;
 
 if (!$opt_i and open my $fh, ">", "../Talks/CSV6/speed5.html") {

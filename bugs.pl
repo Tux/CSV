@@ -4,8 +4,7 @@ use 5.18.0;
 use warnings;
 use Term::ANSIColor;
 
-sub usage
-{
+sub usage {
     my $err = shift and select STDERR;
     say "usage: $0 [--test]";
     exit $err;
@@ -51,7 +50,7 @@ sub test
             close $fh;
             };
         alarm (3);
-        system "perl6 $t @arg >$e 2>&1";
+        system "raku $t @arg >$e 2>&1";
         $exit = $?;
         alarm (0);
         };
@@ -243,7 +242,7 @@ EOP
 
 {   title "Precomp", "Precompilations causes segfault", "RT#124298";
     qx{mkdir -p blib/lib/Text};
-    qx{perl6 --target=mbc --output=blib/lib/Text/CSV.pm.moarvm lib/Text/CSV.pm};
+    qx{raku --target=mbc --output=blib/lib/Text/CSV.pm.moarvm lib/Text/CSV.pm};
     test (qr{Segmentation fault},
           q{use lib "blib/lib";use Text::CSV; my $c = Text::CSV.new});
     qx{find blib};
