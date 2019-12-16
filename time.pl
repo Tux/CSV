@@ -272,7 +272,7 @@ EOH
 	my $i = $t->{i};
 	$i =~ m/fail/i || $i == 0 and $i = "FAIL";
 	$t->{exe} =~ s/perl$/perl5/;
-	my $class = $t->{script} =~ m/-pi\b/ ? "perlito" : $t->{exe} =~ m/^perl/ ? $t->{exe} : "";
+	my $class = $t->{script} =~ m/-pi\b/ ? "perlito" : $t->{exe} =~ m/^(?:perl|raku)/ ? $t->{exe} : "";
 	my $scrpt = join " " => grep m/\S/ => $t->{s_script}, $t->{args};
 	$scrpt =~ s/--race\K(?:\s+--race)+//;
 	#DDumper { t => $t, class => $class, script => $scrpt };
