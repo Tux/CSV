@@ -1,6 +1,6 @@
 Module
 ------
-Text::CSV - Handle CSV data in perl6
+Text::CSV - Handle CSV data in raku
 
 Description
 -----------
@@ -35,7 +35,7 @@ Feel free to clone your own copy:
 
 Prerequisites
 -------------
-* perl6 2015.03
+* raku 6.c
 * File::Temp   - as long as in-memory IO is not native
 * Slang::Tuxic - to support my style
 

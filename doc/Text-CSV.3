@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "STDIN 1"
-.TH STDIN 1 "2019-12-11" "perl v5.28.0" "User Contributed Perl Documentation"
+.TH STDIN 1 "2019-12-16" "perl v5.28.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -141,7 +141,7 @@
 .SH "DISCLAIMER"
 .IX Header "DISCLAIMER"
 Note that updating these docs is an ongoing process and some perl5 idioms
-might not have been translated yet into correct perl6 idiom. My bad. Sorry.
+might not have been translated yet into correct raku idiom. My bad. Sorry.
 (Feedback welcome)
 .SH "NAME"
 Text::CSV \- comma\-separated values manipulation routines
@@ -306,7 +306,7 @@ When not set in a \fBparser\fR instance, the default behavior is to accept
 \&\f(CW\*(C`\en\*(C'\fR, \f(CW\*(C`\er\*(C'\fR, and \f(CW\*(C`\er\en\*(C'\fR, so it is probably safer to not specify \f(CW\*(C`eol\*(C'\fR at
 all. Passing \f(CW\*(C`Str\*(C'\fR or the empty string behave the same.
 .Sp
-As perl6 interprets \f(CW\*(C`\er\en\*(C'\fR as a single grapheme in input, it is dissuaded
+As raku interprets \f(CW\*(C`\er\en\*(C'\fR as a single grapheme in input, it is dissuaded
 to use \f(CW\*(C`\er\en\*(C'\fR as \f(CW\*(C`eol\*(C'\fR when parsing. Please choose \f(CW\*(C`Str\*(C'\fR instead.
 .Sp
 When not passed in a \fBgenerating\fR instance, records are not terminated at
@@ -1281,7 +1281,7 @@ array with the names. You can pass the return value from \*(L"getline\*(R" too:
 .Ve
 .PP
 \&\*(L"column_names\*(R" does \fBno\fR checking on duplicates at all, which might lead
-to unexpected results. As perl6 does not accept undefined keys in a hash,
+to unexpected results. As raku does not accept undefined keys in a hash,
 passing just types will lead to fail later on.
 .PP
 .Vb 3
@@ -1604,7 +1604,7 @@ use the methods to inquire the internal status.
 .SS "CSV::Diag"
 .IX Subsection "CSV::Diag"
 The method is created with the widest possible use in mind, serving both
-the mindset of perl6 as well as the direct approach of the old module. It
+the mindset of raku as well as the direct approach of the old module. It
 is immutable: it is created with all available error parameters known at
 the time of failure, and the cannot be changed afterwards.
 .PP
@@ -1795,7 +1795,7 @@ Instantiate a new field. Optionally takes a \f(CW\*(C`Cool\*(C'\fR.
 .Ve
 .PP
 Return the boolean value of the field. As \s-1CSV\s0 is text-only be design, this
-will also return \f(CW\*(C`False\*(C'\fR for \f(CW"0"\fR, where perl6 sees \f(CW"0"\fR as \f(CW\*(C`True\*(C'\fR.
+will also return \f(CW\*(C`False\*(C'\fR for \f(CW"0"\fR, where raku sees \f(CW"0"\fR as \f(CW\*(C`True\*(C'\fR.
 .SS "text =head2 Str"
 .IX Subsection "text =head2 Str"
 .Vb 3
@@ -2976,14 +2976,14 @@ The solution would be a working \f(CW\*(C`utf8\-c8\*(C'\fR encoding.
 .IP "\s-1BOM\s0 detection" 2
 .IX Item "BOM detection"
 There is no working solution yet for detection of \s-1BOM\s0 on the \*(L"header\*(R"
-method. Besides that, not all encodings are supported in perl6.
+method. Besides that, not all encodings are supported in raku.
 .IP "on-in and before-print callbacks" 2
 .IX Item "on-in and before-print callbacks"
 The \*(L"on-in\*(R" callback currently is an alias for \*(L"after-parse\*(R" if the
 latter is not specified.
 .IP "Examples" 2
 .IX Item "Examples"
-Convert the perl5 example/tool files to perl6 versions
+Convert the perl5 example/tool files to raku versions
 .IP "Metadata and \s-1CSV\s0 for the web" 2
 .IX Item "Metadata and CSV for the web"
 Metadata Vocabulary for Tabular Data <http://w3c.github.io/csvw/metadata/>
@@ -3006,7 +3006,7 @@ Still under construction ...
 .PP
 This section describes the error codes that are used in perl5's module
 Text::CSV_XS, and several of these errors are either not applicable in
-perl6 or changed slightly. Once all of the \s-1API\s0 is finished, this section
+raku or changed slightly. Once all of the \s-1API\s0 is finished, this section
 will be cleaned up. The intention of the error coded however remains.
 .PP
 If an error occurs, \f(CW\*(C`$csv.error_diag\*(C'\fR can be used to
@@ -3267,7 +3267,7 @@ Text::CSV::Slurp, Spreadsheet::CSV and Spreadsheet::Read;
 H.Merijn Brand \fI<h.m.brand@xs4all.nl>\fR wrote this based on the
 features provided by perl5's Text::CSV_XS.
 .PP
-Liz Mattijsen helped in getting the best out of perl6.
+Liz Mattijsen helped in getting the best out of raku.
 .SH "COPYRIGHT AND LICENSE"
 .IX Header "COPYRIGHT AND LICENSE"
 .Vb 1

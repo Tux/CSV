@@ -1,6 +1,6 @@
 use v6;
 
-my $opt_v = %*ENV<PERL6_VERBOSE> // 1;
+my $opt_v = %*ENV<RAKU_VERBOSE> // 1;
 my $test  = qq{,1,ab,"cd","e"0f","g,h","nl\nz"0i""""3",\r\n};
 my @rslt  = ("", "1", "ab", "cd", "e\c0f", "g,h", qq{nl\nz\c0i""3}, "");
 
@@ -69,7 +69,7 @@ class Text::CSV {
     has @!types;
     has @!callbacks;
     method compose {
-        # A scoping bug in perl6 inhibits the use of $!eol inside the split
+        # A scoping bug in raku inhibits the use of $!eol inside the split
         my     $eol = $!eol // rx{ \r\n | \r | \n };
         my Str $sep = $!sep;
         my Str $quo = $!quo;
@@ -89,7 +89,7 @@ class Text::CSV {
             }
 
         $opt_v > 8 and say $buffer.perl;
-        ## A scoping bug in perl6 inhibits the use of $!eol inside the split
+        ## A scoping bug in raku inhibits the use of $!eol inside the split
         #for $buffer.split(rx{ $!eol | $!sep | $!quo | $!esc }, :all).map(~*) -> Str $chunk {
         my     $eol = $!eol // rx{ \r\n | \r | \n };
         my Str $sep := $!sep;

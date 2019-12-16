@@ -151,7 +151,7 @@
 
 <h1 id="DISCLAIMER">DISCLAIMER</h1>
 
-<p>Note that updating these docs is an ongoing process and some perl5 idioms might not have been translated yet into correct perl6 idiom. My bad. Sorry. (Feedback welcome)</p>
+<p>Note that updating these docs is an ongoing process and some perl5 idioms might not have been translated yet into correct raku idiom. My bad. Sorry. (Feedback welcome)</p>
 
 <h1 id="NAME">NAME</h1>
 
@@ -291,7 +291,7 @@
 
 <p>When not set in a <b>parser</b> instance, the default behavior is to accept <code>\n</code>, <code>\r</code>, and <code>\r\n</code>, so it is probably safer to not specify <code>eol</code> at all. Passing <code>Str</code> or the empty string behave the same.</p>
 
-<p>As perl6 interprets <code>\r\n</code> as a single grapheme in input, it is dissuaded to use <code>\r\n</code> as <code>eol</code> when parsing. Please choose <code>Str</code> instead.</p>
+<p>As raku interprets <code>\r\n</code> as a single grapheme in input, it is dissuaded to use <code>\r\n</code> as <code>eol</code> when parsing. Please choose <code>Str</code> instead.</p>
 
 <p>When not passed in a <b>generating</b> instance, records are not terminated at all, so it is probably wise to pass something you expect. A safe choice for <code>eol</code> on output is either <code>\n</code> or <code>\r\n</code>.</p>
 
@@ -1053,7 +1053,7 @@
 
 <pre><code> $csv.column_names($csv.getline($io));</code></pre>
 
-<p><a href="#column_names">&quot;column_names&quot;</a> does <b>no</b> checking on duplicates at all, which might lead to unexpected results. As perl6 does not accept undefined keys in a hash, passing just types will lead to fail later on.</p>
+<p><a href="#column_names">&quot;column_names&quot;</a> does <b>no</b> checking on duplicates at all, which might lead to unexpected results. As raku does not accept undefined keys in a hash, passing just types will lead to fail later on.</p>
 
 <pre><code> $csv.column_names(Str, &quot;&quot;, &quot;name&quot;); # Will FAIL becaus of Str
  $csv.column_names(&lt; code name count name &gt;); # will drop the second column
@@ -1277,7 +1277,7 @@
 
 <h2 id="CSV::Diag">CSV::Diag</h2>
 
-<p>The method is created with the widest possible use in mind, serving both the mindset of perl6 as well as the direct approach of the old module. It is immutable: it is created with all available error parameters known at the time of failure, and the cannot be changed afterwards.</p>
+<p>The method is created with the widest possible use in mind, serving both the mindset of raku as well as the direct approach of the old module. It is immutable: it is created with all available error parameters known at the time of failure, and the cannot be changed afterwards.</p>
 
 <pre><code> my CSV::Diag $d .= new(
      error   =&gt; 0,
@@ -1434,7 +1434,7 @@
 <pre><code> ?$f     and say &quot;The field is true&quot;;
  $f.Bool and say &quot;This field is true too&quot;;</code></pre>
 
-<p>Return the boolean value of the field. As CSV is text-only be design, this will also return <code>False</code> for <code>&quot;0&quot;</code>, where perl6 sees <code>&quot;0&quot;</code> as <code>True</code>.</p>
+<p>Return the boolean value of the field. As CSV is text-only be design, this will also return <code>False</code> for <code>&quot;0&quot;</code>, where raku sees <code>&quot;0&quot;</code> as <code>True</code>.</p>
 
 <h2 id="text-head2-Str">text =head2 Str</h2>
 
@@ -2498,7 +2498,7 @@
 <dt id="BOM-detection">BOM detection</dt>
 <dd>
 
-<p>There is no working solution yet for detection of BOM on the <a href="#header">&quot;header&quot;</a> method. Besides that, not all encodings are supported in perl6.</p>
+<p>There is no working solution yet for detection of BOM on the <a href="#header">&quot;header&quot;</a> method. Besides that, not all encodings are supported in raku.</p>
 
 </dd>
 <dt id="on-in-and-before-print-callbacks">on-in and before-print callbacks</dt>
@@ -2510,7 +2510,7 @@
 <dt id="Examples">Examples</dt>
 <dd>
 
-<p>Convert the perl5 example/tool files to perl6 versions</p>
+<p>Convert the perl5 example/tool files to raku versions</p>
 
 </dd>
 <dt id="Metadata-and-CSV-for-the-web">Metadata and CSV for the web</dt>
@@ -2535,7 +2535,7 @@
 
 <p>Still under construction ...</p>
 
-<p>This section describes the error codes that are used in perl5&#39;s module <a>Text::CSV_XS</a>, and several of these errors are either not applicable in perl6 or changed slightly. Once all of the API is finished, this section will be cleaned up. The intention of the error coded however remains.</p>
+<p>This section describes the error codes that are used in perl5&#39;s module <a>Text::CSV_XS</a>, and several of these errors are either not applicable in raku or changed slightly. Once all of the API is finished, this section will be cleaned up. The intention of the error coded however remains.</p>
 
 <p>If an error occurs, <a href="#error_diag"><code>$csv.error_diag</code></a> can be used to get information on the cause of the failure. Note that for speed reasons the internal value is never cleared on success, so using the value returned by <a href="#error_diag">&quot;error_diag&quot;</a> in normal cases - when no error occurred - may cause unexpected results.</p>
 
@@ -2779,7 +2779,7 @@
 
 <p>H.Merijn Brand <i>&lt;h.m.brand@xs4all.nl&gt;</i> wrote this based on the features provided by perl5&#39;s Text::CSV_XS.</p>
 
-<p>Liz Mattijsen helped in getting the best out of perl6.</p>
+<p>Liz Mattijsen helped in getting the best out of raku.</p>
 
 <h1 id="COPYRIGHT-AND-LICENSE">COPYRIGHT AND LICENSE</h1>
 

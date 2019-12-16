@@ -1,7 +1,7 @@
 # DISCLAIMER
 
 Note that updating these docs is an ongoing process and some perl5 idioms
-might not have been translated yet into correct perl6 idiom. My bad. Sorry.
+might not have been translated yet into correct raku idiom. My bad. Sorry.
 (Feedback welcome)
 
 # NAME
@@ -158,7 +158,7 @@ The following attributes are available:
     `\n`, `\r`, and `\r\n`, so it is probably safer to not specify `eol` at
     all. Passing `Str` or the empty string behave the same.
 
-    As perl6 interprets `\r\n` as a single grapheme in input, it is dissuaded
+    As raku interprets `\r\n` as a single grapheme in input, it is dissuaded
     to use `\r\n` as `eol` when parsing. Please choose `Str` instead.
 
     When not passed in a **generating** instance, records are not terminated at
@@ -970,7 +970,7 @@ array with the names. You can pass the return value from ["getline"](#getline) t
     $csv.column_names($csv.getline($io));
 
 ["column\_names"](#column_names) does **no** checking on duplicates at all, which might lead
-to unexpected results. As perl6 does not accept undefined keys in a hash,
+to unexpected results. As raku does not accept undefined keys in a hash,
 passing just types will lead to fail later on.
 
     $csv.column_names(Str, "", "name"); # Will FAIL becaus of Str
@@ -1261,7 +1261,7 @@ use the methods to inquire the internal status.
 ## CSV::Diag
 
 The method is created with the widest possible use in mind, serving both
-the mindset of perl6 as well as the direct approach of the old module. It
+the mindset of raku as well as the direct approach of the old module. It
 is immutable: it is created with all available error parameters known at
 the time of failure, and the cannot be changed afterwards.
 
@@ -1429,7 +1429,7 @@ Instantiate a new field. Optionally takes a `Cool`.
     $f.Bool and say "This field is true too";
 
 Return the boolean value of the field. As CSV is text-only be design, this
-will also return `False` for `"0"`, where perl6 sees `"0"` as `True`.
+will also return `False` for `"0"`, where raku sees `"0"` as `True`.
 
 ## text
 =head2 Str
@@ -2494,7 +2494,7 @@ that line.
 - BOM detection
 
     There is no working solution yet for detection of BOM on the ["header"](#header)
-    method. Besides that, not all encodings are supported in perl6.
+    method. Besides that, not all encodings are supported in raku.
 
 - on-in and before-print callbacks
 
@@ -2503,7 +2503,7 @@ that line.
 
 - Examples
 
-    Convert the perl5 example/tool files to perl6 versions
+    Convert the perl5 example/tool files to raku versions
 
 - Metadata and CSV for the web
 
@@ -2529,7 +2529,7 @@ Still under construction ...
 
 This section describes the error codes that are used in perl5's module
 [Text::CSV\_XS](https://metacpan.org/pod/Text%3A%3ACSV_XS), and several of these errors are either not applicable in
-perl6 or changed slightly. Once all of the API is finished, this section
+raku or changed slightly. Once all of the API is finished, this section
 will be cleaned up. The intention of the error coded however remains.
 
 If an error occurs, [`$csv.error_diag`](#error_diag) can be used to
@@ -2771,7 +2771,7 @@ Modules in perl5:
 H.Merijn Brand `<h.m.brand@xs4all.nl>` wrote this based on the
 features provided by perl5's Text::CSV\_XS.
 
-Liz Mattijsen helped in getting the best out of perl6.
+Liz Mattijsen helped in getting the best out of raku.
 
 # COPYRIGHT AND LICENSE
 

@@ -80,7 +80,7 @@ CONTENTS
 
 is ((slurp $tf20, :bin).decode, $expected, "Content");
 
-$csv.eol (Str); # \r\n is translated to \n by perl6
+$csv.eol (Str); # \r\n is translated to \n by raku
 $fh = open  $tf20, :r or die "$tf20: $!";
 my @fields;
 ok (True, "# Retrieving data");

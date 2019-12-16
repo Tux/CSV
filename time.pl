@@ -14,11 +14,11 @@ use Time::HiRes  qw( gettimeofday tv_interval );
 use Getopt::Long qw(:config bundling);
 my $opt_6 = 1;
 GetOptions (
-    "help|?"      => sub { usage (0); },
-    "i|irc!"      => \my $opt_i,
-    "p|perl6!"    =>    \$opt_6,
-    "f|fast"      => sub { $opt_6 = 0; },
-    "v|verbose:1" => \my $opt_v,
+    "help|?"        => sub { usage (0); },
+    "i|irc!"        => \my $opt_i,
+    "p|raku|perl6!" =>    \$opt_6,
+    "f|fast"        => sub { $opt_6 = 0; },
+    "v|verbose:1"   => \my $opt_v,
     ) or usage (1);
 
 binmode STDOUT, ":encoding(utf-8)";

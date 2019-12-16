@@ -4,7 +4,7 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
 
 [1mDISCLAIMER[0m
        Note that updating these docs is an ongoing process and some perl5
-       idioms might not have been translated yet into correct perl6 idiom. My
+       idioms might not have been translated yet into correct raku idiom. My
        bad. Sorry.  (Feedback welcome)
 
 [1mNAME[0m
@@ -161,7 +161,7 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
            specify "eol" at all. Passing "Str" or the empty string behave the
            same.
 
-           As perl6 interprets "\r\n" as a single grapheme in input, it is
+           As raku interprets "\r\n" as a single grapheme in input, it is
            dissuaded to use "\r\n" as "eol" when parsing. Please choose "Str"
            instead.
 
@@ -877,7 +877,7 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
         $csv.column_names($csv.getline($io));
 
        "column_names" does [1mno [22mchecking on duplicates at all, which might lead
-       to unexpected results. As perl6 does not accept undefined keys in a
+       to unexpected results. As raku does not accept undefined keys in a
        hash, passing just types will lead to fail later on.
 
         $csv.column_names(Str, "", "name"); # Will FAIL becaus of Str
@@ -1129,7 +1129,7 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
 
    [1mCSV::Diag[0m
        The method is created with the widest possible use in mind, serving
-       both the mindset of perl6 as well as the direct approach of the old
+       both the mindset of raku as well as the direct approach of the old
        module. It is immutable: it is created with all available error
        parameters known at the time of failure, and the cannot be changed
        afterwards.
@@ -1283,7 +1283,7 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
         $f.Bool and say "This field is true too";
 
        Return the boolean value of the field. As CSV is text-only be design,
-       this will also return "False" for "0", where perl6 sees "0" as "True".
+       this will also return "False" for "0", where raku sees "0" as "True".
 
    [1mtext =head2 Str[0m
         $str = ~$f;
@@ -2245,14 +2245,14 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
 
        BOM detection
          There is no working solution yet for detection of BOM on the "header"
-         method. Besides that, not all encodings are supported in perl6.
+         method. Besides that, not all encodings are supported in raku.
 
        on-in and before-print callbacks
          The "on-in" callback currently is an alias for "after-parse" if the
          latter is not specified.
 
        Examples
-         Convert the perl5 example/tool files to perl6 versions
+         Convert the perl5 example/tool files to raku versions
 
        Metadata and CSV for the web
          Metadata Vocabulary for Tabular Data
@@ -2277,9 +2277,8 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
 
        This section describes the error codes that are used in perl5's module
        Text::CSV_XS, and several of these errors are either not applicable in
-       perl6 or changed slightly. Once all of the API is finished, this
-       section will be cleaned up. The intention of the error coded however
-       remains.
+       raku or changed slightly. Once all of the API is finished, this section
+       will be cleaned up. The intention of the error coded however remains.
 
        If an error occurs, "$csv.error_diag" can be used to get information on
        the cause of the failure. Note that for speed reasons the internal
@@ -2500,7 +2499,7 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
        H.Merijn Brand [4m<h.m.brand@xs4all.nl>[24m wrote this based on the features
        provided by perl5's Text::CSV_XS.
 
-       Liz Mattijsen helped in getting the best out of perl6.
+       Liz Mattijsen helped in getting the best out of raku.
 
 [1mCOPYRIGHT AND LICENSE[0m
         Copyright (C) 2014-2018 H.Merijn Brand. All rights reserved.
@@ -2510,4 +2509,4 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
 
 
 
-perl v5.28.0                      2019-12-11                          STDIN(1)
+perl v5.28.0                      2019-12-16                          STDIN(1)
