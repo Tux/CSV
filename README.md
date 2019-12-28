@@ -19,6 +19,9 @@ and produce CSV data.
 
  my @dta = csv(in => "file.csv");
 ```
+
+Additional (still incomplete) documentation in [the `doc` directory](/doc), including [a markdown version](/doc/Text-CSV.md). Check out also the [examples](/examples). 
+ 
 Copying
 -------
 Copyright (c) 2015-2019 H.Merijn Brand.  All rights reserved.
