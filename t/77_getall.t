@@ -5,6 +5,7 @@ use Slang::Tuxic;
 
 use Test;
 use Text::CSV;
+use IO::String;
 
 my $csv = Text::CSV.new;
 my $tfn = "_77test.csv";
