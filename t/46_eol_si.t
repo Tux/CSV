@@ -5,6 +5,7 @@ use Slang::Tuxic;
 
 use Test;
 use Text::CSV;
+use IO::String;
 
 my Str $efn;
 my Str @rs  = "\n", "\r\n", "\r";

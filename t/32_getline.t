@@ -4,6 +4,7 @@ use v6;
 use Slang::Tuxic;
 
 use Text::CSV;
+use IO::String;
 use Test;
 
 my $fh = IO::String.new (q:to/EOC/);
