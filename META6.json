@@ -8,8 +8,8 @@
   "depends"       : [ "Slang::Tuxic", "File::Temp" ],
   "test-depends"  : [ "Test", "Test::META"         ],
   "provides"      : {
-      "Text::CSV"   : "lib/Text/CSV.pm",
-      "IO::String"  : "lib/IO/String.pm6"
+    "Text::CSV"   : "lib/Text/CSV.pm",
+    "IO::String"  : "lib/IO/String.pm6"
     },
   "repo-type"     : "git",
   "source-url"    : "git://github.com/Tux/CSV.git",
