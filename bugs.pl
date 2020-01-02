@@ -13,8 +13,8 @@ sub usage {
 use Getopt::Long qw(:config bundling);
 GetOptions (
     "help|?"      => sub { usage (0); },
-    "s|summary!"  => \my $opt_s,
-    "v|verbose:1" => \my $opt_v,
+    "s|summary!"  => \ my $opt_s,
+    "v|verbose:1" => \(my $opt_v = 0),
     ) or usage (1);
 
 my $t = "t$$.pl";
@@ -34,10 +34,10 @@ my $title = "";
         }
     }
 
-sub test
-{
+sub test {
     my ($re, $p, @arg) = @_;
 
+    $opt_v > 2 and say "Writing test file $t ...";
     open my $fh, ">", $t or die "$t: $!\n";
     print $fh $p;
     close $fh;
@@ -50,7 +50,9 @@ sub test
             close $fh;
             };
         alarm (3);
-        system "raku $t @arg >$e 2>&1";
+        my $cmd = "raku -Ilib -I. $t @arg >$e 2>&1";
+        $opt_v > 1 and say $cmd;
+        system $cmd;
         $exit = $?;
         alarm (0);
         };
@@ -68,6 +70,7 @@ sub test
     printf "\n  --8<--- %s\n%s\n(exit: $exit)\n  -->8---\n", $fail
         ? colored (["red"  ], "BUG")
         : colored (["green"], "Fixed"), $P;
+    alarm (0);
     } # test
 
 {   title "Scope", "class variables cannot be used in regex", "RT#122892";
@@ -240,14 +243,17 @@ EOP
           q{class C is Exception { method message { "OH NOES" } }; for ^208 { { die C.new; CATCH { default {} } }; print "" }});
     }
 
-{   title "Precomp", "Precompilations causes segfault", "RT#124298";
-    qx{mkdir -p blib/lib/Text};
-    qx{raku --target=mbc --output=blib/lib/Text/CSV.pm.moarvm lib/Text/CSV.pm};
-    test (qr{Segmentation fault},
-          q{use lib "blib/lib";use Text::CSV; my $c = Text::CSV.new});
-    qx{find blib};
-    qx{rm -rf blib};
-    }
+#{  title "Precomp", "Precompilations causes segfault", "RT#124298";
+#   qx{mkdir -p blib/lib/IO};
+#   qx{raku --target=mbc --output=blib/lib/IO/String.pm.moarvm lib/IO/String.pm6};
+#   qx{mkdir -p blib/lib/Text};
+#   qx{raku -Iblib/lib --target=mbc --output=blib/lib/Text/CSV.pm.moarvm lib/Text/CSV.pm};
+#   ^^^^ Could not find IO::String at line 6
+#   test (qr{Segmentation fault},
+#         q{use lib "blib/lib"; use Text::CSV; my $c = Text::CSV.new});
+#   qx{find blib};
+#   qx{rm -rf blib};
+#   }
 
 {   title "MoarVM", "Read bytes too often", "RT#124394";
     test (qr{\+\+},
