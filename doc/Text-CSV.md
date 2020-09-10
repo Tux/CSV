@@ -1787,6 +1787,14 @@ side-effects of e.g. an `on-in` hook is dealing with the data.
 
     Returns an Array of Arrays.
 
+- Array:D
+
+        my $aoa = csv(in => $in, out => @data);
+
+    Adds the records to an existing Array. If the existing array is not empty,
+    the type of the first record determines adding a list of Arrays or a list
+    of Hashes.
+
 - Hash:U
 
         my $aoh = csv(in => $in, out => Hash);
@@ -2036,6 +2044,13 @@ the second example will return
           product => 'mouse'
           }
       }
+
+If `out` points to an existing Hash, the data will be added to that instead
+(existing records will be overwritten on reading duplicate keys). It returns
+the value passed to `out`:
+
+    my $ref = csv(in => "test.csv", out => %hash, key =>        "code");
+    my $ref = csv(in => "test.csv", out => %hash, key => [ ":", "code", "color" ]);
 
 ### fragment
 

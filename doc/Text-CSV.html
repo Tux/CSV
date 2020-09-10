@@ -1805,6 +1805,14 @@
 <p>Returns an Array of Arrays.</p>
 
 </dd>
+<dt id="Array:D">Array:D</dt>
+<dd>
+
+<pre><code> my $aoa = csv(in =&gt; $in, out =&gt; @data);</code></pre>
+
+<p>Adds the records to an existing Array. If the existing array is not empty, the type of the first record determines adding a list of Arrays or a list of Hashes.</p>
+
+</dd>
 <dt id="Hash:U">Hash:U</dt>
 <dd>
 
@@ -2056,6 +2064,11 @@
        product =&gt; &#39;mouse&#39;
        }
    }</code></pre>
+
+<p>If <code>out</code> points to an existing Hash, the data will be added to that instead (existing records will be overwritten on reading duplicate keys). It returns the value passed to <code>out</code>:</p>
+
+<pre><code> my $ref = csv(in =&gt; &quot;test.csv&quot;, out =&gt; %hash, key =&gt;        &quot;code&quot;);
+ my $ref = csv(in =&gt; &quot;test.csv&quot;, out =&gt; %hash, key =&gt; [ &quot;:&quot;, &quot;code&quot;, &quot;color&quot; ]);</code></pre>
 
 <h3 id="fragment1">fragment </h3>
 

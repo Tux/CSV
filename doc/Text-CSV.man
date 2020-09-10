@@ -1600,6 +1600,13 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
 
          Returns an Array of Arrays.
 
+       Array:D
+          my $aoa = csv(in => $in, out => @data);
+
+         Adds the records to an existing Array. If the existing array is not
+         empty, the type of the first record determines adding a list of
+         Arrays or a list of Hashes.
+
        Hash:U
           my $aoh = csv(in => $in, out => Hash);
 
@@ -1830,6 +1837,13 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
               product => 'mouse'
               }
           }
+
+       If "out" points to an existing Hash, the data will be added to that
+       instead (existing records will be overwritten on reading duplicate
+       keys). It returns the value passed to "out":
+
+        my $ref = csv(in => "test.csv", out => %hash, key =>        "code");
+        my $ref = csv(in => "test.csv", out => %hash, key => [ ":", "code", "color" ]);
 
        [4mfragment[0m
 
@@ -2509,4 +2523,4 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
 
 
 
-perl v5.28.0                      2019-12-16                          STDIN(1)
+perl v5.28.0                      2020-09-10                          STDIN(1)
