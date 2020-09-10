@@ -244,6 +244,35 @@ for in () -> $in {
     is-deeply ([@d], $full-aoh, "csv => Supplier { s-in ($in) }");
     }
 
+$io-in.seek (0, SeekFromBeginning);
+for in () -> $in {
+    my $record  = [ "x", "y", "z" ];
+    my @prefill = $record;
+    my $exp-aoa = [ $full-aoa.flat ];
+    $exp-aoa.unshift ($record);
+    is-deeply (csv (in => $in, out => @prefill), $exp-aoa, "csv => Pre-existing AOA  <= { s-in ($in) }");
+    }
+
+$io-in.seek (0, SeekFromBeginning);
+for in () -> $in {
+    my $record  = {:bar("x"),:baz("y"),:foo("z")};
+    my @prefill = $record;
+    my $exp-aoh = [ $full-aoh.flat ];
+    $exp-aoh.unshift ($record);
+    is-deeply (csv (in => $in, out => @prefill), $exp-aoh, "csv => Pre-existing AOH <= { s-in ($in) }");
+    }
+
+$io-in.seek (0, SeekFromBeginning);
+for in () -> $in {
+    my $record  = {:bar("0"),:baz("1"),:foo("2")};
+    my $prefill = { 0 => $record };
+    my $exp-hsh = { 0 => $record,
+                    1 => {:bar("1"),:baz("2"),:foo("3")},
+                    2 => {:bar("2"),:baz("a b"),:foo("")},
+                    };
+    is-deeply (csv (in => $in, out => $prefill, key => "bar"), $exp-hsh, "csv => Pre-existing HSH <= { s-in ($in) }");
+    }
+
 # Additional attributes like headers and fragment
 
 $io-in.seek (0, SeekFromBeginning);

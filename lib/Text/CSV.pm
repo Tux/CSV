@@ -1769,6 +1769,13 @@ class Text::CSV {
             when Supply:U {
                 $out = Supplier::Preserving.new;
                 }
+            when Array:D {
+                $out[0] ~~ Hash and $headers ||= "auto";
+                }
+            when Hash:D {
+                # No specific action required here
+                # Check if key is supplied?
+                }
             when Array:U | Hash:U | Capture:U |
                  Supplier:D | Callable:D | Channel:D {
                 # No specific action required here
@@ -1821,7 +1828,7 @@ class Text::CSV {
         $out ~~ Hash || $headers ~~ Array || ($headers ~~ Str && $headers eq "auto") and
             @h = @!cnames.elems ?? @!cnames !! @in.shift.list;
       # unless (?$out || ?$tmpfn || ?$io-out) { # TODO: Fix for csv () in void context!
-        unless (?$out || ?$tmpfn) {
+        unless ((?$out && $out !~~ Hash) || ?$tmpfn) {
             if ($out ~~ Hash or @h.elems) {
                 # AOH
                 @h or return [];
@@ -1832,12 +1839,20 @@ class Text::CSV {
                 if ($key) {
                     if ($key ~~ Str) {
                         @in[0]{$key }:exists or self!fail (4001);
+                        if (?$out) {
+                            for @in -> \h { $out{h{$key}} = h };
+                            return $out;
+                            }
                         return $%( @in.map ( -> \h --> Pair { h{$key} => h }) );
                         }
                     if ($key ~~ Array && $key.elems > 1) {
                         my @k   = @$key;
                         my $sep = @k.shift;
                         @k.map ({@in[0]{$_}:exists}).all or self!fail (4001);
+                        if (?$out) {
+                            for @in -> \h { $out{h{@k.map ({h{$_}}).join: $sep}} = h };
+                            return $out;
+                            }
                         return $%( @in.map ( -> \h --> Pair {
                             (@k.map ({h{$_}}).join: $sep) => h }));
                         }
@@ -1869,6 +1884,9 @@ class Text::CSV {
                 when Channel {
                     $out.send ($r);
                     }
+                when Array:D {
+                    $out.push: $r;
+                    }
                 default {
                     defined $io-out and $io-out.print (self.string);
                     }
@@ -1883,6 +1901,9 @@ class Text::CSV {
                 }
             when Channel {
                 $out.close;
+                return $out;
+                }
+            when Array:D | Hash:D {
                 return $out;
                 }
             }
