@@ -29,6 +29,6 @@ will do fine!
 
 # Requirements
 
-For perl6, you cannot code in my style without
+For raku, you cannot code in my style without
 [Slang::Tuxic](https://github.com/FROGGS/p6-Slang-Tuxic), but that is only
 needed for whitespace issues. You can do correct indentation without it.

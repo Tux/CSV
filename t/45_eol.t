@@ -1,4 +1,4 @@
-#!perl6
+#!raku
 
 # Cannot set $*OUT.nl-out to Str
 

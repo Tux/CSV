@@ -1,2 +1,2 @@
 #!/bin/sh
-exec perl6 -Ilib "$@"
+exec raku -Ilib "$@"

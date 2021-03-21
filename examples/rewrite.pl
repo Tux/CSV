@@ -1,4 +1,4 @@
-#!perl6
+#!raku
 
 # rewrite.pl: Convert SSV to CSV
 #          (m)'18 Copyright H.M.Brand 2007-2018

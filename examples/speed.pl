@@ -1,4 +1,4 @@
-#!perl6
+#!raku
 
 # speed.pl: compare different versions of Text-CSV* modules
 #          (m)'18 [06 Sep 2018] Copyright H.M.Brand 2007-2018

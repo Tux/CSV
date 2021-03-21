@@ -1,4 +1,4 @@
-#!perl6
+#!raku
 
 # csv-check: Check validity of CSV file and report
 #          (m)'18 Copyright H.M.Brand 2007-2018

@@ -7,43 +7,49 @@ test:
 	@perl bugs.pl -s
 	podchecker Text-CSV.pod 2>&1 | grep -v WARNING:
 	pod-spell-check --aspell --ispell Text-CSV.pod
-	prove -j4 -e 'perl6 -I. -Ilib' t
+	prove -j4 -e 'raku -I. -Ilib' t
 
 tt:     test time html
 
 test-verbose:	lib/Text/CSV.pm
-	perl6 -Ilib t/10_base.t
-	perl6 -Ilib t/12_acc.t
-	perl6 -Ilib t/15_flags.t
-	perl6 -Ilib t/16_methods.t
-	perl6 -Ilib t/20_file.t
-	perl6 -Ilib t/21_combine.t
-	perl6 -Ilib t/22_print.t
-	perl6 -Ilib t/30_field.t
-	perl6 -Ilib t/31_row.t
-	perl6 -Ilib t/32_getline.t
-	perl6 -Ilib t/40_misc.t
-	perl6 -Ilib t/41_null.t
-	perl6 -Ilib t/50_utf8.t
-	perl6 -Ilib t/55_combi.t
-	perl6 -Ilib t/60_samples.t
-	perl6 -Ilib t/65_allow.t
-	perl6 -Ilib t/75_hashref.t
-	perl6 -Ilib t/77_getall.t
-	perl6 -Ilib t/78_fragment.t
-	perl6 -Ilib t/79_callbacks.t
-	perl6 -Ilib t/80_diag.t
-	perl6 -Ilib t/81_subclass.t
-	perl6 -Ilib t/82_subclass.t
-	perl6 -Ilib t/90_csv.t
-	perl6 -Ilib t/91_csv_cb.t
+	raku -I. -Ilib t/10_base.t
+	raku -I. -Ilib t/12_acc.t
+	raku -I. -Ilib t/15_flags.t
+	raku -I. -Ilib t/16_methods.t
+	raku -I. -Ilib t/20_file.t
+	raku -I. -Ilib t/21_combine.t
+	raku -I. -Ilib t/22_print.t
+	raku -I. -Ilib t/30_field.t
+	raku -I. -Ilib t/31_row.t
+	raku -I. -Ilib t/32_getline.t
+	raku -I. -Ilib t/40_misc.t
+	raku -I. -Ilib t/41_null.t
+	raku -I. -Ilib t/45_eol.t
+	raku -I. -Ilib t/46_eol_si.t
+	raku -I. -Ilib t/50_utf8.t
+	raku -I. -Ilib t/55_combi.t
+	raku -I. -Ilib t/60_samples.t
+	raku -I. -Ilib t/65_allow.t
+	raku -I. -Ilib t/66_formula.t
+	raku -I. -Ilib t/75_hashref.t
+	raku -I. -Ilib t/77_getall.t
+	raku -I. -Ilib t/78_fragment.t
+	raku -I. -Ilib t/79_callbacks.t
+	raku -I. -Ilib t/80_diag.t
+	raku -I. -Ilib t/81_subclass.t
+	raku -I. -Ilib t/82_subclass.t
+	raku -I. -Ilib t/85_util.t
+	raku -I. -Ilib t/90_csv.t
+	raku -I. -Ilib t/91_csv_cb.t
+	raku -I. -Ilib t/92_csv_encoding.t
+	raku -I. -Ilib t/99_meta.t
 
 profile:
-	perl6 -Ilib --profile test-t.pl < /tmp/hello.csv
+	raku -Ilib --profile test-t.pl < /tmp/hello.csv
 	mv profile-[0-9]* profile.html
 
 check:
-	head -5 /tmp/hello.csv | perl6 -Ilib test-t.pl
+	head -5 /tmp/hello.csv | raku -Ilib test-t.pl
 
 time:
 	perl time.pl
