@@ -668,6 +668,30 @@ and L</is_binary> described below. Default is C<False> for ease of use.
 If C<keep-meta> is set to C<True>, the returned fields are not of type
 C<Str> but of type L<C<CSV::Field>|/CSV::Field>.
 
+=item undef_str
+X<undef_str>
+
+=item undef-str
+X<undef-str>
+
+NYI - this should replace undefined values in generating CSV
+
+=item comment_str
+X<comment_str>
+
+=item comment-str
+X<comment-str>
+
+ my $csv = Text::CSV.new(comment_str => "#");
+         $csv.comment_str (Str);
+ my $s = $csv.comment_str;
+
+This attribute optionally defines a string to be recognized as comment. If
+this attribute is defined, all lines starting with this sequence will not
+be parsed as CSV but skipped as comment.
+
+This attribute has no meaning when generating CSV.
+
 =item types
 
 NYI
@@ -710,6 +734,7 @@ is equivalent to
      strict                => False,
      formula               => "none",
      undef-str             => Str,
+     comment-str           => Str,
      types                 => Nil,
      callbacks             => Nil,
      });

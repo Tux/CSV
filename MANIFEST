@@ -18,6 +18,7 @@ t/40_misc.t
 t/41_null.t
 t/45_eol.t
 t/46_eol_si.t
+t/47_comment.t
 t/50_utf8.t
 t/55_combi.t
 t/60_samples.t

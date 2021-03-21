@@ -5,7 +5,7 @@ use Slang::Tuxic;
 use File::Temp;
 use IO::String;
 
-my $VERSION = "0.009";
+my $VERSION = "0.010";
 
 my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
 
@@ -392,6 +392,7 @@ class Text::CSV {
     has Int  $!record_number;
     has Str  $!formula;
     has Str  $!undef_str;
+    has Str  $!comment_str;
 
     has CSV::Row   $!csv-row;
     has Str        @!ahead;
@@ -654,9 +655,13 @@ class Text::CSV {
         $!formula = $f;
         };
 
-    multi method undef_str ()         returns Str { $!undef_str;       };
-    multi method undef_str (Any:U)    returns Str { $!undef_str = Str; };
-    multi method undef_str (Str:D $x) returns Str { $!undef_str = $x   };
+    multi method undef_str ()           returns Str { $!undef_str;         };
+    multi method undef_str (Any:U)      returns Str { $!undef_str = Str;   };
+    multi method undef_str (Str:D $x)   returns Str { $!undef_str = $x     };
+
+    multi method comment_str ()         returns Str { $!comment_str;       };
+    multi method comment_str (Any:U)    returns Str { $!comment_str = Str; };
+    multi method comment_str (Str:D $x) returns Str { $!comment_str = $x   };
 
     multi method column_names (Bool:D $ where *.not) returns Array[Str] { @!cnames = (); }
     multi method column_names (Any:U)                returns Array[Str] { @!cnames = (); }
@@ -994,7 +999,12 @@ class Text::CSV {
         my @ch;
         $!io and @ch = @!ahead;
         @!ahead = ();
-        $buffer.defined and @ch.append: chunks ($buffer, @chx);
+        if ($buffer.defined) {
+            $!comment_str && $!csv-row.fields.elems == 0
+                && $buffer.starts-with ($!comment_str) and
+                    return self.parse ($!io.get // Str);
+            @ch.append: chunks ($buffer, @chx);
+            }
         @ch or return parse_error (2012);
 
         $opt_v > 2 and progress (0, @ch.perl);
@@ -1206,7 +1216,7 @@ class Text::CSV {
 
                 #if ($chunk ~~ rx{^ $eol $}) {
                 if ($!eol.defined
-                        ?? $chunk eq $!eol
+                        ??  $chunk eq $!eol
                         !! ($chunk eq "\r\n" || $chunk eq "\n" || $chunk eq "\r")) {
                     $opt_v > 5 and progress ($i, "EOL - " ~ $f.gist);
                     if ($f.is_quoted) {     # 1,"2\n3"
@@ -1969,6 +1979,7 @@ BEGIN {
     alias ("callbacks",             < hooks >);
     alias ("formula",               < formula-handling formula_handling >);
     alias ("undef_str",             < undef-str >);
+    alias ("comment_str",           < comment-str >);
 
     alias ("column_names",          < column-names >);
     alias ("error_diag",            < error-diag diag diag-error diag_error >);

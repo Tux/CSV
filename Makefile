@@ -26,6 +26,7 @@ test-verbose:	lib/Text/CSV.pm
 	raku -I. -Ilib t/41_null.t
 	raku -I. -Ilib t/45_eol.t
 	raku -I. -Ilib t/46_eol_si.t
+	raku -I. -Ilib t/47_comment.t
 	raku -I. -Ilib t/50_utf8.t
 	raku -I. -Ilib t/55_combi.t
 	raku -I. -Ilib t/60_samples.t
