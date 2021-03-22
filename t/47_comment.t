@@ -25,7 +25,7 @@ for (|@cs) -> $cs {
         $fh.say ("e,",      $cs, ",", $rs);
         $fh.say (           $cs          );
         $fh.say ("g,i",     $cs          );
-        $fh.say ("j,\"k\n", $cs, "k\"");
+        $fh.say ("j,\"k\n", $cs, "k\""   );
         $fh.close;
 
         $fh = open $efn, :r;
