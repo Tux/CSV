@@ -25,7 +25,7 @@ for (|@cs) -> $cs {
         $fh.say ("e,",      $cs, ",", $rs);
         $fh.say (           $cs          );
         $fh.say ("g,i",     $cs          );
-        $fh.say ("j,\"k\n", $cs, "k");
+        $fh.say ("j,\"k\n", $cs, "k\"");
         $fh.close;
 
         $fh = open $efn, :r;
@@ -35,7 +35,7 @@ for (|@cs) -> $cs {
         is-deeply ($csv.getline ($fh), [ " $cs" ], "leading space");
         is-deeply ($csv.getline ($fh), [ "e", $cs, |@r ], "not start of line");
         is-deeply ($csv.getline ($fh), [ "g", "i$cs" ], "not start of field");
-#       is-deeply ($csv.getline ($fh), [ "j", "k\n$cs"~"k" ], "inside quoted after newline");
+        is-deeply ($csv.getline ($fh), [ "j", "k\n$cs"~"k" ], "inside quoted after newline");
 
         $fh.close;
 
