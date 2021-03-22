@@ -374,6 +374,7 @@ class Text::CSV {
     has Bool $!auto_diag;
     has Int  $!diag_verbose;
     has Bool $!keep_meta;
+    has Bool $!skip_empty_rows;
 
     has Bool $!blank_is_undef;
     has Bool $!empty_is_undef;
@@ -473,6 +474,7 @@ class Text::CSV {
         $!strict                = False;
         $!diag_verbose          = 0;
         $!keep_meta             = False;
+        $!skip_empty_rows       = False;
 
         $!blank_is_undef        = False;
         $!empty_is_undef        = False;
@@ -598,6 +600,7 @@ class Text::CSV {
     method keep_meta             (*@s) returns Bool { self!a_bool ($!keep_meta,             @s); }
     method auto_diag             (*@s) returns Bool { self!a_bool ($!auto_diag,             @s); }
     method strict                (*@s) returns Bool { self!a_bool ($!strict,                @s); }
+    method skip_empty_rows       (*@s) returns Bool { self!a_bool ($!skip_empty_rows,       @s); }
     method eof                   ()    returns Bool { $!eof || $!errno == 2012; }
 
     # Numeric attributes
@@ -974,7 +977,8 @@ class Text::CSV {
         my Str        $quo = $!quo;
         my Str        $esc = $!esc;
         my Bool       $noe = !$esc.defined || ($quo.defined && $esc eq $quo);
-        my            @chx = $!eol.defined ?? $eol !! ("\r\n", "\r", "\n");
+        my            @eox = $!eol.defined ?? $eol !! ("\r\n", "\r", "\n");
+        my            @chx = @eox;
         defined $sep and @chx.push: $sep;
         defined $quo and @chx.push: $quo;
         $noe         or  @chx.push: $esc;
@@ -1008,6 +1012,12 @@ class Text::CSV {
         @ch or return parse_error (2012);
 
         $opt_v > 2 and progress (0, @ch.perl);
+
+        if ($!skip_empty_rows and
+                @ch.elems == 0 ||
+               (@ch.elems == 1 && @ch[0] eq @eox.any)) {
+            return self.parse ($!io.get // Str);
+            }
 
         @ch.elems or return parse_done ();       # An empty line
 
@@ -1286,6 +1296,7 @@ class Text::CSV {
                 }
 
             @ch = chunks ($str, @chx);
+
             $i = 0;
             };
 
@@ -1980,6 +1991,7 @@ BEGIN {
     alias ("formula",               < formula-handling formula_handling >);
     alias ("undef_str",             < undef-str >);
     alias ("comment_str",           < comment-str >);
+    alias ("skip_empty_rows",       < skip-empty-rows >);
 
     alias ("column_names",          < column-names >);
     alias ("error_diag",            < error-diag diag diag-error diag_error >);

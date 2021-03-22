@@ -232,4 +232,48 @@ if ($osxfn.IO.r && my $fh = open $osxfn, :r) {
     close $fh;
     }
 
+for ("\n", "\r", "\r\n") -> $eol {
+    my $s_eol = $eol.perl;
+    for ("1,2$eol", "") -> $before {
+        my $fh = open $efn, :w;
+        $fh.print: $before; # To test if skipping the very first line works
+        $fh.print:     $eol;
+        $fh.print: qq{ $eol};
+        $fh.print: qq{,$eol};
+        $fh.print:     $eol;
+        $fh.print: qq{""$eol};
+        $fh.print: qq{eol$eol};
+        $fh.close;
+
+        my @expect = [ " " ], [ "", "" ], [ "" ], [ "eol" ];
+        $before and @expect.unshift: [ "1", "2" ];
+
+        unless ($eol eq "\r\n") { # TODO
+            $fh = open $efn, :r;
+            my $csv = Text::CSV.new (:skip_empty_rows, eol => $eol, :auto_diag);
+            my @csv;
+            while (my @row = $csv.getline ($fh)) {
+                @csv.push: [ |@row ];
+                }
+            $fh.close;
+            is (@csv, @expect, "Empty lines skipped $s_eol\tEOL set");
+            }
+
+        unless ($eol eq "\r") {
+            # \r won't work with automatic detection as
+            # two \r's on the first line causes 2032
+
+            $fh = open $efn, :r;
+            my $csv = Text::CSV.new (:skip_empty_rows);
+            my @csv;
+            while (my @row = $csv.getline ($fh)) {
+                @csv.push: [ |@row ];
+                }
+            $fh.close;
+            is (@csv, @expect, "Empty lines skipped $s_eol\tauto-detect");
+            }
+        unlink $efn;
+        }
+    }
+
 done-testing;
