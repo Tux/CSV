@@ -73,8 +73,9 @@ sub test {
     alarm (0);
     } # test
 
-{   title "Scope", "class variables cannot be used in regex", "RT#122892";
+{   title "Scope", "class variables cannot be used in regex", "issue#3430";#"RT#122892";
     # https://rt.perl.org/Ticket/Display.html?id=122892
+    # https://github.com/Raku/old-issue-tracker/issues/3430
     # Nil
     # Match.new(orig => "baz", from => 1, to => 2, ast => Any, list => ().list, hash => EnumMap.new())
     test (qr{
@@ -95,13 +96,14 @@ sub test {
                 }
             }
 
-      c.new.bar("baz").perl.say;
-      c.new.bux("baz").perl.say;
+      c.new.bar("baz").raku.say;
+      c.new.bux("baz").raku.say;
 EOP
     }
 
-{   title "Operation", "s{} fails on native type (int)", "RT#123597";
+{   title "Operation", "s{} fails on native type (int)", "issue#3645";#"RT#123597";
     # https://rt.perl.org//Public/Bug/Display.html?id=123597 
+    # https://github.com/Raku/old-issue-tracker/issues/3645
     # bar
     # 000:
     # 1x
@@ -192,10 +194,12 @@ EOP
 
     # Array.new("foo", 1, 2, "a", "", 3)
     test (qr{1, 2},
-          q{my @x = ("foo",1,Nil,2,"a","",3); @x.perl.say});
+          q{my @x = ("foo",1,Nil,2,"a","",3); @x.raku.say});
     }
 
-{   title "Test", "Compare to undefined type", "RT#123924";
+{   title "Test", "Compare to undefined type", "issue#3700";#"RT#123924";
+    # https://rt.perl.org//Public/Bug/Display.html?id=123924 
+    # https://github.com/Raku/old-issue-tracker/issues/3700
 
     # Failed test at lib/Test.pm line 110
     # expected: something with undefine
@@ -204,7 +208,10 @@ EOP
           q{use Test;my Str $s;is($s, Str, "");});
     }
 
-{   title "IO", "Cannot change nl-in", "RT#123888";
+{   title "IO", "Cannot change nl-in", "issue#3693";#"RT#123888";
+    # https://rt.perl.org//Public/Bug/Display.html?id=123888 
+    # https://github.com/Raku/old-issue-tracker/issues/3693
+
     open my $fh, ">", "xx.txt";
     print $fh "A+B+C+D+";
     close $fh;
@@ -213,7 +220,10 @@ EOP
           "xx.txt");
     }
 
-{   title "IO", "Cannot clear \$*OUT.nl-out", "RT#123978";
+{   title "IO", "Cannot clear \$*OUT.nl-out", "issue#3715";#"RT#123978";
+    # https://rt.perl.org//Public/Bug/Display.html?id=123978 
+    # https://github.com/Raku/old-issue-tracker/issues/3715
+
     # Invalid string index: max 4294967295, got 4294967295
     #   in block  at src/gen/m-CORE.setting:16933
     #   in block <unit> at t23114.pl:1
@@ -221,7 +231,10 @@ EOP
           q{$*OUT.nl-out = ""});
     }
 
-{   title "Scope", "* does not allow // in map", "RT#123980";
+{   title "Scope", "* does not allow // in map", "issue#3717";#"RT#123980";
+    # https://rt.perl.org//Public/Bug/Display.html?id=123980 
+    # https://github.com/Raku/old-issue-tracker/issues/3717
+
     # Returns (Str) instead of "-"
     test (qr{Str},
           q{(1,Str,"a").map(*//"-")[1].say});
@@ -229,14 +242,20 @@ EOP
 
 #   title "Range", "plan is not lazy", "RT#124059";
 
-{   title "Type", "Int \$i cannot be Int.Range.max", "RT#61602"; # RT#124082
+{   title "Type", "Int \$i cannot be Int.Range.max", "issue#520";#"RT#61602"; # RT#124082
+    # https://rt.perl.org//Public/Bug/Display.html?id=61602
+    # https://github.com/Raku/old-issue-tracker/issues/520
+
     # Type check failed in assignment to '$i'; expected 'Int' but got 'Num'
     #   in block <unit> at t4156.pl:1
     test (qr{expected '?Int'? but got '?Num'?},
           q{my Int $i = Int.Range.max});
     }
 
-{   title "Exception", "For loop fails to CATCH exception", "RT#124191";
+{   title "Exception", "For loop fails to CATCH exception", "issue#3759";#"RT#124191";
+    # https://rt.perl.org//Public/Bug/Display.html?id=124191
+    # https://github.com/Raku/old-issue-tracker/issues/3759
+
     # OH NOES
     #    in block  at -e:1
     test (qr{OH NOES},
@@ -255,14 +274,20 @@ EOP
 #   qx{rm -rf blib};
 #   }
 
-{   title "MoarVM", "Read bytes too often", "RT#124394";
+{   title "MoarVM", "Read bytes too often", "issue#3795";#"RT#124394";
+    # https://rt.perl.org//Public/Bug/Display.html?id=124393
+    # https://github.com/Raku/old-issue-tracker/issues/3795
+
     test (qr{\+\+},
           q{my$fh=open "t.csv",:w;$fh.print("+");$fh.close;$fh=open "t.csv",:r;$fh.get.perl.say;});
     }
 
-{   title "IO", "Mangle CRNL", "RT#127358";
+{   title "IO", "Mangle CRNL", "issue#5082";#"RT#127358";
+    # https://rt.perl.org//Public/Bug/Display.html?id=127358
+    # https://github.com/Raku/old-issue-tracker/issues/5082
+
     test (qr{\\\\r\\\\n\\n}, # should be \\\\r\\\\n\\r\\n
-          q{my$fh=open "crnl.csv",:r,:!chomp;$fh.get.perl.say;});
+          q{my$fh=open "crnl.csv",:r,:!chomp;$fh.get.raku.say;});
     }
 
 {   title "Encoding", "utf8-c8", "-";
