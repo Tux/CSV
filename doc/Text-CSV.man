@@ -81,10 +81,10 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
 
 [1mSPECIFICATION[0m
        While no formal specification for CSV exists, RFC 4180
-       <http://tools.ietf.org/html/rfc4180> ([4m1[24m) describes the common format
-       and establishes  "text/csv" as the MIME type registered with the IANA.
-       RFC 7111 <http://tools.ietf.org/html/rfc7111> ([4m2[24m) adds fragments to
-       CSV.
+       <https://datatracker.ietf.org/doc/html/rfc4180> ([4m1[24m) describes the
+       common format and establishes  "text/csv" as the MIME type registered
+       with the IANA. RFC 7111 <https://datatracker.ietf.org/doc/html/rfc7111>
+       ([4m2[24m) adds fragments to CSV.
 
        Many informal documents exist that describe the "CSV" format.   "How
        To: The Comma Separated Value (CSV) File Format"
@@ -92,8 +92,8 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
        overview of the  "CSV"  format in the most widely used applications and
        explains how it can best be used and supported.
 
-        1) http://tools.ietf.org/html/rfc4180
-        2) http://tools.ietf.org/html/rfc7111
+        1) https://datatracker.ietf.org/doc/html/rfc4180
+        2) https://datatracker.ietf.org/doc/html/rfc7111
         3) http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm
 
        The basic rules are as follows:
@@ -548,6 +548,22 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
            If "keep-meta" is set to "True", the returned fields are not of
            type "Str" but of type "CSV::Field".
 
+       undef_str
+       undef-str
+           NYI - this should replace undefined values in generating CSV
+
+       comment_str
+       comment-str
+            my $csv = Text::CSV.new(comment_str => "#");
+                    $csv.comment_str (Str);
+            my $s = $csv.comment_str;
+
+           This attribute optionally defines a string to be recognized as
+           comment. If this attribute is defined, all lines starting with this
+           sequence will not be parsed as CSV but skipped as comment.
+
+           This attribute has no meaning when generating CSV.
+
        types
            NYI
 
@@ -585,6 +601,7 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
             strict                => False,
             formula               => "none",
             undef-str             => Str,
+            comment-str           => Str,
             types                 => Nil,
             callbacks             => Nil,
             });
@@ -746,8 +763,9 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
        "types"' description below.
 
    [1mfragment[0m
-       This function implements RFC7111 <http://tools.ietf.org/html/rfc7111>
-       (URI Fragment Identifiers for the text/csv Media Type).
+       This function implements RFC7111
+       <https://datatracker.ietf.org/doc/html/rfc7111> (URI Fragment
+       Identifiers for the text/csv Media Type).
 
         my @rows = $csv.fragment($io, $spec);
 
@@ -838,10 +856,10 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
           31,32,33,34
           42,43,44
 
-       RFC7111 <http://tools.ietf.org/html/rfc7111> does [1mnot [22mallow different
-       types of specs to be combined (either "row" [4mor[24m "col" [4mor[24m "cell").
-       Passing an invalid fragment specification will croak and set error
-       2013.
+       RFC7111 <https://datatracker.ietf.org/doc/html/rfc7111> does [1mnot [22mallow
+       different types of specs to be combined (either "row" [4mor[24m "col" [4mor[0m
+       "cell").  Passing an invalid fragment specification will croak and set
+       error 2013.
 
        Using "colrange" and "rowrange" instead of "fragment" will allow you to
        combine row- and column selecting as a grid.
@@ -2523,4 +2541,4 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
 
 
 
-perl v5.28.0                      2020-09-10                          STDIN(1)
+perl v5.28.0                      2021-08-16                          STDIN(1)

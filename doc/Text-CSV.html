@@ -218,12 +218,12 @@
 
 <h1 id="SPECIFICATION">SPECIFICATION</h1>
 
-<p>While no formal specification for CSV exists, <a href="http://tools.ietf.org/html/rfc4180">RFC 4180</a> (<i>1</i>) describes the common format and establishes <code>text/csv</code> as the MIME type registered with the IANA. <a href="http://tools.ietf.org/html/rfc7111">RFC 7111</a> (<i>2</i>) adds fragments to CSV.</p>
+<p>While no formal specification for CSV exists, <a href="https://datatracker.ietf.org/doc/html/rfc4180">RFC 4180</a> (<i>1</i>) describes the common format and establishes <code>text/csv</code> as the MIME type registered with the IANA. <a href="https://datatracker.ietf.org/doc/html/rfc7111">RFC 7111</a> (<i>2</i>) adds fragments to CSV.</p>
 
 <p>Many informal documents exist that describe the <code>CSV</code> format. <a href="http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm">&quot;How To: The Comma Separated Value (CSV) File Format&quot;</a> (<i>3</i>) provides an overview of the <code>CSV</code> format in the most widely used applications and explains how it can best be used and supported.</p>
 
-<pre><code> 1) http://tools.ietf.org/html/rfc4180
- 2) http://tools.ietf.org/html/rfc7111
+<pre><code> 1) https://datatracker.ietf.org/doc/html/rfc4180
+ 2) https://datatracker.ietf.org/doc/html/rfc7111
  3) http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm</code></pre>
 
 <p>The basic rules are as follows:</p>
@@ -749,6 +749,32 @@
 <p>If <code>keep-meta</code> is set to <code>True</code>, the returned fields are not of type <code>Str</code> but of type <a href="#CSV::Field"><code>CSV::Field</code></a>.</p>
 
 </dd>
+<dt id="undef_str">undef_str </dt>
+<dd>
+
+</dd>
+<dt id="undef-str">undef-str </dt>
+<dd>
+
+<p>NYI - this should replace undefined values in generating CSV</p>
+
+</dd>
+<dt id="comment_str">comment_str </dt>
+<dd>
+
+</dd>
+<dt id="comment-str">comment-str </dt>
+<dd>
+
+<pre><code> my $csv = Text::CSV.new(comment_str =&gt; &quot;#&quot;);
+         $csv.comment_str (Str);
+ my $s = $csv.comment_str;</code></pre>
+
+<p>This attribute optionally defines a string to be recognized as comment. If this attribute is defined, all lines starting with this sequence will not be parsed as CSV but skipped as comment.</p>
+
+<p>This attribute has no meaning when generating CSV.</p>
+
+</dd>
 <dt id="types">types</dt>
 <dd>
 
@@ -793,6 +819,7 @@
      strict                =&gt; False,
      formula               =&gt; &quot;none&quot;,
      undef-str             =&gt; Str,
+     comment-str           =&gt; Str,
      types                 =&gt; Nil,
      callbacks             =&gt; Nil,
      });</code></pre>
@@ -934,7 +961,7 @@
 
 <h2 id="fragment">fragment </h2>
 
-<p>This function implements <a href="http://tools.ietf.org/html/rfc7111">RFC7111</a> (URI Fragment Identifiers for the text/csv Media Type).</p>
+<p>This function implements <a href="https://datatracker.ietf.org/doc/html/rfc7111">RFC7111</a> (URI Fragment Identifiers for the text/csv Media Type).</p>
 
 <pre><code> my @rows = $csv.fragment($io, $spec);</code></pre>
 
@@ -1022,7 +1049,7 @@
 </dd>
 </dl>
 
-<p><a href="http://tools.ietf.org/html/rfc7111">RFC7111</a> does <b>not</b> allow different types of specs to be combined (either <code>row</code> <i>or</i> <code>col</code> <i>or</i> <code>cell</code>). Passing an invalid fragment specification will croak and set error 2013.</p>
+<p><a href="https://datatracker.ietf.org/doc/html/rfc7111">RFC7111</a> does <b>not</b> allow different types of specs to be combined (either <code>row</code> <i>or</i> <code>col</code> <i>or</i> <code>cell</code>). Passing an invalid fragment specification will croak and set error 2013.</p>
 
 <p>Using <a href="#colrange">&quot;colrange&quot;</a> and <a href="#rowrange">&quot;rowrange&quot;</a> instead of <a href="#fragment">&quot;fragment&quot;</a> will allow you to combine row- and column selecting as a grid.</p>
 

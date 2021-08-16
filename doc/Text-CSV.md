@@ -80,9 +80,9 @@ For now, Text::CSV only accepts Unicode. Binary data is planned.
 
 # SPECIFICATION
 
-While no formal specification for CSV exists, [RFC 4180](http://tools.ietf.org/html/rfc4180)
+While no formal specification for CSV exists, [RFC 4180](https://datatracker.ietf.org/doc/html/rfc4180)
 (_1_) describes the common format and establishes  `text/csv` as the MIME
-type registered with the IANA. [RFC 7111](http://tools.ietf.org/html/rfc7111)
+type registered with the IANA. [RFC 7111](https://datatracker.ietf.org/doc/html/rfc7111)
 (_2_) adds fragments to CSV.
 
 Many informal documents exist that describe the `CSV` format.   ["How To:
@@ -90,8 +90,8 @@ The Comma Separated Value (CSV) File Format"](http://www.creativyst.com/Doc/Arti
 (_3_)  provides an overview of the  `CSV`  format in the most widely used
 applications and explains how it can best be used and supported.
 
-    1) http://tools.ietf.org/html/rfc4180
-    2) http://tools.ietf.org/html/rfc7111
+    1) https://datatracker.ietf.org/doc/html/rfc4180
+    2) https://datatracker.ietf.org/doc/html/rfc7111
     3) http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm
 
 The basic rules are as follows:
@@ -605,6 +605,28 @@ The following attributes are available:
     If `keep-meta` is set to `True`, the returned fields are not of type
     `Str` but of type [`CSV::Field`](#csv-field).
 
+- undef\_str
+
+- undef-str
+
+
+    NYI - this should replace undefined values in generating CSV
+
+- comment\_str
+
+- comment-str
+
+
+        my $csv = Text::CSV.new(comment_str => "#");
+                $csv.comment_str (Str);
+        my $s = $csv.comment_str;
+
+    This attribute optionally defines a string to be recognized as comment. If
+    this attribute is defined, all lines starting with this sequence will not
+    be parsed as CSV but skipped as comment.
+
+    This attribute has no meaning when generating CSV.
+
 - types
 
     NYI
@@ -645,6 +667,7 @@ is equivalent to
         strict                => False,
         formula               => "none",
         undef-str             => Str,
+        comment-str           => Str,
         types                 => Nil,
         callbacks             => Nil,
         });
@@ -832,7 +855,7 @@ NYI: You may use the ["types"](#types) method for setting column types. See
 ## fragment
 
 
-This function implements [RFC7111](http://tools.ietf.org/html/rfc7111)
+This function implements [RFC7111](https://datatracker.ietf.org/doc/html/rfc7111)
 (URI Fragment Identifiers for the text/csv Media Type).
 
     my @rows = $csv.fragment($io, $spec);
@@ -925,7 +948,7 @@ line parsed and skipped before the fragment.
         31,32,33,34
         42,43,44
 
-[RFC7111](http://tools.ietf.org/html/rfc7111) does **not** allow different
+[RFC7111](https://datatracker.ietf.org/doc/html/rfc7111) does **not** allow different
 types of specs to be combined (either `row` _or_ `col` _or_ `cell`).
 Passing an invalid fragment specification will croak and set error 2013.
 
