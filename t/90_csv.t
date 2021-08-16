@@ -317,6 +317,8 @@ is-deeply (csv (in => $fno, headers => "auto"), $full-aoh, "data from CODE/HR");
 
 is (csv (in => [$[1,2,3]], out => Str), "1,2,3\r\n"|"1,2,3\n", "Out to Str");
 
+is (csv (in => [], out => Str), Nil, "Empty set => no Out");
+
 ok (csv (in => $aoa.iterator, out => $fno), "AOA out file");
 is-deeply (csv (in => $fno), $aoa, "AOA parse out");
 
