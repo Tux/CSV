@@ -1,6 +1,8 @@
-#include <libcsv/csv.h>
+/* #include <libcsv/csv.h>*/
+#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <csv.h>
 
 void field_count (void* str, size_t str_len, void* data) {
     int* count = (int*)data;
