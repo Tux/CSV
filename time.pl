@@ -22,6 +22,7 @@ GetOptions (
     ) or usage (1);
 
 binmode STDOUT, ":encoding(utf-8)";
+binmode STDERR, ":encoding(utf-8)";
 
 $| = 1;
 $opt_v //= $opt_i ? 0 : 1;
@@ -60,6 +61,7 @@ my %lang = (
     29 => [ "",     "ac_java15", "-cp csv-java15.jar:opencsv-2.3.jar csvJava" ],
     30 => [ "",     "ac_java16", "-cp csv-java16.jar:opencsv-2.3.jar csvJava" ],
     31 => [ "",     "java18",    "-cp csv-java18.jar:opencsv-2.3.jar csvJava" ],
+    32 => [ "",     "ac_java17", "-cp csv-java17.jar:opencsv-2.3.jar csvJava" ],
     13 => [ ".R",   "R",         "--slave -f"                                 ],
     15 => [ "",     "C++"                                                     ],
     17 => [ "",     "Rust",      "/tmp/hello.csv"                             ],
@@ -108,6 +110,7 @@ my @test = (
     [ 11, 0, "csv-java8"       ],
     [ 10, 0, "csv-java7"       ],
     [ 14, 0, "csv-java6"       ],
+    [ 32, 0, "csv-java17ac"    ],
     [ 30, 0, "csv-java16ac"    ],
     [ 29, 0, "csv-java15ac"    ],
     [ 24, 0, "csv-java11ac"    ],
