@@ -6,7 +6,7 @@ use IO::String;
 
 my $VERSION = "0.010";
 
-my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
+my constant $opt_v = %*ENV<RAKU_VERBOSE> // 1;
 
 my constant %errors =
     # Success
