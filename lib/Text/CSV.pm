@@ -1,6 +1,5 @@
 #!raku
 
-use v6.c;
 use Slang::Tuxic;
 use File::Temp;
 use IO::String;
@@ -9,7 +8,7 @@ my $VERSION = "0.010";
 
 my constant $opt_v = %*ENV<PERL6_VERBOSE> // 1;
 
-my %errors =
+my constant %errors =
     # Success
        0 => "",
 
