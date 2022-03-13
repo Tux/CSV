@@ -66,6 +66,7 @@ my %lang = (
     15 => [ "",     "C++"                                                     ],
     17 => [ "",     "Rust",      "/tmp/hello.csv"                             ],
     16 => [ "",     "java8",     "-cp csv-pi-easy-pp.jar Main /tmp/hello.csv" ],
+    40 => [ ".jl",  "julia",                                                  ],
     );
 my @test = (
     # lang irc script
@@ -117,6 +118,7 @@ my @test = (
     [ 23, 0, "csv-java8ac"     ],
     [  8, 0, "csv-go"          ],
     [ 13, 0, "csv-R"           ],
+    [ 40, 0, "csv-julia"       ],
     [ 16, 0, "csv-easy-pp-pi", "Text::CSV::Easy_PP, Perlito" ],
     [ 17, 0, "csv-rust-csvrdr" ],
     [ 17, 0, "csv-rust-libcsv" ],
