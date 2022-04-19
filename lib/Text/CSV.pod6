@@ -2522,7 +2522,7 @@ or using the slower L</combine> and L</string> methods:
 Rewrite C<CSV> files with C<;> as separator character to well-formed C<CSV>:
 
  use Text::CSV qw( csv );
- csv(in => csv(in => "bad.csv", sep_char => ";"), out => *STDOUT);
+ csv(in => csv(in => "bad.csv", sep => ";"), out => $*OUT);
 
 =head2 Dumping database tables to CSV
 
