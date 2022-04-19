@@ -2171,7 +2171,7 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
        "CSV":
 
         use Text::CSV qw( csv );
-        csv(in => csv(in => "bad.csv", sep_char => ";"), out => *STDOUT);
+        csv(in => csv(in => "bad.csv", sep => ";"), out => $*OUT);
 
    [1mDumping database tables to CSV[0m
        Dumping a database table can be simple as this (TIMTOWTDI):
@@ -2540,4 +2540,4 @@ STDIN(1)              User Contributed Perl Documentation             STDIN(1)
 
 
 
-perl v5.28.0                      2021-08-16                          STDIN(1)
+perl v5.34.1                      2022-04-19                          STDIN(1)

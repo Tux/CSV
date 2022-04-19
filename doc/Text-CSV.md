@@ -2415,7 +2415,7 @@ or using the slower ["combine"](#combine) and ["string"](#string) methods:
 Rewrite `CSV` files with `;` as separator character to well-formed `CSV`:
 
     use Text::CSV qw( csv );
-    csv(in => csv(in => "bad.csv", sep_char => ";"), out => *STDOUT);
+    csv(in => csv(in => "bad.csv", sep => ";"), out => $*OUT);
 
 ## Dumping database tables to CSV
 
