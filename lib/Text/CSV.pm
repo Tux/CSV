@@ -178,8 +178,8 @@ class CellSet {
             }
 
         method show {
-            say "Row: ", $.row.to_list.perl;
-            say "Col: ", $.col.to_list.perl;
+            say "Row: ", $.row.to_list.raku;
+            say "Col: ", $.col.to_list.raku;
             }
         }
 
@@ -261,7 +261,7 @@ class CSV::Field {
            $s ~= $!is_utf8    ?? "8" !! "7";
            $s ~= $!is_missing ?? "M" !! "m";
            $s ~= $!is_formula ?? "=" !! "-";
-        $s ~ ":" ~ $!text.perl;
+        $s ~ ":" ~ $!text.raku;
         }
 
     method add (Str $chunk) {
@@ -968,7 +968,7 @@ class Text::CSV {
             }
 
         $!record_number = $!record_number + 1;
-        $opt_v > 4 and progress ($!record_number, $buffer.perl);
+        $opt_v > 4 and progress ($!record_number, $buffer.raku);
 
         my CSV::Field $f   = CSV::Field.new;
         my            $eol = $!eol // rx{ \r\n || \r || \n };
@@ -1010,7 +1010,7 @@ class Text::CSV {
             }
         @ch or return parse_error (2012);
 
-        $opt_v > 2 and progress (0, @ch.perl);
+        $opt_v > 2 and progress (0, @ch.raku);
 
         if ($!skip_empty_rows and
                 @ch.elems == 0 ||
@@ -1033,7 +1033,7 @@ class Text::CSV {
 
                 $pos = $ppos;
 
-                $opt_v > 8 and progress ($i, "###", $chunk.perl~"\t", $f.gist);
+                $opt_v > 8 and progress ($i, "###", $chunk.raku~"\t", $f.gist);
 
                 if ($chunk eq $sep) {
                     $opt_v > 5 and progress ($i, "SEP - " ~ $f.gist);
@@ -1050,7 +1050,7 @@ class Text::CSV {
                     # ,1,"foo, 3",,bar,
                     #        ^
                     if ($f.is_quoted) {
-                        $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
+                        $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].raku);
                         $f.add ($chunk);
                         next;
                         }
@@ -1078,7 +1078,7 @@ class Text::CSV {
 
                     if ($f.is_quoted) {
 
-                        $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].perl);
+                        $opt_v > 9 and progress ($i, "    inside quoted field ", @ch[$i..*-1].raku);
                         # ,1,"foo, 3"
                         #           ^
                         $i == @ch - 1 and return parse_done ();
