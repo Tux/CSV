@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "STDIN 1"
-.TH STDIN 1 "2022-04-19" "perl v5.34.1" "User Contributed Perl Documentation"
+.TH STDIN 1 "2022-10-31" "perl v5.34.1" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -2642,7 +2642,7 @@ The return code of the callback is ignored.
 .Vb 3
 \& my $idx = 1;
 \& $csv.callbacks(before_print => { $^row[0] = $idx++ });
-\& $csv.print(*STDOUT, [ 0, $_ ]) for @members;
+\& $csv.print($*OUT, [ 0, $_ ]) for @members;
 .Ve
 .Sp
 This callback is invoked before printing with \*(L"print\*(R" only if no error
@@ -2655,10 +2655,10 @@ The return code of the callback is ignored.
 \&     $r.elems > 4 and $r.splice (4);
 \&     } # max_4_fields
 \&
-\& csv(in => csv(in => "file.csv"), out => *STDOUT,
+\& csv(in => csv(in => "file.csv"), out => $*OUT,
 \&     callbacks => { before print => \e&max_4_fields });
 \&
-\& csv(in => csv(in => "file.csv"), out => *STDOUT,
+\& csv(in => csv(in => "file.csv"), out => $*OUT,
 \&     before print => { $^row.elems > 4 and $^row.splice(4) });
 .Ve
 .Sp

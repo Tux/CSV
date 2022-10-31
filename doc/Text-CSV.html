@@ -2191,7 +2191,7 @@ my $aoa = csv(in =&gt; &quot;file.csv&quot;, after_parse =&gt; {
 
 <pre><code>my $idx = 1;
 $csv.callbacks(before_print =&gt; { $^row[0] = $idx++ });
-$csv.print(*STDOUT, [ 0, $_ ]) for @members;</code></pre>
+$csv.print($*OUT, [ 0, $_ ]) for @members;</code></pre>
 
 <p>This callback is invoked before printing with <a href="#print">&quot;print&quot;</a> only if no error occurred.</p>
 
@@ -2201,10 +2201,10 @@ $csv.print(*STDOUT, [ 0, $_ ]) for @members;</code></pre>
     $r.elems &gt; 4 and $r.splice (4);
     } # max_4_fields
 
-csv(in =&gt; csv(in =&gt; &quot;file.csv&quot;), out =&gt; *STDOUT,
+csv(in =&gt; csv(in =&gt; &quot;file.csv&quot;), out =&gt; $*OUT,
     callbacks =&gt; { before print =&gt; \&amp;max_4_fields });
 
-csv(in =&gt; csv(in =&gt; &quot;file.csv&quot;), out =&gt; *STDOUT,
+csv(in =&gt; csv(in =&gt; &quot;file.csv&quot;), out =&gt; $*OUT,
     before print =&gt; { $^row.elems &gt; 4 and $^row.splice(4) });</code></pre>
 
 <p>This callback is not active for <a href="#combine">&quot;combine&quot;</a>.</p>

@@ -2182,7 +2182,7 @@ current [CSV::Row](https://metacpan.org/pod/CSV%3A%3ARow).
 
         my $idx = 1;
         $csv.callbacks(before_print => { $^row[0] = $idx++ });
-        $csv.print(*STDOUT, [ 0, $_ ]) for @members;
+        $csv.print($*OUT, [ 0, $_ ]) for @members;
 
     This callback is invoked before printing with ["print"](#print) only if no error
     occurred.
@@ -2193,10 +2193,10 @@ current [CSV::Row](https://metacpan.org/pod/CSV%3A%3ARow).
             $r.elems > 4 and $r.splice (4);
             } # max_4_fields
 
-        csv(in => csv(in => "file.csv"), out => *STDOUT,
+        csv(in => csv(in => "file.csv"), out => $*OUT,
             callbacks => { before print => \&max_4_fields });
 
-        csv(in => csv(in => "file.csv"), out => *STDOUT,
+        csv(in => csv(in => "file.csv"), out => $*OUT,
             before print => { $^row.elems > 4 and $^row.splice(4) });
 
     This callback is not active for ["combine"](#combine).
