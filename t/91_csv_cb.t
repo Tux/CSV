@@ -54,6 +54,14 @@ is-deeply (csv (in => $file, headers => "auto", after_in => &Change), [
     { foo => "2", bar => "a b", baz => "A" },
     ], "AOH with after_in callback function");
 
+is-deeply (csv (in => $file, filter => { $^r[1] ~~ /a/ }), [
+    [< foo  bar    baz >],
+    [  "2", "a b", ""   ];
+    ], "AOH with filter on col 2");
+
+### Still need more filter tests
+### even with auto-set Hash out
+
 is-deeply (csv (in => $file, headers => "lc"), [
     { foo => "1", bar => "2",   baz => "3" },
     { foo => "2", bar => "a b", baz => ""  };
@@ -79,8 +87,6 @@ is-deeply (csv (in => $file, headers => %munge), [
     { mars => "1", bar => "2",   baz => "3" },
     { mars => "2", bar => "a b", baz => ""  };
     ], "AOH with munged headers");
-
-### Still need filter tests
 
 is-deeply (csv (in => $file, key => "foo"), {
     "1" => { foo => "1", bar => "2",   baz => "3" },
