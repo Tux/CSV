@@ -54,6 +54,34 @@ is-deeply (csv (in => $file, headers => "auto", after_in => &Change), [
     { foo => "2", bar => "a b", baz => "A" },
     ], "AOH with after_in callback function");
 
+is-deeply (csv (in => $file, headers => "lc"), [
+    { foo => "1", bar => "2",   baz => "3" },
+    { foo => "2", bar => "a b", baz => ""  };
+    ], "AOH with lc headers");
+
+is-deeply (csv (in => $file, headers => "uc"), [
+    { FOO => "1", BAR => "2",   BAZ => "3" },
+    { FOO => "2", BAR => "a b", BAZ => ""  };
+    ], "AOH with uc headers");
+
+is-deeply (csv (in => $file, headers => { tclc ($^a) } ), [
+    { Foo => "1", Bar => "2",   Baz => "3" },
+    { Foo => "2", Bar => "a b", Baz => ""  };
+    ], "AOH with tclc headers");
+
+is-deeply (csv (in => $file, headers => { $^a.substr (0, 1).lc ~ $^a.substr (1).uc } ), [
+    { fOO => "1", bAR => "2",   bAZ => "3" },
+    { fOO => "2", bAR => "a b", bAZ => ""  };
+    ], "AOH with lcfirst/uc headers");
+
+my %munge = :foo<mars>;
+is-deeply (csv (in => $file, headers => %munge), [
+    { mars => "1", bar => "2",   baz => "3" },
+    { mars => "2", bar => "a b", baz => ""  };
+    ], "AOH with munged headers");
+
+### Still need filter tests
+
 is-deeply (csv (in => $file, key => "foo"), {
     "1" => { foo => "1", bar => "2",   baz => "3" },
     "2" => { foo => "2", bar => "a b", baz => ""  },

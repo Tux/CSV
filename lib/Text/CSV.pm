@@ -1832,6 +1832,7 @@ class Text::CSV {
                         elsif $headers eq "uc"     { $_ .= uc                 for @$hdr }
                         elsif $headers eq "lc"     { $_ .= lc                 for @$hdr }
                         self.column_names ($hdr.list);
+                        $out //= Hash;
                         }
                     $io-out.defined and self.say ($io-out, @!cnames);
                     }
