@@ -45,7 +45,7 @@ is-deeply (csv (in => $file, after_in => &Push), [
     [< foo  bar   baz   A >],
     [  "1", "2",  "3", "A" ],
     [  "2", "a b", "", "A" ],
-    ], "AOA ith after_in callback function");
+    ], "AOA with after_in callback function");
 
 sub Change (CSV::Row $r) { $r.csv.column-names and $r<baz>.text = "A"; }
 
