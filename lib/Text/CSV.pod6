@@ -2352,6 +2352,11 @@ evaluates to false. To always accept, end with truth:
 
  filter => { $^row[1].text .= uc; 1 }}
 
+If the Callable uses a Hash as prototype, the output is set to Hash and the
+C<headers> to C<auto> if unset
+
+ filter => { %^row<foo> ~~ /a/ }
+
 B<Predefined filters>
 
 Given a file like (line numbers prefixed for doc purpose only):

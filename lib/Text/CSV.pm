@@ -1592,6 +1592,11 @@ class Text::CSV {
                 }
             if ($k.lc eq "filter") {
                 %hooks<filter>       = %args{$k} :delete;
+                if (%hooks<filter> &&
+                    %hooks<filter>.signature.params.head.sigil eq "%") {
+                    $out     //= Hash if $out === Any;
+                    $headers //= "auto";
+                    }
                 next;
                 }
             if ($k.lc eq "error") {
@@ -1832,7 +1837,7 @@ class Text::CSV {
                         elsif $headers eq "uc"     { $_ .= uc                 for @$hdr }
                         elsif $headers eq "lc"     { $_ .= lc                 for @$hdr }
                         self.column_names ($hdr.list);
-                        $out //= Hash;
+                        $out //= Hash if $out === Any;
                         }
                     $io-out.defined and self.say ($io-out, @!cnames);
                     }
