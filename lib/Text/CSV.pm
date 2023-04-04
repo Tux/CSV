@@ -669,11 +669,11 @@ class Text::CSV {
     multi method skip_empty_rows (Str:D  $x) returns Int {
         my Str $f = $x.lc;
         $!skip_empty_rows_cb = Any;
-        $f ~~ "0" | ""     | "false" and { return $!skip_empty_rows = 0; }
-        $f ~~ "1" | "skip" | "true"  and { return $!skip_empty_rows = 1; }
-        $f ~~ "2" | "stop" | "eof"   and { return $!skip_empty_rows = 2; }
-        $f ~~ "3" | "die"            and { return $!skip_empty_rows = 3; }
-        $f ~~ "4" | "croak"          and { return $!skip_empty_rows = 4; }
+        $f ~~ "0" | ""     | "false" and return $!skip_empty_rows = 0;
+        $f ~~ "1" | "skip" | "true"  and return $!skip_empty_rows = 1;
+        $f ~~ "2" | "stop" | "eof"   and return $!skip_empty_rows = 2;
+        $f ~~ "3" | "die"            and return $!skip_empty_rows = 3;
+        $f ~~ "4" | "croak"          and return $!skip_empty_rows = 4;
         self!fail (1500);
         };
 
