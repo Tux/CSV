@@ -40,6 +40,7 @@ my constant %errors =
     2012 => "EOF - End of data in parsing input stream",
     2013 => "ESP - Specification error for fragments RFC7111",
     2014 => "ENF - Inconsistent number of fields",
+    2015 => "ERW - Empty row",
 
     #  EIQ - Error Inside Quotes
     2021 => "EIQ - NL or EOL inside quotes, binary off",
@@ -373,7 +374,8 @@ class Text::CSV {
     has Bool $!auto_diag;
     has Int  $!diag_verbose;
     has Bool $!keep_meta;
-    has Bool $!skip_empty_rows;
+    has Int  $!skip_empty_rows;
+    has Any  $!skip_empty_rows_cb;
 
     has Bool $!blank_is_undef;
     has Bool $!empty_is_undef;
@@ -473,7 +475,8 @@ class Text::CSV {
         $!strict                = False;
         $!diag_verbose          = 0;
         $!keep_meta             = False;
-        $!skip_empty_rows       = False;
+        $!skip_empty_rows       = 0;
+        $!skip_empty_rows_cb    = Any;
 
         $!blank_is_undef        = False;
         $!empty_is_undef        = False;
@@ -599,7 +602,6 @@ class Text::CSV {
     method keep_meta             (*@s) returns Bool { self!a_bool ($!keep_meta,             @s); }
     method auto_diag             (*@s) returns Bool { self!a_bool ($!auto_diag,             @s); }
     method strict                (*@s) returns Bool { self!a_bool ($!strict,                @s); }
-    method skip_empty_rows       (*@s) returns Bool { self!a_bool ($!skip_empty_rows,       @s); }
     method eof                   ()    returns Bool { $!eof || $!errno == 2012; }
 
     # Numeric attributes
@@ -655,6 +657,24 @@ class Text::CSV {
         $f eq "" and $f = "empty";
         $f ~~ "none" | "die" | "croak" | "diag" | "empty" | "undef" or self!fail (1500);
         $!formula = $f;
+        };
+
+    multi method skip_empty_rows ()          returns Int { $!skip_empty_rows;              };
+    multi method skip_empty_rows (Any:U)     returns Int { self.skip_empty_rows ("false"); };
+    multi method skip_empty_rows (Bool  $x)  returns Int { self.skip_empty_rows (lc $x);   };
+    multi method skip_empty_rows (Int:D $x
+                          where 0 <= * <= 5) returns Int { self.skip_empty_rows (~$x);       };
+    multi method skip_empty_rows (Callable:D $x) returns Int { $!skip_empty_rows_cb = $x; return $!skip_empty_rows = 5; }
+    multi method skip_empty_rows (Routine:D  $x) returns Int { $!skip_empty_rows_cb = $x; return $!skip_empty_rows = 5; }
+    multi method skip_empty_rows (Str:D  $x) returns Int {
+        my Str $f = $x.lc;
+        $!skip_empty_rows_cb = Any;
+        $f ~~ "0" | ""     | "false" and { return $!skip_empty_rows = 0; }
+        $f ~~ "1" | "skip" | "true"  and { return $!skip_empty_rows = 1; }
+        $f ~~ "2" | "stop" | "eof"   and { return $!skip_empty_rows = 2; }
+        $f ~~ "3" | "die"            and { return $!skip_empty_rows = 3; }
+        $f ~~ "4" | "croak"          and { return $!skip_empty_rows = 4; }
+        self!fail (1500);
         };
 
     multi method undef_str ()           returns Str { $!undef_str;         };
