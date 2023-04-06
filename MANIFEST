@@ -23,6 +23,8 @@ t/50_utf8.t
 t/55_combi.t
 t/60_samples.t
 t/65_allow.t
+t/66_formula.t
+t/67_emptrow.t
 t/75_hashref.t
 t/77_getall.t
 t/78_fragment.t
@@ -33,4 +35,5 @@ t/82_subclass.t
 t/85_util.t
 t/90_csv.t
 t/91_csv_cb.t
+t/92_csv_encoding.t
 t/99_meta.t

@@ -59,8 +59,9 @@ is-deeply (csv (in => $file, filter => { $^r[1] ~~ /a/ }), [
     [  "2", "a b", ""   ];
     ], "AOH with filter on col 2");
 
-### Still need more filter tests
-### even with auto-set Hash out
+is-deeply (csv (in => $file, filter => { %^r<bar> ~~ /a/ }), [
+    { foo => "2", bar => "a b", baz => "" },
+    ], "AOH with filter on col bar");
 
 is-deeply (csv (in => $file, headers => "lc"), [
     { foo => "1", bar => "2",   baz => "3" },

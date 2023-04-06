@@ -135,10 +135,10 @@ is ($e, "Formulas are forbidden", "Combine formula with die");
     }
 is ($e, "Formulas are forbidden", "Combine formula with croak");
 
-{ @e = ();
-  is (     writer ("diag"),	<1,=2+3,4>, "Out diag");
-  CONTROL { when CX::Warn { @e.push: $_.Str; .resume } };
-  }
+{   @e = ();
+    is (     writer ("diag"),	<1,=2+3,4>, "Out diag");
+    CONTROL { when CX::Warn { @e.push: $_.Str; .resume } };
+    }
 is-deeply (@e, ["Field 2 contains formula '=2+3'\n"], "Got a warning");
 
 {   @e = ();

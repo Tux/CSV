@@ -664,8 +664,8 @@ class Text::CSV {
     multi method skip_empty_rows (Bool  $x)  returns Int { self.skip_empty_rows (lc $x);   };
     multi method skip_empty_rows (Int:D $x
                           where 0 <= * <= 5) returns Int { self.skip_empty_rows (~$x);       };
-    multi method skip_empty_rows (Callable:D $x) returns Int { $!skip_empty_rows_cb = $x; return $!skip_empty_rows = 5; }
-    multi method skip_empty_rows (Routine:D  $x) returns Int { $!skip_empty_rows_cb = $x; return $!skip_empty_rows = 5; }
+    multi method skip_empty_rows (Callable:D $x) returns Int { $!skip_empty_rows_cb = $x; return $!skip_empty_rows = 6; }
+    multi method skip_empty_rows (Routine:D  $x) returns Int { $!skip_empty_rows_cb = $x; return $!skip_empty_rows = 6; }
     multi method skip_empty_rows (Str:D  $x) returns Int {
         my Str $f = $x.lc;
         $!skip_empty_rows_cb = Any;
@@ -674,6 +674,7 @@ class Text::CSV {
         $f ~~ "2" | "stop" | "eof"   and return $!skip_empty_rows = 2;
         $f ~~ "3" | "die"            and return $!skip_empty_rows = 3;
         $f ~~ "4" | "croak"          and return $!skip_empty_rows = 4;
+        $f ~~ "5" | "error"          and return $!skip_empty_rows = 5;
         self!fail (1500);
         };
 
@@ -1035,7 +1036,12 @@ class Text::CSV {
         if ($!skip_empty_rows and
                 @ch.elems == 0 ||
                (@ch.elems == 1 && @ch[0] eq @eox.any)) {
-            return self.parse ($!io.get // Str);
+            $!skip_empty_rows == 1 and return self.parse ($!io.get // Str);
+            $!skip_empty_rows == 2 and return False;
+            $!skip_empty_rows == 3 and die "Empty row";
+            $!skip_empty_rows == 4 and die "Empty row";
+            $!skip_empty_rows == 5 and return parse_error (2015);
+            $!skip_empty_rows == 6 and @ch = chunks ($!skip_empty_rows_cb.(self), @chx);
             }
 
         @ch.elems or return parse_done ();       # An empty line

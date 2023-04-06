@@ -385,6 +385,51 @@ Replace the content of fields that start with a C<=> with C<Str>.
 
 All other values will throw an exception with error code 1500.
 
+=item skip_empty_rows
+X<skip_empty_rows>
+
+=item skip-empty-rows
+X<skip-empty-rows>
+
+Defines optional actions for empty rows
+
+ my $csv = Text::CSV.new(skip_empty_rows => False);
+           $csv.skip_empty_rows(True);
+ my $ser = $csv.skip-empty-rows;
+
+Possible values are
+
+=over 2
+
+=item 0 | False
+
+This is the default. An empty line is seen as a single empty field.
+
+=item 1 | True | "skip"
+
+Empty lines are ignored.
+
+=item 2 | "stop" | "eof"
+
+Empty lines cause the parse to stop immediately without any error ignoring
+the rest of the data.
+
+=item 3 | "die"
+
+Empty lines cause the parse to stop immediately with an exception.
+
+=item 5 | "error"
+
+Empty lines cause the parse to stop immediately with error 2015 ("Empty row")
+
+=item callback
+
+On an empty row, the callback is invoked to get alternative data to use
+instead. The callback is expected to return a single string in valid CSV
+format.
+
+=back
+
 =item auto_diag
 X<auto_diag>
 
