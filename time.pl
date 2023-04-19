@@ -9,9 +9,10 @@ sub usage {
     exit $err;
     } # usage
 
-use List::Util   qw( max min );
+use Encode       qw( decode                   );
+use List::Util   qw( max min                  );
 use Time::HiRes  qw( gettimeofday tv_interval );
-use Getopt::Long qw(:config bundling);
+use Getopt::Long qw(:config bundling          );
 my $opt_6 = 1;
 GetOptions (
     "help|?"        => sub { usage (0); },
@@ -34,101 +35,105 @@ open  my $fh, "<", "/tmp/hello.csv";
 close    $fh;
 
 my %lang = (
-    ##       ext     prog         args
-     2 => [ ".py",  "python2",                                                ],
-     3 => [ ".py",  "python3",                                                ],
-     4 => [ ".php", "php",       "-nq"                                        ],
-     5 => [ ".pl",  "perl",                                                   ],
-     6 => [ ".pl",  "raku",      "-Ilib"                                      ],
-     7 => [ ".lua", "lua5.1"                                                  ],
-    21 => [ ".lua", "lua5.3"                                                  ],
-     8 => [ ".go",  "go",        "run"                                        ],
-     9 => [ "",     "C"                                                       ],
-    14 => [ "",     "java6",     "-cp csv-java6.jar:opencsv-2.3.jar csvJava"  ],
-    10 => [ "",     "java7",     "-cp csv-java7.jar:opencsv-2.3.jar csvJava"  ],
-    11 => [ "",     "java8",     "-cp csv-java8.jar:opencsv-2.3.jar csvJava"  ],
-    12 => [ "",     "java9",     "-cp csv-java9.jar:opencsv-2.3.jar csvJava"  ],
-    18 => [ "",     "java10",    "-cp csv-java10.jar:opencsv-2.3.jar csvJava" ],
-    19 => [ "",     "java11",    "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
-    20 => [ "",     "java12",    "-cp csv-java12.jar:opencsv-2.3.jar csvJava" ],
-    22 => [ "",     "java13",    "-cp csv-java13.jar:opencsv-2.3.jar csvJava" ],
-    23 => [ "",     "ac_java8",  "-cp csv-java8.jar:opencsv-2.3.jar csvJava"  ],
-    24 => [ "",     "ac_java11", "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
-    25 => [ "",     "java14",    "-cp csv-java14.jar:opencsv-2.3.jar csvJava" ],
-    26 => [ "",     "java15",    "-cp csv-java15.jar:opencsv-2.3.jar csvJava" ],
-    27 => [ "",     "java16",    "-cp csv-java16.jar:opencsv-2.3.jar csvJava" ],
-    28 => [ "",     "java17",    "-cp csv-java17.jar:opencsv-2.3.jar csvJava" ],
-    29 => [ "",     "ac_java15", "-cp csv-java15.jar:opencsv-2.3.jar csvJava" ],
-    30 => [ "",     "ac_java16", "-cp csv-java16.jar:opencsv-2.3.jar csvJava" ],
-    31 => [ "",     "java18",    "-cp csv-java18.jar:opencsv-2.3.jar csvJava" ],
-    32 => [ "",     "ac_java17", "-cp csv-java17.jar:opencsv-2.3.jar csvJava" ],
-    33 => [ "",     "ac_java18", "-cp csv-java18.jar:opencsv-2.3.jar csvJava" ],
-    34 => [ "",     "java19",    "-cp csv-java19.jar:opencsv-2.3.jar csvJava" ],
-    35 => [ "",     "java20",    "-cp csv-java20.jar:opencsv-2.3.jar csvJava" ],
-    13 => [ ".R",   "R",         "--slave -f"                                 ],
-    15 => [ "",     "C++"                                                     ],
-    17 => [ "",     "Rust",      "/tmp/hello.csv"                             ],
-    16 => [ "",     "java8",     "-cp csv-pi-easy-pp.jar Main /tmp/hello.csv" ],
-    40 => [ ".jl",  "julia",                                                  ],
+    ###       ext     prog         args
+      2 => [ ".py",  "python2",                                                ],
+      3 => [ ".py",  "python3",                                                ],
+      4 => [ ".php", "php",       "-nq"                                        ],
+      5 => [ ".pl",  "perl",                                                   ],
+      6 => [ ".pl",  "raku",      "-Ilib"                                      ],
+      7 => [ ".lua", "lua5.1"                                                  ],
+     21 => [ ".lua", "lua5.3"                                                  ],
+      8 => [ ".go",  "go",        "run"                                        ],
+      9 => [ "",     "C"                                                       ],
+     50 => [ ".R",   "R",         "--slave -f"                                 ],
+     51 => [ "",     "C++"                                                     ],
+     52 => [ "",     "Rust",      "/tmp/hello.csv"                             ],
+     53 => [ "",     "java8",     "-cp csv-pi-easy-pp.jar Main /tmp/hello.csv" ],
+     54 => [ ".jl",  "julia",                                                  ],
+    106 => [ "",     "java6",     "-cp csv-java6.jar:opencsv-2.3.jar csvJava"  ],
+    107 => [ "",     "java7",     "-cp csv-java7.jar:opencsv-2.3.jar csvJava"  ],
+    108 => [ "",     "java8",     "-cp csv-java8.jar:opencsv-2.3.jar csvJava"  ],
+    109 => [ "",     "java9",     "-cp csv-java9.jar:opencsv-2.3.jar csvJava"  ],
+    110 => [ "",     "java10",    "-cp csv-java10.jar:opencsv-2.3.jar csvJava" ],
+    111 => [ "",     "java11",    "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
+    112 => [ "",     "java12",    "-cp csv-java12.jar:opencsv-2.3.jar csvJava" ],
+    113 => [ "",     "java13",    "-cp csv-java13.jar:opencsv-2.3.jar csvJava" ],
+    114 => [ "",     "java14",    "-cp csv-java14.jar:opencsv-2.3.jar csvJava" ],
+    115 => [ "",     "java15",    "-cp csv-java15.jar:opencsv-2.3.jar csvJava" ],
+    116 => [ "",     "java16",    "-cp csv-java16.jar:opencsv-2.3.jar csvJava" ],
+    117 => [ "",     "java17",    "-cp csv-java17.jar:opencsv-2.3.jar csvJava" ],
+    118 => [ "",     "java18",    "-cp csv-java18.jar:opencsv-2.3.jar csvJava" ],
+    119 => [ "",     "java19",    "-cp csv-java19.jar:opencsv-2.3.jar csvJava" ],
+    120 => [ "",     "java20",    "-cp csv-java20.jar:opencsv-2.3.jar csvJava" ],
+    208 => [ "",     "ac_java8",  "-cp csv-java8.jar:opencsv-2.3.jar csvJava"  ],
+    211 => [ "",     "ac_java11", "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
+    215 => [ "",     "ac_java15", "-cp csv-java15.jar:opencsv-2.3.jar csvJava" ],
+    216 => [ "",     "ac_java16", "-cp csv-java16.jar:opencsv-2.3.jar csvJava" ],
+    217 => [ "",     "ac_java17", "-cp csv-java17.jar:opencsv-2.3.jar csvJava" ],
+    218 => [ "",     "ac_java18", "-cp csv-java18.jar:opencsv-2.3.jar csvJava" ],
+    219 => [ "",     "ac_java19", "-cp csv-java19.jar:opencsv-2.3.jar csvJava" ],
+    220 => [ "",     "ac_java20", "-cp csv-java20.jar:opencsv-2.3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
-    [  5, 0, "csv-easy-xs"      , "Text::CSV::Easy_XS" ],
-    [  5, 0, "csv-easy-xs-20"   , "Text::CSV::Easy_XS" ],
-    [  5, 0, "csv-easy-pp"      , "Text::CSV::Easy_PP" ],
-    [  5, 0, "csv-xsbc"         , "Text::CSV_XS" ],
-    [  5, 0, "csv-test-xs"      , "Text::CSV_XS" ],
-    [  5, 1, "csv-test-xs-20"   , "Text::CSV_XS" ],
-    [  5, 0, "csv-test-pp"      , "Text::CSV_PP" ],
-    [  5, 0, "csv-pegex"        , "Pegex::CSV" ],
-    [  6, 0, "csv"             ],
-    [  6, 1, "csv-ip5xs"        , "Inline::Perl5, Text::CSV_XS" ],
-    [  6, 1, "csv-ip5xs-20"     , "Inline::Perl5, Text::CSV_XS" ],
-    [  6, 0, "csv-ip5xsio"      , "Inline::Perl5, Text::CSV_XS" ],
-    [  6, 0, "csv-ip5pp"        , "Inline::Perl5, Text::CSV_PP" ],
-    [  6, 0, "csv_gram"        ],
-    [  6, 1, "test"             , "Text::CSV"    ],
-    [  6, 1, "test-t"           , "Text::CSV"    ],
-    [  6, 1, "test-t"           , "Text::CSV",    , "--race"    ],
-    [  6, 1, "test-t-20"        , "Text::CSV"    ],
-    [  6, 1, "test-t-20"        , "Text::CSV"     , "--race"    ],
-    [  6, 1, "csv-parser"       , "CSV::Parser"  ],
-    [  9, 0, "csv-c"           ],
-    [  9, 0, "csv-c-20"        ],
-    [ 15, 0, "csv-cc"          ],
-    [  7, 0, "csv-lua"         ],
-    [ 21, 0, "csv-lua"         ],
-    [  3, 0, "csv-python3"     ],
-    [  2, 0, "csv-python2"     ],
-    [  4, 0, "csv-php"         ],
-    [ 35, 0, "csv-java20"      ],
-    [ 34, 0, "csv-java19"      ],
-    [ 31, 0, "csv-java18"      ],
-    [ 28, 0, "csv-java17"      ],
-    [ 27, 0, "csv-java16"      ],
-    [ 26, 0, "csv-java15"      ],
-    [ 25, 0, "csv-java14"      ],
-    [ 22, 0, "csv-java13"      ],
-    [ 20, 0, "csv-java12"      ],
-    [ 19, 0, "csv-java11"      ],
-    [ 18, 0, "csv-java10"      ],
-    [ 12, 0, "csv-java9"       ],
-    [ 11, 0, "csv-java8"       ],
-    [ 10, 0, "csv-java7"       ],
-    [ 14, 0, "csv-java6"       ],
-    [ 33, 0, "csv-java18ac"    ],
-    [ 32, 0, "csv-java17ac"    ],
-    [ 30, 0, "csv-java16ac"    ],
-    [ 29, 0, "csv-java15ac"    ],
-    [ 24, 0, "csv-java11ac"    ],
-    [ 23, 0, "csv-java8ac"     ],
-    [  8, 0, "csv-go"          ],
-    [ 13, 0, "csv-R"           ],
-    [ 40, 0, "csv-julia"       ],
-    [ 16, 0, "csv-easy-pp-pi", "Text::CSV::Easy_PP, Perlito" ],
-    [ 17, 0, "csv-rust-csvrdr" ],
-    [ 17, 0, "csv-rust-libcsv" ],
-    [ 17, 0, "csv-rust-qckrdr" ],
+    [   5, 0, "csv-easy-xs"      , "Text::CSV::Easy_XS" ],
+    [   5, 0, "csv-easy-xs-20"   , "Text::CSV::Easy_XS" ],
+    [   5, 0, "csv-easy-pp"      , "Text::CSV::Easy_PP" ],
+    [   5, 0, "csv-xsbc"         , "Text::CSV_XS" ],
+    [   5, 0, "csv-test-xs"      , "Text::CSV_XS" ],
+    [   5, 1, "csv-test-xs-20"   , "Text::CSV_XS" ],
+    [   5, 0, "csv-test-pp"      , "Text::CSV_PP" ],
+    [   5, 0, "csv-pegex"        , "Pegex::CSV" ],
+    [   6, 0, "csv"             ],
+    [   6, 1, "csv-ip5xs"        , "Inline::Perl5, Text::CSV_XS" ],
+    [   6, 1, "csv-ip5xs-20"     , "Inline::Perl5, Text::CSV_XS" ],
+    [   6, 0, "csv-ip5xsio"      , "Inline::Perl5, Text::CSV_XS" ],
+    [   6, 0, "csv-ip5pp"        , "Inline::Perl5, Text::CSV_PP" ],
+    [   6, 0, "csv_gram"        ],
+    [   6, 1, "test"             , "Text::CSV"    ],
+    [   6, 1, "test-t"           , "Text::CSV"    ],
+    [   6, 1, "test-t"           , "Text::CSV",    , "--race"    ],
+    [   6, 1, "test-t-20"        , "Text::CSV"    ],
+    [   6, 1, "test-t-20"        , "Text::CSV"     , "--race"    ],
+    [   6, 1, "csv-parser"       , "CSV::Parser"  ],
+    [   9, 0, "csv-c"           ],
+    [   9, 0, "csv-c-20"        ],
+    [  51, 0, "csv-cc"          ],
+    [   7, 0, "csv-lua"         ],
+    [  21, 0, "csv-lua"         ],
+    [   3, 0, "csv-python3"     ],
+    [   2, 0, "csv-python2"     ],
+    [   4, 0, "csv-php"         ],
+    [ 120, 0, "csv-java20"      ],
+    [ 119, 0, "csv-java19"      ],
+    [ 118, 0, "csv-java18"      ],
+    [ 117, 0, "csv-java17"      ],
+    [ 116, 0, "csv-java16"      ],
+    [ 115, 0, "csv-java15"      ],
+    [ 114, 0, "csv-java14"      ],
+    [ 113, 0, "csv-java13"      ],
+    [ 112, 0, "csv-java12"      ],
+    [ 111, 0, "csv-java11"      ],
+    [ 110, 0, "csv-java10"      ],
+    [ 109, 0, "csv-java9"       ],
+    [ 108, 0, "csv-java8"       ],
+    [ 107, 0, "csv-java7"       ],
+    [ 106, 0, "csv-java6"       ],
+    [ 220, 0, "csv-java20ac"    ],
+    [ 219, 0, "csv-java19ac"    ],
+    [ 218, 0, "csv-java18ac"    ],
+    [ 217, 0, "csv-java17ac"    ],
+    [ 216, 0, "csv-java16ac"    ],
+    [ 215, 0, "csv-java15ac"    ],
+    [ 211, 0, "csv-java11ac"    ],
+    [ 208, 0, "csv-java8ac"     ],
+    [   8, 0, "csv-go"          ],
+    [  50, 0, "csv-R"           ],
+    [  54, 0, "csv-julia"       ],
+    [  53, 0, "csv-easy-pp-pi", "Text::CSV::Easy_PP, Perlito" ],
+    [  52, 0, "csv-rust-csvrdr" ],
+    [  52, 0, "csv-rust-libcsv" ],
+    [  52, 0, "csv-rust-qckrdr" ],
     );
 my $li = max keys %lang;
 foreach my $re (grep { -x } sort glob "/usr/bin/ruby[0-9]*") {
@@ -167,12 +172,13 @@ for (@test) {
     my ($v, $irc, $script, $modules, @args) = @$_;
 
     $opt_v > 3 and say "Processing ($v, $irc, $script, @args)";
-    $script =~ m{$pat}i or  next;
     $opt_i && !$irc     and next;
 
     my ($ext, $exe, @arg) = @{$lang{$v}};
+    $opt_v > 3 and say "      with ($ext, $exe, @arg)";
 
-    $exe eq "raku" && !$opt_6 and next;
+    $exe eq "raku"      && !$opt_6          and next;
+    $script =~ m{$pat}i || $exe =~ m{$pat}i or  next;
 
     $opt_v and printf "%-9s ", $exe;
     my $s_script = sprintf "%-17s ", join "\x{00a0}" => $script, @args;
@@ -224,7 +230,7 @@ for (@test) {
     $irc and push @irc, $time[-1];
     }
 
-print qx{raku -v} =~ s{\nimplementing.*\n}{\n}r;
+print decode ("utf-8", qx{raku -v}) =~ s{\nimplementing.*\n}{\n}r;
 printf "%s %9.3f\n", $_->[1], $_->[3] for grep { $_->[3] < 100 } @irc;
 
 if (!$opt_i and open my $fh, ">", "../Talks/CSV6/speed5.html") {
