@@ -1557,6 +1557,7 @@ class Text::CSV {
                  Str    :$fragment is copy,
                  Bool   :$strict = False,
                  Bool   :$meta   = False,
+                        :@kh,
                  *%args            is copy) {
 
         # Aliasses
@@ -1564,7 +1565,15 @@ class Text::CSV {
         #   enc    encoding
         %args<frag>.defined and $fragment ||= %args<frag> :delete;
         %args<enc >.defined and $encoding ||= %args<enc>  :delete;
+        %args<enc >.defined and $encoding ||= %args<enc>  :delete;
         $fragment //= "";
+        for (< keep-headers keep-header keep_headers keep_header
+               keep_column_names keep-column-names >) {
+            %args{$_}.defined and @kh ||= %args{$_};
+            }
+        # https://github.com/rakudo/rakudo/issues/2483
+        # Currently (kh => \my @kh) does *not* (yet) default to Hash output
+        # @kh.provided and $headers //= "auto";
 
         # Indirect options to invoke headers
         if ($encoding.defined && $encoding eq "auto") {
@@ -1879,6 +1888,8 @@ class Text::CSV {
         my @h;
         $out ~~ Hash || $headers ~~ Array || ($headers ~~ Str && $headers eq "auto") and
             @h = @!cnames.elems ?? @!cnames !! @in.shift.list;
+        @h.elems and @kh = @h;
+
       # unless (?$out || ?$tmpfn || ?$io-out) { # TODO: Fix for csv () in void context!
         unless ((?$out && $out !~~ Hash) || ?$tmpfn) {
             if ($out ~~ Hash or @h.elems) {
@@ -1976,6 +1987,7 @@ class Text::CSV {
                  Str       :$encoding,
                  Str       :$fragment,
                  Bool      :$meta is copy,
+                           :@kh,
                  Text::CSV :$csv  = self || Text::CSV.new,
                  *%args ) {
 
@@ -1990,7 +2002,8 @@ class Text::CSV {
             }
         $meta //= $csv.keep_meta;
 
-        $csv.CSV (:$in, :$out, :$headers, :$key, :$encoding, :$fragment, :$meta, |%args);
+        $csv.CSV (:$in, :$out, :$headers, :$key, :$encoding,
+                  :$fragment, :$meta, :@kh, |%args);
         }
     }
 

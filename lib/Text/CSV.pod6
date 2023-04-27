@@ -2215,6 +2215,26 @@ the value passed to C<out>:
  my $ref = csv(in => "test.csv", out => %hash, key =>        "code");
  my $ref = csv(in => "test.csv", out => %hash, key => [ ":", "code", "color" ]);
 
+=head3 keep_headers
+X<keep_headers>
+X<keep-headers>
+X<keep_header>
+X<keep-header>
+X<keep_column_names>
+X<keep-column-names>
+X<kh>
+
+When using hashes, keep the column names into the arrayref passed, so all
+headers are available after the call in the original order.
+
+ my $aoh = csv (in => "file.csv", keep_headers => \my @hdr);
+
+This attribute can be abbreviated to C<kh> or passed as C<keep-headers>.
+C<keep_header>, C<keep-header>, C<keep_column_names>, or
+C<keep-column-names>.
+
+This attribute implies a default of C<auto> for the C<headers> attribute.
+
 =head3 fragment
 X<fragment>
 
