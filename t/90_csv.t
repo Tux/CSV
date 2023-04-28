@@ -322,6 +322,14 @@ is (csv (in => [], out => Str), Nil, "Empty set => no Out");
 ok (csv (in => $aoa.iterator, out => $fno), "AOA out file");
 is-deeply (csv (in => $fno), $aoa, "AOA parse out");
 
+ok (my $aoh = csv (in => $fno, out => Hash), "AOH from file");
+{   is-deeply (csv (in => $fno, kh => my @kh, out => Hash), $aoh, "AOH parse out with kh");
+    is-deeply (@kh, ["1", "2", "3"], "Headers kept");
+    }
+{   is-deeply (csv (in => $fno, kh => my @kh), $aoh, "AOH parse out with kh defaults to Hash");
+    is-deeply (@kh, ["1", "2", "3"], "Headers kept");
+    }
+
 {   ok (my $h = csv (file => $fni, key =>          "bar"         ), "HoH with Cool key");
     is-deeply ($h<1>,   { :bar("1"), :baz("2"), :foo("3") }, "Entry 1");
     }

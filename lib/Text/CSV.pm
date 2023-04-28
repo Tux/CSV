@@ -1552,13 +1552,12 @@ class Text::CSV {
     method CSV ( Any    :$in!,
                  Any    :$out!     is copy,
                  Any    :$headers  is copy,
-                 Any    :$key,
                  Str    :$encoding is copy,
                  Str    :$fragment is copy,
                  Bool   :$strict = False,
                  Bool   :$meta   = False,
                         :@kh,
-                 *%args            is copy) {
+                 *%args) {
 
         # Aliasses
         #   frag   fragment
@@ -1567,13 +1566,12 @@ class Text::CSV {
         %args<enc >.defined and $encoding ||= %args<enc>  :delete;
         %args<enc >.defined and $encoding ||= %args<enc>  :delete;
         $fragment //= "";
-        for (< keep-headers keep-header keep_headers keep_header
-               keep_column_names keep-column-names >) {
-            %args{$_}.defined and @kh ||= %args{$_};
+
+        if (@kh.VAR.name ne "element") { # @kh = "@kh" or [] = "element"
+            # https://github.com/rakudo/rakudo/issues/2483
+            $out     //= Hash if $out === Any;
+            $headers //= "auto";
             }
-        # https://github.com/rakudo/rakudo/issues/2483
-        # Currently (kh => \my @kh) does *not* (yet) default to Hash output
-        # @kh.provided and $headers //= "auto";
 
         # Indirect options to invoke headers
         if ($encoding.defined && $encoding eq "auto") {
@@ -1666,13 +1664,14 @@ class Text::CSV {
             }
         %hooks.keys and self.callbacks (|%hooks.list);
 
-        # Rest is for Text::CSV
-        self!set-attributes (%args);
-
+        my $key = %args<key> :delete;
         if ($key.defined) {
             $out     //= Hash if $out === Any;
             $headers //= "auto";
             }
+
+        # Rest is for Text::CSV
+        self!set-attributes (%args);
 
         my @in; # Either AoA or AoH
 
@@ -1982,12 +1981,9 @@ class Text::CSV {
 
     method csv ( Any       :$in   is copy,
                  Any       :$out  is copy,
-                 Any       :$headers,
-                 Any       :$key,
                  Str       :$encoding,
                  Str       :$fragment,
                  Bool      :$meta is copy,
-                           :@kh,
                  Text::CSV :$csv  = self || Text::CSV.new,
                  *%args ) {
 
@@ -2002,8 +1998,7 @@ class Text::CSV {
             }
         $meta //= $csv.keep_meta;
 
-        $csv.CSV (:$in, :$out, :$headers, :$key, :$encoding,
-                  :$fragment, :$meta, :@kh, |%args);
+        $csv.CSV (:$in, :$out, :$encoding, :$fragment, :$meta, |%args);
         }
     }
 
