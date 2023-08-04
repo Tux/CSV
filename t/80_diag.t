@@ -8,8 +8,8 @@ use Text::CSV;
 
 my %err;
 
-# Read errors from pm
-{   my $pm = open "lib/Text/CSV.pm", :r;
+# Read errors from rakumod
+{   my $pm = open "lib/Text/CSV.rakumod", :r;
     for $pm.lines () {
         m{^ \s* ";" $} and last;
         m{^ \s+ (<[0..9]>+) \s+ "=>" \s+ '"' (.*) '",' $}

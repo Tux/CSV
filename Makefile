@@ -11,7 +11,7 @@ test:
 
 tt:     test time html
 
-test-verbose:	lib/Text/CSV.pm
+test-verbose:	lib/Text/CSV.rakumod
 	raku -I. -Ilib t/10_base.t
 	raku -I. -Ilib t/12_acc.t
 	raku -I. -Ilib t/15_flags.t

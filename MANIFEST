@@ -1,6 +1,6 @@
 META6.json
 README.md
-lib/Text/CSV.pm
+lib/Text/CSV.rakumod
 lib/Text/CSV.pod6
 files/macosx.csv
 files/utf8.csv

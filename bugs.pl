@@ -264,9 +264,9 @@ EOP
 
 #{  title "Precomp", "Precompilations causes segfault", "RT#124298";
 #   qx{mkdir -p blib/lib/IO};
-#   qx{raku --target=mbc --output=blib/lib/IO/String.pm.moarvm lib/IO/String.pm6};
+#   qx{raku --target=mbc --output=blib/lib/IO/String.pm.moarvm lib/IO/String.rakumod};
 #   qx{mkdir -p blib/lib/Text};
-#   qx{raku -Iblib/lib --target=mbc --output=blib/lib/Text/CSV.pm.moarvm lib/Text/CSV.pm};
+#   qx{raku -Iblib/lib --target=mbc --output=blib/lib/Text/CSV.rakumod.moarvm lib/Text/CSV.rakumod};
 #   ^^^^ Could not find IO::String at line 6
 #   test (qr{Segmentation fault},
 #         q{use lib "blib/lib"; use Text::CSV; my $c = Text::CSV.new});
