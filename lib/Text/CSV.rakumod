@@ -1671,6 +1671,8 @@ class Text::CSV {
             }
 
         # Rest is for Text::CSV
+        %args<strict>    = $strict;
+        %args<keep_meta> = $meta;
         self!set-attributes (%args);
 
         my @in; # Either AoA or AoH
