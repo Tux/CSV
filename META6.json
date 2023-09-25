@@ -1,6 +1,6 @@
 { "name"          : "Text::CSV",
-  "version"       : "0.013",
-  "perl"          : "6.c",
+  "version"       : "0.014",
+  "perl"          : "6.d",
   "description"   : "Handle CSV data. API based on Text::CSV_XS",
   "auth"          : "github:Tux",
   "authors"       : [ "H.Merijn Brand (Tux)"       ],

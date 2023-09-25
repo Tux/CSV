@@ -10,6 +10,7 @@ use Text::CSV_XS qw( csv );
 # Used the firt 7 lines of the example dat in the stackexchange post
 # Removed the last element from line 4, which should warn under strict
 
+-d "sandbox" and chdir "sandbox";
 csv (sep => ";", in =>
 csv (in        => "issue-34.csv",
      sep       => ";",
