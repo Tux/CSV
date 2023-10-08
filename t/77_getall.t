@@ -5,7 +5,7 @@ use Slang::Tuxic;
 
 use Test;
 use Text::CSV;
-use IO::String;
+use Text::IO::String;
 
 my $csv = Text::CSV.new;
 my $tfn = "_77test.csv";
@@ -120,26 +120,26 @@ for ("\n", "\r") -> $eol {
     }
 
 {   ok (my $csv = Text::CSV.new, "new for sep=");
-    my $fh = IO::String.new (qq{sep=;\n"a b";3\n});
+    my $fh = Text::IO::String.new (qq{sep=;\n"a b";3\n});
     is-deeply ($csv.getline_all ($fh), [["a b", "3"],], "valid sep=");
     is (+$csv.error_diag, 2012, "EOF");
     }
 
 {   ok (my $csv = Text::CSV.new, "new for sep=");
-    my $fh = IO::String.new (qq{sep=;\n"a b",3\n});
+    my $fh = Text::IO::String.new (qq{sep=;\n"a b",3\n});
     is-deeply ($csv.getline_all ($fh), [], "invalid sep=");
     is (+$csv.error_diag, 2023, "error");
     }
 
 {   ok (my $csv = Text::CSV.new, "new for sep=");
-    my $fh = IO::String.new (qq{sep=XX\n"a b"XX3\n});
+    my $fh = Text::IO::String.new (qq{sep=XX\n"a b"XX3\n});
     is-deeply ($csv.getline_all ($fh), [["a b", "3"],], "multibyte sep=");
     is (+$csv.error_diag, 2012, "EOF");
     }
 
 {   ok (my $csv = Text::CSV.new, "new for sep=");
     # To check that it is *only* supported on the first line
-    my $fh = IO::String.new (qq{sep=;\n"a b";3\nsep=,\n"a b",3\n});
+    my $fh = Text::IO::String.new (qq{sep=;\n"a b";3\nsep=,\n"a b",3\n});
     is-deeply ($csv.getline_all ($fh),
 	[["a b","3"],["sep=,"]], "sep= not on 1st line");
     is (+$csv.error_diag, 2023, "error");

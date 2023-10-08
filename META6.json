@@ -9,7 +9,7 @@
   "test-depends"  : [ "Test", "Test::META"         ],
   "provides"      : {
     "Text::CSV"   : "lib/Text/CSV.rakumod",
-    "IO::String"  : "lib/IO/String.rakumod"
+    "Text::IO::String"  : "lib/Text/IO/String.rakumod"
     },
   "repo-type"     : "git",
   "source-url"    : "git://github.com/Tux/CSV.git",
