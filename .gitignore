@@ -32,3 +32,6 @@ rust*/target
 sandbox/
 files/
 *~
+
+# Comma stuff ignored
+.idea/
