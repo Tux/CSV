@@ -5,6 +5,7 @@ use Slang::Tuxic;
 
 use Test;
 use Text::CSV;
+use Text::IO::String;
 
 my %err;
 
@@ -126,7 +127,7 @@ for    (Str,            # No spec at all
     my $csv = Text::CSV.new;
     my $e;
     my @r;
-    {   @r = $csv.fragment (IO::String.new (""), $spec);
+    {   @r = $csv.fragment (Text::IO::String.new (""), $spec);
         CATCH { default { $e = $_; 1; }}
         }
     #$csv.error-diag;
