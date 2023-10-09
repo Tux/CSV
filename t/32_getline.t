@@ -4,10 +4,10 @@ use v6;
 use Slang::Tuxic;
 
 use Text::CSV;
-use IO::String;
+use Text::IO::String;
 use Test;
 
-my $fh = IO::String.new (q:to/EOC/);
+my $fh = Text::IO::String.new (q:to/EOC/);
 a,b,c
 1,foo,bar
 EOC
@@ -22,7 +22,7 @@ is (+$csv.error-diag, 2012, "Parse should have stopped with EOF");
 $fh.close;
 
 # Check that while stops on error in getline
-$fh = IO::String.new (q:to/EOC/);
+$fh = Text::IO::String.new (q:to/EOC/);
 a,b,c
 1,foo,bar
 2,"d" fail,3

@@ -2,7 +2,7 @@
 
 use Slang::Tuxic;
 use File::Temp;
-use IO::String;
+use Text::IO::String;
 
 my $VERSION = "0.010";
 
@@ -1704,7 +1704,7 @@ class Text::CSV {
                 $in.list.elems or return;
                 given $in.list[0] {
                     when Str {  # AoS
-                        $io-in = IO::String.new ($in.list.join ($!eol // "\n"));
+                        $io-in = Text::IO::String.new ($in.list.join ($!eol // "\n"));
                         }
                     default {   # AoA, AoH
                         $fragment ~~ s:i{^ "row=" } = "" and
@@ -1722,7 +1722,7 @@ class Text::CSV {
                     }
                 }
             when Capture {
-                $io-in = IO::String.new ($in.list.map ( -> \x --> Str { x.Str }).join ($!eol // "\n"));
+                $io-in = Text::IO::String.new ($in.list.map ( -> \x --> Str { x.Str }).join ($!eol // "\n"));
                 }
             when Supply {
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);

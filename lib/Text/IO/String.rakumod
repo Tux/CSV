@@ -1,6 +1,6 @@
 use Slang::Tuxic; # Need it for space before parenthesis
 
-unit class IO::String is IO::Handle;
+unit class Text::IO::String is IO::Handle;
 
 has      $.nl-in   is rw;
 has      $.nl-out  is rw;
@@ -8,14 +8,14 @@ has Bool $.ro      is rw is default(False);
 has Str  $!str;
 has Str  @!content;
 
-# my $fh = IO::String.new ($foo);
+# my $fh = Text::IO::String.new ($foo);
 multi method new (Str $str! is rw, *%init) {
     my \obj = self.new ($str.Str, |%init);
     obj.bind-str ($str);
     obj;
     }
 
-# my $fh = IO::String.new ("foo");
+# my $fh = Text::IO::String.new ("foo");
 multi method new (Str $str!, *%init) {
     my \obj = self.bless;
     obj.nl-in  = $*IN.nl-in;

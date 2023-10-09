@@ -5,6 +5,7 @@ use Slang::Tuxic;
 
 use Test;
 use Text::CSV;
+use Text::IO::String;
 
 my $csv = Text::CSV.new;
 
@@ -15,7 +16,7 @@ for < , ; > -> $sep {
     $data ~~ s:g{ "," } = $sep;
 
     $csv.column-names (False);
-    {   my $fh = IO::String.new: $data;
+    {   my $fh = Text::IO::String.new: $data;
 	ok (my $slf = $csv.header ($fh), "header");
 	is ($slf, $csv, "Return self");
 	is ($csv.sep, $sep, "Sep = $sep");
@@ -25,7 +26,7 @@ for < , ; > -> $sep {
 	}
 
     $csv.column-names (False);
-    {   my $fh = IO::String.new: $data;
+    {   my $fh = Text::IO::String.new: $data;
 	ok (my $slf = $csv.header ($fh), "header");
 	is ($slf, $csv, "Return self");
 	is ($csv.sep, $sep, "Sep = $sep");
@@ -41,7 +42,7 @@ for ",", ";", "|", "\t" -> $sep {
     $data ~~ s:g{ "," } = $sep;
 
     $csv.column-names (False);
-    {   my $fh = IO::String.new: $data;
+    {   my $fh = Text::IO::String.new: $data;
 	ok (my $slf = $csv.header ($fh, :$sep-set), "header with specific sep set");
 	is ($slf, $csv, "Return self");
 	is ($csv.sep, $sep, "Sep = $sep");
@@ -51,7 +52,7 @@ for ",", ";", "|", "\t" -> $sep {
 	}
 
     $csv.column-names (False);
-    {   my $fh = IO::String.new: $data;
+    {   my $fh = Text::IO::String.new: $data;
 	ok (my $slf = $csv.header ($fh, :$sep-set), "header with specific sep set");
 	is ($slf, $csv, "Return self");
 	is ($csv.sep, $sep, "Sep = $sep");
@@ -67,7 +68,7 @@ for   1010, "",
       1013, "a,a,b",
       2027, "a,\"b\nc\",d"
       -> $err, $data {
-    my $fh = IO::String.new: $data;
+    my $fh = Text::IO::String.new: $data;
     my $e;
     my $self;
     {   $self = $csv.header ($fh);
@@ -77,7 +78,7 @@ for   1010, "",
     is ($e.error, $err, "Error code $err");
     $err == 1013 and ok ($e.message.contains (< a(2)>), "Duplicate fields are reported");
     }
-{   my $fh = IO::String.new: "bar,bAr,bAR,BAR\n1,2,3,4";
+{   my $fh = Text::IO::String.new: "bar,bAr,bAR,BAR\n1,2,3,4";
     $csv.column-names (False);
     ok ($csv.header ($fh, munge-column-names => "none"), "non-unique unfolded headers");
     is-deeply ([ $csv.column-names ], [< bar bAr bAR BAR >], "Headers");
@@ -88,7 +89,7 @@ for < , ; > -> $sep {
     $data ~~ s:g{ "," } = $sep;
 
     $csv.column-names (False);
-    {   my $fh = IO::String.new: $data;
+    {   my $fh = Text::IO::String.new: $data;
 	ok (my $slf = $csv.header ($fh, :!set-column-names), "Header without column setting");
 	is ($slf, $csv, "Return self");
 	is ($csv.sep, $sep, "Sep = $sep");
@@ -104,7 +105,7 @@ for Str, "bar", "fc", "bar", "lc", "bar", "uc", "BAR", "none", "bAr",
     my Str $data = "bAr,foo\n1,2\n3,4,5\n";
 
     $csv.column-names (False);
-    my $fh = IO::String.new: $data;
+    my $fh = Text::IO::String.new: $data;
     ok (my $slf = $csv.header ($fh, :$munge-column-names), "header with fold {$munge-column-names.perl}");
     is ($csv.column-names[0], $hdr, "folded header to $hdr");
     }
