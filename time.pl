@@ -65,6 +65,7 @@ my %lang = (
     118 => [ "",     "java18",    "-cp csv-java18.jar:opencsv-2.3.jar csvJava" ],
     119 => [ "",     "java19",    "-cp csv-java19.jar:opencsv-2.3.jar csvJava" ],
     120 => [ "",     "java20",    "-cp csv-java20.jar:opencsv-2.3.jar csvJava" ],
+    121 => [ "",     "java21",    "-cp csv-java21.jar:opencsv-2.3.jar csvJava" ],
     208 => [ "",     "ac_java8",  "-cp csv-java8.jar:opencsv-2.3.jar csvJava"  ],
     211 => [ "",     "ac_java11", "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
     215 => [ "",     "ac_java15", "-cp csv-java15.jar:opencsv-2.3.jar csvJava" ],
@@ -73,6 +74,7 @@ my %lang = (
     218 => [ "",     "ac_java18", "-cp csv-java18.jar:opencsv-2.3.jar csvJava" ],
     219 => [ "",     "ac_java19", "-cp csv-java19.jar:opencsv-2.3.jar csvJava" ],
     220 => [ "",     "ac_java20", "-cp csv-java20.jar:opencsv-2.3.jar csvJava" ],
+    221 => [ "",     "ac_java21", "-cp csv-java21.jar:opencsv-2.3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
@@ -104,6 +106,7 @@ my @test = (
     [   3, 0, "csv-python3"     ],
     [   2, 0, "csv-python2"     ],
     [   4, 0, "csv-php"         ],
+    [ 121, 0, "csv-java21"      ],
     [ 120, 0, "csv-java20"      ],
     [ 119, 0, "csv-java19"      ],
     [ 118, 0, "csv-java18"      ],
@@ -119,6 +122,7 @@ my @test = (
     [ 108, 0, "csv-java8"       ],
     [ 107, 0, "csv-java7"       ],
     [ 106, 0, "csv-java6"       ],
+    [ 221, 0, "csv-java21ac"    ],
     [ 220, 0, "csv-java20ac"    ],
     [ 219, 0, "csv-java19ac"    ],
     [ 218, 0, "csv-java18ac"    ],
