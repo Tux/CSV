@@ -20,15 +20,9 @@ and produce CSV data.
  my @dta = csv(in => "file.csv");
 ```
 
-Additional (still incomplete) documentation in [the `doc` directory](/doc), including [a markdown version](/doc/Text-CSV.md). Check out also the [examples](/examples). 
- 
-License
--------
-Copyright (c) 2015-2020 H.Merijn Brand.  All rights reserved.
+Additional (still incomplete) documentation in [the `doc` directory](/doc), including [a markdown version](/doc/Text-CSV.md). Check out also the [examples](/examples).
 
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Raku itself, which is
-GNU General Public License or Artistic License 2.
+## Installation 
 
 Recent changes can be (re)viewed in the public GIT repository at
 https://github.com/Tux/CSV
@@ -47,7 +41,24 @@ Build/Installation
 ------------------
 ```
  $ zef install Text::CSV
+``` 
+
+Or just 
+
+```shell
+$ zef install .
 ```
+
+for the already downloaded repo
+ 
+License
+-------
+Copyright (c) 2015-2023 H.Merijn Brand.  All rights reserved.
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Raku itself, which is
+GNU General Public License or Artistic License 2.
+
 
 Author
 ------
