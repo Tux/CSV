@@ -24,6 +24,7 @@ my @expect   = @data.map ({[ $_.split (",") ]});
     $fh.close;
     }
 
+my $inIO   = $fni.IO;
 my $io-in  = open $fni, :r;
 my $io-out = open $fno, :w;
 
@@ -41,6 +42,7 @@ my $full-aoh = [{:bar("1"),:baz("2"),:foo("3")},{:bar("2"),:baz("a b"),:foo("")}
 
 my @in =
     $fni,                       # Str
+    $inIO,                      # IO::Path
     $io-in,                     # IO::Handle
    \($data),                    # Capture
     [$data],                    # Array of String
@@ -107,6 +109,7 @@ sub inok ($in, @r, Str $diag) {
 
 # Test supported "in" formats for all scopes
 for in () -> $in {
+    say "1 $in";
     inok ($in, Text::CSV.csv (in => $in, meta => False), "Class   { s-in ($in) }");
     }
 for in () -> $in {

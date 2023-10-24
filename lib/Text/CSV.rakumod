@@ -1693,6 +1693,7 @@ class Text::CSV {
         if $in ~~ Supplier {
             $in = $in.Supply;
             }
+        say "Before given, ", $in.raku;
         given $in {
             when Str {
                 $io-in = open $in, :r, :!chomp, :enc($encoding);
@@ -1767,6 +1768,7 @@ class Text::CSV {
                     };
                 }
             when Iterator {
+                say "Working with Iterator";
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
                 my int $i = 0;
                 my @hdr;
@@ -1787,9 +1789,11 @@ class Text::CSV {
                     };
                 }
             when Any {
+                say "Working with Any";
                 $io-in = $*IN;
                 }
             default {
+                say "We don't know about type ", $in.WHAT, " in " , $in.raku;
                 self!fail (5000);
                 }
             }
