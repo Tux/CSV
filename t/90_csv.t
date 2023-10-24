@@ -109,7 +109,6 @@ sub inok ($in, @r, Str $diag) {
 
 # Test supported "in" formats for all scopes
 for in () -> $in {
-    say "1 $in";
     inok ($in, Text::CSV.csv (in => $in, meta => False), "Class   { s-in ($in) }");
     }
 for in () -> $in {
