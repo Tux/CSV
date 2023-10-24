@@ -1693,7 +1693,6 @@ class Text::CSV {
         if $in ~~ Supplier {
             $in = $in.Supply;
             }
-        say "Before given, ", $in.raku;
         given $in {
             when Str {
                 $io-in = open $in, :r, :!chomp, :enc($encoding);
@@ -1702,7 +1701,6 @@ class Text::CSV {
                 $io-in = $in;
                 }
             when IO::Path {
-                say "IO::Path";
                 $io-in = open( $in );
             }
             when Array {
@@ -1792,11 +1790,9 @@ class Text::CSV {
                     };
                 }
             when Any {
-                say "Working with Any";
                 $io-in = $*IN;
                 }
             default {
-                say "We don't know about type ", $in.WHAT, " in " , $in.raku;
                 self!fail (5000);
                 }
             }
