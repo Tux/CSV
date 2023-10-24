@@ -1701,6 +1701,10 @@ class Text::CSV {
             when IO::Handle {
                 $io-in = $in;
                 }
+            when IO::Path {
+                say "IO::Path";
+                $io-in = open( $in );
+            }
             when Array {
                 $in.list.elems or return;
                 given $in.list[0] {
@@ -1768,7 +1772,6 @@ class Text::CSV {
                     };
                 }
             when Iterator {
-                say "Working with Iterator";
                 $fragment ~~ s:i{^ "row=" } = "" and self.rowrange ($fragment);
                 my int $i = 0;
                 my @hdr;
