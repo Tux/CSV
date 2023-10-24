@@ -1,5 +1,10 @@
 name: test_macos
 
+# ensure only one job runs for this repo and OS
+concurrency:
+  group: ${{ github.ref }}-macos
+  cancel-in-progress: true
+
 on:
   push:
   pull_request:

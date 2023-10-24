@@ -1,5 +1,10 @@
 name: test_windows
 
+# ensure only one job runs for this repo and OS
+concurrency:
+  group: ${{ github.ref }}-windows
+  cancel-in-progress: true
+
 on:
   push:
   pull_request:
