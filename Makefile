@@ -56,7 +56,9 @@ time:
 	perl time.pl
 
 dist:
-	perl make-dist
+	cp files/fez.gitignore .gitignore
+	-fez upload
+	cp files/gitignore .gitignore
 
 html:
 	test -d ../Talks/CSVh && pod2html Text-CSV.pod >../Talks/CSVh/pod6.html 2>/dev/null
