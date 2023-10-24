@@ -1700,6 +1700,9 @@ class Text::CSV {
             when IO::Handle {
                 $io-in = $in;
                 }
+            when IO::Path {
+                $io-in = open( $in );
+            }
             when Array {
                 $in.list.elems or return;
                 given $in.list[0] {
