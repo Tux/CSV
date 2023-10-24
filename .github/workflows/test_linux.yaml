@@ -1,0 +1,35 @@
+name: test_ubuntu
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: # gh workflow run 'test_ubuntu' --ref branch-name -f verbositylevel=debug
+    inputs:
+      verbositylevel:
+        description: 'error warn info verbose debug'
+        required: false
+        default: 'error'
+        type: string
+
+jobs:
+  user-install-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set debuglevel
+        id: parameter
+        run: |
+          LEVEL=${{ github.event.inputs.verbositylevel || 'error' }}
+          echo "verbositylevel=$LEVEL" >> "$GITHUB_OUTPUT"
+
+      - uses: Raku/setup-raku@v1
+      - uses: actions/checkout@v4
+      - name: System overview
+        run: |
+          raku --version
+          zef --version
+      - name: Install Dependencies
+        run: |
+          zef --${{ steps.parameter.outputs.verbositylevel }} --deps-only install .
+      - name: Install Module
+        run: |
+          zef --${{ steps.parameter.outputs.verbositylevel }} install .

@@ -1,0 +1,37 @@
+name: test_windows
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: # gh workflow run 'test_windows' --ref branch-name -f verbositylevel=debug
+    inputs:
+      verbositylevel:
+        description: 'error warn info verbose debug'
+        required: false
+        default: 'error'
+        type: string
+
+jobs:
+  user-install-test:
+    runs-on: windows-latest
+    steps:
+# ToDo - make Windows accepting verbositylevel as parameter
+#      - name: Set debuglevel
+#        id: parameter
+#        run: |
+#          set "LEVEL=${{ github.event.inputs.verbositylevel || error }}"
+#          echo "verbositylevel=%LEVEL%" >> "$GITHUB_OUTPUT"
+      - uses: Raku/setup-raku@v1
+      - uses: actions/checkout@v4
+      - name: System overview
+        run: |
+          raku --version
+          zef --version
+      - name: Install Dependencies
+        run: |
+          zef --debug --deps-only install .
+#          zef --${{ steps.parameter.outputs.verbositylevel }} --deps-only install .
+      - name: Install Module
+        run: |
+          zef --debug install .
+#          zef --${{ steps.parameter.outputs.verbositylevel }} install .
