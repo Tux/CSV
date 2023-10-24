@@ -57,7 +57,7 @@ time:
 
 dist:
 	cp files/fez.gitignore .gitignore
-	fez review
+	-fez review
 	cp files/gitignore .gitignore
 
 html:
