@@ -63,12 +63,6 @@ doc/Text-CSV.man
 doc/Text-CSV.md
 doc/Text-CSV.pdf
 doc/Text-CSV.pod
-lib/Text/CSV.pod6
-lib/Text/CSV.pod6
-lib/Text/CSV.rakumod
-lib/Text/CSV.rakumod
-lib/Text/IO/String.rakumod
-LICENSE
 logotype/logo_32x32.png
 make-dist
 Makefile

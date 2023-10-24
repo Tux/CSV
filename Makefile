@@ -57,8 +57,8 @@ time:
 
 dist:
 	cp files/fez.gitignore .gitignore
-    fez review
-    cp files/gitignore .gitignore
+	fez review
+	cp files/gitignore .gitignore
 
 html:
 	test -d ../Talks/CSVh && pod2html Text-CSV.pod >../Talks/CSVh/pod6.html 2>/dev/null
