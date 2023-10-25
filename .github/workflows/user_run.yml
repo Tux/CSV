@@ -1,0 +1,52 @@
+# save as .github/workflows/user_run.yml of arbitrary Raku module repositories
+name: user_run
+
+# ensure only one of this jobs runs for branch
+concurrency:
+  group: ${{ github.name }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+on:
+  schedule: # schedule a monthly run - just keeping an eye on long-time-not-touched repositories
+    - cron: '4 11 12 * *'
+  push:
+  pull_request:
+  workflow_dispatch: # run on Terminal: gh workflow run 'user_run' --ref branch-name -f verbosity=debug -f os=windows
+    inputs:
+      verbosity:
+        description: zef verbosity
+        required: false
+        default: error
+        type: choice
+        options: 
+        - error
+        - warn
+        - info
+        - verbose
+        - debug
+      os:
+        description: Operating System to run on
+        required: false
+        default: ubuntu
+        type: choice
+        options: 
+        - ubuntu
+        - macos
+        - windows
+
+jobs:
+  run-all-os:
+    if: ${{ ! contains(fromJSON('["ubuntu", "macos", "windows"]'), inputs.os) }}
+    strategy:
+      matrix:
+        os: [ubuntu, macos, windows]
+    uses: zero-overhead/App-Workflows-Github/.github/workflows/user_on_OS.yml@main
+    with:
+      OS: ${{ matrix.os }}
+      verbosity: ${{ inputs.verbosity || 'error' }}
+  run-one-os:
+    if: ${{ contains(fromJSON('["ubuntu", "macos", "windows"]'), inputs.os) }}
+    uses: zero-overhead/App-Workflows-Github/.github/workflows/user_on_OS.yml@main
+    with:
+      OS: ${{ inputs.os || 'ubuntu' }}
+      verbosity: ${{ inputs.verbosity || 'error' }}

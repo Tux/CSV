@@ -35,3 +35,6 @@ files/
 
 # Comma stuff ignored
 .idea/
+
+# MacOS
+.DS_Store
