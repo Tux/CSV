@@ -1,0 +1,44 @@
+# save as .github/workflows/manual.yml of arbitrary Raku module repositories
+# run on Terminal: gh workflow run 'manual' --ref branch-name -f verbosity=debug -f os=windows
+name: manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      verbosity:
+        description: zef verbosity
+        required: true
+        default: error
+        type: choice
+        options: 
+        - error
+        - warn
+        - info
+        - verbose
+        - debug
+      os:
+        description: Operating System to run on
+        required: true
+        default: ubuntu
+        type: choice
+        options: 
+        - ubuntu
+        - macos
+        - windows
+
+jobs:
+  install-module:
+    runs-on: ${{ inputs.os }}-latest
+    steps:
+    - uses: Raku/setup-raku@v1
+    - name: System overview
+      run: |
+        raku --version
+        zef --version
+    - uses: actions/checkout@v4
+    - name: Install Dependencies
+      run: |
+        zef --${{ inputs.verbosity }} --deps-only install .
+    - name: Install Module
+      run: |
+        zef --${{ inputs.verbosity }} install .

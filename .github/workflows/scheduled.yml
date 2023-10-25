@@ -1,0 +1,26 @@
+# save as .github/workflows/scheduled.yml of arbitrary Raku module repositories
+name: scheduled
+
+on:
+  schedule: # MIN HOUR DAYOFMONTH MONTH DAYOFWEEK - schedule a monthly run - just keeping an eye on long-time-not-touched repositories
+    - cron: '29 01 6 * *'
+
+jobs:
+  install-module:
+    strategy:
+      matrix:
+        os: [ubuntu, macos, windows]
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+    - uses: Raku/setup-raku@v1
+    - name: System overview
+      run: |
+        raku --version
+        zef --version
+    - uses: actions/checkout@v4
+    - name: Install Dependencies
+      run: |
+        zef --error --deps-only install .
+    - name: Install Module
+      run: |
+        zef --error install .
