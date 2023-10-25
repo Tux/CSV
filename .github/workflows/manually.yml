@@ -1,0 +1,34 @@
+# save as .github/workflows/user_run_manually.yml of arbitrary Raku module repositories
+# run on Terminal: gh workflow run 'manually' --ref branch-name -f verbosity=debug -f os=windows
+name: manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      verbosity:
+        description: zef verbosity
+        required: true
+        default: error
+        type: choice
+        options: 
+        - error
+        - warn
+        - info
+        - verbose
+        - debug
+      os:
+        description: Operating System to run on
+        required: true
+        default: ubuntu
+        type: choice
+        options: 
+        - ubuntu
+        - macos
+        - windows
+
+jobs:
+  run-one-os:
+    uses: zero-overhead/App-Workflows-Github/.github/workflows/run_on_OS.yml@main
+    with:
+      OS: ${{ inputs.os }}
+      verbosity: ${{ inputs.verbosity }}
