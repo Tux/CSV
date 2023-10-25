@@ -28,7 +28,7 @@ on:
 
 jobs:
   run-one-os:
-    uses: zero-overhead/App-Workflows-Github/.github/workflows/run_on_OS.yml@main
+    uses: zero-overhead/App-Workflows-Github/.github/workflows/install_module.yml@main
     with:
       OS: ${{ inputs.os }}
       verbosity: ${{ inputs.verbosity }}

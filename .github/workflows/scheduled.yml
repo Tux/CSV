@@ -3,14 +3,14 @@ name: scheduled
 
 on:
   schedule: # schedule a monthly run - just keeping an eye on long-time-not-touched repositories
-    - cron: '11 18 8 * *'
+    - cron: '19 0 22 * *'
 
 jobs:
   run-all-os:
     strategy:
       matrix:
         os: [ubuntu, macos, windows]
-    uses: zero-overhead/App-Workflows-Github/.github/workflows/run_on_OS.yml@main
+    uses: zero-overhead/App-Workflows-Github/.github/workflows/install_module.yml@main
     with:
       OS: ${{ matrix.os }}
       verbosity: error

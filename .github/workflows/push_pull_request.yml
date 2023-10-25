@@ -1,5 +1,5 @@
-# save as .github/workflows/pull_request.yml of arbitrary Raku module repositories
-name: pull_request
+# save as .github/workflows/push_pull_request.yml of arbitrary Raku module repositories
+name: push_pull_request
 
 # ensure only one of this jobs runs for branch
 concurrency:
@@ -7,6 +7,10 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  push:
+    paths:
+      - 'lib/**'
+      - 't/**'
   pull_request:
 
 jobs:
@@ -14,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu, macos, windows]
-    uses: zero-overhead/App-Workflows-Github/.github/workflows/run_on_OS.yml@main
+    uses: zero-overhead/App-Workflows-Github/.github/workflows/install_module.yml@main
     with:
       OS: ${{ matrix.os }}
       verbosity: error
