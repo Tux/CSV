@@ -121,6 +121,10 @@ for in () -> $in {
     inok ($in,           csv (in => $in, csv  => $csv),  "Sub/Obj { s-in ($in) }");
     }
 
+throws-like { csv( in=> Set.new() ) }, CSV::Diag,
+    "Fails with correct exception",
+    message => /Unsupported/;
+
 # Test supported "out" formats
 my $datn = $data; $datn ~~ s:g{ "\r\n" } = "\n";
 for in () -> $in {
