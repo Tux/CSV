@@ -16,7 +16,6 @@ Text-CSV*.tar.gz
 t-old/*
 xt/??_*
 ?.pl
-?.csv
 logotype/comma*
 .precomp
 lib/.precomp
@@ -30,7 +29,6 @@ rust*/target
 
 # Re-enable parts later
 sandbox/
-files/
 *~
 
 # Comma stuff ignored
@@ -114,3 +112,13 @@ test.tsv
 TODO
 
 
+# Random stuff that gets packed
+inst/
+sdist/
+*.tgz
+test.*
+opera*
+huc.raku
+csv-npm*.js
+gitignore
+crnl.csv

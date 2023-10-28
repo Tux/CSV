@@ -60,10 +60,15 @@ dist:
 	-fez upload
 	cp files/gitignore .gitignore
 
+test-dist:
+	cp files/fez.gitignore .gitignore
+	-fez review
+	cp files/gitignore .gitignore
+
 html:
 	test -d ../Talks/CSVh && pod2html Text-CSV.pod >../Talks/CSVh/pod6.html 2>/dev/null
 
-doc:    doc/Text-CSV.md doc/Text-CSV.pdf doc/Text-CSV.man 
+doc:    doc/Text-CSV.md doc/Text-CSV.pdf doc/Text-CSV.man
 doc/Text-CSV.pod:	lib/Text/CSV.pod6
 	perl -ne'/^=(begin|end) pod/ or print' lib/Text/CSV.pod6 > doc/Text-CSV.pod
 doc/Text-CSV.md:	doc/Text-CSV.pod
