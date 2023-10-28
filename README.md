@@ -22,6 +22,9 @@ and produce CSV data.
 
 Additional (still incomplete) documentation in [the `doc` directory](/doc), including [a markdown version](/doc/Text-CSV.md). Check out also the [examples](/examples).
 
+Debugging information can be obtained by setting the `RAKU_VERBOSE`
+environment variable with values ranging to 2 to 9, less to annoyingly verbose.
+
 ## Installation 
 
 Recent changes can be (re)viewed in the public GIT repository at
