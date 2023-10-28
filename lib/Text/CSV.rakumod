@@ -1789,9 +1789,6 @@ class Text::CSV {
                         }
                     };
                 }
-            when Any {
-                $io-in = $*IN;
-                }
             default {
                 self!fail (5000);
                 }
