@@ -1,4 +1,4 @@
-Module
+Module [![Test raku](https://github.com/Tux/CSV/actions/workflows/test.yaml/badge.svg)](https://github.com/Tux/CSV/actions/workflows/test.yaml)
 ------
 Text::CSV - Handle CSV data in Raku
 
