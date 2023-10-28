@@ -1,0 +1,17 @@
+name: Test raku
+on:
+  push:
+    paths:
+    - "META6.json"
+    - "lib/**/*.rakumod"
+    - "t/*.t"
+  pull_request:
+    types: [ opened,edited,synchronize,ready_for_review] 
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Test via install
+        uses: JJ/raku-test-action@main
