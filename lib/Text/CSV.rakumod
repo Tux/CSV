@@ -4,7 +4,7 @@ use Slang::Tuxic;
 use File::Temp;
 use Text::IO::String;
 
-my $VERSION = "0.020";
+my $VERSION = "0.021";
 
 my constant $opt_v = %*ENV<RAKU_VERBOSE> // 1;
 

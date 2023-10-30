@@ -121,7 +121,7 @@ for in () -> $in {
     inok ($in,           csv (in => $in, csv  => $csv),  "Sub/Obj { s-in ($in) }");
     }
 
-throws-like { csv( in=> Set.new() ) }, CSV::Diag,
+throws-like { csv (in => Set.new ()) }, CSV::Diag,
     "Fails with correct exception",
     message => /Unsupported/;
 
