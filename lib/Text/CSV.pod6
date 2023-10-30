@@ -326,13 +326,13 @@ action to be taken if a field starts with an equal sign (C<=>).
 
 For purpose of code-readability, this can also be written as
 
- my $csv = Text::CSV_XS.new(formula-handling => "none"});
+ my $csv = Text::CSV.new(formula-handling => "none"});
          $csv.formula-handling("none");
  my $f = $csv.formula-handling;
 
 or
 
- my $csv = Text::CSV_XS.new(formula_handling => "none"});
+ my $csv = Text::CSV.new(formula_handling => "none"});
          $csv.formula_handling("none");
  my $f = $csv.formula_handling;
 
@@ -1133,7 +1133,7 @@ column names with a character from the allowed separator list.
 
 If any of the allowed separators matches, and none of the I<other> allowed
 separators match, set L<C<sep>|/sep> to that separator for the current
-CSV_XS instance and use it to parse the first line, map those to lowercase,
+CSV instance and use it to parse the first line, map those to lowercase,
 and use that to set the instance L</column_names>:
 
  my $csv = Text::CSV.new;
@@ -2629,7 +2629,7 @@ or a map
      $csv.print($fh, @row.map({ * // "\\N" }));
      }
 
-these special sequences are not recognized by Text::CSV_XS on parsing the
+these special sequences are not recognized by Text::CSV on parsing the
 CSV generated like this, but map and filter are your friends again
 
  while (my @row = $csv.getline($io)) {
@@ -2644,8 +2644,8 @@ CSV generated like this, but map and filter are your friends again
 For more extended examples, see the F<examples/> C<1>) sub-directory in the
 original distribution or the git repository C<2>).
 
- 1. https://github.com/Tux/Text-CSV_XS/tree/master/examples/
- 2. https://github.com/Tux/Text-CSV_XS/
+ 1. https://github.com/Tux/CSV/tree/master/examples/
+ 2. https://github.com/Tux/CSV/
 
 The following files can be found there:
 
