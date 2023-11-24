@@ -31,16 +31,34 @@ for (|@cs) -> $cs {
         $fh = open $efn, :r;
 
         my @r = $rs.split (",");
-        is-deeply ($csv.getline ($fh), [ "c", $cs ], "$cs , $rs");
-        is-deeply ($csv.getline ($fh), [ " $cs" ], "leading space");
-        is-deeply ($csv.getline ($fh), [ "e", $cs, |@r ], "not start of line");
-        is-deeply ($csv.getline ($fh), [ "g", "i$cs" ], "not start of field");
+        is-deeply ($csv.getline ($fh), [ "c", $cs          ], "$cs , $rs");
+        is-deeply ($csv.getline ($fh), [ " $cs"            ], "leading space");
+        is-deeply ($csv.getline ($fh), [ "e", $cs, |@r     ], "not start of line");
+        is-deeply ($csv.getline ($fh), [ "g", "i$cs"       ], "not start of field");
         is-deeply ($csv.getline ($fh), [ "j", "k\n$cs"~"k" ], "inside quoted after newline");
 
         $fh.close;
 
         unlink $efn;
         }
+    }
+
+{   my IO::Handle $fh = open $efn, :w;
+    $fh.say ("id | name");
+    $fh.say ("# ");
+    $fh.say ("42 | foo");
+    $fh.say ("#");
+    $fh.close;
+
+    is-deeply ([csv (
+        in               => $efn,
+        sep              => "|",
+        headers          => "auto",
+        allow_whitespace => 1,
+        comment_str      => "#",
+        )], [{ :id("42"), :name("foo") },], "Auto with last line comment");
+
+    unlink $efn;
     }
 
 done-testing;
