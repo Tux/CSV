@@ -3071,7 +3071,7 @@ Liz Mattijsen helped in getting the best out of raku.
 
 =head1 COPYRIGHT AND LICENSE
 
- Copyright (C) 2014-2018 H.Merijn Brand. All rights reserved.
+ Copyright (C) 2014-2023 H.Merijn Brand. All rights reserved.
 
 This library is free software; you can redistribute and/or modify it under
 the same terms as Perl itself.
