@@ -77,6 +77,7 @@ my %lang = (
     219 => [ "",     "ac_java19", "-cp csv-java19.jar:opencsv-2.3.jar csvJava" ],
     220 => [ "",     "ac_java20", "-cp csv-java20.jar:opencsv-2.3.jar csvJava" ],
     221 => [ "",     "ac_java21", "-cp csv-java21.jar:opencsv-2.3.jar csvJava" ],
+    222 => [ "",     "ac_java22", "-cp csv-java22.jar:opencsv-2.3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
@@ -126,6 +127,7 @@ my @test = (
     [ 108, 0, "csv-java8"       ],
     [ 107, 0, "csv-java7"       ],
     [ 106, 0, "csv-java6"       ],
+    [ 222, 0, "csv-java22ac"    ],
     [ 221, 0, "csv-java21ac"    ],
     [ 220, 0, "csv-java20ac"    ],
     [ 219, 0, "csv-java19ac"    ],
