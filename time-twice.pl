@@ -45,3 +45,5 @@ foreach my $t (sort { $t{$a}[0] <=> $t{$b}[0] } keys %t) {
     my @t = sort { $a <=> $b } @{$t{$t}};
     printf "%-18s %s\n", $t, join " - " => map { sprintf "%6.3f", $_ } @t[0,-1];
     }
+
+say "https://tux.nl/Talks/CSV6/speed4-20.html / https://tux.nl/Talks/CSV6/speed4.html https://tux.nl/Talks/CSV6/speed.log";
