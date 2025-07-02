@@ -895,7 +895,7 @@ class Text::CSV {
             my @i = %i{@h}.grep (*.defined);
             @r = @i if $nf >= @i.elems;
             }
-        @r && @f and @f = @f[@r]:v;
+        @r && @r[0].defined && @f and @f = @f[@r]:v;
         @f;
         }
 
@@ -1953,14 +1953,27 @@ class Text::CSV {
 
         my $eol = self.eol;
         $eol.defined or self.eol ("\r\n");
+        if ($fragment) {
+            dd "IN-2:", @in;
+            dd "KH-2:", @kh;
+            dd "CN-2:", @!cnames;
+            dd "CI-2:", %!cnamesi;
+            }
         for @in -> $row {
+            $fragment and dd "IR-3:", $row;
             $!csv-row.fields = $row[0] ~~ CSV::Field
                 ?? $row
                 !! $row.map ( -> \x --> CSV::Field { CSV::Field.new.add (x.Str); });
+            $fragment and dd "RF-3:", $!csv-row.fields;
+            $fragment and dd "SF-3:", self.fields;
+            $fragment and dd "SS-3:", self.strings;
+            $fragment and dd "MM-3:", $meta;
             my @row = $meta ?? self.fields !! self.strings;
+            $fragment and dd "RW-3:", @row;
             my $r = (@h.elems == 0 || @row[0] ~~ Hash)
                 ?? @row
                 !! $%( @h Z=> @row );
+            $fragment and dd "RR-2:", $r;
             given $out {
                 when Callable {
                     $out($r);
@@ -1977,6 +1990,8 @@ class Text::CSV {
                 default {
                     if ($io-out.defined) {
                         my Str $s = self.string;
+                        dd "FF-3:", self.fields;
+                        dd "SS-3:", $s;
                         $io-out.print ($s) if $s.defined;
                         }
                     }
