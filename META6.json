@@ -5,25 +5,17 @@
   "auth"          : "zef:Tux",
   "authors"       : [ "H.Merijn Brand (Tux)"       ],
   "tags"          : [ "CSV","CPAN5"                ],
-  "depends": {
-    "runtime": {
-      "requires": [
-        "Slang::Tuxic:ver<0.0.5+>:auth<zef:raku-community-modules>",
-        "File::Temp:ver<0.0.12+>:auth<zef:raku-community-modules>"
-        ]
-      }
-    },
-  "test-depends"  : [ ],
+  "depends"       : [ "Slang::Tuxic", "File::Temp" ],
+  "test-depends"  : [ "Test", "Test::META"         ],
   "provides"      : {
     "Text::CSV"   : "lib/Text/CSV.rakumod",
     "Text::IO::String"  : "lib/Text/IO/String.rakumod"
     },
   "repo-type"     : "git",
+  "source-url"    : "git://github.com/Tux/CSV.git",
   "license"       : "Artistic-2.0",
-  "support": {
-    "bugtracker": "https://github.com/lizmat/SBOM-Raku/issues",
-    "irc"       : "irc://irc.perl.org/#csv",
-    "source"    : "https://github.com/Tux/CSV.git"
+  "support"       : {
+    "irc"         : "irc://irc.perl.org/#csv"
     },
   "build-depends" : [ ],
   "resources"     : [ ]

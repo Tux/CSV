@@ -1,8 +1,10 @@
-use Slang::Tuxic:ver<0.0.5+>:auth<zef:raku-community-modules>;
-use File::Temp:ver<0.0.12+>:auth<zef:raku-community-modules>;
+#!raku
+
+use Slang::Tuxic;
+use File::Temp;
 use Text::IO::String;
 
-my constant $VERSION = "0.022";
+my $VERSION = "0.022";
 
 my constant $opt_v = %*ENV<RAKU_VERBOSE> // 1;
 
