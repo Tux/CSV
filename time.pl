@@ -1,25 +1,30 @@
 #!/pro/bin/perl
 
-use 5.018002;
+use 5.026002;
 use warnings;
+
+our $VERSION = "0.77 - 2025-10-11";
+our $CMD = $0 =~ s{.*/}{}r;
 
 sub usage {
     my $err = shift and select STDERR;
-    say "usage: $0 [--verbose[=#]] [--irc]";
+    say "usage: $CMD [--verbose[=#]] [--irc]";
     exit $err;
     } # usage
 
-use Encode       qw( decode                   );
-use List::Util   qw( max min                  );
-use Time::HiRes  qw( gettimeofday tv_interval );
-use Getopt::Long qw(:config bundling          );
+use Encode       qw( decode                       );
+use List::Util   qw( max min                      );
+use Time::HiRes  qw( gettimeofday tv_interval     );
+use Getopt::Long qw(:config bundling noignorecase );
 my $opt_6 = 1;
 GetOptions (
     "help|?"        => sub { usage (0); },
-    "i|irc!"        => \my $opt_i,
-    "p|raku|perl6!" =>    \$opt_6,
+    "V|version"     => sub { say "$CMD [$VERSION]"; exit 0; },
+    "i|irc!"        => \ my  $opt_i,
+    "p|raku|perl6!" => \     $opt_6,
     "f|fast"        => sub { $opt_6 = 0; },
-    "v|verbose:1"   => \my $opt_v,
+    "l|list:s"      => \ my  $opt_l,
+    "v|verbose:1"   => \ my  $opt_v,
     ) or usage (1);
 
 binmode STDOUT, ":encoding(utf-8)";
@@ -89,7 +94,7 @@ my @test = (
     [   5, 0, "csv-easy-xs-20"   , "Text::CSV::Easy_XS" ],
     [   5, 0, "csv-easy-pp"      , "Text::CSV::Easy_PP" ],
     [   5, 0, "csv-xsbc"         , "Text::CSV_XS" ],
-    [   5, 0, "csv-test-xs"      , "Text::CSV_XS" ],
+    [   5, 1, "csv-test-xs"      , "Text::CSV_XS" ],
     [   5, 1, "csv-test-xs-20"   , "Text::CSV_XS" ],
     [   5, 0, "csv-test-pp"      , "Text::CSV_PP" ],
     [   5, 0, "csv-pegex"        , "Pegex::CSV" ],
@@ -157,7 +162,7 @@ my $li = max keys %lang;
 foreach my $re (grep { -x } sort glob "/usr/bin/ruby[0-9]*") {
     $re =~ s{.*/}{};
     $lang{++$li} = [ ".rb", $re, ];
-    push @test, [ $li, 0, "csv-ruby" ];
+    push @test => [ $li, 0, "csv-ruby" ];
     }
 
 sub runfrom {
@@ -181,7 +186,18 @@ sub runfrom {
     return (scalar tv_interval ($t0), $i);
     } # runfrom
 
-my $pat = shift // ".";
+my $pat = shift // $opt_l || ".";
+
+if (defined $opt_l) {
+    for (@test) {
+        my ($v, $irc, $script, $modules, @args) = @$_;
+        my ($ext, $exe, @arg) = @{$lang{$v}};
+        $v eq $pat || $script =~ m/$pat/i || $exe =~ m/$pat/i or next;
+        printf "%3d %3d %-15s %-5s %-10s %s\n",
+            ++$a, $v, $script, $ext, $exe, "@args";
+        }
+    exit 0;
+    }
 
 my $run_speed = 0;
 my @time;
@@ -227,7 +243,7 @@ for (@test) {
 	$run, $run - $start;
     say $s;
     $i or ($run, $start) = (999.999, 999.999); # sort at the end
-    push @time, [ $script, $s_script, $i, $run, $start, $exe, $modules // "-", @args ];
+    push @time => [ $script, $s_script, $i, $run, $start, $exe, $modules // "-", @args ];
 
     my @d = localtime;
     my $r = join " " => grep m/\S/ => $script, @args;
@@ -245,7 +261,7 @@ for (@test) {
 	}
 
     $opt_i and next;
-    $irc and push @irc, $time[-1];
+    $irc and push @irc => $time[-1];
     }
 
 print decode ("utf-8", qx{raku -v}) =~ s{\nimplementing.*\n}{\n}r;
