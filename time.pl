@@ -3,7 +3,7 @@
 use 5.026002;
 use warnings;
 
-our $VERSION = "0.77 - 2025-10-11";
+our $VERSION = "0.78 - 2025-10-22";
 our $CMD = $0 =~ s{.*/}{}r;
 
 sub usage {
@@ -87,6 +87,7 @@ my %lang = (
     222 => [ "",     "ac_java22", "-cp csv-java22.jar:opencsv-2.3.jar csvJava" ],
     223 => [ "",     "ac_java23", "-cp csv-java23.jar:opencsv-2.3.jar csvJava" ],
     224 => [ "",     "ac_java24", "-cp csv-java24.jar:opencsv-2.3.jar csvJava" ],
+    225 => [ "",     "ac_java25", "-cp csv-java25.jar:opencsv-2.3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
@@ -138,6 +139,7 @@ my @test = (
     [ 108, 0, "csv-java8"       ],
     [ 107, 0, "csv-java7"       ],
     [ 106, 0, "csv-java6"       ],
+    [ 225, 0, "csv-java25ac"    ],
     [ 224, 0, "csv-java24ac"    ],
     [ 223, 0, "csv-java23ac"    ],
     [ 222, 0, "csv-java22ac"    ],
