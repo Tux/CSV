@@ -1,7 +1,10 @@
 #!/pro/bin/perl
 
-use 5.18.2;
+use 5.026001;
 use warnings;
+
+our $CMD = $0 =~ s{.*}{}r;
+our $VERSION = "1.41 - 20260207";
 
 $| = 1;
 binmode STDOUT, ":encoding(utf-8)";
@@ -9,7 +12,20 @@ binmode STDOUT, ":encoding(utf-8)";
 use Getopt::Long qw(:config bundling passthrough);
 GetOptions (
     "s|silent!" => \my $opt_s,
-    ) or die "usage: $0 [--silent] [options to time.pl]\n";
+    ) or die "usage: $CMD [--silent] [options to time.pl]\n";
+
+{   my $hcsv = "/tmp/hello.csv";
+    unless (-s $hcsv) {
+        my $l = qq{hello,","," ",world,"!"\n};
+        open my $fh, ">", $hcsv or die "$hcsv: $!\n";
+        print $fh $l for 1.. 10_000;
+        close $fh;
+        $hcsv =~ s/\./20./;
+        open    $fh, ">", $hcsv or die "$hcsv: $!\n";
+        print $fh $l for 1..200_000;
+        close $fh;
+        }
+    }
 
 my (@v, %t, %seen);
 foreach my $i (1, 2) {
