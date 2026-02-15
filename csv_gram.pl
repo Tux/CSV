@@ -99,20 +99,20 @@ sub MAIN(
             ;
 
     $csv_parser.parse(q/ab,cde,"q",/);
-    say $csv_parser.getline().perl;
+    say $csv_parser.getline().raku;
 
     my $csv_parser2 = Text::CSV.new :sep_char<e> ;
 
     $csv_parser2.parse(q/ab,cde"q"e/);
-    say $csv_parser2.getline().perl;
+    say $csv_parser2.getline().raku;
 
     $csv_parser.parse(q/ab,cde,"q",/);
-    say $csv_parser.getline().perl;
+    say $csv_parser.getline().raku;
 
     my $csv_parser3 = Text::CSV.new :sep_char<,> ;
 
     $csv_parser2.parse(q/ab,cde"q"e/);
-    say $csv_parser2.getline().perl;
+    say $csv_parser2.getline().raku;
 
     #$csv_parser.parse(q/ab,cde"q"eaa"aaarghh/);
     #$csv_parser.parse(q/ab,cde"q"e"aaarghh/);
@@ -121,7 +121,7 @@ sub MAIN(
     for lines() :eager {
         $csv_parser.parse($_);
         my $r = $csv_parser.getline();
-#       say $r.perl;
+#       say $r.raku;
 #       say +$r;
         $sum += +$r;
 #last;

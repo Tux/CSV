@@ -23,7 +23,7 @@ class CSV::Field {
 #   has Bool $.is_binary        is rw = False;
 #   has Bool $.is_utf8          is rw = False;
     has Bool $.undefined        is rw = True;
-    # text last for formatted output of .perl (for now)
+    # text last for formatted output of .raku (for now)
     has Str  $.text                is rw;
 
     enum Type < NA INT NUM STR BOOL >;
@@ -88,7 +88,7 @@ class Text::CSV {
             die "$msg\n$buffer\n" ~ ' ' x $pos ~ "^\n";
             }
 
-        $opt_v > 8 and say $buffer.perl;
+        $opt_v > 8 and say $buffer.raku;
         ## A scoping bug in raku inhibits the use of $!eol inside the split
         #for $buffer.split(rx{ $!eol | $!sep | $!quo | $!esc }, :all).map(~*) -> Str $chunk {
         my     $eol = $!eol // rx{ \r\n | \r | \n };
@@ -127,7 +127,7 @@ class Text::CSV {
                 next;
                 }
 
-            $opt_v > 8 and progress($i, "###", "'$chunk'", $f.perl);
+            $opt_v > 8 and progress($i, "###", "'$chunk'", $f.raku);
 
             if $chunk ~~ rx{^ $eol $} {
                 $opt_v > 5 and progress($i, "EOL");
@@ -150,7 +150,7 @@ class Text::CSV {
                 }
 
             if $chunk eq $quo {
-                $opt_v > 5 and progress($i, "QUO", $f.perl);
+                $opt_v > 5 and progress($i, "QUO", $f.raku);
 
                 if $f.undefined {
                     $f.set_quoted;
@@ -201,7 +201,7 @@ class Text::CSV {
                 }
 
             if $chunk eq $esc {
-                $opt_v > 5 and progress($i, "ESC", $f.perl);
+                $opt_v > 5 and progress($i, "ESC", $f.raku);
                 }
 
             $chunk ne "" and $f.add($chunk);
@@ -221,8 +221,8 @@ sub MAIN () {
 
     my $csv_parser = Text::CSV.new;
 
-    $opt_v > 1 and say $csv_parser.perl;
-    $opt_v and progress(.perl) for $csv_parser.parse($test);
+    $opt_v > 1 and say $csv_parser.raku;
+    $opt_v and progress(.raku) for $csv_parser.parse($test);
     $opt_v and Qw { Expected: Str 1 ab cd e\0f g,h nl\nz\0i""3 Str }.say;
 
     my Int $sum = 0;

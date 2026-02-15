@@ -156,12 +156,12 @@ sub MAIN(
             :$auto_diag
             ;
     #my Str $sep ='"';
-    #say $csv_parser.perl;
+    #say $csv_parser.raku;
     $csv_parser.parse(q/ab,cde,"q",/);
-        say $csv_parser.getline().perl;
+        say $csv_parser.getline().raku;
     $csv_parser.sep_char='e';
     $csv_parser.parse(q/ab,cde"q"e/);
-        say $csv_parser.getline().perl;
+        say $csv_parser.getline().raku;
     #$csv_parser.parse(q/ab,cde"q"eaa"aaarghh/);
     #$csv_parser.parse(q/ab,cde"q"e"aaarghh/);
     $csv_parser.sep_char=',';
@@ -169,7 +169,7 @@ sub MAIN(
     for lines() :eager {
         $csv_parser.parse($_);
         my @r = $csv_parser.getline();
-        #say @r.perl;
+        #say @r.raku;
         $sum += +@r;
         }
     say $sum;

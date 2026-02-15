@@ -279,7 +279,7 @@ EOP
     # https://github.com/Raku/old-issue-tracker/issues/3795
 
     test (qr{\+\+},
-          q{my$fh=open "t.csv",:w;$fh.print("+");$fh.close;$fh=open "t.csv",:r;$fh.get.perl.say;});
+          q{my$fh=open "t.csv",:w;$fh.print("+");$fh.close;$fh=open "t.csv",:r;$fh.get.raku.say;});
     }
 
 {   title "IO", "Mangle CRNL", "issue#5082";#"RT#127358";
