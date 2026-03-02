@@ -251,7 +251,7 @@ for ("\r", "\n", "\r\n", "x\n", "\rx") -> $x {
         {   $csv = Text::CSV.new (|($attr => $x));
             CATCH { default { $e = .error; }}
             }
-        is ($e, 1003, $x.perl ~ " in $attr");
+        is ($e, 1003, $x.raku ~ " in $attr");
         }
     }
 

@@ -27,7 +27,7 @@ my $recno = 1;
 
 sub parse_err (Int $err, Int $pos, Int $fld, Str $buf) {
     my $s_err = %err{$err};
-    is ($csv.parse ($buf), False, "$err - Err for parse ({$buf.perl})");
+    is ($csv.parse ($buf), False, "$err - Err for parse ({$buf.raku})");
     is (+$csv.error_diag, $err,   "$err - Diag in numerical context");
     is (~$csv.error_diag, $s_err, "$err - Diag in string context");
     my @diag = $csv.error_diag;
@@ -133,7 +133,7 @@ for    (Str,            # No spec at all
     #$csv.error-diag;
     $e ||= $csv.error-diag;
     is (@r, [], "Cannot do fragment with bad RFC7111 spec");
-    is ($e.error, 2013, "Illegal RFC7111 spec ({$spec.perl})");
+    is ($e.error, 2013, "Illegal RFC7111 spec ({$spec.raku})");
     }
 
 {   my $csv = Text::CSV.new (:strict);

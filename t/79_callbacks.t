@@ -134,7 +134,7 @@ for  ([ 1                           ],
       [ "error",  sub {0; }, Str, 1 ],
       ) -> @args {
     my $e;
-    ok (True, "Callbacks:  "~@args.perl);
+    ok (True, "Callbacks:  "~@args.raku);
     {   $csv.callbacks (@args);
         CATCH { default { $e = $_; ""; }}
         }
