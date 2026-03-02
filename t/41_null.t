@@ -73,7 +73,7 @@ for @pat -> $pat {
     }
 
 my Str @got = $csv.getline ($fh).map (~*);
-is (@got.perl, @line.perl, "read [ ... ]");
+is (@got.raku, @line.raku, "read [ ... ]");
 
 close $fh;
 
@@ -111,7 +111,7 @@ for @pat -> $pat {
     }
 
 @got = $csv.getline ($fh).map (~*);
-is (@got.perl, @line.perl, "read [ ... ]");
+is (@got.raku, @line.raku, "read [ ... ]");
 
 close $fh;
 

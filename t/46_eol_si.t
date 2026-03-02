@@ -25,7 +25,7 @@ for (|@rs) -> $rs {
                 $fh = Text::IO::String.new ($efn, nl-in => $rs);
                 $fh.nl-out = $ors.defined ?? $ors !! "";
 
-                my $s_eol = join " - ", $rs.perl, $ors.perl, $eol.perl;
+                my $s_eol = join " - ", $rs.raku, $ors.raku, $eol.raku;
 
                 my @p;
                 my @f = ("", "1",
@@ -53,7 +53,7 @@ for (|@rs) -> $rs {
                      @p = @row;
                      }
 
-                is (@p.perl, @f.perl,                    "result  |$s_eol|");
+                is (@p.raku, @f.raku,                    "result  |$s_eol|");
 
                 $fh.close;
                 }
@@ -65,7 +65,7 @@ ok (True, "Auto-detecting \\r");
 {   my @row = < a b c >;
     my $row = @row.join (",");
     for ("\n", "\r\n", "\r") -> $eol {
-        my $s_eol = $eol.perl;
+        my $s_eol = $eol.raku;
         $efn = qq{$row$eol$row$eol$row$eol\x91};
         my $fh = Text::IO::String.new ($efn, nl-in => Str, nl-out => Str);
         my $c = Text::CSV.new (:auto_diag);
@@ -96,7 +96,7 @@ ok (True, "EOL undefined");
 for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
      "\n!!!!!\n!!!!!", "!!!!!\n!!!!!\n", "%^+_\n\0!X**",
      "\r\n", "\r") -> $eol {
-    my $s_eol = $eol.perl;
+    my $s_eol = $eol.raku;
     ok (True, "EOL $s_eol");
     ok ((my $csv = Text::CSV.new (:$eol)), "new csv with eol => $s_eol");
     $efn = "";
@@ -107,7 +107,7 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
 
     $csv.auto-diag (True);
     for (Str, "", "\n", $eol, "!", "!\n", "\n!", "!\n!", "\n!\n") -> $rs {
-        my $s_rs = $rs.perl;
+        my $s_rs = $rs.raku;
         ok (True, "with RS $s_rs / EOL $s_eol");
         my $fh  = Text::IO::String.new ($efn, :ro, nl-in => $rs);
         my @row = $csv.getline ($fh, :!meta);
@@ -120,8 +120,8 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
             }
         else { #TODO? Or is this just too weird to try to support
             note "TODO: EOL = $s_eol, RS = $s_rs";
-            note "      ", $efn.perl;
-            note "  --> ", @row.perl;
+            note "      ", $efn.raku;
+            note "  --> ", @row.raku;
             #$csv.diag;
             }
         $fh.close;
