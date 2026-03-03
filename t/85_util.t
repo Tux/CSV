@@ -74,7 +74,7 @@ for   1010, "",
     {   $self = $csv.header ($fh);
         CATCH { default { $e = $_; "" }}
         }
-    is ($self, Any, "FAIL for {$data.perl}");
+    is ($self, Any, "FAIL for {$data.raku}");
     is ($e.error, $err, "Error code $err");
     $err == 1013 and ok ($e.message.contains (< a(2)>), "Duplicate fields are reported");
     }
@@ -106,7 +106,7 @@ for Str, "bar", "fc", "bar", "lc", "bar", "uc", "BAR", "none", "bAr",
 
     $csv.column-names (False);
     my $fh = Text::IO::String.new: $data;
-    ok (my $slf = $csv.header ($fh, :$munge-column-names), "header with fold {$munge-column-names.perl}");
+    ok (my $slf = $csv.header ($fh, :$munge-column-names), "header with fold {$munge-column-names.raku}");
     is ($csv.column-names[0], $hdr, "folded header to $hdr");
     }
 

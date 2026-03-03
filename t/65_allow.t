@@ -78,7 +78,7 @@ test_ale (8, 2035, qq{foo+}                                        );
 ok (1, "Allow whitespace");
 my $awec_bad = qq{1,foo,bar,baz,quux};
 sub test_awec (int $tst, int $err, Str $eol, Str $bad) {
-    my $s_eol = $eol.perl;
+    my $s_eol = $eol.raku;
     $csv = Text::CSV.new (eol => $eol);
     ok ($csv,                      "$s_eol / $tst - new - '$bad')");
     is ($csv.parse ($bad),  !$err, "$s_eol / $tst - parse () fail");
@@ -117,7 +117,7 @@ sub test_biu (int $aq, int $aw, int $bu, *@expect) {
     ok ($csv.combine (1, "", " ", '""', 2, Str, "", Str), "combine ()");
     ok (my $str = $csv.string,      "string ()");
     for ("", "\n", "\r\n") -> $eol {
-        my $s_eol = $eol.perl;
+        my $s_eol = $eol.raku;
         ok ($csv.parse ($str~$eol), "parse (*$str$s_eol*)");
         my @f = $csv.fields;
         is (@f.elems, 8,            "parse ()");
@@ -140,7 +140,7 @@ sub test_eiu (int $aq, int $aw, int $eu, *@expect) {
     ok ($csv.combine (1, "", " ", '""', 2, Str, "", Str), "combine ()");
     ok (my $str = $csv.string,      "string ()");
     for ("", "\n", "\r\n") -> $eol {
-        my $s_eol = $eol.perl;
+        my $s_eol = $eol.raku;
         ok ($csv.parse ($str~$eol), "parse (*$str$s_eol*)");
         my @f = $csv.fields;
         is (@f.elems, 8,            "parse ()");
@@ -167,13 +167,13 @@ sub test_tj (int $tst, int $bin, Str $eol, Str $bad) {
     $csv.allow_whitespace (1);
     $bin and $err = 0;
     #$csv.parse ($bad);
-    #("# $tst $bin " ~ $eol.perl ~ "\t" ~ $csv.error_diag.error).say;
+    #("# $tst $bin " ~ $eol.raku ~ "\t" ~ $csv.error_diag.error).say;
     is ($csv.parse ($bad),  !$err, "$tst - parse () allow");
     is (0 + $csv.error_diag, $err, "$tst - error $err");
     }
 for (Str, "\r") -> $eol {
     for (0, 1) -> $bin {
-        my $s_eol = $eol.perl;
+        my $s_eol = $eol.raku;
         ok ($csv, "$s_eol - new ()");
         test_tj (1, $bin, $eol, qq{"\r\r\n"\r}       );
         test_tj (2, $bin, $eol, qq{"\r\r\n"\r\r}     );

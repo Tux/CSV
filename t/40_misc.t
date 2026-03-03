@@ -6,7 +6,7 @@ use Slang::Tuxic;
 use Test;
 use Text::CSV;
 
-sub is_binary (Str $got, Str $exp, Str $tst) { is ($got.perl, $exp.perl, $tst); }
+sub is_binary (Str $got, Str $exp, Str $tst) { is ($got.raku, $exp.raku, $tst); }
     
 my @binField = ("abc\0def\n\rghi", "ab\"ce,\x[1a]\"'", "\x[ff]");
 

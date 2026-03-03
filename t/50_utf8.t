@@ -35,12 +35,12 @@ for @special -> @test {
     ok ($csv.combine (@in),             "combine $msg");
 
     my $str = $csv.string;
-    is ($str.perl, $exp.perl,           "string  $msg");
+    is ($str.raku, $exp.raku,           "string  $msg");
 
     ok ($csv.parse ($str),              "parse   $msg");
     my @out = $csv.fields;
     is (@in.elems, @out.elems,          "fields  $msg");
-    is ((@out[$_]//CSV::Field.new).text.perl, @in[$_].perl, "field $_ $msg") for ^@in.elems;
+    is ((@out[$_]//CSV::Field.new).text.raku, @in[$_].raku, "field $_ $msg") for ^@in.elems;
     }
 
 # Test if the UTF8 part is accepted, but the \n is not

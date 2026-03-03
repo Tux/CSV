@@ -18,7 +18,7 @@ ok (1, "--     qc     ec     sc     ac     aw");
 
 sub combi (*%attr)
 {
-    my $combi = join " ", "--", map { sprintf "%6s", %attr{$_}.perl; },
+    my $combi = join " ", "--", map { sprintf "%6s", %attr{$_}.raku; },
         @attrib, "always_quote", "allow_whitespace";
     ok (1, $combi);
 
@@ -81,7 +81,7 @@ sub combi (*%attr)
     ok (my $ok = $csv.parse ($str), "parse");
 
     unless ($ok) {
-        $csv.error_diag.perl.say;
+        $csv.error_diag.raku.say;
         %fail<parse>{$combi} = $csv.error_input;
         return;
         }

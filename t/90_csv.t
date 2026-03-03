@@ -101,7 +101,7 @@ sub s-in (Any $in) {
 
 sub inok ($in, @r, Str $diag) {
     ok (@r, $diag); # Expect Array.new (["a", "b"], ["1", "2"], ["3", "4"])
-    #@r.perl.say;
+    #@r.raku.say;
     $io-in.seek (0, SeekFromBeginning);
     is (@r.elems, 3, "AoX should have 3 rows");
     is-deeply (@r,   @expect, "Content");

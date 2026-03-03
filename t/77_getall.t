@@ -37,13 +37,13 @@ for ("\n", "\r") -> $eol {
 
     @list = @testlist;
 
-    {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.perl);
+    {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.raku);
         my $fh = open $tfn, :w or die "$tfn: $!";
-        ok ($csv.print ($fh, $_), "write "~$_.perl) for @list;
+        ok ($csv.print ($fh, $_), "write "~$_.raku) for @list;
         $fh.close;
         }
 
-    {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.perl);
+    {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.raku);
 
         do_tests (anon sub (@expect, *@args) {
 
@@ -86,13 +86,13 @@ for ("\n", "\r") -> $eol {
     @list   = @testlist;
     my $hdr = [ @hdr ];
 
-    {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.perl);
+    {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.raku);
         my $fh = open $tfn, :w or die "$tfn: $!";
-        ok ($csv.print ($fh, $_), "write "~$_.perl) for @list;
+        ok ($csv.print ($fh, $_), "write "~$_.raku) for @list;
         $fh.close;
         }
 
-    {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.perl);
+    {   ok (my $csv = Text::CSV.new (eol => $eol), "csv out EOL "~$eol.raku);
 
         $csv.column_names (@hdr);
 

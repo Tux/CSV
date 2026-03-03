@@ -32,7 +32,7 @@ for (|@rs) -> $rs {
                     $fh.nl-out = $ors.defined ?? $ors !! "";
                     }
 
-                my $s_eol = join " - ", $rs.perl, $ors.perl, $eol.perl;
+                my $s_eol = join " - ", $rs.raku, $ors.raku, $eol.raku;
 
                 my @p;
                 my @f = ("", "1",
@@ -117,7 +117,7 @@ ok (True, "Auto-detecting \\r");
 {   my @row = < a b c >;
     my $row = @row.join (",");
     for ("\n", "\r\n", "\r") -> $eol {
-        my $s_eol = $eol.perl;
+        my $s_eol = $eol.raku;
         my $fh = open $efn, :w;
         $fh.print: qq{$row$eol$row$eol$row$eol\x91};
         $fh.close;
@@ -150,7 +150,7 @@ ok (True, "EOL undefined");
 for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
      "\n!!!!!\n!!!!!", "!!!!!\n!!!!!\n", "%^+_\n\0!X**",
      "\r\n", "\r") -> $eol {
-    my $s_eol = $eol.perl;
+    my $s_eol = $eol.raku;
     ok (True, "EOL $s_eol");
     ok ((my $csv = Text::CSV.new (:$eol)), "new csv with eol => $s_eol");
     my $fh = open $efn, :w;
@@ -160,7 +160,7 @@ for ("!", "!!", "!\n", "!\n!", "!!!!!!!!", "!!!!!!!!!!",
 
     $eol eq "\r\n" and $csv.eol (Str);
     for (Str, "", "\n", $eol, "!", "!\n", "\n!", "!\n!", "\n!\n") -> $rs {
-        my $s_rs = $rs.perl;
+        my $s_rs = $rs.raku;
         #(my $s_rs = defined $rs ? $rs : "-- undef --") =~ s/\n/\\n/g;
         ok (True, "with RS $s_rs");
         my $fh = open $efn, :r;
@@ -233,7 +233,7 @@ if ($osxfn.IO.r && my $fh = open $osxfn, :r) {
     }
 
 for ("\n", "\r", "\r\n") -> $eol {
-    my $s_eol = $eol.perl;
+    my $s_eol = $eol.raku;
     for ("1,2$eol", "") -> $before {
         my $fh = open $efn, :w;
         $fh.print: $before; # To test if skipping the very first line works
