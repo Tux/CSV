@@ -3,7 +3,7 @@
 use 5.026002;
 use warnings;
 
-our $VERSION = "0.78 - 2025-10-22";
+our $VERSION = "0.79 - 2026-04-09";
 our $CMD = $0 =~ s{.*/}{}r;
 
 sub usage {
@@ -75,6 +75,7 @@ my %lang = (
     123 => [ "",     "java23",    "-cp csv-java23.jar:opencsv-2.3.jar csvJava" ],
     124 => [ "",     "java24",    "-cp csv-java24.jar:opencsv-2.3.jar csvJava" ],
     125 => [ "",     "java25",    "-cp csv-java25.jar:opencsv-2.3.jar csvJava" ],
+    126 => [ "",     "java26",    "-cp csv-java26.jar:opencsv-2.3.jar csvJava" ],
     208 => [ "",     "ac_java8",  "-cp csv-java8.jar:opencsv-2.3.jar csvJava"  ],
     211 => [ "",     "ac_java11", "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
     215 => [ "",     "ac_java15", "-cp csv-java15.jar:opencsv-2.3.jar csvJava" ],
@@ -88,6 +89,7 @@ my %lang = (
     223 => [ "",     "ac_java23", "-cp csv-java23.jar:opencsv-2.3.jar csvJava" ],
     224 => [ "",     "ac_java24", "-cp csv-java24.jar:opencsv-2.3.jar csvJava" ],
     225 => [ "",     "ac_java25", "-cp csv-java25.jar:opencsv-2.3.jar csvJava" ],
+    226 => [ "",     "ac_java26", "-cp csv-java26.jar:opencsv-2.3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
@@ -119,6 +121,7 @@ my @test = (
     [   3, 0, "csv-python3"     ],
     [   2, 0, "csv-python2"     ],
     [   4, 0, "csv-php"         ],
+    [ 126, 0, "csv-java26"      ],
     [ 125, 0, "csv-java25"      ],
     [ 124, 0, "csv-java24"      ],
     [ 123, 0, "csv-java23"      ],
@@ -139,6 +142,7 @@ my @test = (
     [ 108, 0, "csv-java8"       ],
     [ 107, 0, "csv-java7"       ],
     [ 106, 0, "csv-java6"       ],
+    [ 226, 0, "csv-java26ac"    ],
     [ 225, 0, "csv-java25ac"    ],
     [ 224, 0, "csv-java24ac"    ],
     [ 223, 0, "csv-java23ac"    ],
