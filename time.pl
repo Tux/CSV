@@ -3,7 +3,7 @@
 use 5.026002;
 use warnings;
 
-our $VERSION = "0.79 - 2026-04-09";
+our $VERSION = "0.80 - 2026-04-17";
 our $CMD = $0 =~ s{.*/}{}r;
 
 sub usage {
@@ -76,6 +76,7 @@ my %lang = (
     124 => [ "",     "java24",    "-cp csv-java24.jar:opencsv-2.3.jar csvJava" ],
     125 => [ "",     "java25",    "-cp csv-java25.jar:opencsv-2.3.jar csvJava" ],
     126 => [ "",     "java26",    "-cp csv-java26.jar:opencsv-2.3.jar csvJava" ],
+    127 => [ "",     "java27",    "-cp csv-java27.jar:opencsv-2.3.jar csvJava" ],
     208 => [ "",     "ac_java8",  "-cp csv-java8.jar:opencsv-2.3.jar csvJava"  ],
     211 => [ "",     "ac_java11", "-cp csv-java11.jar:opencsv-2.3.jar csvJava" ],
     215 => [ "",     "ac_java15", "-cp csv-java15.jar:opencsv-2.3.jar csvJava" ],
@@ -121,6 +122,7 @@ my @test = (
     [   3, 0, "csv-python3"     ],
     [   2, 0, "csv-python2"     ],
     [   4, 0, "csv-php"         ],
+    [ 127, 0, "csv-java27"      ],
     [ 126, 0, "csv-java26"      ],
     [ 125, 0, "csv-java25"      ],
     [ 124, 0, "csv-java24"      ],
