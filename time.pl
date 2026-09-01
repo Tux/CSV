@@ -3,7 +3,7 @@
 use 5.026002;
 use warnings;
 
-our $VERSION = "0.81 - 2026-06-22";
+our $VERSION = "0.82 - 2026-09-01";
 our $CMD = $0 =~ s{.*/}{}r;
 
 sub usage {
@@ -92,6 +92,12 @@ my %lang = (
     224 => [ "",     "ac_java24", "-cp csv-java24.jar:opencsv-2.3.jar csvJava" ],
     225 => [ "",     "ac_java25", "-cp csv-java25.jar:opencsv-2.3.jar csvJava" ],
     226 => [ "",     "ac_java26", "-cp csv-java26.jar:opencsv-2.3.jar csvJava" ],
+    227 => [ "",     "ac_java27", "-cp csv-java27.jar:opencsv-2.3.jar csvJava" ],
+    324 => [ "",     "java24",    "-cp csv5-java24.jar:opencsv-5.12.0.jar:/usr/share/java/apache-commons-lang3.jar csvJava" ],
+    326 => [ "",     "java26",    "-cp csv5-java26.jar:opencsv-5.12.0.jar:/usr/share/java/apache-commons-lang3.jar csvJava" ],
+    328 => [ "",     "java28",    "-cp csv5-java28.jar:opencsv-5.12.0.jar:/usr/share/java/apache-commons-lang3.jar csvJava" ],
+    424 => [ "",     "ac_java24", "-cp csv5-java24.jar:opencsv-5.12.0.jar:/usr/share/java/apache-commons-lang3.jar csvJava" ],
+    426 => [ "",     "ac_java26", "-cp csv5-java26.jar:opencsv-5.12.0.jar:/usr/share/java/apache-commons-lang3.jar csvJava" ],
     );
 my @test = (
     # lang irc script
@@ -146,6 +152,7 @@ my @test = (
     [ 108, 0, "csv-java8"       ],
     [ 107, 0, "csv-java7"       ],
     [ 106, 0, "csv-java6"       ],
+    [ 227, 0, "csv-java27ac"    ],
     [ 226, 0, "csv-java26ac"    ],
     [ 225, 0, "csv-java25ac"    ],
     [ 224, 0, "csv-java24ac"    ],
@@ -160,6 +167,11 @@ my @test = (
     [ 215, 0, "csv-java15ac"    ],
     [ 211, 0, "csv-java11ac"    ],
     [ 208, 0, "csv-java8ac"     ],
+    [ 324, 0, "csv5-java24"     ],
+    [ 326, 0, "csv5-java26"     ],
+    [ 328, 0, "csv5-java28"     ],
+    [ 424, 0, "csv5-java24"     ],
+    [ 426, 0, "csv5-java26"     ],
     [   8, 0, "csv-go"          ],
     [  50, 0, "csv-R"           ],
     [  54, 0, "csv-julia"       ],

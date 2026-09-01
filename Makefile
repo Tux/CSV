@@ -1,7 +1,11 @@
 # ex:se inputtab=tab autotab:
 
-.PHONY:         test test-verbose profile time tt doc
+.PHONY:         test test-verbose profile time tt doc csv-java.jar csv5-java.jar
 .PRECIOUS:      test-t.pl
+
+JV   ?= 28
+JAVAC = javac$(JV)
+JAVA  = java$(JV)
 
 test:
 	@perl bugs.pl -s
@@ -45,6 +49,11 @@ test-verbose:	lib/Text/CSV.rakumod
 	raku -I. -Ilib t/92_csv_encoding.t
 	raku -I. -Ilib t/99_meta.t
 
+/tmp/hello.csv:
+	(for i in {1..10000}; do echo 'hello,","," ",world,"!"'; done) >/tmp/hello.csv
+/tmp/hello20.csv:       /tmp/hello.csv
+	(for i in {1..20};    do cat /tmp/hello.csv; done) >/tmp/hello20.csv
+
 profile:
 	raku -Ilib --profile test-t.pl < /tmp/hello.csv
 	mv profile-[0-9]* profile.html
@@ -52,7 +61,7 @@ profile:
 check:
 	head -5 /tmp/hello.csv | raku -Ilib test-t.pl
 
-time:
+time:   /tmp/hello.csv /tmp/hello20.csv
 	perl time.pl
 
 dist:
@@ -83,15 +92,28 @@ doc/Text-CSV.3:		doc/Text-CSV.pod
 doc/Text-CSV.man:	doc/Text-CSV.3
 	nroff -mandoc < doc/Text-CSV.3    > doc/Text-CSV.man
 
+# https://opencsv.sourceforge.net/
+# https://sourceforge.net/projects/opencsv/files/opencsv/
+# https://sourceforge.net/projects/opencsv/files/opencsv/5.12.0/opencsv-5.12.0.jar/download
 opencsv-2.3.jar:
 	test -f opencsv-2.3.jar || wget -q http://www.java2s.com/Code/JarDownload/opencsv/opencsv-2.3.jar.zip
 	test -f opencsv-2.3.jar || unzip opencsv-2.3.jar.zip
 	-@rm opencsv-2.3.jar.zip
 
-# If you have more than one java version, just use this as a guide
-csv-java.jar:	csvJava.java opencsv-2.3.jar
-	javac -cp opencsv-2.3.jar csvJava.java
-	zip -9 csv-java.jar csvJava.class
+# make csv-java.jar JV=28
+csv-java.jar:
+	-cp -p csvJava-2.3.java csvJava.java
+	$(JAVAC) -cp opencsv-2.3.jar csvJava.java
+	zip -9 csv-$(JAVA).jar csvJava.class
+	-@rm -f csvJava.class csvJava.java
+
+# javac28 -cp opencsv-5.12.0.jar:/usr/share/java/apache-commons-lang3.jar csvJava.java
+# make csv5-java.jar JV=28
+csv5-java.jar:
+	-cp -p csvJava-5.12.java csvJava.java
+	$(JAVAC) -cp opencsv-5.12.0.jar:/usr/share/java/apache-commons-lang3.jar csvJava.java
+	zip -9 csv5-$(JAVA).jar csvJava.class
+	-@rm -f csvJava.class csvJava.java
 
 csv-c:	csv-c.c
 	cc -O3 -s -o csv-c csv-c.c -lcsv3
