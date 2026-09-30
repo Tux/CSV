@@ -1,6 +1,6 @@
 # ex:se inputtab=tab autotab:
 
-.PHONY:         test test-verbose profile time tt doc csv-java.jar csv5-java.jar
+.PHONY:         test test-verbose profile time tt doc csv-java.jar csv5-java.jar julia
 .PRECIOUS:      test-t.pl
 
 JV   ?= 28
@@ -123,3 +123,6 @@ csv-cc: csv-cc.cc
 
 csv-go: csv-go.go
 	go build csv-go.go
+
+julia:  csv.jl
+	julia csv.jl

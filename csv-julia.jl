@@ -2,7 +2,7 @@ using CSV
 
 function countCSVfields(file)
     n = 0
-    for row in CSV.Rows(file; reusebuffer=true)
+    for row in CSV.Rows(file; header=0, reusebuffer=true)
         n += length(row)
         end
     return n
