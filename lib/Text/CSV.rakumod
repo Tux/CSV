@@ -1895,9 +1895,14 @@ class Text::CSV {
             }
 
         if ($io-in ~~ IO::Handle and $io-in.defined) {
-            @in = $fragment
-                ?? self.fragment    ($io-in, :$meta, $fragment)
-                !! self.getline_all ($io-in, :$meta);
+            if ($fragment) {
+                @in = self.fragment ($io-in, :$meta, $fragment);
+                # Columns are already selected, do not re-apply on output
+                self.colrange (Str);
+                }
+            else {
+                @in = self.getline_all ($io-in, :$meta);
+                }
             }
 
         my @h;
