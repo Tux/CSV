@@ -128,7 +128,7 @@ for    (Str,            # No spec at all
     my $e;
     my @r;
     {   @r = $csv.fragment (Text::IO::String.new (""), $spec);
-        CATCH { default { $e = $_; 1; }}
+        CATCH { default { $e = $_ }}
         }
     #$csv.error-diag;
     $e ||= $csv.error-diag;

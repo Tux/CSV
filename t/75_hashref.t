@@ -30,7 +30,7 @@ $fh = open $tfn, :r, :!chomp;
 
 my $e;
 {   my $hr = $csv.getline_hr ($fh);
-    CATCH { default { $e = $_; 1; }}
+    CATCH { default { $e = $_ }}
     }
 is   (+$e, 3002,           "3002 - _hr call before column_names");
 like (~$e, rx{^ "EHR" >>}, "3002 - EHR");
